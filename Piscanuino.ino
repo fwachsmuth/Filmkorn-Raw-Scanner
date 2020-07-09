@@ -15,12 +15,17 @@
 #define STATE_PREVIEW 3
 #define STATE_RUN     4
 
+// Define the motor states
+#define MOTOR_REV -1
+#define MOTOR_STOPPED    0
+#define MOTOR_FWD   1
+
 // Define the Hardware wiring
 #define FAN_PIN         8
 #define LAMP_PIN        9
 #define MOTOR_A_PIN     6   // PWM
 #define MOTOR_B_PIN     5   // PWM
-#define TRIGGER_PIN     10
+#define TRIGGER_PIN    10
 #define RELAIS_PIN      7
 #define EYE_PIN         2   // ISR
 
@@ -31,10 +36,12 @@
 // Define some global variables
 uint8_t myState = STATE_IDLE;
 uint8_t prevState = STATE_IDLE;
-uint8_t lampMode = 0;
 uint8_t currentButton;
 uint8_t prevButtonChoice;
+int8_t motorState = MOTOR_STOPPED;
+bool    lampMode = false;
 bool    zoomMode = false;
+bool    isScanning = false;
 uint8_t speed = 0;
 
 void setup() {
@@ -63,69 +70,116 @@ void loop() {
 
   if (currentButton != prevButtonChoice) {
     prevButtonChoice = currentButton;
-  
-    switch (currentButton) {
-      case NONE:
-      break;
-      case ZOOM:
-        zoomMode = !zoomMode;
-        Serial.print("Zoom Mode is now ");
-        Serial.println(zoomMode);
-      break;
-      case LIGHT:
-        lampMode = !lampMode;
-        Serial.print("Lamp is now ");
-        Serial.println(lampMode);
-      break;
-      case STOP:
-        Serial.println("Stop");
-      break;
-      case REV:
-        Serial.println("<<");
-      break;
-      case REV1:
-        Serial.println("<");
-        speed--;
-        updateMotor();
-        
-      break;
-      case FWD1:
-        Serial.println(">");
-        speed++;
-        updateMotor();
-        
-      break;
-      case FWD:
-        Serial.println(">>");
-      break;
-      case SCAN:
-        Serial.println("Scanning");
-      break;
-      default:
-      break;
-    }
+
+    if (!isScanning || currentButton == STOP)
+      switch (currentButton) {
+        case NONE:
+        break;
+        case ZOOM:
+          setZoomMode(!zoomMode);
+        break;
+        case LIGHT:
+          setLampMode(!lampMode);
+        break;
+        case STOP:
+          if (isScanning) {
+            // ...
+            setLampMode(false);
+            isScanning = false;
+            Serial.println("Scanning mode: 0");
+          } else {
+            stopMotor();
+          }
+        break;
+        case REV:
+          if (motorState == MOTOR_FWD)
+            stopBriefly();
+          // ...
+          motorState = MOTOR_REV;
+          Serial.println("Motor: <<");
+        break;
+        case REV1:
+          if (motorState != MOTOR_STOPPED)
+            break;
+          // ...
+          Serial.println("<");
+        break;
+        case FWD1:
+          if (motorState != MOTOR_STOPPED)
+            break;
+          // ...
+          Serial.println(">");
+        break;
+        case FWD:
+          if (motorState == MOTOR_REV)
+            stopBriefly();
+          // ...
+          motorState = MOTOR_FWD;
+          Serial.println("Motor: >>");
+        break;
+        case SCAN:
+          if (motorState != MOTOR_STOPPED)
+            stopBriefly();
+          setZoomMode(false);
+          setLampMode(true);
+          isScanning = true;
+          Serial.println("Scanning mode: 1");
+        break;
+        default:
+        break;
+      }
   }
   
 }
 
-void updateMotor() {
-  analogWrite(MOTOR_A_PIN, speed);
-  Serial.println(speed);
+void stopMotor() {
+  // ...
+  motorState = MOTOR_STOPPED;
+  Serial.println("Motor: Stop");
 }
 
-//void motorFWD1() {
-//  attachInterrupt(digitalPinToInterrupt(EYE_PIN), motorStopISR, RISING);
-//  analogWrite(MOTOR_A_PIN, 200);
-//  analogWrite(MOTOR_B_PIN, 200);
-//  digitalWrite(MOTOR_A_PIN, HIGH);
-//  digitalWrite(MOTOR_B_PIN, LOW);
-//  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
-//}
-//
-//void motorStopISR() {
-//  digitalWrite(MOTOR_A_PIN, LOW);
-//  digitalWrite(MOTOR_B_PIN, LOW);
-//}
+void stopBriefly() {
+  stopMotor();
+  delay(1000);
+}
+
+void setLampMode(bool mode) {
+  if (mode == lampMode)
+    return;
+  if (!mode && zoomMode)
+    setZoomMode(false);
+  // ...
+  lampMode = mode;
+  Serial.print("Lamp mode: ");
+  Serial.println(lampMode);
+}
+
+void setZoomMode(bool mode) {
+  if (mode == zoomMode)
+    return;
+  if (mode && !lampMode)
+    setLampMode(true);
+  // ...
+  zoomMode = mode;
+  Serial.print("Zoom mode: ");
+  Serial.println(zoomMode);
+}
+
+/* 
+void motorFWD1() {
+  attachInterrupt(digitalPinToInterrupt(EYE_PIN), motorStopISR, RISING);
+  analogWrite(MOTOR_A_PIN, 200);
+  analogWrite(MOTOR_B_PIN, 200);
+  digitalWrite(MOTOR_A_PIN, HIGH);
+  digitalWrite(MOTOR_B_PIN, LOW);
+  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
+}
+
+void motorStopISR() {
+  digitalWrite(MOTOR_A_PIN, LOW);
+  digitalWrite(MOTOR_B_PIN, LOW);
+}
+*/
 
 int pollButtons() {
   int buttonBankA;
