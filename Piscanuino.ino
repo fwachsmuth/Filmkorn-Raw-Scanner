@@ -1,3 +1,19 @@
+/* 
+ *  Controller for the Noris based Film Scanner
+ *  
+ *  Todo:
+ *  - Add I2C Communication with the Raspi
+ *  - Switch to 3.3V / 8 MHz Arduino but **power it on Raw!**
+ *  - Measure 5V on Fan and Buck Out
+ *  - Draw Schematics already
+ *    
+ *  Ideas: 
+ *  - Put Trimpot(s) on open A2/A3 to allow setting base speeds
+ *  
+ */
+
+
+
 // Define the Control Buttons
 #define NONE  0 // No Button pressed
 #define ZOOM  1 // Toggle 
@@ -25,20 +41,22 @@
 #define LAMP_PIN        9
 #define MOTOR_A_PIN     6   // PWM
 #define MOTOR_B_PIN     5   // PWM
-#define TRIGGER_PIN    10
-#define RELAIS_PIN      7
+#define TRIGGER_PIN     7
 #define EYE_PIN         2   // ISR
-
 #define BUTTONS_A_PIN   A0
 #define BUTTONS_B_PIN   A1
 
+// Define some constants
+const uint8_t  singleFrameMotorPower = 170; // 255 would be full power
+const uint8_t  fps18MotorPower = 200;
+const uint8_t  fps24MotorPower = 220;
 
 // Define some global variables
 uint8_t myState = STATE_IDLE;
 uint8_t prevState = STATE_IDLE;
 uint8_t currentButton;
 uint8_t prevButtonChoice;
-int8_t motorState = MOTOR_STOPPED;
+int8_t  motorState = MOTOR_STOPPED;
 bool    lampMode = false;
 bool    zoomMode = false;
 bool    isScanning = false;
@@ -54,7 +72,6 @@ void setup() {
   pinMode(MOTOR_A_PIN, OUTPUT);
   pinMode(MOTOR_B_PIN, OUTPUT);
   pinMode(TRIGGER_PIN, OUTPUT);
-  pinMode(RELAIS_PIN, OUTPUT);
   pinMode(EYE_PIN, INPUT);
 
 //  attachInterrupt(digitalPinToInterrupt(EYE_PIN), motorStopISR, RISING);
@@ -83,10 +100,10 @@ void loop() {
         break;
         case STOP:
           if (isScanning) {
-            // ...
             setLampMode(false);
             isScanning = false;
             Serial.println("Scanning mode: 0");
+            // ...
           } else {
             stopMotor();
           }
@@ -94,28 +111,28 @@ void loop() {
         case REV:
           if (motorState == MOTOR_FWD)
             stopBriefly();
-          // ...
           motorState = MOTOR_REV;
           Serial.println("Motor: <<");
+          motorRev();
         break;
         case REV1:
           if (motorState != MOTOR_STOPPED)
             break;
-          // ...
           Serial.println("<");
+          motorREV1();
         break;
         case FWD1:
           if (motorState != MOTOR_STOPPED)
             break;
-          // ...
           Serial.println(">");
+          motorFWD1();
         break;
         case FWD:
           if (motorState == MOTOR_REV)
             stopBriefly();
-          // ...
           motorState = MOTOR_FWD;
           Serial.println("Motor: >>");
+          motorFwd();
         break;
         case SCAN:
           if (motorState != MOTOR_STOPPED)
@@ -124,23 +141,33 @@ void loop() {
           setLampMode(true);
           isScanning = true;
           Serial.println("Scanning mode: 1");
+          // ...
         break;
         default:
         break;
       }
   }
-  
 }
 
 void stopMotor() {
   // ...
   motorState = MOTOR_STOPPED;
   Serial.println("Motor: Stop");
+  
+  /* 
+  Enable the below three lines if breaking makes sense
+  digitalWrite(MOTOR_A_PIN, HIGH);
+  digitalWrite(MOTOR_B_PIN, HIGH);
+  delay(30);
+  */
+  digitalWrite(MOTOR_A_PIN, LOW);
+  digitalWrite(MOTOR_B_PIN, LOW);
 }
 
 void stopBriefly() {
+  // This makes direct direction changes less harsh
   stopMotor();
-  delay(1000);
+  delay(200);
 }
 
 void setLampMode(bool mode) {
@@ -148,10 +175,17 @@ void setLampMode(bool mode) {
     return;
   if (!mode && zoomMode)
     setZoomMode(false);
-  // ...
   lampMode = mode;
   Serial.print("Lamp mode: ");
   Serial.println(lampMode);
+
+  if (lampMode) {
+    digitalWrite(FAN_PIN, HIGH);
+    digitalWrite(LAMP_PIN, HIGH);
+  } else {
+    digitalWrite(FAN_PIN, LOW);
+    digitalWrite(LAMP_PIN, LOW);
+  }
 }
 
 void setZoomMode(bool mode) {
@@ -159,27 +193,45 @@ void setZoomMode(bool mode) {
     return;
   if (mode && !lampMode)
     setLampMode(true);
-  // ...
+
   zoomMode = mode;
   Serial.print("Zoom mode: ");
-  Serial.println(zoomMode);
+  Serial.print(zoomMode);
+
+  if (zoomMode) {
+    Serial.println(". Telling Raspi to zoom in");
+  } else {
+    Serial.println(". Telling Raspi to zoom out");
+  }
 }
 
-/* 
 void motorFWD1() {
-  attachInterrupt(digitalPinToInterrupt(EYE_PIN), motorStopISR, RISING);
-  analogWrite(MOTOR_A_PIN, 200);
-  analogWrite(MOTOR_B_PIN, 200);
-  digitalWrite(MOTOR_A_PIN, HIGH);
-  digitalWrite(MOTOR_B_PIN, LOW);
+  attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, RISING);
+  analogWrite(MOTOR_A_PIN, singleFrameMotorPower);
+  analogWrite(MOTOR_B_PIN, 0);
   detachInterrupt(digitalPinToInterrupt(EYE_PIN));
 }
 
-void motorStopISR() {
-  digitalWrite(MOTOR_A_PIN, LOW);
-  digitalWrite(MOTOR_B_PIN, LOW);
+void motorREV1() {
+  attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, RISING);
+  analogWrite(MOTOR_A_PIN, 0);
+  analogWrite(MOTOR_B_PIN, singleFrameMotorPower);
+  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
 }
-*/
+
+void motorFwd() {
+  analogWrite(MOTOR_A_PIN, fps18MotorPower);
+  analogWrite(MOTOR_B_PIN, 0);
+}
+
+void motorRev() {
+  analogWrite(MOTOR_A_PIN, 0);
+  analogWrite(MOTOR_B_PIN, fps18MotorPower);
+}
+
+void stopMotorISR() {
+  stopMotor();
+}
 
 int pollButtons() {
   int buttonBankA;
