@@ -78,10 +78,9 @@ void setup() {
 
 //  attachInterrupt(digitalPinToInterrupt(EYE_PIN), motorStopISR, RISING);
 
-  
-  // Temp Motor Testing
+  // Stop the engines
   analogWrite(MOTOR_A_PIN, 0);
-  digitalWrite(MOTOR_B_PIN, LOW);
+  analogWrite(MOTOR_B_PIN, 0);
 }
 
 void loop() {
@@ -158,18 +157,19 @@ void stopMotor() {
   
   /* 
   Enable the below three lines if breaking makes sense
+  */
   digitalWrite(MOTOR_A_PIN, HIGH);
   digitalWrite(MOTOR_B_PIN, HIGH);
-  delay(30);
-  */
-  digitalWrite(MOTOR_A_PIN, LOW);
-  digitalWrite(MOTOR_B_PIN, LOW);
+//  delay(10); // geht nicht im ISR und hier sind wir ggf im ISR!
+//  digitalWrite(MOTOR_A_PIN, LOW);
+//  digitalWrite(MOTOR_B_PIN, LOW);
 }
 
 void stopBriefly() {
   // This makes direct direction changes less harsh
   stopMotor();
-  delay(200);
+  Serial.println("(Briefly...)");
+  delay(250);
 }
 
 void setLampMode(bool mode) {
@@ -211,14 +211,13 @@ void motorFWD1() {
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, RISING);
   analogWrite(MOTOR_A_PIN, singleFrameMotorPower);
   analogWrite(MOTOR_B_PIN, 0);
-  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
+  
 }
 
 void motorREV1() {
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, RISING);
   analogWrite(MOTOR_A_PIN, 0);
   analogWrite(MOTOR_B_PIN, singleFrameMotorPower);
-  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
 }
 
 void motorFwd() {
@@ -232,6 +231,7 @@ void motorRev() {
 }
 
 void stopMotorISR() {
+  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
   stopMotor();
 }
 
