@@ -3,9 +3,11 @@
  *  
  *  Todo:
  *  - Add I2C Communication with the Raspi
- *  - Switch to 3.3V / 8 MHz Arduino but **power it on Raw!**
- *  - Measure 5V on Fan and Buck Out
+ *  - FInd out why I can't program inside the board
+ *  Is the USB Friend really borked?
+ *  
  *  - Draw Schematics already
+ *  
  *    
  *  Ideas: 
  *  - Put Trimpot(s) on open A2/A3 to allow setting base speeds
@@ -18,9 +20,9 @@
 #define NONE  0 // No Button pressed
 #define ZOOM  1 // Toggle 
 #define LIGHT 2 // Toggle 
-#define STOP  3 // Radio 
-#define REV   4 // Radio 
-#define REV1  5 // Push 
+#define REV   3 // Radio 
+#define REV1  4 // Push 
+#define STOP  5 // Radio 
 #define FWD1  6 // Push 
 #define FWD   7 // Radio 
 #define SCAN  8 // Radio 
@@ -242,6 +244,7 @@ int pollButtons() {
   buttonBankA = analogRead(A0);
   buttonBankB = analogRead(A1);
 
+
   if (noButtonPressed == true) {    
     if (buttonBankA < 2 && buttonBankB < 2) {
       buttonChoice = NONE;
@@ -250,13 +253,13 @@ int pollButtons() {
     } else if (buttonBankA > 120 && buttonBankA < 160) {
       buttonChoice = LIGHT;
     } else if (buttonBankA > 290 && buttonBankA < 330) {
-      buttonChoice = STOP;
-    } else if (buttonBankA > 990)                      {
       buttonChoice = REV;
+    } else if (buttonBankA > 990)                      {
+      buttonChoice = REV1;
     }
     
     if (buttonBankB > 30 && buttonBankB < 70)          {
-      buttonChoice = REV1;
+      buttonChoice = STOP;
     } else if (buttonBankB > 120 && buttonBankB < 160) {
       buttonChoice = FWD1;
     } else if (buttonBankB > 290 && buttonBankB < 330) {
