@@ -2,6 +2,10 @@
  *  Controller for the Noris based Film Scanner
  *  
  *  Todo:
+ *  - Weird Bug Combo:
+ *    - When the projector ever ran OR the Eye saw black, the ISR no longer kicks in (doesn't see a "RISING")
+ *    - Single < presses often get ignored, even though the Ain reads 1023
+ *    
  *  - Add I2C Communication with the Raspi
  *  - FInd out why I can't program inside the board
  *  Is the USB Friend really borked?
@@ -49,19 +53,21 @@
 #define BUTTONS_B_PIN   A1
 
 // Define some constants
-const uint8_t  singleFrameMotorPower = 170; // 255 would be full power
-const uint8_t  fps18MotorPower = 200;
-const uint8_t  fps24MotorPower = 220;
+const uint8_t  singleFrameMotorPower = 185; // 255 would be full power
+const uint8_t  fps18MotorPower = 180;
+const uint8_t  fps24MotorPower = 200;
 
 // Define some global variables
 uint8_t myState = STATE_IDLE;
 uint8_t prevState = STATE_IDLE;
 uint8_t currentButton;
 uint8_t prevButtonChoice;
-int8_t  motorState = MOTOR_STOPPED;
+volatile int8_t  motorState = MOTOR_STOPPED;
 bool    lampMode = false;
 bool    zoomMode = false;
 bool    isScanning = false;
+bool    detachISR = false;
+uint8_t ISRcount = 0;
 uint8_t speed = 0;
 
 void setup() {
@@ -85,6 +91,13 @@ void setup() {
 
 void loop() {
   currentButton = pollButtons();
+
+  if (detachISR) { 
+    Serial.print("Detaching ISR: ");
+    Serial.println(ISRcount);
+    detachInterrupt(digitalPinToInterrupt(EYE_PIN));
+    detachISR = false;
+  }
 
   if (currentButton != prevButtonChoice) {
     prevButtonChoice = currentButton;
@@ -117,8 +130,10 @@ void loop() {
           motorRev();
         break;
         case REV1:
-          if (motorState != MOTOR_STOPPED)
+          if (motorState != MOTOR_STOPPED) {
+            Serial.println("Motor not stopped.");
             break;
+          }
           Serial.println("<");
           motorREV1();
         break;
@@ -209,6 +224,7 @@ void setZoomMode(bool mode) {
 
 void motorFWD1() {
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, RISING);
+  digitalWrite(13, HIGH);
   analogWrite(MOTOR_A_PIN, singleFrameMotorPower);
   analogWrite(MOTOR_B_PIN, 0);
   
@@ -216,6 +232,7 @@ void motorFWD1() {
 
 void motorREV1() {
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, RISING);
+  digitalWrite(13, HIGH);
   analogWrite(MOTOR_A_PIN, 0);
   analogWrite(MOTOR_B_PIN, singleFrameMotorPower);
 }
@@ -231,8 +248,13 @@ void motorRev() {
 }
 
 void stopMotorISR() {
-  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
-  stopMotor();
+  ISRcount++;
+  digitalWrite(13, LOW);
+  motorState = MOTOR_STOPPED;
+  digitalWrite(MOTOR_A_PIN, HIGH);
+  digitalWrite(MOTOR_B_PIN, HIGH);
+  detachISR = true;
+//  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
 }
 
 int pollButtons() {
