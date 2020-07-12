@@ -3,7 +3,6 @@
  *  
  *  Todo:
  *  - Weird Bug Combo:
- *    - When the projector ever ran OR the Eye saw black, the ISR no longer kicks in (doesn't see a "RISING")
  *    - Single < presses often get ignored, even though the Ain reads 1023
  *    
  *  - Add I2C Communication with the Raspi
@@ -80,9 +79,6 @@ void setup() {
   pinMode(MOTOR_B_PIN, OUTPUT);
   pinMode(TRIGGER_PIN, OUTPUT);
   pinMode(EYE_PIN, INPUT);
-  digitalWrite(EYE_PIN, LOW);
-
-//  attachInterrupt(digitalPinToInterrupt(EYE_PIN), motorStopISR, RISING);
 
   // Stop the engines
   analogWrite(MOTOR_A_PIN, 0);
@@ -150,7 +146,7 @@ void loop() {
           setLampMode(true);
           isScanning = true;
           Serial.println("Scanning mode: 1");
-          // ...
+          // ... (don't forget to detach ISR)
         break;
         default:
         break;
@@ -216,6 +212,7 @@ void setZoomMode(bool mode) {
 }
 
 void motorFWD1() {
+  EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, RISING);
   digitalWrite(13, HIGH);
   analogWrite(MOTOR_A_PIN, singleFrameMotorPower);
@@ -224,6 +221,7 @@ void motorFWD1() {
 }
 
 void motorREV1() {
+  EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, RISING);
   digitalWrite(13, HIGH);
   analogWrite(MOTOR_A_PIN, 0);
