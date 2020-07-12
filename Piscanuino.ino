@@ -9,10 +9,6 @@
  *  
  *  - Draw Schematics already
  *  
- *    
- *  Ideas: 
- *  - Put Trimpot(s) on open A2/A3 to allow setting base speeds
- *  
  */
 
 
@@ -48,11 +44,13 @@
 #define EYE_PIN         2   // ISR
 #define BUTTONS_A_PIN   A0
 #define BUTTONS_B_PIN   A1
+#define SINGLE_STEP_POT A2
+#define CONT_RUN_POT    A3
+
 
 // Define some constants
-const uint8_t  singleFrameMotorPower = 185; // 255 would be full power
-const uint8_t  fps18MotorPower = 180;
-const uint8_t  fps24MotorPower = 200;
+uint8_t  fps18MotorPower;
+uint8_t  singleStepMotorPower;
 
 // Define some global variables
 uint8_t myState = STATE_IDLE;
@@ -71,6 +69,8 @@ void setup() {
   Serial.begin(115200);
   pinMode(BUTTONS_A_PIN, INPUT);
   pinMode(BUTTONS_B_PIN, INPUT);
+  pinMode(SINGLE_STEP_POT, INPUT);
+  pinMode(CONT_RUN_POT, INPUT);
   pinMode(FAN_PIN, OUTPUT);
   pinMode(LAMP_PIN, OUTPUT);
   pinMode(MOTOR_A_PIN, OUTPUT);
@@ -84,6 +84,11 @@ void setup() {
 }
 
 void loop() {
+
+  // Read the trim pots to determine PWM width for the Motor
+  fps18MotorPower = map(analogRead(CONT_RUN_POT), 0, 1023, 100, 255); // 100 since lower values don't start the motor
+  singleStepMotorPower = map(analogRead(SINGLE_STEP_POT), 0, 1023, 100, 255);
+  
   currentButton = pollButtons();
 
   if (currentButton != prevButtonChoice) {
@@ -212,8 +217,7 @@ void setZoomMode(bool mode) {
 void motorFWD1() {
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, RISING);
-  digitalWrite(13, HIGH);
-  analogWrite(MOTOR_A_PIN, singleFrameMotorPower);
+  analogWrite(MOTOR_A_PIN, singleStepMotorPower);
   analogWrite(MOTOR_B_PIN, 0);
   
 }
@@ -221,9 +225,8 @@ void motorFWD1() {
 void motorREV1() {
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, RISING);
-  digitalWrite(13, HIGH);
   analogWrite(MOTOR_A_PIN, 0);
-  analogWrite(MOTOR_B_PIN, singleFrameMotorPower);
+  analogWrite(MOTOR_B_PIN, singleStepMotorPower);
 }
 
 void motorFwd() {
@@ -239,8 +242,6 @@ void motorRev() {
 }
 
 void stopMotorISR() {
-  ISRcount++;
-  digitalWrite(13, LOW);
   motorState = MOTOR_STOPPED;
   digitalWrite(MOTOR_A_PIN, HIGH);
   digitalWrite(MOTOR_B_PIN, HIGH);
