@@ -2,8 +2,6 @@
  *  Controller for the Noris based Film Scanner
  *  
  *  Todo:
- *  - Weird Bug Combo:
- *    - Single < presses often get ignored, even though the Ain reads 1023
  *    
  *  - Add I2C Communication with the Raspi
  *  - FInd out why I can't program inside the board
@@ -257,8 +255,8 @@ int pollButtons() {
   
   buttonBankA = analogRead(A0);
   buttonBankB = analogRead(A1);
-
-
+  delay(2); // debounce (since button release bounce is not covered in the FSM)
+  
   if (noButtonPressed == true) {    
     if (buttonBankA < 2 && buttonBankB < 2) {
       buttonChoice = NONE;
