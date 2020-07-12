@@ -86,8 +86,8 @@ void setup() {
 void loop() {
 
   // Read the trim pots to determine PWM width for the Motor
-  fps18MotorPower = map(analogRead(CONT_RUN_POT), 0, 1023, 100, 255); // 100 since lower values don't start the motor
-  singleStepMotorPower = map(analogRead(SINGLE_STEP_POT), 0, 1023, 100, 255);
+  fps18MotorPower = map(analogRead(CONT_RUN_POT), 0, 1023, 255, 100); // 100 since lower values don't start the motor
+  singleStepMotorPower = map(analogRead(SINGLE_STEP_POT), 0, 1023, 255, 100);
   
   currentButton = pollButtons();
 
@@ -118,7 +118,8 @@ void loop() {
           if (motorState == MOTOR_FWD)
             stopBriefly();
           motorState = MOTOR_REV;
-          Serial.println("Motor: <<");
+          Serial.print("Motor: << at Speed ");
+          Serial.println(fps18MotorPower);
           motorRev();
         break;
         case REV1:
@@ -126,20 +127,23 @@ void loop() {
             Serial.println("Motor not stopped.");
             break;
           }
-          Serial.println("<");
+          Serial.print("< at Speed ");
+          Serial.println(singleStepMotorPower);
           motorREV1();
         break;
         case FWD1:
           if (motorState != MOTOR_STOPPED)
             break;
-          Serial.println(">");
+          Serial.print("> at Speed ");
+          Serial.println(singleStepMotorPower);
           motorFWD1();
         break;
         case FWD:
           if (motorState == MOTOR_REV)
             stopBriefly();
           motorState = MOTOR_FWD;
-          Serial.println("Motor: >>");
+          Serial.print("Motor: >> at Speed ");
+          Serial.println(fps18MotorPower);
           motorFwd();
         break;
         case SCAN:
@@ -256,7 +260,7 @@ int pollButtons() {
   
   buttonBankA = analogRead(A0);
   buttonBankB = analogRead(A1);
-  delay(2); // debounce (since button release bounce is not covered in the FSM)
+  delay(10); // debounce (since button release bounce is not covered in the FSM)
   
   if (noButtonPressed == true) {    
     if (buttonBankA < 2 && buttonBankB < 2) {
