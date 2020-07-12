@@ -66,7 +66,6 @@ volatile int8_t  motorState = MOTOR_STOPPED;
 bool    lampMode = false;
 bool    zoomMode = false;
 bool    isScanning = false;
-bool    detachISR = false;
 uint8_t ISRcount = 0;
 uint8_t speed = 0;
 
@@ -81,6 +80,7 @@ void setup() {
   pinMode(MOTOR_B_PIN, OUTPUT);
   pinMode(TRIGGER_PIN, OUTPUT);
   pinMode(EYE_PIN, INPUT);
+  digitalWrite(EYE_PIN, LOW);
 
 //  attachInterrupt(digitalPinToInterrupt(EYE_PIN), motorStopISR, RISING);
 
@@ -91,13 +91,6 @@ void setup() {
 
 void loop() {
   currentButton = pollButtons();
-
-  if (detachISR) { 
-    Serial.print("Detaching ISR: ");
-    Serial.println(ISRcount);
-    detachInterrupt(digitalPinToInterrupt(EYE_PIN));
-    detachISR = false;
-  }
 
   if (currentButton != prevButtonChoice) {
     prevButtonChoice = currentButton;
@@ -238,11 +231,13 @@ void motorREV1() {
 }
 
 void motorFwd() {
+  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
   analogWrite(MOTOR_A_PIN, fps18MotorPower);
   analogWrite(MOTOR_B_PIN, 0);
 }
 
 void motorRev() {
+  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
   analogWrite(MOTOR_A_PIN, 0);
   analogWrite(MOTOR_B_PIN, fps18MotorPower);
 }
@@ -253,7 +248,6 @@ void stopMotorISR() {
   motorState = MOTOR_STOPPED;
   digitalWrite(MOTOR_A_PIN, HIGH);
   digitalWrite(MOTOR_B_PIN, HIGH);
-  detachISR = true;
 //  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
 }
 
