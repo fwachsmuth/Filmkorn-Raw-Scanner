@@ -4,6 +4,20 @@
  *  Todo:
  *    
  *  - Add I2C Communication with the Raspi
+ *    - Receive something on the Raspi and show it.
+ *    - Make it a loop
+ *    - Implement commands on the Raspi:
+ *      - Zoom in
+ *      - Zoom out
+ *      - Take a Raw
+ *      - Say "I am ready for the next photo"
+ *      - 
+ *  Raspi Todos:   
+ *  - enter init 2 after boot
+ *  - /opt/vc/bin/tvservice -o # Display aus
+ *  - /opt/vc/bin/tvservice -p # Display an
+ *  
+ *    
  *  - FInd out why I can't program inside the board
  *  Is the USB Friend really borked?
  *  
@@ -11,7 +25,10 @@
  *  
  */
 
+#include <Wire.h>
+#include <WireData.h>
 
+const byte SLAVE_ADDRESS = 42;     // Our i2c address here
 
 // Define the Control Buttons
 #define NONE  0 // No Button pressed
@@ -47,6 +64,15 @@
 #define SINGLE_STEP_POT A2
 #define CONT_RUN_POT    A3
 
+// Define the I2C commands we need
+//                              Raspi      Arduino
+#define CMD_IDLE        0   /*        <---          */
+#define CMD_PING        1   /*        <---          */
+#define CMD_ZOOMCYCLE   2   /*        <---          */
+#define CMD_SHOOTRAW    3   /*        <---          */
+#define CMD_READY       4   /*        --->          */
+#define CMD_LAMP_ON     5   /*        <---          */
+#define CMD_LAMP_OFF    6   /*        <---          */
 
 // Define some constants
 uint8_t  fps18MotorPower;
@@ -63,6 +89,10 @@ bool    zoomMode = false;
 bool    isScanning = false;
 uint8_t ISRcount = 0;
 uint8_t speed = 0;
+uint8_t nextPiCmd;
+
+volatile bool haveI2Cdata = false;
+volatile uint8_t i2cCommand;
 
 void setup() {
   // put your setup code here, to run once:
@@ -81,6 +111,10 @@ void setup() {
   // Stop the engines
   analogWrite(MOTOR_A_PIN, 0);
   analogWrite(MOTOR_B_PIN, 0);
+
+  Wire.begin (SLAVE_ADDRESS);
+  Wire.onReceive(i2cReceive);
+  Wire.onRequest(i2cRequest);
 }
 
 void loop() {
@@ -267,8 +301,14 @@ int pollButtons() {
       buttonChoice = NONE;
     } else if (buttonBankA > 30 && buttonBankA < 70)          {
       buttonChoice = ZOOM;
+      nextPiCmd = CMD_ZOOMCYCLE;
     } else if (buttonBankA > 120 && buttonBankA < 160) {
       buttonChoice = LIGHT;
+      if (lampMode) {
+        nextPiCmd = CMD_LAMP_OFF;
+      } else {
+        nextPiCmd = CMD_LAMP_ON;
+      }
     } else if (buttonBankA > 290 && buttonBankA < 330) {
       buttonChoice = REV;
     } else if (buttonBankA > 990)                      {
@@ -283,6 +323,7 @@ int pollButtons() {
       buttonChoice = FWD;
     } else if (buttonBankB > 990)                      {
       buttonChoice = SCAN;
+      nextPiCmd = CMD_SHOOTRAW;
     }  
   }
   if (buttonBankA > 1 || buttonBankB > 1) {         // Stop reading values...
@@ -291,4 +332,23 @@ int pollButtons() {
     noButtonPressed = true;
   }
   return buttonChoice;
+}
+
+void i2cReceive (int howMany) {
+  if (howMany >= (sizeof i2cCommand)) {
+     wireReadData(i2cCommand);   
+     // wireReadData(i2cParameter);   
+     haveI2Cdata = true;     
+   }  // end if have enough data
+ }  // end of receive-ISR
+
+void i2cRequest () {
+  Wire.write(nextPiCmd);
+  nextPiCmd = CMD_IDLE; 
+}
+void tellRaspi(byte command) {
+  Wire.beginTransmission(8); // This needs the Raspi's address
+  wireWriteData(command);  
+  Wire.endTransmission();    // stop transmitting
+  // delay(20);
 }
