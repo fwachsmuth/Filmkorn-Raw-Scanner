@@ -44,8 +44,8 @@ const byte SLAVE_ADDRESS = 42;     // Our i2c address here
 // Define the States we can be in
 #define STATE_IDLE    1
 #define STATE_SCAN    2
-#define STATE_PREVIEW 3
-#define STATE_RUN     4
+// #define STATE_PREVIEW 3
+// #define STATE_RUN     4
 
 // Define the motor states
 #define MOTOR_REV -1
@@ -119,16 +119,24 @@ void setup() {
 
 void loop() {
 
+  if (isScanning && haveI2Cdata) {
+    if (i2cCommand == CMD_READY) {
+      motorFWD1();                // advance
+      delay(750);                // would be better to wait for the camera to be finished.
+      nextPiCmd = CMD_SHOOTRAW;   // tell to shoot
+    }
+  }
+
   // Read the trim pots to determine PWM width for the Motor
   fps18MotorPower = map(analogRead(CONT_RUN_POT), 0, 1023, 255, 100); // 100 since lower values don't start the motor
   singleStepMotorPower = map(analogRead(SINGLE_STEP_POT), 0, 1023, 255, 100);
-  
+
   currentButton = pollButtons();
 
   if (currentButton != prevButtonChoice) {
     prevButtonChoice = currentButton;
 
-    if (!isScanning || currentButton == STOP)
+    if (!isScanning || currentButton == STOP) {
       switch (currentButton) {
         case NONE:
         break;
@@ -192,6 +200,7 @@ void loop() {
         default:
         break;
       }
+    }
   }
 }
 
@@ -323,6 +332,7 @@ int pollButtons() {
       buttonChoice = FWD;
     } else if (buttonBankB > 990)                      {
       buttonChoice = SCAN;
+      // myState = STATE_SCAN;
       nextPiCmd = CMD_SHOOTRAW;
     }  
   }
