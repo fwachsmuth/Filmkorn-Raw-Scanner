@@ -1,56 +1,62 @@
-/* 
- *  Controller for the Noris based Film Scanner
- *  
- *  Todo:
- *    
- *  - Add I2C Communication with the Raspi
- *    - Receive something on the Raspi and show it.
- *    - Make it a loop
- *    - Implement commands on the Raspi:
- *      - Zoom in
- *      - Zoom out
- *      - Take a Raw
- *      - Say "I am ready for the next photo"
- *      - 
- *  Raspi Todos:   
- *  - enter init 2 after boot
- *  - /opt/vc/bin/tvservice -o # Display aus
- *  - /opt/vc/bin/tvservice -p # Display an
- *  
- *    
- *  - FInd out why I can't program inside the board
- *  Is the USB Friend really borked?
- *  
- *  - Draw Schematics already
- *  
+/*
+ * Controller for the Noris based Film Scanner
+ *
+ * Todo:
+ *
+ * - Add I2C Communication with the Raspi
+ *   - Receive something on the Raspi and show it.
+ *   - Make it a loop
+ *   - Implement commands on the Raspi:
+ *     - Zoom in
+ *     - Zoom out
+ *     - Take a Raw
+ *     - Say "I am ready for the next photo"
+ * Raspi Todos:
+ * - enter init 2 after boot
+ * - /opt/vc/bin/tvservice -o # Display aus
+ * - /opt/vc/bin/tvservice -p # Display an
+ *
+ *
+ * - FInd out why I can't program inside the board
+ * Is the USB Friend really borked?
+ *
+ * - Draw Schematics already
+ *
  */
 
 #include <Wire.h>
 #include <WireData.h>
 
-const byte SLAVE_ADDRESS = 42;     // Our i2c address here
+const byte SLAVE_ADDRESS = 42; // Our i2c address here
 
 // Define the Control Buttons
-#define NONE  0 // No Button pressed
-#define ZOOM  1 // Toggle 
-#define LIGHT 2 // Toggle 
-#define REV   3 // Radio 
-#define REV1  4 // Push 
-#define STOP  5 // Radio 
-#define FWD1  6 // Push 
-#define FWD   7 // Radio 
-#define SCAN  8 // Radio 
+enum ControlButton {
+  NONE,  // No Button pressed
+  ZOOM,  // Toggle
+  LIGHT, // Toggle
+  REV,   // Radio
+  REV1,  // Push
+  STOP,  // Radio
+  FWD1,  // Push
+  FWD,   // Radio
+  SCAN   // Radio
+} currentButton = NONE, prevButtonChoice = NONE;
 
-// Define the States we can be in
-#define STATE_IDLE    1
-#define STATE_SCAN    2
-// #define STATE_PREVIEW 3
-// #define STATE_RUN     4
+/* Define the States we can be in
+ * enum {
+ *   IDLE,
+ *   SCAN,
+ *   PREVIEW,
+ *   RUN
+ * } state = IDLE, prevState = IDLE;
+ */
 
 // Define the motor states
-#define MOTOR_REV -1
-#define MOTOR_STOPPED    0
-#define MOTOR_FWD   1
+enum {
+  REV = -1,
+  STOPPED,
+  FWD
+} motorState = STOPPED;
 
 // Define the Hardware wiring
 #define FAN_PIN         8
@@ -79,11 +85,6 @@ uint8_t  fps18MotorPower;
 uint8_t  singleStepMotorPower;
 
 // Define some global variables
-uint8_t myState = STATE_IDLE;
-uint8_t prevState = STATE_IDLE;
-uint8_t currentButton;
-uint8_t prevButtonChoice;
-volatile int8_t  motorState = MOTOR_STOPPED;
 bool    lampMode = false;
 bool    zoomMode = false;
 bool    isScanning = false;
@@ -112,19 +113,17 @@ void setup() {
   analogWrite(MOTOR_A_PIN, 0);
   analogWrite(MOTOR_B_PIN, 0);
 
-  Wire.begin (SLAVE_ADDRESS);
+  Wire.begin(SLAVE_ADDRESS);
   Wire.onReceive(i2cReceive);
   Wire.onRequest(i2cRequest);
 }
 
 void loop() {
 
-  if (isScanning && haveI2Cdata) {
-    if (i2cCommand == CMD_READY) {
-      motorFWD1();                // advance
-      delay(750);                // would be better to wait for the camera to be finished.
-      nextPiCmd = CMD_SHOOTRAW;   // tell to shoot
-    }
+  if (isScanning && haveI2Cdata && i2cCommand == CMD_READY) {
+    motorFWD1();                // advance
+    delay(750);                 // would be better to wait for the camera to be finished.
+    nextPiCmd = CMD_SHOOTRAW;   // tell to shoot
   }
 
   // Read the trim pots to determine PWM width for the Motor
@@ -139,13 +138,14 @@ void loop() {
     if (!isScanning || currentButton == STOP) {
       switch (currentButton) {
         case NONE:
-        break;
+        default:
+          break;
         case ZOOM:
           setZoomMode(!zoomMode);
-        break;
+          break;
         case LIGHT:
           setLampMode(!lampMode);
-        break;
+          break;
         case STOP:
           if (isScanning) {
             setLampMode(false);
@@ -155,50 +155,48 @@ void loop() {
           } else {
             stopMotor();
           }
-        break;
+          break;
         case REV:
-          if (motorState == MOTOR_FWD)
+          if (motorState == FWD)
             stopBriefly();
-          motorState = MOTOR_REV;
+          motorState = REV;
           Serial.print("Motor: << at Speed ");
           Serial.println(fps18MotorPower);
           motorRev();
-        break;
+          break;
         case REV1:
-          if (motorState != MOTOR_STOPPED) {
+          if (motorState != STOPPED) {
             Serial.println("Motor not stopped.");
             break;
           }
           Serial.print("< at Speed ");
           Serial.println(singleStepMotorPower);
           motorREV1();
-        break;
+          break;
         case FWD1:
-          if (motorState != MOTOR_STOPPED)
+          if (motorState != STOPPED)
             break;
           Serial.print("> at Speed ");
           Serial.println(singleStepMotorPower);
           motorFWD1();
-        break;
+          break;
         case FWD:
-          if (motorState == MOTOR_REV)
+          if (motorState == REV)
             stopBriefly();
-          motorState = MOTOR_FWD;
+          motorState = FWD;
           Serial.print("Motor: >> at Speed ");
           Serial.println(fps18MotorPower);
           motorFwd();
-        break;
+          break;
         case SCAN:
-          if (motorState != MOTOR_STOPPED)
+          if (motorState != STOPPED)
             stopBriefly();
           setZoomMode(false);
           setLampMode(true);
           isScanning = true;
           Serial.println("Scanning mode: 1");
           // ... (don't forget to detach ISR)
-        break;
-        default:
-        break;
+          break;
       }
     }
   }
@@ -206,12 +204,11 @@ void loop() {
 
 void stopMotor() {
   // ...
-  motorState = MOTOR_STOPPED;
+  motorState = STOPPED;
   Serial.println("Motor: Stop");
-  
-  /* 
-  Enable the below three lines if breaking makes sense
-  */
+
+  // Enable the below three lines if breaking makes sense
+
   digitalWrite(MOTOR_A_PIN, HIGH);
   digitalWrite(MOTOR_B_PIN, HIGH);
 //  delay(10); // geht nicht im ISR und hier sind wir ggf im ISR!
@@ -266,7 +263,6 @@ void motorFWD1() {
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, RISING);
   analogWrite(MOTOR_A_PIN, singleStepMotorPower);
   analogWrite(MOTOR_B_PIN, 0);
-  
 }
 
 void motorREV1() {
@@ -289,26 +285,26 @@ void motorRev() {
 }
 
 void stopMotorISR() {
-  motorState = MOTOR_STOPPED;
+  motorState = STOPPED;
   digitalWrite(MOTOR_A_PIN, HIGH);
   digitalWrite(MOTOR_B_PIN, HIGH);
 //  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
 }
 
-int pollButtons() {
+ControlButton pollButtons() {
   int buttonBankA;
   int buttonBankB;
   static bool noButtonPressed;
-  int buttonChoice;
-  
-  buttonBankA = analogRead(A0);
-  buttonBankB = analogRead(A1);
+  ControlButton buttonChoice;
+
+  buttonBankA = analogRead(BUTTONS_A_PIN);
+  buttonBankB = analogRead(BUTTONS_B_PIN);
   delay(10); // debounce (since button release bounce is not covered in the FSM)
-  
-  if (noButtonPressed == true) {    
+
+  if (noButtonPressed) {
     if (buttonBankA < 2 && buttonBankB < 2) {
       buttonChoice = NONE;
-    } else if (buttonBankA > 30 && buttonBankA < 70)          {
+    } else if (buttonBankA > 30 && buttonBankA < 70) {
       buttonChoice = ZOOM;
       nextPiCmd = CMD_ZOOMCYCLE;
     } else if (buttonBankA > 120 && buttonBankA < 160) {
@@ -320,21 +316,21 @@ int pollButtons() {
       }
     } else if (buttonBankA > 290 && buttonBankA < 330) {
       buttonChoice = REV;
-    } else if (buttonBankA > 990)                      {
+    } else if (buttonBankA > 990) {
       buttonChoice = REV1;
     }
-    
-    if (buttonBankB > 30 && buttonBankB < 70)          {
+
+    if (buttonBankB > 30 && buttonBankB < 70) {
       buttonChoice = STOP;
     } else if (buttonBankB > 120 && buttonBankB < 160) {
       buttonChoice = FWD1;
     } else if (buttonBankB > 290 && buttonBankB < 330) {
       buttonChoice = FWD;
-    } else if (buttonBankB > 990)                      {
+    } else if (buttonBankB > 990) {
       buttonChoice = SCAN;
       // myState = STATE_SCAN;
       nextPiCmd = CMD_SHOOTRAW;
-    }  
+    }
   }
   if (buttonBankA > 1 || buttonBankB > 1) {         // Stop reading values...
     noButtonPressed = false;
@@ -344,21 +340,21 @@ int pollButtons() {
   return buttonChoice;
 }
 
-void i2cReceive (int howMany) {
+void i2cReceive(int howMany) {
   if (howMany >= (sizeof i2cCommand)) {
-     wireReadData(i2cCommand);   
-     // wireReadData(i2cParameter);   
-     haveI2Cdata = true;     
-   }  // end if have enough data
- }  // end of receive-ISR
+    wireReadData(i2cCommand);
+    // wireReadData(i2cParameter);
+    haveI2Cdata = true;
+  }  // end if have enough data
+}  // end of receive-ISR
 
-void i2cRequest () {
+void i2cRequest() {
   Wire.write(nextPiCmd);
-  nextPiCmd = CMD_IDLE; 
+  nextPiCmd = CMD_IDLE;
 }
 void tellRaspi(byte command) {
   Wire.beginTransmission(8); // This needs the Raspi's address
-  wireWriteData(command);  
+  wireWriteData(command);
   Wire.endTransmission();    // stop transmitting
   // delay(20);
 }
