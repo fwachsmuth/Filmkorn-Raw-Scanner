@@ -19,8 +19,7 @@ def main():
         + os.path.join('..', '..', 'DNGs', '') + '<current dir name>)',
         metavar='<output dir>')
     parser.add_argument(
-        '--compress', help="33%% smaller files, \
-        288%% as much conversion time", action="store_true")
+        '--compress', help="33%% smaller files, 288%% as much conversion time", action="store_true")
     parser.add_argument(
         '--cinema-dng', help="generate output in the Adobe CinemaDNG format",
         action='store_true')
@@ -36,17 +35,22 @@ def main():
     if not os.path.exists(images_dir):
         raise FileNotFoundError("The input dir " + images_dir + " doesn't exist")
 
+    dir_name = os.path.basename(images_dir)
     if args.output:
         destination_dir = os.path.realpath(args.output)
     else:
-        destination_dir = os.path.join(os.path.dirname(os.path.dirname(images_dir)), 'DNGs', os.path.basename(images_dir))
+        destination_dir = os.path.join(os.path.dirname(
+            os.path.dirname(images_dir)), 'DNGs', dir_name)
         if args.cinema_dng:
-            destination_dir = os.path.join(destination_dir, 'CONTENTS', 'IMAGE', '000000')
+            destination_dir = os.path.join(
+                destination_dir, 'CONTENTS', 'IMAGE', '000000')
 
     if not os.path.exists(destination_dir):
         os.makedirs(destination_dir)
     elif args.cinema_dng:
-        raise FileExistsError("CinemaDNG '" + os.path.dirname(os.path.dirname(os.path.dirname(destination_dir))) + "' already exists")
+        raise FileExistsError(
+            "CinemaDNG '" + os.path.dirname(os.path.dirname(
+                os.path.dirname(destination_dir))) + "' already exists")
 
     if args.cinema_dng:
         if len(os.listdir(images_dir)) > 9999_9999:
@@ -64,7 +68,7 @@ def main():
                     if not os.path.exists(destination_dir):
                         os.mkdir(destination_dir)
 
-                destination_file = os.path.join(destination_dir, str(dng_number).zfill(4) + '.dng')
+                destination_file = os.path.join(destination_dir, dir_name + '_' + str(dng_number).zfill(4) + '.dng')
                 dng_number += 1
             else:
                 destination_file = os.path.join(destination_dir, file_name[:-3] + 'dng')

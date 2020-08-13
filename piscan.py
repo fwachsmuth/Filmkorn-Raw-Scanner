@@ -29,7 +29,7 @@ import typing
 from smbus import SMBus
 from picamera import PiCamera
 
-RAWS_PATH = '/home/pi/Pictures/raw-sequences/%05d.jpg'
+RAWS_PATH = '/home/pi/Pictures/raw-sequences/{:05d}.jpg'
 
 class Command(enum.Enum):
     IDLE = 0
@@ -139,7 +139,7 @@ def ask_arduino() -> typing.Optional[int]:
         print("No I2C answer")
 
 def shoot_raw():
-    camera.capture(RAWS_PATH % state.raw_count, format='jpeg', bayer=True)
+    camera.capture(RAWS_PATH.format(state.raw_count), format='jpeg', bayer=True)
     state.raw_count += 1
     print("One raw taken")
     say_ready()
