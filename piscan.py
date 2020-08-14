@@ -51,7 +51,7 @@ class State:
         self.raw_count = 0
 
     @property
-    def zoom_mode(self) -> int:
+    def zoom_mode(self) -> ZoomMode:
         return self._zoom_mode
 
     @zoom_mode.setter
@@ -114,27 +114,25 @@ def main():
 
 def loop():
     command = ask_arduino()
-    if command:
+    if command is not None and command != Command.IDLE:
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {
-            Command.ZOOM_CYCLE.value: state.cycle_zoom_mode,
-            Command.SHOOT_RAW.value: shoot_raw,
-            Command.READY.value: say_ready,
-            Command.LAMP_ON.value: state.lamp_on,
-            Command.LAMP_OFF.value: state.lamp_off
-        }[command]
+            Command.ZOOM_CYCLE: state.cycle_zoom_mode,
+            Command.SHOOT_RAW: shoot_raw,
+            Command.READY: say_ready,
+            Command.LAMP_ON: state.lamp_on,
+            Command.LAMP_OFF: state.lamp_off
+        }.get(command, None)
 
-        if func:
+        if func is not None:
             func()
-        else:
-            print("Invalid command: " + hex(command), file=sys.stderr)
 
 def tell_arduino(command: Command):
     arduino.write_byte(arduino_i2c_address, command.value)
 
-def ask_arduino() -> typing.Optional[int]:
+def ask_arduino() -> typing.Optional[Command]:
     try:
-        return arduino.read_byte(arduino_i2c_address)
+        return Command(arduino.read_byte(arduino_i2c_address))
     except:
         print("No I2C answer")
 
