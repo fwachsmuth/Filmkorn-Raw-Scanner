@@ -34,11 +34,11 @@ enum ControlButton {
   NONE,  // No Button pressed
   ZOOM,  // Toggle
   LIGHT, // Toggle
-  REV,   // Radio
+  RUNREV,   // Radio
   REV1,  // Push
   STOP,  // Radio
   FWD1,  // Push
-  FWD,   // Radio
+  RUNFWD,   // Radio
   SCAN   // Radio
 } currentButton = NONE, prevButtonChoice = NONE;
 
@@ -156,7 +156,7 @@ void loop() {
             stopMotor();
           }
           break;
-        case REV:
+        case RUNREV:
           if (motorState == FWD)
             stopBriefly();
           motorState = REV;
@@ -180,7 +180,7 @@ void loop() {
           Serial.println(singleStepMotorPower);
           motorFWD1();
           break;
-        case FWD:
+        case RUNFWD:
           if (motorState == REV)
             stopBriefly();
           motorState = FWD;
@@ -315,7 +315,7 @@ ControlButton pollButtons() {
         nextPiCmd = CMD_LAMP_ON;
       }
     } else if (buttonBankA > 290 && buttonBankA < 330) {
-      buttonChoice = REV;
+      buttonChoice = RUNREV;
     } else if (buttonBankA > 990) {
       buttonChoice = REV1;
     }
@@ -325,7 +325,7 @@ ControlButton pollButtons() {
     } else if (buttonBankB > 120 && buttonBankB < 160) {
       buttonChoice = FWD1;
     } else if (buttonBankB > 290 && buttonBankB < 330) {
-      buttonChoice = FWD;
+      buttonChoice = RUNFWD;
     } else if (buttonBankB > 990) {
       buttonChoice = SCAN;
       // myState = STATE_SCAN;
