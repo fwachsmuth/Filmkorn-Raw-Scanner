@@ -48,14 +48,14 @@ class ZoomMode(enum.Enum):
 class State:
     def __init__(self):
         self._zoom_mode = ZoomMode.Z1_1
-        self.raw_count
+        self.raw_count = 0
 
     @property
     def zoom_mode(self) -> int:
         return self._zoom_mode
 
     @zoom_mode.setter
-    def zoom_mode(self, value: int):
+    def zoom_mode(self, value: ZoomMode):
         self._zoom_mode = value
 
         # Using dicts instead of if/elif statements
@@ -75,7 +75,7 @@ class State:
         if (self._zoom_mode == ZoomMode.Z10_1):
             self.zoom_mode = ZoomMode.Z1_1
         else:
-            self.zoom_mode = self._zoom_mode + 1
+            self.zoom_mode = ZoomMode(self._zoom_mode.value + 1)
 
     def lamp_on(self):
         camera.start_preview()
@@ -117,11 +117,11 @@ def loop():
     if command:
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {
-            Command.ZOOM_CYCLE: state.cycle_zoom_mode,
-            Command.SHOOT_RAW: shoot_raw,
-            Command.READY: say_ready,
-            Command.LAMP_ON: lamp_on,
-            Command.LAMP_OFF: lamp_off
+            Command.ZOOM_CYCLE.value: state.cycle_zoom_mode,
+            Command.SHOOT_RAW.value: shoot_raw,
+            Command.READY.value: say_ready,
+            Command.LAMP_ON.value: state.lamp_on,
+            Command.LAMP_OFF.value: state.lamp_off
         }[command]
 
         if func:
@@ -129,8 +129,8 @@ def loop():
         else:
             print("Invalid command: " + hex(command), file=sys.stderr)
 
-def tell_arduino(command: int):
-    arduino.write_byte(arduino_i2c_address, command)
+def tell_arduino(command: Command):
+    arduino.write_byte(arduino_i2c_address, command.value)
 
 def ask_arduino() -> typing.Optional[int]:
     try:
