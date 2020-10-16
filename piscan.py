@@ -22,14 +22,17 @@ if not encoder.wait(self.CAPTURE_TIMEOUT):
 capture_continuous
 """
 
+import enum
+import subprocess
 import sys
 import time
-import enum
 import typing
+
 from smbus import SMBus
 from picamera import PiCamera
 
-RAWS_PATH = '/home/pi/Pictures/raw-sequences/{:05d}.jpg'
+RAWS_PATH = "/home/pi/Pictures/raw-sequences/{:05d}.jpg"
+#IMG_TRANSFER_CMD = ['rsync', '-avt', '...']
 
 class Command(enum.Enum):
     IDLE = 0
@@ -39,6 +42,9 @@ class Command(enum.Enum):
     READY = 4
     LAMP_ON = 5
     LAMP_OFF = 6
+    INIT_SCAN = 7
+    START_SCAN = 8
+    STOP_SCAN = 9
 
 class ZoomMode(enum.Enum):
     Z1_1 = 0
@@ -86,6 +92,15 @@ class State:
         self.zoom_mode = ZoomMode.Z1_1
         print("Camera Preview disabled")
 
+    #def start_scan(self):
+    #    img_transfer_process = subprocess.Popen(IMG_TRANSFER_CMD)
+
+    #def stop_scan(self):
+    #    if img_transfer_process is None:
+    #        raise Exception("Arduino told us it stopped scanning even though we weren't scanning")
+    #    else:
+    #        img_transfer_process.terminate()
+
 state = State()
 
 arduino = SMBus(1) # Indicates /dev/ic2-1 where the Arduino is connected
@@ -107,6 +122,8 @@ camera.exposure_compensation = 0 # (-25 to 25)
 camera.awb_mode = 'auto'         # off becomes green
 camera.shutter_speed = 800       # microseconds, this is 1/1256 s
 
+img_transfer_process: subprocess.Popen = None
+
 def main():
     while True:
         loop()
@@ -119,9 +136,10 @@ def loop():
         func = {
             Command.ZOOM_CYCLE: state.cycle_zoom_mode,
             Command.SHOOT_RAW: shoot_raw,
-            Command.READY: say_ready,
             Command.LAMP_ON: state.lamp_on,
-            Command.LAMP_OFF: state.lamp_off
+            Command.LAMP_OFF: state.lamp_off#,
+            #Command.START_SCAN: state.start_scan,
+            #Command.STOP_SCAN: state.stop_scan
         }.get(command, None)
 
         if func is not None:
@@ -133,13 +151,14 @@ def tell_arduino(command: Command):
 def ask_arduino() -> typing.Optional[Command]:
     try:
         return Command(arduino.read_byte(arduino_i2c_address))
-    except:
+    except OSError:
         print("No I2C answer")
 
 def shoot_raw():
+    start_time = time.time()
     camera.capture(RAWS_PATH.format(state.raw_count), format='jpeg', bayer=True)
     state.raw_count += 1
-    print("One raw taken")
+    print("One raw taken (" + str(time.time() - start_time) + "s); ", end='')
     say_ready()
 
 def say_ready():

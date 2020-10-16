@@ -1,4 +1,5 @@
-"""Converts raw RPi Cam JPGs to DNGs using PyDNG
+"""
+Converts raw RPi Cam JPGs to DNGs using PyDNG
 
 Help/usage: python convert.py -h
 """
@@ -19,7 +20,7 @@ def main():
         + os.path.join('..', '..', 'DNGs', '') + '<current dir name>)',
         metavar='<output dir>')
     parser.add_argument(
-        '--compress', help="33%% smaller files, 288%% as much conversion time", action="store_true")
+        '--compress', help="approx. 33%% smaller files, 288%% as much conversion time", action="store_true")
     parser.add_argument(
         '--cinema-dng', help="generate output in the Adobe CinemaDNG format",
         action='store_true')
