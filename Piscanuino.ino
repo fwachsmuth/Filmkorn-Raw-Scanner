@@ -2,23 +2,16 @@
  * Controller for the Noris based Film Scanner
  *
  * Todo:
+ * 
+ * 
  *
- * - Add I2C Communication with the Raspi
- *   - Receive something on the Raspi and show it.
- *   - Make it a loop
- *   - Implement commands on the Raspi:
- *     - Zoom in
- *     - Zoom out
- *     - Take a Raw
- *     - Say "I am ready for the next photo"
  * Raspi Todos:
- * - enter init 2 after boot
- * - /opt/vc/bin/tvservice -o # Display aus
- * - /opt/vc/bin/tvservice -p # Display an
+ * - clear screen on boot / start my python code
+ * - Enable Screen before Scan:
+ *    - /opt/vc/bin/tvservice -p # Display an
+ * - Disable Screen after Scan:
+ *    - /opt/vc/bin/tvservice -o # Display aus
  *
- *
- * - FInd out why I can't program inside the board
- * Is the USB Friend really borked?
  *
  * - Draw Schematics already
  *
@@ -31,15 +24,15 @@ const byte SLAVE_ADDRESS = 42; // Our i2c address here
 
 // Define the Control Buttons
 enum ControlButton {
-  NONE,  // No Button pressed
-  ZOOM,  // Toggle
-  LIGHT, // Toggle
-  RUNREV,   // Radio
-  REV1,  // Push
-  STOP,  // Radio
-  FWD1,  // Push
-  RUNFWD,   // Radio
-  SCAN   // Radio
+  NONE,   // No Button pressed
+  ZOOM,   // Toggle
+  LIGHT,  // Toggle
+  RUNREV, // Radio
+  REV1,   // Push
+  STOP,   // Radio
+  FWD1,   // Push
+  RUNFWD, // Radio
+  SCAN    // Radio
 } currentButton = NONE, prevButtonChoice = NONE;
 
 /* Define the States we can be in
@@ -70,15 +63,19 @@ enum {
 #define SINGLE_STEP_POT A2
 #define CONT_RUN_POT    A3
 
-// Define the I2C commands we need
-//                              Raspi      Arduino
-#define CMD_IDLE        0   /*        <---          */
-#define CMD_PING        1   /*        <---          */
-#define CMD_ZOOMCYCLE   2   /*        <---          */
-#define CMD_SHOOTRAW    3   /*        <---          */
-#define CMD_READY       4   /*        --->          */
-#define CMD_LAMP_ON     5   /*        <---          */
-#define CMD_LAMP_OFF    6   /*        <---          */
+enum Command {
+//                   Raspi      Arduino
+  CMD_IDLE,       //       <---
+  CMD_PING,       //       <---
+  CMD_ZOOM_CYCLE, //       <---
+  CMD_SHOOT_RAW,  //       <---
+  CMD_READY,      //       --->
+  CMD_LAMP_ON,    //       <---
+  CMD_LAMP_OFF,   //       <---
+  CMD_INIT_SCAN,  //       <---
+  CMD_START_SCAN, //       <---
+  CMD_STOP_SCAN   //       <---
+};
 
 // Define some constants
 uint8_t  fps18MotorPower;
@@ -90,10 +87,11 @@ bool    zoomMode = false;
 bool    isScanning = false;
 uint8_t ISRcount = 0;
 uint8_t speed = 0;
-uint8_t nextPiCmd;
 
-volatile bool haveI2Cdata = false;
-volatile uint8_t i2cCommand;
+uint8_t piCmdQueueLength = 0;
+Command piCmdQueue[10];
+
+volatile bool piIsReady = false;
 
 void setup() {
   // put your setup code here, to run once:
@@ -120,10 +118,10 @@ void setup() {
 
 void loop() {
 
-  if (isScanning && haveI2Cdata && i2cCommand == CMD_READY) {
+  if (isScanning && piIsReady) {
+    piIsReady = false;
     motorFWD1();                // advance
-    delay(750);                 // would be better to wait for the camera to be finished.
-    nextPiCmd = CMD_SHOOTRAW;   // tell to shoot
+    queuePiCmd(CMD_SHOOT_RAW);  // tell to shoot
   }
 
   // Read the trim pots to determine PWM width for the Motor
@@ -149,7 +147,10 @@ void loop() {
         case STOP:
           if (isScanning) {
             setLampMode(false);
-            isScanning = false;
+            if (isScanning) {
+              isScanning = false;
+              queuePiCmd(CMD_STOP_SCAN);
+            }
             Serial.println("Scanning mode: 0");
             // ...
           } else {
@@ -193,13 +194,21 @@ void loop() {
             stopBriefly();
           setZoomMode(false);
           setLampMode(true);
-          isScanning = true;
+          if (!isScanning) {
+            isScanning = true;
+            queuePiCmd(CMD_START_SCAN);
+          }
           Serial.println("Scanning mode: 1");
           // ... (don't forget to detach ISR)
           break;
       }
     }
   }
+}
+
+void queuePiCmd(Command cmd) {
+  piCmdQueue[piCmdQueueLength] = cmd;
+  piCmdQueueLength++;
 }
 
 void stopMotor() {
@@ -306,13 +315,13 @@ ControlButton pollButtons() {
       buttonChoice = NONE;
     } else if (buttonBankA > 30 && buttonBankA < 70) {
       buttonChoice = ZOOM;
-      nextPiCmd = CMD_ZOOMCYCLE;
+      queuePiCmd(CMD_ZOOM_CYCLE);
     } else if (buttonBankA > 120 && buttonBankA < 160) {
       buttonChoice = LIGHT;
       if (lampMode) {
-        nextPiCmd = CMD_LAMP_OFF;
+        queuePiCmd(CMD_LAMP_OFF);
       } else {
-        nextPiCmd = CMD_LAMP_ON;
+        queuePiCmd(CMD_LAMP_ON);
       }
     } else if (buttonBankA > 290 && buttonBankA < 330) {
       buttonChoice = RUNREV;
@@ -329,7 +338,7 @@ ControlButton pollButtons() {
     } else if (buttonBankB > 990) {
       buttonChoice = SCAN;
       // myState = STATE_SCAN;
-      nextPiCmd = CMD_SHOOTRAW;
+      queuePiCmd(CMD_SHOOT_RAW);
     }
   }
   if (buttonBankA > 1 || buttonBankB > 1) {         // Stop reading values...
@@ -341,16 +350,21 @@ ControlButton pollButtons() {
 }
 
 void i2cReceive(int howMany) {
+  uint8_t i2cCommand;
   if (howMany >= (sizeof i2cCommand)) {
     wireReadData(i2cCommand);
-    // wireReadData(i2cParameter);
-    haveI2Cdata = true;
+
+    if ((Command)i2cCommand == CMD_READY) {
+      piIsReady = true;
+    }
   }  // end if have enough data
 }  // end of receive-ISR
 
 void i2cRequest() {
-  Wire.write(nextPiCmd);
-  nextPiCmd = CMD_IDLE;
+  for (int i = 0; i < piCmdQueueLength; i++) {
+    Wire.write(piCmdQueue[i]);
+  }
+  piCmdQueueLength = 0;
 }
 void tellRaspi(byte command) {
   Wire.beginTransmission(8); // This needs the Raspi's address
