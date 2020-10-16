@@ -11,15 +11,7 @@
     until analog_gain is greater than 1 before exposure_mode is set to 'off'.
     https://picamera.readthedocs.io/en/release-1.13/recipes1.html
 
-- picamera.mmal_check(status, prefix='')[
-
-- Recognize when the camera is done
-
-- Turn off screen (and maybe turn it on again)
-
-if not encoder.wait(self.CAPTURE_TIMEOUT):
-    raise PiCameraRuntimeError('Timed out waiting for capture to end')
-capture_continuous
+- Turn off screen (and maybe turn it on again)s
 """
 
 import enum
