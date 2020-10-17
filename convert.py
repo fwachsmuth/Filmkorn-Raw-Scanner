@@ -36,12 +36,12 @@ def convert(input: str, output: str=None, compress=False, cinema_dng=False, keep
             output = os.path.join(
                 output, 'CONTENTS', 'IMAGE', '000000')
 
-    if not os.path.exists(output):
-        os.makedirs(output)
-    elif cinema_dng:
+    if cinema_dng and os.path.exists(output):
         raise FileExistsError(
             "CinemaDNG '" + os.path.dirname(os.path.dirname(
                 os.path.dirname(output))) + "' already exists")
+                
+    os.makedirs(output, exist_ok=True)
 
     if cinema_dng:
         clip_number = 0
@@ -60,8 +60,7 @@ def convert(input: str, output: str=None, compress=False, cinema_dng=False, keep
             if dng_number == 9999:
                 clip_number += 1
                 output = output[:-6] + str(clip_number).zfill(4) + '00'
-                if not os.path.exists(output):
-                    os.mkdir(output)
+                os.mkdir(output, exist_ok=True)
 
             destination_file = os.path.join(output, dir_name + '_' + str(dng_number).zfill(4) + '.dng')
             dng_number += 1

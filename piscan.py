@@ -5,24 +5,28 @@
 - Try increasing gpu_mem in /boot/config.txt. to 384 or 512
 - Make Disk Cache smaller https://blog.helmutkarger.de/raspberry-video-camera-teil-26-optimierungen-gegen-frame-drops/
 - Try smaller previews
-- To fix epxosure gains, let analog_gain and digital_gain settle on reasonable values, 
-    then set exposure_mode to 'off'. For exposure gains, it’s usually enough to wait 
+- To fix epxosure gains, let analog_gain and digital_gain settle on reasonable values,
+    then set exposure_mode to 'off'. For exposure gains, it’s usually enough to wait
     until analog_gain is greater than 1 before exposure_mode is set to 'off'.
     https://picamera.readthedocs.io/en/release-1.13/recipes1.html
 
 - Turn off screen (and maybe turn it on again)
 """
 
+import datetime
 import enum
 import subprocess
 import sys
 import time
 import typing
+import os
 
 from smbus import SMBus
 from picamera import PiCamera
 
-RAWS_PATH = "/home/pi/Pictures/raw-sequences/{:05d}.jpg"
+# Has to end with /
+RAW_DIRS_PATH = "/home/pi/Pictures/raw-sequences/"
+
 #IMG_TRANSFER_CMD = ['rsync', '-avt', '...']
 
 class Command(enum.Enum):
@@ -48,6 +52,7 @@ class ZoomMode(enum.Enum):
 class State:
     def __init__(self):
         self._zoom_mode = ZoomMode.Z1_1
+        self._raws_path: str = None
         self.raw_count = 0
 
     @property
@@ -101,19 +106,39 @@ class State:
         else:
             self.zoom_mode = ZoomMode(self._zoom_mode.value + 1)
 
+    @property
+    def raws_path(self):
+        return self._raws_path
+
+    @raws_path.setter
+    def raws_path(self, value: datetime.datetime):
+        self._raws_path = RAW_DIRS_PATH + value.strftime("%Y-%m-%dT%H_%M_%S")
+
+    def set_raws_path(self):
+        self.raws_path = datetime.datetime.now()
+        if os.path.exists(self._raws_path):
+            self.raws_path = datetime.datetime.now() + datetime.timedelta(seconds=1)
+
+        os.makedirs(self._raws_path)
+
+        print("Set raws path to " + self._raws_path)
+
+        self._raws_path = os.path.join(self._raws_path, '') + "{:05d}.jpg"
+
     def start_scan(self):
-        print("Started scanning")
         #img_transfer_process = subprocess.Popen(IMG_TRANSFER_CMD)
         self.zoom_mode = ZoomMode.Z1_1
         self.lamp_mode = True
+        self.set_raws_path()
+        print("Started scanning")
         shoot_raw()
 
     def stop_scan(self):
-        print("Nevermind. Stopped scanning")
         #if img_transfer_process is None:
         #    raise Exception("Arduino told us it stopped scanning even though we weren't scanning")
         #else:
         #    img_transfer_process.terminate()
+        print("Nevermind; Stopped scanning")
         self.lamp_mode = False
 
 state = State()
@@ -171,7 +196,7 @@ def ask_arduino() -> typing.Optional[Command]:
 
 def shoot_raw():
     start_time = time.time()
-    camera.capture(RAWS_PATH.format(state.raw_count), format='jpeg', bayer=True)
+    camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
     state.raw_count += 1
     print("One raw taken ({:.3}s); ".format(time.time() - start_time), end='')
     say_ready()
