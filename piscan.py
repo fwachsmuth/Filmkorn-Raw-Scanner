@@ -51,11 +51,35 @@ class State:
         self.raw_count = 0
 
     @property
+    def lamp_mode(self) -> bool:
+        return camera.preview is not None
+
+    @lamp_mode.setter
+    def lamp_mode(self, value: bool):
+        if value == self.lamp_mode:
+            return
+
+        print("Lamp and camera preview ", end='')
+        if value:
+            camera.start_preview()
+            print("enabled")
+        else:
+            self.zoom_mode = ZoomMode.Z1_1
+            camera.stop_preview()
+            print("disabled")
+
+    @property
     def zoom_mode(self) -> ZoomMode:
         return self._zoom_mode
 
     @zoom_mode.setter
     def zoom_mode(self, value: ZoomMode):
+        if value == self._zoom_mode:
+            return
+
+        if value != ZoomMode.Z1_1:
+            self.lamp_mode = True
+
         self._zoom_mode = value
 
         # Using dicts instead of if/elif statements
@@ -77,20 +101,11 @@ class State:
         else:
             self.zoom_mode = ZoomMode(self._zoom_mode.value + 1)
 
-    def lamp_on(self):
-        camera.start_preview()
-        print("Camera Preview enabled")
-
-    def lamp_off(self):
-        camera.stop_preview()
-        self.zoom_mode = ZoomMode.Z1_1
-        print("Camera Preview disabled")
-
     def start_scan(self):
         print("Started scanning")
         #img_transfer_process = subprocess.Popen(IMG_TRANSFER_CMD)
         self.zoom_mode = ZoomMode.Z1_1
-        self.lamp_on()
+        self.lamp_mode = True
         shoot_raw()
 
     def stop_scan(self):
@@ -99,7 +114,7 @@ class State:
         #    raise Exception("Arduino told us it stopped scanning even though we weren't scanning")
         #else:
         #    img_transfer_process.terminate()
-        self.lamp_off()
+        self.lamp_mode = False
 
 state = State()
 
@@ -136,8 +151,8 @@ def loop():
         func = {
             Command.ZOOM_CYCLE: state.cycle_zoom_mode,
             Command.SHOOT_RAW: shoot_raw,
-            Command.LAMP_ON: state.lamp_on,
-            Command.LAMP_OFF: state.lamp_off,
+            Command.LAMP_ON: lamp_on,
+            Command.LAMP_OFF: lamp_off,
             Command.START_SCAN: state.start_scan,
             Command.STOP_SCAN: state.stop_scan
         }.get(command, None)
@@ -164,6 +179,12 @@ def shoot_raw():
 def say_ready():
     tell_arduino(Command.READY)
     print("Told Arduino we are ready")
+
+def lamp_on():
+    state.lamp_mode = True
+
+def lamp_off():
+    state.lamp_mode = False
 
 if __name__ == '__main__':
     main()
