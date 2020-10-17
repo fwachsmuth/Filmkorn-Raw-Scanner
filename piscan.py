@@ -1,7 +1,6 @@
 """Module for Raspberry Pi that communicates with the Arduino"""
 
 """Todos
-- Specify specific Exception in ask_arduino()
 - Update to newer picamera?
 - Try increasing gpu_mem in /boot/config.txt. to 384 or 512
 - Make Disk Cache smaller https://blog.helmutkarger.de/raspberry-video-camera-teil-26-optimierungen-gegen-frame-drops/
@@ -11,7 +10,7 @@
     until analog_gain is greater than 1 before exposure_mode is set to 'off'.
     https://picamera.readthedocs.io/en/release-1.13/recipes1.html
 
-- Turn off screen (and maybe turn it on again)s
+- Turn off screen (and maybe turn it on again)
 """
 
 import enum
@@ -27,16 +26,19 @@ RAWS_PATH = "/home/pi/Pictures/raw-sequences/{:05d}.jpg"
 #IMG_TRANSFER_CMD = ['rsync', '-avt', '...']
 
 class Command(enum.Enum):
+    # Arduino to Raspi
     IDLE = 0
     PING = 1
     ZOOM_CYCLE = 2
     SHOOT_RAW = 3
-    READY = 4
-    LAMP_ON = 5
-    LAMP_OFF = 6
-    INIT_SCAN = 7
-    START_SCAN = 8
-    STOP_SCAN = 9
+    LAMP_ON = 4
+    LAMP_OFF = 5
+    INIT_SCAN = 6
+    START_SCAN = 7
+    STOP_SCAN = 8
+
+    # Raspi to Arduino
+    READY = 128
 
 class ZoomMode(enum.Enum):
     Z1_1 = 0
@@ -84,14 +86,20 @@ class State:
         self.zoom_mode = ZoomMode.Z1_1
         print("Camera Preview disabled")
 
-    #def start_scan(self):
-    #    img_transfer_process = subprocess.Popen(IMG_TRANSFER_CMD)
+    def start_scan(self):
+        print("Started scanning")
+        #img_transfer_process = subprocess.Popen(IMG_TRANSFER_CMD)
+        self.zoom_mode = ZoomMode.Z1_1
+        self.lamp_on()
+        shoot_raw()
 
-    #def stop_scan(self):
-    #    if img_transfer_process is None:
-    #        raise Exception("Arduino told us it stopped scanning even though we weren't scanning")
-    #    else:
-    #        img_transfer_process.terminate()
+    def stop_scan(self):
+        print("Nevermind. Stopped scanning")
+        #if img_transfer_process is None:
+        #    raise Exception("Arduino told us it stopped scanning even though we weren't scanning")
+        #else:
+        #    img_transfer_process.terminate()
+        self.lamp_off()
 
 state = State()
 
@@ -129,9 +137,9 @@ def loop():
             Command.ZOOM_CYCLE: state.cycle_zoom_mode,
             Command.SHOOT_RAW: shoot_raw,
             Command.LAMP_ON: state.lamp_on,
-            Command.LAMP_OFF: state.lamp_off#,
-            #Command.START_SCAN: state.start_scan,
-            #Command.STOP_SCAN: state.stop_scan
+            Command.LAMP_OFF: state.lamp_off,
+            Command.START_SCAN: state.start_scan,
+            Command.STOP_SCAN: state.stop_scan
         }.get(command, None)
 
         if func is not None:
@@ -150,7 +158,7 @@ def shoot_raw():
     start_time = time.time()
     camera.capture(RAWS_PATH.format(state.raw_count), format='jpeg', bayer=True)
     state.raw_count += 1
-    print("One raw taken (" + str(time.time() - start_time) + "s); ", end='')
+    print("One raw taken ({:.3}s); ".format(time.time() - start_time), end='')
     say_ready()
 
 def say_ready():
