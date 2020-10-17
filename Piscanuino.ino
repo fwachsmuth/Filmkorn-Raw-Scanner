@@ -64,7 +64,7 @@ enum {
 #define CONT_RUN_POT    A3
 
 enum Command {
-// Arduino to Raspi
+  // Arduino to Raspi
   CMD_IDLE,
   CMD_PING,
   CMD_ZOOM_CYCLE,
@@ -75,7 +75,7 @@ enum Command {
   CMD_START_SCAN,
   CMD_STOP_SCAN,
 
-// Raspi to Arduino
+  // Raspi to Arduino
   CMD_READY = 128
 } nextPiCmd = CMD_IDLE;
 
@@ -147,7 +147,7 @@ void loop() {
           break;
         case LIGHT:
           setLampMode(!lampMode);
-          nextPiCmd = lampMode ? CMD_LAMP_OFF : CMD_LAMP_ON;
+          nextPiCmd = lampMode ? CMD_LAMP_ON : CMD_LAMP_OFF;
           break;
         case STOP:
           if (isScanning) {
@@ -237,8 +237,10 @@ void stopBriefly() {
 void setLampMode(bool mode) {
   if (mode == lampMode)
     return;
-  if (!mode && zoomMode != Z1_1)
+
+  if (!mode)
     setZoomMode(Z1_1);
+
   lampMode = mode;
   Serial.print("Lamp mode: ");
   Serial.println(lampMode);
@@ -255,7 +257,8 @@ void setLampMode(bool mode) {
 void setZoomMode(ZoomMode mode) {
   if (mode == zoomMode)
     return;
-  if (mode != Z1_1 && !lampMode)
+
+  if (mode != Z1_1)
     setLampMode(true);
 
   zoomMode = mode;
