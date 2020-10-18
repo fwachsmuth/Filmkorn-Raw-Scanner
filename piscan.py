@@ -5,7 +5,7 @@
 - Try increasing gpu_mem in /boot/config.txt. to 384 or 512
 - Make Disk Cache smaller https://blog.helmutkarger.de/raspberry-video-camera-teil-26-optimierungen-gegen-frame-drops/
 - Try smaller previews
-- To fix epxosure gains, let analog_gain and digital_gain settle on reasonable values,
+- To fix exposure gains, let analog_gain and digital_gain settle on reasonable values,
     then set exposure_mode to 'off'. For exposure gains, it’s usually enough to wait
     until analog_gain is greater than 1 before exposure_mode is set to 'off'.
     https://picamera.readthedocs.io/en/release-1.13/recipes1.html
@@ -25,7 +25,7 @@ from smbus import SMBus
 from picamera import PiCamera
 
 # Has to end with /
-RAW_DIRS_PATH = "/home/pi/Pictures/raw-sequences/"
+RAW_DIRS_PATH = "/home/pi/Pictures/raw-intermediates/"
 
 #IMG_TRANSFER_CMD = ['rsync', '-avt', '...']
 
@@ -127,6 +127,7 @@ class State:
 
     def start_scan(self):
         #img_transfer_process = subprocess.Popen(IMG_TRANSFER_CMD)
+        self.raw_count = 0
         self.zoom_mode = ZoomMode.Z1_1
         self.lamp_mode = True
         self.set_raws_path()
