@@ -6,6 +6,8 @@
 """
 
 """Todos
+- over_voltage=2 aus boot.txt wieder rausnehmen?
+
 - Try saving to an external disk
 
 - Delete empty Dirs that have been lsynced
@@ -14,6 +16,8 @@
 - Make Disk Cache smaller https://blog.helmutkarger.de/raspberry-video-camera-teil-26-optimierungen-gegen-frame-drops/
 
 - rename intermediate raws something else than jpg
+
+- lens stability isnt great yet
 
 - Switch for pos / neg
 - switch for hd / mac
@@ -177,9 +181,9 @@ camera.contrast = 0    # (-100 to 100)
 camera.saturation = 0  # (-100 to 100)
 camera.exposure_compensation = 0 # (-25 to 25)
 camera.awb_mode = 'sunlight'         # off becomes green, irrelevant anyway since we do Raws
-camera.shutter_speed = 1500          # microseconds
+camera.shutter_speed = 1400          # We seem to "burn out" at 5 frames shot at 1500. WTF.
 # camera.shutter_speed = 1600       # microseconds
-camera.exposure_mode = 'off'    # lock all settings
+# camera.exposure_mode = 'off'    # lock all settings
 # sleep(2)
 
 img_transfer_process: subprocess.Popen = None
