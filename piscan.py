@@ -1,16 +1,31 @@
 """Module for Raspberry Pi that communicates with the Arduino"""
 
-"""Todos
-- Update to newer picamera?
-- Try increasing gpu_mem in /boot/config.txt. to 384 or 512
-- Make Disk Cache smaller https://blog.helmutkarger.de/raspberry-video-camera-teil-26-optimierungen-gegen-frame-drops/
-- Try smaller previews
-- To fix exposure gains, let analog_gain and digital_gain settle on reasonable values,
-    then set exposure_mode to 'off'. For exposure gains, it’s usually enough to wait
-    until analog_gain is greater than 1 before exposure_mode is set to 'off'.
-    https://picamera.readthedocs.io/en/release-1.13/recipes1.html
+"""Done
+- gpu_mem in /boot/config.txt increased to 512
 
-- Turn off screen (and maybe turn it on again)
+"""
+
+"""Todos
+- Try saving to an external disk
+
+- Delete empty Dirs that have been lsynced
+- Update to newer picamera? (Habe 1.13)
+    - Isolate brightness crash
+- Make Disk Cache smaller https://blog.helmutkarger.de/raspberry-video-camera-teil-26-optimierungen-gegen-frame-drops/
+
+- rename intermediate raws something else than jpg
+
+- Switch for pos / neg
+- switch for hd / mac
+- Exposure Adjustment
+- destination path
+
+- Streifen im Vorpann erklären (Störsignal?)
+
+- im preview dynamisch belichten
+- Fix 0B Output on white frame
+
+
 """
 
 import datetime
@@ -23,6 +38,7 @@ import os
 
 from smbus import SMBus
 from picamera import PiCamera
+from time import sleep
 
 # Has to end with /
 RAW_DIRS_PATH = "/home/pi/Pictures/raw-intermediates/"
@@ -147,7 +163,7 @@ state = State()
 arduino = SMBus(1) # Indicates /dev/ic2-1 where the Arduino is connected
 arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
 
-camera = PiCamera(resolution=(1024, 768)) # This is for the embedded Preview JPG only
+camera = PiCamera(resolution=(320, 240)) # This is for the embedded Preview JPG only. Making it small so that it doesn't ever get confused with teh Raw
 
 # Init the Camera
 camera.rotation = 180
@@ -160,8 +176,11 @@ camera.sharpness = 0   # (-100 to 100)
 camera.contrast = 0    # (-100 to 100)
 camera.saturation = 0  # (-100 to 100)
 camera.exposure_compensation = 0 # (-25 to 25)
-camera.awb_mode = 'auto'         # off becomes green
-camera.shutter_speed = 800       # microseconds, this is 1/1256 s
+camera.awb_mode = 'sunlight'         # off becomes green, irrelevant anyway since we do Raws
+camera.shutter_speed = 1500          # microseconds
+# camera.shutter_speed = 1600       # microseconds
+camera.exposure_mode = 'off'    # lock all settings
+# sleep(2)
 
 img_transfer_process: subprocess.Popen = None
 
