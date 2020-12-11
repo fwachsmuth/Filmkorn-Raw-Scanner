@@ -29,6 +29,7 @@
 - im preview dynamisch belichten
 - Fix 0B Output on white frame
 
+- AND Gate am Lamp/Fan Out hinzufügen (oder Temp-Fühler?)
 
 """
 
@@ -167,7 +168,7 @@ state = State()
 arduino = SMBus(1) # Indicates /dev/ic2-1 where the Arduino is connected
 arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
 
-camera = PiCamera(resolution=(320, 240)) # This is for the embedded Preview JPG only. Making it small so that it doesn't ever get confused with teh Raw
+camera = PiCamera() # Do not set a preview resolution, it crashes the camera on bright scenes
 
 # Init the Camera
 camera.rotation = 180
