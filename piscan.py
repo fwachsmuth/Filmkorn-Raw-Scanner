@@ -168,7 +168,7 @@ state = State()
 arduino = SMBus(1) # Indicates /dev/ic2-1 where the Arduino is connected
 arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
 
-camera = PiCamera() # Do not set a preview resolution, it crashes the camera on bright scenes
+camera = PiCamera(resolution=(507, 380)) // keep the exact AR to avoid rounding errors casuing overflow freezes
 
 # Init the Camera
 camera.rotation = 180
@@ -182,8 +182,7 @@ camera.contrast = 0    # (-100 to 100)
 camera.saturation = 0  # (-100 to 100)
 camera.exposure_compensation = 0 # (-25 to 25)
 camera.awb_mode = 'sunlight'         # off becomes green, irrelevant anyway since we do Raws
-camera.shutter_speed = 1400          # We seem to "burn out" at 5 frames shot at 1500. WTF.
-# camera.shutter_speed = 1600       # microseconds
+camera.shutter_speed = 1600          
 # camera.exposure_mode = 'off'    # lock all settings
 # sleep(2)
 
