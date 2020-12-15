@@ -6,28 +6,23 @@
 """
 
 """Todos
-- over_voltage=2 aus boot.txt wieder rausnehmen?
+- Delete empty Dirs that have been lsynced
 
 - Try saving to an external disk
 
-- Delete empty Dirs that have been lsynced
-- Update to newer picamera? (Habe 1.13)
-    - Isolate brightness crash
-- Make Disk Cache smaller https://blog.helmutkarger.de/raspberry-video-camera-teil-26-optimierungen-gegen-frame-drops/
-
 - rename intermediate raws something else than jpg
 
-- lens stability isnt great yet
-
+Hardware:
 - Switch for pos / neg
-- switch for hd / mac
-- Exposure Adjustment
+- switch for hd / rsync
+- Exposure Adjustment via pot
 - destination path
+- Filmende Detector
+
 
 - Streifen im Vorpann erklären (Störsignal?)
 
-- im preview dynamisch belichten
-- Fix 0B Output on white frame
+- im preview dynamisch belichten (für Schärfeeinstellung)
 
 - AND Gate am Lamp/Fan Out hinzufügen (oder Temp-Fühler?)
 
@@ -168,7 +163,7 @@ state = State()
 arduino = SMBus(1) # Indicates /dev/ic2-1 where the Arduino is connected
 arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
 
-camera = PiCamera(resolution=(507, 380)) // keep the exact AR to avoid rounding errors casuing overflow freezes
+camera = PiCamera(resolution=(507, 380)) # keep the exact AR to avoid rounding errors casuing overflow freezes
 
 # Init the Camera
 camera.rotation = 180
@@ -182,7 +177,7 @@ camera.contrast = 0    # (-100 to 100)
 camera.saturation = 0  # (-100 to 100)
 camera.exposure_compensation = 0 # (-25 to 25)
 camera.awb_mode = 'sunlight'         # off becomes green, irrelevant anyway since we do Raws
-camera.shutter_speed = 1600          
+camera.shutter_speed = 2000    # 2000      
 # camera.exposure_mode = 'off'    # lock all settings
 # sleep(2)
 
