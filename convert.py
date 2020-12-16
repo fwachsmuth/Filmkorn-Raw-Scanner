@@ -26,16 +26,34 @@ class CinemaDNGPicture:
         self.image_base_path = os.path.join(
             image_base_path, 'CONTENTS', 'IMAGE')
 
-        if os.path.exists(self.image_base_path):
-            raise FileExistsError(
-                "CinemaDNG '"
-                + os.path.dirname(os.path.dirname(self.image_base_path))
-                + "' already exists")
-
         self.cinema_dng_name = cinema_dng_name
-        self.clip_number = 0
-        self._dng_number = 0
         self.dir_definitely_exists = False
+
+        if os.path.exists(self.image_base_path):
+            self.clip_number = 0
+            for clip_dir_name in os.listdir(self.image_base_path):
+                clip_number = int(clip_dir_name[:4])
+                if self.clip_number < clip_number:
+                    self.clip_number = clip_number
+
+            clip_path = self.clip_path
+            self._dng_number = -1
+            for dng_name in os.listdir(clip_path):
+                dng_path = os.path.join(clip_path, dng_name)
+
+                if os.path.getsize(dng_path) == 0:
+                    # File is empty
+                    os.remove(dng_path)
+                    continue
+
+                dng_number = int(dng_name[-8:-4])
+                if self._dng_number < dng_number:
+                    self._dng_number = dng_number
+
+            self.dng_number += 1
+        else:
+            self.clip_number = 0
+            self._dng_number = 0
 
         self.reset = self.__init__
 
@@ -46,20 +64,25 @@ class CinemaDNGPicture:
     @dng_number.setter
     def dng_number(self, value):
         if value == 10000:
-            self._dng_number = 0
             self.clip_number += 1
+            self._dng_number = 0
+            self.dir_definitely_exists = False
         else:
             self._dng_number = value
 
     @property
-    def path(self):
-        clip_path = os.path.join(self.image_base_path,
-                                 "{:04d}00".format(self.clip_number))
+    def clip_path(self):
+        clip_path = os.path.join(
+            self.image_base_path, "{:04d}00".format(self.clip_number))
         if not self.dir_definitely_exists:
             self.dir_definitely_exists = True
             os.makedirs(clip_path, exist_ok=True)
 
-        return os.path.join(clip_path, "{}_{:04d}.dng".format(
+        return clip_path
+
+    @property
+    def dng_path(self):
+        return os.path.join(self.clip_path, "{}_{:04d}.dng".format(
             self.cinema_dng_name, self.dng_number))
 
 
@@ -142,7 +165,7 @@ def convert_raw(raw_path: str, input: str, output: str, compress: bool,
                 raw_dirname, os.path.dirname(output + raw_path[len(input):]),
                 os.path.basename(raw_dirname))
 
-        dest_file = cinema_dng_picture.path
+        dest_file = cinema_dng_picture.dng_path
         cinema_dng_picture.dng_number += 1
     else:
         dest_file = output + raw_path[len(input):-3] + 'dng'
@@ -157,7 +180,7 @@ def convert_raw(raw_path: str, input: str, output: str, compress: bool,
         dng_file.write(converter.convert(
             io.BytesIO(jpg_file.read()), compress=compress))
 
-    print(raw_path + " converted to " + dest_file)
+    print(raw_path, "converted to", dest_file)
 
     if not keep_jpgs:
         os.remove(raw_path)
@@ -168,9 +191,13 @@ def convert_raw(raw_path: str, input: str, output: str, compress: bool,
 def find_files(dir: str):
     files = []
 
-    for root, _, filenames in os.walk(dir):
+    for dirpath, _, filenames in os.walk(dir):
+        if len(filenames) == 0:
+            os.rmdir(dirpath)
+            continue
+
         for filename in filenames:
-            files.append(os.path.join(root, filename))
+            files.append(os.path.join(dirpath, filename))
 
     files.sort()
 
