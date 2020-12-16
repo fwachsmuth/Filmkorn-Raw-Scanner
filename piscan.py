@@ -1,13 +1,13 @@
-"""Raspi-side Scan Control Glue communicating between Raspi, Arduino and the Raspi HQ Cam
+"""Raspi-side Scan Control Glue communicating between Raspi, Arduino and the Raspi HQ Cam"""
 
-
+"""
 Todos
 
 Software:
-- Delete empty Dirs that have been lsynced
 - Let piscan.py also start lsyncd (as daemon?)
 - Try performance of saving to an external disk instead of to uSD (autarky)
 - Let Preview Mode use dynamic exposure to allow easier focus adjustments
+- Make OSError in ask_arduino more specific (errno)
 
 Hardware:
 - Switch for pos / neg
@@ -18,11 +18,11 @@ Hardware:
 - Add Heatsink to LED-CC
 - Add XOR Gate to Lamp/Fan Out to turn off Lamp when fan is not running
 - Redesign Lens Mount to allow cleaning the gate again
-
 """
 
 import datetime
 import enum
+import errno
 import subprocess
 import sys
 import time
@@ -198,7 +198,15 @@ def loop():
             func()
 
 def tell_arduino(command: Command):
-    arduino.write_byte(arduino_i2c_address, command.value)
+    try:
+        arduino.write_byte(arduino_i2c_address, command.value)
+    except OSError as e:
+        if e.errno != errno.EREMOTEIO:
+            raise e
+
+        sleep(1)
+        tell_arduino(command)
+
 
 def ask_arduino() -> typing.Optional[Command]:
     try:
