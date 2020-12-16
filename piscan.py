@@ -1,30 +1,23 @@
-"""Module for Raspberry Pi that communicates with the Arduino"""
+"""Raspi-side Scan Control Glue communicating between Raspi, Arduino and the Raspi HQ Cam
 
-"""Done
-- gpu_mem in /boot/config.txt increased to 512
 
-"""
+Todos
 
-"""Todos
+Software:
 - Delete empty Dirs that have been lsynced
-
-- Try saving to an external disk
-
-- rename intermediate raws something else than jpg
+- Let piscan.py also start lsyncd (as daemon?)
+- Try performance of saving to an external disk instead of to uSD (autarky)
+- Let Preview Mode use dynamic exposure to allow easier focus adjustments
 
 Hardware:
 - Switch for pos / neg
 - switch for hd / rsync
 - Exposure Adjustment via pot
 - destination path
-- Filmende Detector
-
-
-- Streifen im Vorpann erklären (Störsignal?)
-
-- im preview dynamisch belichten (für Schärfeeinstellung)
-
-- AND Gate am Lamp/Fan Out hinzufügen (oder Temp-Fühler?)
+- Add Film end Detector
+- Add Heatsink to LED-CC
+- Add XOR Gate to Lamp/Fan Out to turn off Lamp when fan is not running
+- Redesign Lens Mount to allow cleaning the gate again
 
 """
 
@@ -177,7 +170,7 @@ camera.contrast = 0    # (-100 to 100)
 camera.saturation = 0  # (-100 to 100)
 camera.exposure_compensation = 0 # (-25 to 25)
 camera.awb_mode = 'sunlight'         # off becomes green, irrelevant anyway since we do Raws
-camera.shutter_speed = 2000    # 2000      
+camera.shutter_speed = 1600    # 2000      
 # camera.exposure_mode = 'off'    # lock all settings
 # sleep(2)
 
