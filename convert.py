@@ -191,9 +191,13 @@ def convert_raw(raw_path: str, input: str, output: str, compress: bool,
 def find_files(dir: str):
     files = []
 
-    for root, _, filenames in os.walk(dir):
+    for dirpath, _, filenames in os.walk(dir):
+        if len(filenames) == 0:
+            os.rmdir(dirpath)
+            continue
+
         for filename in filenames:
-            files.append(os.path.join(root, filename))
+            files.append(os.path.join(dirpath, filename))
 
     files.sort()
 
