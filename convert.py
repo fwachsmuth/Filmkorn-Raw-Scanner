@@ -46,15 +46,16 @@ class CinemaDNGPicture:
     @dng_number.setter
     def dng_number(self, value):
         if value == 10000:
-            self._dng_number = 0
             self.clip_number += 1
+            self._dng_number = 0
+            self.dir_definitely_exists = False
         else:
             self._dng_number = value
 
     @property
     def path(self):
-        clip_path = os.path.join(self.image_base_path,
-                                 "{:04d}00".format(self.clip_number))
+        clip_path = os.path.join(
+            self.image_base_path, "{:04d}00".format(self.clip_number))
         if not self.dir_definitely_exists:
             self.dir_definitely_exists = True
             os.makedirs(clip_path, exist_ok=True)
@@ -157,7 +158,7 @@ def convert_raw(raw_path: str, input: str, output: str, compress: bool,
         dng_file.write(converter.convert(
             io.BytesIO(jpg_file.read()), compress=compress))
 
-    print(raw_path + " converted to " + dest_file)
+    print(raw_path, "converted to", dest_file)
 
     if not keep_jpgs:
         os.remove(raw_path)
