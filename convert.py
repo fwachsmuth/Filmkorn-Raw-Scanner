@@ -19,6 +19,7 @@ import time
 
 from pydng.core import RPICAM2DNG as RPiCam2DNG
 
+JPG_DIGIT_COUNT = 8
 
 class CinemaDNGPicture:
     def __init__(self, input_dir: str, image_base_path: str, cinema_dng_name: str):
@@ -32,9 +33,12 @@ class CinemaDNGPicture:
         if os.path.exists(self.image_base_path):
             self.clip_number = 0
             for clip_dir_name in os.listdir(self.image_base_path):
-                clip_number = int(clip_dir_name[:4])
-                if self.clip_number < clip_number:
-                    self.clip_number = clip_number
+                try:
+                    clip_number = int(clip_dir_name[:4])
+                except ValueError:
+                    continue
+
+                self.clip_number = max(self.clip_number, clip_number)
 
             clip_path = self.clip_path
             self._dng_number = -1
@@ -46,9 +50,12 @@ class CinemaDNGPicture:
                     os.remove(dng_path)
                     continue
 
-                dng_number = int(dng_name[-8:-4])
-                if self._dng_number < dng_number:
-                    self._dng_number = dng_number
+                try:
+                    dng_number = int(dng_name[-8:-4])
+                except ValueError:
+                    continue
+
+                self._dng_number = max(self._dng_number, dng_number)
 
             self.dng_number += 1
         else:
@@ -85,7 +92,6 @@ class CinemaDNGPicture:
         return os.path.join(self.clip_path, "{}_{:04d}.dng".format(
             self.cinema_dng_name, self.dng_number))
 
-
 def convert(input: str, output: str = None, compress=False, cinema_dng=False,
             keep_jpgs=False, keep_running=False):
 
@@ -117,19 +123,38 @@ def convert(input: str, output: str = None, compress=False, cinema_dng=False,
         from watchdog.observers import Observer
         from watchdog.events import FileSystemEventHandler, FileCreatedEvent, FileMovedEvent
 
-        def convert_new_raw(raw_path: str):
+        def convert_new_raw(event_handler, raw_path: str):
+            try:
+                jpg_number = int(raw_path[-4 - JPG_DIGIT_COUNT:-4])
+
+                if jpg_number <= event_handler.previous_jpg_number:
+                    if not keep_jpgs:
+                        os.remove(raw_path)
+
+                    return
+
+                event_handler.previous_jpg_number = jpg_number
+            except ValueError:
+                pass
+
             raw_path = os.path.realpath(raw_path)
 
-            convert_raw(
-                raw_path, input, output,
-                compress, cinema_dng_picture, keep_jpgs)
+            try:
+                convert_raw(
+                    raw_path, input, output,
+                    compress, cinema_dng_picture, keep_jpgs)
+            except FileNotFoundError:
+                pass
 
         class NewRawEventHandler(FileSystemEventHandler):
+            def __init__(self):
+                self.previous_jpg_number = -1
+
             def on_created(self, event: FileCreatedEvent):
-                convert_new_raw(event.src_path)
+                convert_new_raw(self, event.src_path)
 
             def on_moved(self, event: FileMovedEvent):
-                convert_new_raw(event.dest_path)
+                convert_new_raw(self, event.dest_path)
 
         event_handler = NewRawEventHandler()
         observer = Observer()
@@ -150,7 +175,6 @@ def convert(input: str, output: str = None, compress=False, cinema_dng=False,
     if no_jpg_error:
         raise FileNotFoundError(
             "No JPG files found that were not already converted")
-
 
 def convert_raw(raw_path: str, input: str, output: str, compress: bool,
                 cinema_dng_picture: CinemaDNGPicture, keep_jpgs: bool):
@@ -181,12 +205,11 @@ def convert_raw(raw_path: str, input: str, output: str, compress: bool,
             io.BytesIO(jpg_file.read()), compress=compress))
 
     print(raw_path, "converted to", dest_file)
-
+    
     if not keep_jpgs:
         os.remove(raw_path)
 
     return True
-
 
 def find_files(dir: str):
     files = []
@@ -202,7 +225,6 @@ def find_files(dir: str):
     files.sort()
 
     return files
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
