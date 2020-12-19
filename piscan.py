@@ -64,7 +64,7 @@ class State:
         self._zoom_mode = ZoomMode.Z1_1
         self._raws_path: str = None
         self.raw_count = 0
-        self.continue_folder = False
+        self.continue_dir = False
 
     @property
     def lamp_mode(self) -> bool:
@@ -141,8 +141,7 @@ class State:
         self._raws_path = os.path.join(self._raws_path, '') + "{:08d}.jpg"
 
     def start_scan(self):
-        if self.continue_folder:
-            self.continue_folder = False
+        if self.continue_dir:
             return
 
         self.raw_count = 0
@@ -153,6 +152,7 @@ class State:
         shoot_raw()
 
     def stop_scan(self):
+        self.continue_dir = False
         print("Nevermind; Stopped scanning")
         self.lamp_mode = False
 
@@ -241,7 +241,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '--continue-at', default=-1, type=int,
-        help="continue writing to the previous folder",
+        help="continue writing to the previous directory",
         metavar="<next image no>")
 
     args = parser.parse_args()
@@ -250,7 +250,7 @@ if __name__ == '__main__':
         state.raws_path = RAW_DIRS_PATH + os.path.join(
             sorted(os.listdir(RAW_DIRS_PATH))[-1], '') + "{:08d}.jpg"
         state.raw_count = args.continue_at
-        state.continue_folder = True
+        state.continue_dir = True
         camera.start_preview()
         shoot_raw()
 
