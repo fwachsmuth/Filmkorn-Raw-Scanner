@@ -11,6 +11,7 @@ Python:
     convert( <...> )
 """
 
+import abc
 import argparse
 import io
 import os
@@ -19,74 +20,55 @@ import time
 
 from pydng.core import RPICAM2DNG as RPiCam2DNG
 
+class OutputDir(abc.ABC):
+    def __init__(self, input: str, output: str):
+        self.input_len = len(input)
+        self.output = output
 
-class CinemaDNGPicture:
-    def __init__(self, input_dir: str, image_base_path: str, cinema_dng_name: str):
-        self.input_dir = input_dir
-        self.image_base_path = os.path.join(
-            image_base_path, 'CONTENTS', 'IMAGE')
+    @abc.abstractmethod
+    def path_of_image(self, jpg_path: str) -> str:
+        pass
 
-        self.cinema_dng_name = cinema_dng_name
-        self.dir_definitely_exists = False
+class NormalOutputDir(OutputDir):
+    def __init__(self, input: str, output: str):
+        super().__init__(input, output)
+        self.jpg_dirname = ""
+        self.dng_dirname = ""
 
-        if os.path.exists(self.image_base_path):
-            self.clip_number = 0
-            for clip_dir_name in os.listdir(self.image_base_path):
-                clip_number = int(clip_dir_name[:4])
-                if self.clip_number < clip_number:
-                    self.clip_number = clip_number
+    def path_of_image(self, jpg_path: str) -> str:
+        jpg_dirname = os.path.dirname(jpg_path)
+        if self.jpg_dirname != jpg_dirname:
+            self.jpg_dirname = jpg_dirname
+            self.dng_dirname = self.output + jpg_dirname[self.input_len:]
+            os.makedirs(self.dng_dirname, exist_ok=True)
 
-            clip_path = self.clip_path
-            self._dng_number = -1
-            for dng_name in os.listdir(clip_path):
-                dng_path = os.path.join(clip_path, dng_name)
+        dng_basename = os.path.basename(jpg_dirname)[:-3] + "dng"
+        return os.path.join(self.dng_dirname, dng_basename)
 
-                if os.path.getsize(dng_path) == 0:
-                    # File is empty
-                    os.remove(dng_path)
-                    continue
+class OutputCinemaDNG(OutputDir):
+    def __init__(self, input: str, output: str):
+        super().__init__(input, output)
+        self.jpg_dirname = ""
+        self.cinema_dng_path = ""
+        self.dng_dirname = ""
 
-                dng_number = int(dng_name[-8:-4])
-                if self._dng_number < dng_number:
-                    self._dng_number = dng_number
+    def path_of_image(self, jpg_path: str) -> str:
+        jpg_dirname = os.path.dirname(jpg_path)
+        jpg_basename = os.path.basename(jpg_path)
+        if self.jpg_dirname != jpg_dirname:
+            self.jpg_dirname = jpg_dirname
+            self.cinema_dng_path = self.output + jpg_dirname[self.input_len:]
 
-            self.dng_number += 1
-        else:
-            self.clip_number = 0
-            self._dng_number = 0
+        dng_dirname = os.path.join(
+            self.cinema_dng_path, "CONTENTS", "IMAGE", jpg_basename[:4] + "00")
+        if self.dng_dirname != dng_dirname:
+            self.dng_dirname = dng_dirname
+            os.makedirs(dng_dirname, exist_ok=True)
 
-        self.reset = self.__init__
+        dng_basename = jpg_basename[:-3] + "dng"
+        return os.path.join(dng_dirname, dng_basename)
 
-    @property
-    def dng_number(self):
-        return self._dng_number
-
-    @dng_number.setter
-    def dng_number(self, value):
-        if value == 10000:
-            self.clip_number += 1
-            self._dng_number = 0
-            self.dir_definitely_exists = False
-        else:
-            self._dng_number = value
-
-    @property
-    def clip_path(self):
-        clip_path = os.path.join(
-            self.image_base_path, "{:04d}00".format(self.clip_number))
-        if not self.dir_definitely_exists:
-            self.dir_definitely_exists = True
-            os.makedirs(clip_path, exist_ok=True)
-
-        return clip_path
-
-    @property
-    def dng_path(self):
-        return os.path.join(self.clip_path, "{}_{:04d}.dng".format(
-            self.cinema_dng_name, self.dng_number))
-
-
-def convert(input: str, output: str = None, compress=False, cinema_dng=False,
+def convert(input: str, output: str=None, compress=False, cinema_dng=False,
             keep_jpgs=False, keep_running=False):
 
     input = os.path.realpath(input)
@@ -106,30 +88,32 @@ def convert(input: str, output: str = None, compress=False, cinema_dng=False,
 
         output = os.path.join(os.path.dirname(input), 'DNGs')
 
-    cinema_dng_picture = None
-
     if cinema_dng:
-        cinema_dng_picture = CinemaDNGPicture(input, output, split_input[-1])
+        output_dir: OutputDir = OutputCinemaDNG(input, output)
     else:
-        os.makedirs(output, exist_ok=True)
+        output_dir: OutputDir = NormalOutputDir(input, output)
 
     if keep_running:
         from watchdog.observers import Observer
         from watchdog.events import FileSystemEventHandler, FileCreatedEvent, FileMovedEvent
 
-        def convert_new_raw(raw_path: str):
-            raw_path = os.path.realpath(raw_path)
+        def convert_new_raw(event_handler, jpg_path: str):
+            jpg_path = os.path.realpath(jpg_path)
 
-            convert_raw(
-                raw_path, input, output,
-                compress, cinema_dng_picture, keep_jpgs)
+            try:
+                convert_raw(jpg_path, compress, output_dir, keep_jpgs)
+            except FileNotFoundError:
+                pass
 
         class NewRawEventHandler(FileSystemEventHandler):
+            def __init__(self):
+                self.previous_jpg_number = -1
+
             def on_created(self, event: FileCreatedEvent):
-                convert_new_raw(event.src_path)
+                convert_new_raw(self, event.src_path)
 
             def on_moved(self, event: FileMovedEvent):
-                convert_new_raw(event.dest_path)
+                convert_new_raw(self, event.dest_path)
 
         event_handler = NewRawEventHandler()
         observer = Observer()
@@ -137,10 +121,8 @@ def convert(input: str, output: str = None, compress=False, cinema_dng=False,
 
     no_jpg_error = True
 
-    for file in find_files(input):
-        if convert_raw(
-                file, input, output,
-                compress, cinema_dng_picture, keep_jpgs):
+    for jpg_path in find_files(input):
+        if convert_raw(jpg_path, compress, output_dir, keep_jpgs):
 
             no_jpg_error = False
 
@@ -151,42 +133,32 @@ def convert(input: str, output: str = None, compress=False, cinema_dng=False,
         raise FileNotFoundError(
             "No JPG files found that were not already converted")
 
+def convert_raw(jpg_path: str, compress: bool,
+                output_dir: OutputDir, keep_jpgs: bool):
 
-def convert_raw(raw_path: str, input: str, output: str, compress: bool,
-                cinema_dng_picture: CinemaDNGPicture, keep_jpgs: bool):
-
-    if raw_path[-4:].lower() != '.jpg':
+    if jpg_path[-4:].lower() != '.jpg':
         return False
 
-    if cinema_dng_picture:
-        raw_dirname = os.path.dirname(raw_path)
-        if cinema_dng_picture.input_dir != raw_dirname:
-            cinema_dng_picture.reset(
-                raw_dirname, os.path.dirname(output + raw_path[len(input):]),
-                os.path.basename(raw_dirname))
+    dng_path = output_dir.path_of_image(jpg_path)
 
-        dest_file = cinema_dng_picture.dng_path
-        cinema_dng_picture.dng_number += 1
-    else:
-        dest_file = output + raw_path[len(input):-3] + 'dng'
-        os.makedirs(os.path.dirname(dest_file), exist_ok=True)
+    if os.path.exists(dng_path) or os.path.getsize(jpg_path) == 0:
+        if not keep_jpgs:
+            os.remove(jpg_path)
 
-    if os.path.exists(dest_file):
         return False
 
     converter = RPiCam2DNG()
-    with open(raw_path, 'rb') as jpg_file, \
-            open(dest_file, 'wb') as dng_file:
+    with open(jpg_path, 'rb') as jpg_file, \
+            open(dng_path, 'wb') as dng_file:
         dng_file.write(converter.convert(
             io.BytesIO(jpg_file.read()), compress=compress))
 
-    print(raw_path, "converted to", dest_file)
-
     if not keep_jpgs:
-        os.remove(raw_path)
+        os.remove(jpg_path)
+
+    print(jpg_path, "converted to", dng_path)
 
     return True
-
 
 def find_files(dir: str):
     files = []
@@ -202,7 +174,6 @@ def find_files(dir: str):
     files.sort()
 
     return files
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -240,6 +211,7 @@ if __name__ == '__main__':
             observer.join()
 
         observer.start()
+        print("Started watchdog")
         while True:
             time.sleep(1)
 else:
