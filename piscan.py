@@ -8,8 +8,10 @@ Software:
 - Try performance of saving to an external disk instead of to uSD (autarky)
 - Let Preview Mode use dynamic exposure to allow easier focus adjustments
 - Make OSError in ask_arduino more specific (errno)
+- parallelize conversion
 
 Hardware:
+- Analyze i2c signal intergity with oscilloscope (pullups?)
 - Switch for pos / neg
 - switch for hd / rsync
 - Exposure Adjustment via pot
@@ -20,6 +22,7 @@ Hardware:
 - Redesign Lens Mount to allow cleaning the gate again
 """
 
+import argparse
 import datetime
 import enum
 import errno
@@ -35,8 +38,6 @@ from time import sleep
 
 # Has to end with /
 RAW_DIRS_PATH = "/home/pi/Pictures/raw-intermediates/"
-
-#IMG_TRANSFER_CMD = ['rsync', '-avt', '...']
 
 class Command(enum.Enum):
     # Arduino to Raspi
@@ -63,6 +64,7 @@ class State:
         self._zoom_mode = ZoomMode.Z1_1
         self._raws_path: str = None
         self.raw_count = 0
+        self.continue_folder = False
 
     @property
     def lamp_mode(self) -> bool:
@@ -120,22 +122,29 @@ class State:
         return self._raws_path
 
     @raws_path.setter
-    def raws_path(self, value: datetime.datetime):
-        self._raws_path = RAW_DIRS_PATH + value.strftime("%Y-%m-%dT%H_%M_%S")
+    def raws_path(self, value: typing.Union[str, datetime.datetime]):
+        if type(value) is str:
+            self._raws_path = value
+        else:
+            self._raws_path = RAW_DIRS_PATH + value.strftime("%Y-%m-%dT%H_%M_%S")
 
     def set_raws_path(self):
         self.raws_path = datetime.datetime.now()
         if os.path.exists(self._raws_path):
             self.raws_path = datetime.datetime.now() + datetime.timedelta(seconds=1)
 
+        remove_empty_dirs()
         os.makedirs(self._raws_path)
 
         print("Set raws path to " + self._raws_path)
 
-        self._raws_path = os.path.join(self._raws_path, '') + "{:05d}.jpg"
+        self._raws_path = os.path.join(self._raws_path, '') + "{:08d}.jpg"
 
     def start_scan(self):
-        #img_transfer_process = subprocess.Popen(IMG_TRANSFER_CMD)
+        if self.continue_folder:
+            self.continue_folder = False
+            return
+
         self.raw_count = 0
         self.zoom_mode = ZoomMode.Z1_1
         self.lamp_mode = True
@@ -144,12 +153,14 @@ class State:
         shoot_raw()
 
     def stop_scan(self):
-        #if img_transfer_process is None:
-        #    raise Exception("Arduino told us it stopped scanning even though we weren't scanning")
-        #else:
-        #    img_transfer_process.terminate()
         print("Nevermind; Stopped scanning")
         self.lamp_mode = False
+
+def remove_empty_dirs():
+    for file_name in os.listdir(RAW_DIRS_PATH):
+        file_path = RAW_DIRS_PATH + file_name
+        if os.path.isdir(file_path) and len(os.listdir(file_path)) == 0:
+            os.rmdir(file_path)
 
 state = State()
 
@@ -169,17 +180,12 @@ camera.sharpness = 0   # (-100 to 100)
 camera.contrast = 0    # (-100 to 100)
 camera.saturation = 0  # (-100 to 100)
 camera.exposure_compensation = 0 # (-25 to 25)
-camera.awb_mode = 'sunlight'         # off becomes green, irrelevant anyway since we do Raws
-camera.shutter_speed = 1600    # 2000      
-# camera.exposure_mode = 'off'    # lock all settings
+camera.awb_mode = 'sunlight'     # off becomes green, irrelevant anyway since we do Raws
+camera.shutter_speed = 1200      # 2000      
+# camera.exposure_mode = 'off'   # lock all settings
 # sleep(2)
 
 img_transfer_process: subprocess.Popen = None
-
-def main():
-    while True:
-        loop()
-        time.sleep(0.1)
 
 def loop():
     command = ask_arduino()
@@ -207,7 +213,6 @@ def tell_arduino(command: Command):
         sleep(1)
         tell_arduino(command)
 
-
 def ask_arduino() -> typing.Optional[Command]:
     try:
         return Command(arduino.read_byte(arduino_i2c_address))
@@ -232,4 +237,23 @@ def lamp_off():
     state.lamp_mode = False
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        '--continue-at', default=-1, type=int,
+        help="continue writing to the previous folder",
+        metavar="<next image no>")
+
+    args = parser.parse_args()
+
+    if args.continue_at != -1:
+        state.raws_path = RAW_DIRS_PATH + os.path.join(
+            sorted(os.listdir(RAW_DIRS_PATH))[-1], '') + "{:08d}.jpg"
+        state.raw_count = args.continue_at
+        state.continue_folder = True
+        camera.start_preview()
+        shoot_raw()
+
+    while True:
+        loop()
+        time.sleep(0.1)
