@@ -8,8 +8,10 @@ Software:
 - Try performance of saving to an external disk instead of to uSD (autarky)
 - Let Preview Mode use dynamic exposure to allow easier focus adjustments
 - Make OSError in ask_arduino more specific (errno)
+- parallelize conversion
 
 Hardware:
+- Analyze i2c signal intergity with oscilloscope (pullups?)
 - Switch for pos / neg
 - switch for hd / rsync
 - Exposure Adjustment via pot
