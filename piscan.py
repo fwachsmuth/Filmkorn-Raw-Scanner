@@ -42,7 +42,7 @@ class Command(enum.Enum):
     NONE = 0
 
     # Raspi to Arduino
-    PI_INIT = 1
+    PI_INIT = 12
     READY = 2
 
     # Arduino to Raspi
@@ -67,18 +67,12 @@ class State:
         self._raws_path: str = None
         self.raw_count = 0
         self.continue_dir = False
-        self._command_number = 0
+        self.command_number = 0
         self.previous_command = Command.NONE
         self.initializing = True
         self.reask_arduino = False
-
-    @property
-    def command_number(self) -> int:
-        return self._command_number
-
-    @command_number.setter
-    def command_number(self, value: int):
-        self._command_number = value & 0x0F
+        self.connected_to_arduino = False
+        self.stop_after = None # FOR TESTING
 
     @property
     def lamp_mode(self) -> bool:
@@ -86,7 +80,7 @@ class State:
 
     @lamp_mode.setter
     def lamp_mode(self, value: bool):
-        if value == self.lamp_mode:
+        if value == self.lamp_mode or state.fake:
             return
 
         print("Lamp and camera preview ", end='')
@@ -208,29 +202,44 @@ def loop():
     state.reask_arduino = True
     while state.reask_arduino:
         state.reask_arduino = False
+        if state.stop_after is not None and state.stop_after <= time.time():  # FOR TESTING
+            exit()
+
         ask_arduino()
 
     if state.previous_command != Command.NONE:
+        print("Retry command: {:1X}".format(state.previous_command.value))
         tell_arduino(state.previous_command, True)
 
     sys.stdout.flush()
     return
 
 def tell_arduino(command: Command, retry=False):
-    try:
-        arduino.write_byte(ARDUINO_I2C_ADDRESS, command.value | (state.command_number << 4))
-    except OSError as error:
-        if error.errno != errno.EREMOTEIO:
-            raise error
+    toWrite = command.value | (((state.command_number - retry) & 0x0F) << 4)
+    while True:
+        try:
+            arduino.write_byte(ARDUINO_I2C_ADDRESS, toWrite)
+            print("Sent: {:02X}".format(toWrite))
+            break
+        except OSError as error:
+            if error.errno != errno.EREMOTEIO:
+                raise error
 
-        print("Remote I/O Error while trying to send Arduino command")
-        time.sleep(1)
-        tell_arduino(command)
-        return
+            if state.connected_to_arduino:
+                state.connected_to_arduino = False
+                print("Lost connection to Arduino while trying to write {:02X}".format(toWrite))
+                state.stop_after = time.time() + 5 # FOR TESTING
+
+            time.sleep(0.05)
+
+    if not state.connected_to_arduino:
+        state.connected_to_arduino = True
+        print("Connected to Arduino")
 
     if not retry and command != Command.NONE:
         state.previous_command = command
         state.command_number += 1
+        print("Command number: {:1X}".format(state.command_number & 0x0F))
 
 def ask_arduino():
     try:
@@ -239,8 +248,16 @@ def ask_arduino():
         if error.errno != errno.EREMOTEIO:
             raise error
 
-        print("Remote I/O Error while trying to request command from Arduino")
+        if state.connected_to_arduino:
+            state.connected_to_arduino = False
+            print("Lost connection to Arduino while trying to request command (command number: {:1X})".format(state.command_number & 0x0F))
+            state.stop_after = time.time() + 5 # FOR TESTING
+
         return
+
+    if not state.connected_to_arduino:
+        state.connected_to_arduino = True
+        print("Connected to Arduino")
 
     if state.initializing:
         state.initializing = False
@@ -260,17 +277,21 @@ def ask_arduino():
         state.previous_command = Command.NONE
         state.continue_dir = False
         state.command_number = 1
+        print("Command number: 1")
         return
 
-    if command_number != state.command_number:
-        print("Command numbers not in sync (Pi:", str(state.command_number) + "; Arduino:", str(command_number) + ")")
+    if command_number != state.command_number & 0x0F:
+        print("Command numbers not equal (Pi: {:1X}; Arduino: {:1X}; response: {:02X}; previous command: {:1X})".format(state.command_number & 0x0F, command_number, response, state.previous_command.value))
         return
 
     state.previous_command = Command.NONE
 
     if command != Command.NONE:
+        state.command_number += 1
+        print("Command number: {:1X}".format(state.command_number & 0x0F))
+
         # Using a dict instead of a switch/case, mapping I2C commands to functions
-        func = {
+        {
             Command.Z1_1: z1_1,
             Command.Z3_1: z3_1,
             Command.Z10_1: z10_1,
@@ -279,19 +300,19 @@ def ask_arduino():
             Command.LAMP_ON: lamp_on,
             Command.STOP_SCAN: state.stop_scan,
             Command.START_SCAN: state.start_scan
-        }.get(command, None)
-
-        if func is not None:
-            state.command_number += 1
-            func()
+        }[command]()
         
     tell_arduino(Command.NONE)
 
 def shoot_raw():
-    start_time = time.time()
-    camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
-    state.raw_count += 1
-    print("One raw taken ({:.3}s); ".format(time.time() - start_time), end='')
+    if state.fake:
+        print("[photo] ", end="")
+    else:
+        start_time = time.time()
+        camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
+        state.raw_count += 1
+        print("One raw taken ({:.3}s); ".format(time.time() - start_time), end='')
+
     say_ready()
     state.reask_arduino = True
 
@@ -318,11 +339,17 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        '--continue-at', default=-1, type=int,
+        "--continue-at", default=-1, type=int,
         help="continue writing to the previous directory",
         metavar="<next image no>")
 
+    parser.add_argument(
+        "--fake", help="don't actually shoot photos",
+        action="store_true")
+
     args = parser.parse_args()
+
+    state.fake = args.fake
 
     if args.continue_at != -1:
         state.raws_path = RAW_DIRS_PATH + os.path.join(
