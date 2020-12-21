@@ -22,6 +22,8 @@
 
 const byte SLAVE_ADDRESS = 42; // Our i2c address here
 
+#define FAKE
+
 // Define the Control Buttons
 enum ControlButton {
   NONE,   // No Button pressed
@@ -67,8 +69,8 @@ enum Command {
   CMD_NONE,
   
   // Raspi to Arduino
-  CMD_PI_INIT,
-  CMD_READY,
+  CMD_PI_INIT = 12,
+  CMD_READY = 2,
   
   // Arduino to Raspi
   CMD_ARDUINO_INIT,
@@ -240,6 +242,7 @@ void setLampMode(bool mode) {
   Serial.print("Lamp mode: ");
   Serial.println(lampMode);
 
+#ifndef FAKE
   if (lampMode) {
     digitalWrite(FAN_PIN, HIGH);
     digitalWrite(LAMP_PIN, HIGH);
@@ -247,6 +250,7 @@ void setLampMode(bool mode) {
     digitalWrite(FAN_PIN, LOW);
     digitalWrite(LAMP_PIN, LOW);
   }
+#endif
 }
 
 void setZoomMode(ZoomMode mode) {
@@ -341,21 +345,32 @@ void i2cReceive(int howMany) {
   if (howMany < (sizeof i2cInput)) {
     return;
   }
-  
+
   wireReadData(i2cInput);
 
-  if ((i2cInput & 0xF0) >> 4 == commandNumber) {
+  Command cmd = i2cInput & 0x0F;
+  
+  if (cmd == CMD_PI_INIT) {
+    piIsInitializing = true;
+    commandNumber = 2;
+    Serial.println("Init pi");
+    Serial.println(i2cInput);
+    prevPiCmd = CMD_NONE;
+    sendNextPiCmd = true;
+    return;
+  }
+  
+  if ((i2cInput & 0xF0) >> 4 == (commandNumber & 0x0F)) {
     sendNextPiCmd = true;
     cmdTransmitConfirmed();
     prevPiCmd = CMD_NONE;
   } else {
     sendNextPiCmd = false;
   }
-
-  Command cmd = i2cInput & 0x0F;
-
+  
   if (cmd != CMD_NONE) {
-    commandNumber = (commandNumber + 1) & 0x0F;
+    commandNumber++;
+    Serial.println(".......................................................................");
   }
 
   switch (cmd) {
@@ -365,42 +380,32 @@ void i2cReceive(int howMany) {
       if (isScanning) {
         piIsReady = true;
       }
-      break;
-    case CMD_PI_INIT:
-      piIsInitializing = true;
-      prevPiCmd = CMD_NONE;
-      sendNextPiCmd = true;
   }
 }
 
-void i2cWrite(Command command) {
-  Wire.write(command | (commandNumber << 4));
+void i2cWrite(Command command, bool retry) {
+  Wire.write(command | (((commandNumber - retry) & 0x0F) << 4));
 }
 
 void i2cRequest() {
   if (piIsInitializing) {
     piIsInitializing = false;
-    commandNumber = 1;
     Wire.write(lampMode | (zoomMode << 1) | (isScanning << 3));
-
-    if (nextPiCmd == CMD_ARDUINO_INIT) {
-      nextPiCmd = CMD_NONE;
-    }
-    
+    nextPiCmd = CMD_NONE;
     return;
   }
 
   if (!sendNextPiCmd) {
-    i2cWrite(prevPiCmd);
+    i2cWrite(prevPiCmd, true);
     return;
   }
 
-  i2cWrite(nextPiCmd);
+  i2cWrite(nextPiCmd, false);
 
   if (nextPiCmd != CMD_NONE) {
-    commandNumber = (commandNumber + 1) & 0x0F;
+    commandNumber++;
   }
-  
+
   prevPiCmd = nextPiCmd;
   nextPiCmd = CMD_NONE;
 }
@@ -414,7 +419,9 @@ void cmdTransmitConfirmed() {
       break;
     case CMD_SHOOT_RAW:
       piIsReady = false;
+#ifndef FAKE
       motorFWD1(); // advance
+#endif
       break;
     case CMD_LAMP_OFF: case CMD_LAMP_ON:
       setLampMode(prevPiCmd == CMD_LAMP_ON);
