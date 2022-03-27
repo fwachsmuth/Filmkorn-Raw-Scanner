@@ -22,8 +22,6 @@
 
 const byte SLAVE_ADDRESS = 42; // Our i2c address here
 
-#define FAKE
-
 // Define the Control Buttons
 enum ControlButton {
   NONE,   // No Button pressed
@@ -66,35 +64,26 @@ enum {
 #define CONT_RUN_POT    A3
 
 enum Command {
-  CMD_NONE,
-  
-  // Raspi to Arduino
-  CMD_PI_INIT = 12,
-  CMD_READY = 2,
-  
   // Arduino to Raspi
-  CMD_ARDUINO_INIT,
-  CMD_Z1_1,
-  CMD_Z3_1,
-  CMD_Z10_1,
+  CMD_IDLE,
+  CMD_PING,
+  CMD_ZOOM_CYCLE,
   CMD_SHOOT_RAW,
-  CMD_LAMP_OFF,
   CMD_LAMP_ON,
+  CMD_LAMP_OFF,
+  CMD_INIT_SCAN,
+  CMD_START_SCAN,
   CMD_STOP_SCAN,
-  CMD_START_SCAN
-} nextPiCmd = CMD_NONE, prevPiCmd = CMD_NONE;
 
-const uint8_t ZOOM_CMD_OFFSET = (uint8_t)(CMD_Z1_1);
+  // Raspi to Arduino
+  CMD_READY = 128
+} nextPiCmd = CMD_IDLE;
 
 enum ZoomMode {
   Z1_1, //  1:1
   Z3_1, //  3:1
   Z10_1 // 10:1
 } zoomMode = Z1_1;
-
-uint8_t commandNumber = 0;
-bool sendNextPiCmd = true;
-bool piIsInitializing = false;
 
 // Define some constants
 uint8_t  fps18MotorPower;
@@ -129,13 +118,13 @@ void setup() {
   Wire.begin(SLAVE_ADDRESS);
   Wire.onReceive(i2cReceive);
   Wire.onRequest(i2cRequest);
-
-  nextPiCmd = CMD_ARDUINO_INIT;
 }
 
 void loop() {
-  if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN && prevPiCmd != CMD_STOP_SCAN) {
-    nextPiCmd = CMD_SHOOT_RAW; // tell to shoot
+  if (isScanning && piIsReady) {
+    piIsReady = false;
+    motorFWD1();                // advance
+    nextPiCmd = CMD_SHOOT_RAW;  // tell to shoot
   }
 
   // Read the trim pots to determine PWM width for the Motor
@@ -153,14 +142,21 @@ void loop() {
         default:
           break;
         case ZOOM:
-          nextPiCmd = (Command)((((uint8_t)zoomMode + 1) % 3) + ZOOM_CMD_OFFSET);
+          setZoomMode((zoomMode == Z10_1) ? Z1_1 : (ZoomMode)((uint8_t)zoomMode + 1));
+          nextPiCmd = CMD_ZOOM_CYCLE;
           break;
         case LIGHT:
-          nextPiCmd = lampMode ? CMD_LAMP_OFF : CMD_LAMP_ON;
+          setLampMode(!lampMode);
+          nextPiCmd = lampMode ? CMD_LAMP_ON : CMD_LAMP_OFF;
           break;
         case STOP:
           if (isScanning) {
-            nextPiCmd = CMD_STOP_SCAN;
+            setLampMode(false);
+            if (isScanning) {
+              isScanning = false;
+              nextPiCmd = CMD_STOP_SCAN;
+            }
+            Serial.println("Scanning mode: 0");
           } else {
             stopMotor();
           }
@@ -201,8 +197,15 @@ void loop() {
           break;
         case SCAN:
           if (!isScanning) {
+            if (motorState != STOPPED)
+              stopBriefly();
+              
+            setZoomMode(Z1_1);
+            setLampMode(true);
+            isScanning = true;
             nextPiCmd = CMD_START_SCAN;
           }
+          Serial.println("Scanning mode: 1");
           // ... (don't forget to detach ISR)
           break;
       }
@@ -242,7 +245,6 @@ void setLampMode(bool mode) {
   Serial.print("Lamp mode: ");
   Serial.println(lampMode);
 
-#ifndef FAKE
   if (lampMode) {
     digitalWrite(FAN_PIN, HIGH);
     digitalWrite(LAMP_PIN, HIGH);
@@ -250,20 +252,20 @@ void setLampMode(bool mode) {
     digitalWrite(FAN_PIN, LOW);
     digitalWrite(LAMP_PIN, LOW);
   }
-#endif
 }
 
 void setZoomMode(ZoomMode mode) {
   if (mode == zoomMode)
     return;
 
-  if (mode != Z1_1) {
+  if (mode != Z1_1)
     setLampMode(true);
-  }
 
   zoomMode = mode;
   Serial.print("Zoom mode: ");
-  Serial.println(zoomMode);
+  Serial.print(zoomMode);
+  Serial.print(". Telling Raspi to zoom ");
+  Serial.println((zoomMode == Z1_1) ? "out" : "in");
 }
 
 void motorFWD1() {
@@ -341,105 +343,24 @@ ControlButton pollButtons() {
 }
 
 void i2cReceive(int howMany) {
-  uint8_t i2cInput;
-  if (howMany < (sizeof i2cInput)) {
-    return;
-  }
+  uint8_t i2cCommand;
+  if (howMany >= (sizeof i2cCommand)) {
+    wireReadData(i2cCommand);
 
-  wireReadData(i2cInput);
-
-  Command cmd = i2cInput & 0x0F;
-  
-  if (cmd == CMD_PI_INIT) {
-    piIsInitializing = true;
-    commandNumber = 2;
-    Serial.println("Init pi");
-    Serial.println(i2cInput);
-    prevPiCmd = CMD_NONE;
-    sendNextPiCmd = true;
-    return;
-  }
-  
-  if ((i2cInput & 0xF0) >> 4 == (commandNumber & 0x0F)) {
-    sendNextPiCmd = true;
-    cmdTransmitConfirmed();
-    prevPiCmd = CMD_NONE;
-  } else {
-    sendNextPiCmd = false;
-  }
-  
-  if (cmd != CMD_NONE) {
-    commandNumber++;
-    Serial.println(".......................................................................");
-  }
-
-  switch (cmd) {
-    default:
-      break;
-    case CMD_READY:
-      if (isScanning) {
-        piIsReady = true;
-      }
-  }
-}
-
-void i2cWrite(Command command, bool retry) {
-  Wire.write(command | (((commandNumber - retry) & 0x0F) << 4));
-}
+    // Don't set piIsReady if we aren't scanning anymore
+    if ((Command)i2cCommand == CMD_READY && isScanning) {
+      piIsReady = true;
+    }
+  }  // end if have enough data
+}  // end of receive-ISR
 
 void i2cRequest() {
-  if (piIsInitializing) {
-    piIsInitializing = false;
-    Wire.write(lampMode | (zoomMode << 1) | (isScanning << 3));
-    nextPiCmd = CMD_NONE;
-    return;
-  }
-
-  if (!sendNextPiCmd) {
-    i2cWrite(prevPiCmd, true);
-    return;
-  }
-
-  i2cWrite(nextPiCmd, false);
-
-  if (nextPiCmd != CMD_NONE) {
-    commandNumber++;
-  }
-
-  prevPiCmd = nextPiCmd;
-  nextPiCmd = CMD_NONE;
+  Wire.write(nextPiCmd);
+  nextPiCmd = CMD_IDLE;
 }
-
-void cmdTransmitConfirmed() {
-  switch (prevPiCmd) {
-    case CMD_NONE: default:
-      break;
-    case CMD_Z1_1: case CMD_Z3_1: case CMD_Z10_1:
-      setZoomMode(prevPiCmd - ZOOM_CMD_OFFSET);
-      break;
-    case CMD_SHOOT_RAW:
-      piIsReady = false;
-#ifndef FAKE
-      motorFWD1(); // advance
-#endif
-      break;
-    case CMD_LAMP_OFF: case CMD_LAMP_ON:
-      setLampMode(prevPiCmd == CMD_LAMP_ON);
-      break;
-    case CMD_STOP_SCAN: case CMD_START_SCAN:
-      bool startScanning = prevPiCmd == CMD_START_SCAN;
-    
-      if (startScanning) {
-        setZoomMode(Z1_1);
-
-        if (motorState != STOPPED) {
-          stopBriefly();
-        }
-      }
-
-      setLampMode(startScanning);
-      isScanning = startScanning;
-      Serial.print("Scanning mode: ");
-      Serial.println(startScanning);
-  }
+void tellRaspi(byte command) {
+  Wire.beginTransmission(8); // This needs the Raspi's address
+  wireWriteData(command);
+  Wire.endTransmission();    // stop transmitting
+  // delay(20);
 }

@@ -26,35 +26,33 @@ import argparse
 import datetime
 import enum
 import errno
+import subprocess
 import sys
 import time
 import typing
 import os
 
-from picamera import PiCamera
 from smbus import SMBus
+from picamera import PiCamera
+from time import sleep
 
 # Has to end with /
 RAW_DIRS_PATH = "/home/pi/Pictures/raw-intermediates/"
-ARDUINO_I2C_ADDRESS = 42
 
 class Command(enum.Enum):
-    NONE = 0
+    # Arduino to Raspi
+    IDLE = 0
+    PING = 1
+    ZOOM_CYCLE = 2
+    SHOOT_RAW = 3
+    LAMP_ON = 4
+    LAMP_OFF = 5
+    INIT_SCAN = 6
+    START_SCAN = 7
+    STOP_SCAN = 8
 
     # Raspi to Arduino
-    PI_INIT = 12
-    READY = 2
-
-    # Arduino to Raspi
-    ARDUINO_INIT = 3
-    Z1_1 = 4
-    Z3_1 = 5
-    Z10_1 = 6
-    SHOOT_RAW = 7
-    LAMP_OFF = 8
-    LAMP_ON = 9
-    STOP_SCAN = 10
-    START_SCAN = 11
+    READY = 128
 
 class ZoomMode(enum.Enum):
     Z1_1 = 0
@@ -67,12 +65,6 @@ class State:
         self._raws_path: str = None
         self.raw_count = 0
         self.continue_dir = False
-        self.command_number = 0
-        self.previous_command = Command.NONE
-        self.initializing = True
-        self.reask_arduino = False
-        self.connected_to_arduino = False
-        self.stop_after = None # FOR TESTING
 
     @property
     def lamp_mode(self) -> bool:
@@ -80,7 +72,7 @@ class State:
 
     @lamp_mode.setter
     def lamp_mode(self, value: bool):
-        if value == self.lamp_mode or state.fake:
+        if value == self.lamp_mode:
             return
 
         print("Lamp and camera preview ", end='')
@@ -113,7 +105,7 @@ class State:
             ZoomMode.Z10_1: (0.45, 0.45, 0.1, 0.1)
         }[value]
 
-        print("Zoom Level:", {
+        print("Zoom Level: " + {
             ZoomMode.Z1_1: '1',
             ZoomMode.Z3_1: '3',
             ZoomMode.Z10_1: '10',
@@ -149,6 +141,9 @@ class State:
         self._raws_path = os.path.join(self._raws_path, '') + "{:08d}.jpg"
 
     def start_scan(self):
+        if self.continue_dir:
+            return
+
         self.raw_count = 0
         self.zoom_mode = ZoomMode.Z1_1
         self.lamp_mode = True
@@ -161,17 +156,6 @@ class State:
         print("Nevermind; Stopped scanning")
         self.lamp_mode = False
 
-    def from_byte(self, byte: int):
-        self.lamp_mode = byte & 0x01
-        self.zoom_mode = ZoomMode((byte & 0x06) >> 1)
-        if byte & 0x08:
-            if self.continue_dir:
-                shoot_raw()
-            else:
-                self.start_scan()
-        elif self.continue_dir:
-            print("Can't continue dir if Arduino isn't scanning; ignoring --continue-at")
-
 def remove_empty_dirs():
     for file_name in os.listdir(RAW_DIRS_PATH):
         file_path = RAW_DIRS_PATH + file_name
@@ -181,6 +165,7 @@ def remove_empty_dirs():
 state = State()
 
 arduino = SMBus(1) # Indicates /dev/ic2-1 where the Arduino is connected
+arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
 
 camera = PiCamera(resolution=(507, 380)) # keep the exact AR to avoid rounding errors casuing overflow freezes
 
@@ -196,138 +181,54 @@ camera.contrast = 0    # (-100 to 100)
 camera.saturation = 0  # (-100 to 100)
 camera.exposure_compensation = 0 # (-25 to 25)
 camera.awb_mode = 'sunlight'     # off becomes green, irrelevant anyway since we do Raws
-camera.shutter_speed = 1500      # 2000
+camera.shutter_speed = 1200      # 2000      
+# camera.exposure_mode = 'off'   # lock all settings
+# sleep(2)
+
+img_transfer_process: subprocess.Popen = None
 
 def loop():
-    state.reask_arduino = True
-    while state.reask_arduino:
-        state.reask_arduino = False
-        if state.stop_after is not None and state.stop_after <= time.time():  # FOR TESTING
-            exit()
-
-        ask_arduino()
-
-    if state.previous_command != Command.NONE:
-        print("Retry command: {:1X}".format(state.previous_command.value))
-        tell_arduino(state.previous_command, True)
-
-    sys.stdout.flush()
-    return
-
-def tell_arduino(command: Command, retry=False):
-    toWrite = command.value | (((state.command_number - retry) & 0x0F) << 4)
-    while True:
-        try:
-            arduino.write_byte(ARDUINO_I2C_ADDRESS, toWrite)
-            print("Sent: {:02X}".format(toWrite))
-            break
-        except OSError as error:
-            if error.errno != errno.EREMOTEIO:
-                raise error
-
-            if state.connected_to_arduino:
-                state.connected_to_arduino = False
-                print("Lost connection to Arduino while trying to write {:02X}".format(toWrite))
-                state.stop_after = time.time() + 5 # FOR TESTING
-
-            time.sleep(0.05)
-
-    if not state.connected_to_arduino:
-        state.connected_to_arduino = True
-        print("Connected to Arduino")
-
-    if not retry and command != Command.NONE:
-        state.previous_command = command
-        state.command_number += 1
-        print("Command number: {:1X}".format(state.command_number & 0x0F))
-
-def ask_arduino():
-    try:
-        response = arduino.read_byte(ARDUINO_I2C_ADDRESS)
-    except OSError as error:
-        if error.errno != errno.EREMOTEIO:
-            raise error
-
-        if state.connected_to_arduino:
-            state.connected_to_arduino = False
-            print("Lost connection to Arduino while trying to request command (command number: {:1X})".format(state.command_number & 0x0F))
-            state.stop_after = time.time() + 5 # FOR TESTING
-
-        return
-
-    if not state.connected_to_arduino:
-        state.connected_to_arduino = True
-        print("Connected to Arduino")
-
-    if state.initializing:
-        state.initializing = False
-        state.from_byte(response)
-        state.previous_command = Command.NONE
-        print("Initialized Pi")
-        return
-
-    command = Command(response & 0x0F)
-
-    command_number = response >> 4
-
-    if command == Command.ARDUINO_INIT:
-        print("Arduino reset; reset state")
-        state.zoom_mode = ZoomMode.Z1_1
-        state.lamp_mode = False
-        state.previous_command = Command.NONE
-        state.continue_dir = False
-        state.command_number = 1
-        print("Command number: 1")
-        return
-
-    if command_number != state.command_number & 0x0F:
-        print("Command numbers not equal (Pi: {:1X}; Arduino: {:1X}; response: {:02X}; previous command: {:1X})".format(state.command_number & 0x0F, command_number, response, state.previous_command.value))
-        return
-
-    state.previous_command = Command.NONE
-
-    if command != Command.NONE:
-        state.command_number += 1
-        print("Command number: {:1X}".format(state.command_number & 0x0F))
-
+    command = ask_arduino()
+    if command is not None and command != Command.IDLE:
         # Using a dict instead of a switch/case, mapping I2C commands to functions
-        {
-            Command.Z1_1: z1_1,
-            Command.Z3_1: z3_1,
-            Command.Z10_1: z10_1,
+        func = {
+            Command.ZOOM_CYCLE: state.cycle_zoom_mode,
             Command.SHOOT_RAW: shoot_raw,
-            Command.LAMP_OFF: lamp_off,
             Command.LAMP_ON: lamp_on,
-            Command.STOP_SCAN: state.stop_scan,
-            Command.START_SCAN: state.start_scan
-        }[command]()
-        
-    tell_arduino(Command.NONE)
+            Command.LAMP_OFF: lamp_off,
+            Command.START_SCAN: state.start_scan,
+            Command.STOP_SCAN: state.stop_scan
+        }.get(command, None)
+
+        if func is not None:
+            func()
+
+def tell_arduino(command: Command):
+    try:
+        arduino.write_byte(arduino_i2c_address, command.value)
+    except OSError as e:
+        if e.errno != errno.EREMOTEIO:
+            raise e
+
+        sleep(1)
+        tell_arduino(command)
+
+def ask_arduino() -> typing.Optional[Command]:
+    try:
+        return Command(arduino.read_byte(arduino_i2c_address))
+    except OSError:
+        print("No I2C answer")
 
 def shoot_raw():
-    if state.fake:
-        print("[photo] ", end="")
-    else:
-        start_time = time.time()
-        camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
-        state.raw_count += 1
-        print("One raw taken ({:.3}s); ".format(time.time() - start_time), end='')
-
+    start_time = time.time()
+    camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
+    state.raw_count += 1
+    print("One raw taken ({:.3}s); ".format(time.time() - start_time), end='')
     say_ready()
-    state.reask_arduino = True
 
 def say_ready():
     tell_arduino(Command.READY)
     print("Told Arduino we are ready")
-
-def z1_1():
-    state.zoom_mode = ZoomMode.Z1_1
-
-def z3_1():
-    state.zoom_mode = ZoomMode.Z3_1
-
-def z10_1():
-    state.zoom_mode = ZoomMode.Z10_1
 
 def lamp_on():
     state.lamp_mode = True
@@ -339,26 +240,20 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--continue-at", default=-1, type=int,
+        '--continue-at', default=-1, type=int,
         help="continue writing to the previous directory",
         metavar="<next image no>")
 
-    parser.add_argument(
-        "--fake", help="don't actually shoot photos",
-        action="store_true")
-
     args = parser.parse_args()
-
-    state.fake = args.fake
 
     if args.continue_at != -1:
         state.raws_path = RAW_DIRS_PATH + os.path.join(
             sorted(os.listdir(RAW_DIRS_PATH))[-1], '') + "{:08d}.jpg"
         state.raw_count = args.continue_at
         state.continue_dir = True
-
-    tell_arduino(Command.PI_INIT)
+        camera.start_preview()
+        shoot_raw()
 
     while True:
         loop()
-        time.sleep(0.05)
+        time.sleep(0.1)

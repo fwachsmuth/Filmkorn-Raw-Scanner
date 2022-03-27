@@ -69,7 +69,7 @@ class OutputCinemaDNG(OutputDir):
         return os.path.join(dng_dirname, dng_basename)
 
 def convert(input: str, output: str=None, compress=False, cinema_dng=False,
-        keep_jpgs=False, keep_running=False):
+            keep_jpgs=False, keep_running=False):
 
     input = os.path.realpath(input)
 
@@ -134,7 +134,7 @@ def convert(input: str, output: str=None, compress=False, cinema_dng=False,
             "No JPG files found that were not already converted")
 
 def convert_raw(jpg_path: str, compress: bool,
-        output_dir: OutputDir, keep_jpgs: bool):
+                output_dir: OutputDir, keep_jpgs: bool):
 
     if jpg_path[-4:].lower() != '.jpg':
         return False
