@@ -33,7 +33,7 @@ enum ControlButton {
   FWD1,   // Push
   RUNFWD, // Radio
   SCAN    // Radio
-} currentButton = NONE, prevButtonChoice = NONE;
+};
 
 /* Define the States we can be in
  * enum {
@@ -45,11 +45,11 @@ enum ControlButton {
  */
 
 // Define the motor states
-enum {
+enum MotorState {
   REV = -1,
   STOPPED,
   FWD
-} motorState = STOPPED;
+};
 
 // Define the Hardware wiring
 #define FAN_PIN         8
@@ -64,41 +64,47 @@ enum {
 #define CONT_RUN_POT    A3
 
 enum Command {
+  CMD_NONE,
+
   // Arduino to Raspi
-  CMD_IDLE,
   CMD_PING,
-  CMD_ZOOM_CYCLE,
+  CMD_Z1_1,
+  CMD_Z3_1,
+  CMD_Z10_1,
   CMD_SHOOT_RAW,
+  CMD_LAMP_OFF, // needs to stay at an even number
   CMD_LAMP_ON,
-  CMD_LAMP_OFF,
   CMD_INIT_SCAN,
   CMD_START_SCAN,
   CMD_STOP_SCAN,
 
   // Raspi to Arduino
   CMD_READY = 128
-} nextPiCmd = CMD_IDLE;
+};
 
 enum ZoomMode {
   Z1_1, //  1:1
   Z3_1, //  3:1
   Z10_1 // 10:1
-} zoomMode = Z1_1;
+};
 
 // Define some constants
-uint8_t  fps18MotorPower;
-uint8_t  singleStepMotorPower;
+uint8_t fps18MotorPower = 0;
+uint8_t singleStepMotorPower = 0;
 
 // Define some global variables
-bool    lampMode = false;
-bool    isScanning = false;
-uint8_t ISRcount = 0;
-uint8_t speed = 0;
+bool lampMode = false;
+bool isScanning = false;
 
 volatile bool piIsReady = false;
 
+ControlButton currentButton = NONE;
+ControlButton prevButtonChoice = NONE;
+MotorState motorState = STOPPED;
+Command nextPiCmd = CMD_NONE;
+ZoomMode zoomMode = Z1_1;
+
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
   pinMode(BUTTONS_A_PIN, INPUT);
   pinMode(BUTTONS_B_PIN, INPUT);
@@ -121,7 +127,7 @@ void setup() {
 }
 
 void loop() {
-  if (isScanning && piIsReady) {
+  if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN) {
     piIsReady = false;
     motorFWD1();                // advance
     nextPiCmd = CMD_SHOOT_RAW;  // tell to shoot
@@ -143,20 +149,15 @@ void loop() {
           break;
         case ZOOM:
           setZoomMode((zoomMode == Z10_1) ? Z1_1 : (ZoomMode)((uint8_t)zoomMode + 1));
-          nextPiCmd = CMD_ZOOM_CYCLE;
+          nextPiCmd = (Command)((uint8_t)CMD_Z1_1 + (uint8_t)zoomMode);
           break;
         case LIGHT:
           setLampMode(!lampMode);
-          nextPiCmd = lampMode ? CMD_LAMP_ON : CMD_LAMP_OFF;
+          nextPiCmd = (Command)((uint8_t)CMD_LAMP_OFF + lampMode);
           break;
         case STOP:
           if (isScanning) {
-            setLampMode(false);
-            if (isScanning) {
-              isScanning = false;
-              nextPiCmd = CMD_STOP_SCAN;
-            }
-            Serial.println("Scanning mode: 0");
+            nextPiCmd = CMD_STOP_SCAN;
           } else {
             stopMotor();
           }
@@ -172,24 +173,25 @@ void loop() {
         case REV1:
           if (motorState != STOPPED) {
             Serial.println("Motor not stopped.");
-            break;
+          } else {
+            Serial.print("< at Speed ");
+            Serial.println(singleStepMotorPower);
+            motorREV1();
           }
-          Serial.print("< at Speed ");
-          Serial.println(singleStepMotorPower);
-          motorREV1();
           break;
         case FWD1:
           if (motorState != STOPPED) {
             Serial.println("Motor not stopped.");
-            break;
+          } else {
+            Serial.print("> at Speed ");
+            Serial.println(singleStepMotorPower);
+            motorFWD1();
           }
-          Serial.print("> at Speed ");
-          Serial.println(singleStepMotorPower);
-          motorFWD1();
           break;
         case RUNFWD:
-          if (motorState == REV)
+          if (motorState == REV) {
             stopBriefly();
+          }
           motorState = FWD;
           Serial.print("Motor: >> at Speed ");
           Serial.println(fps18MotorPower);
@@ -197,15 +199,8 @@ void loop() {
           break;
         case SCAN:
           if (!isScanning) {
-            if (motorState != STOPPED)
-              stopBriefly();
-              
-            setZoomMode(Z1_1);
-            setLampMode(true);
-            isScanning = true;
             nextPiCmd = CMD_START_SCAN;
           }
-          Serial.println("Scanning mode: 1");
           // ... (don't forget to detach ISR)
           break;
       }
@@ -302,13 +297,12 @@ void stopMotorISR() {
 }
 
 ControlButton pollButtons() {
-  int buttonBankA;
-  int buttonBankB;
-  static bool noButtonPressed;
+  static bool noButtonPressed = false;
+
+  int buttonBankA = analogRead(BUTTONS_A_PIN);
+  int buttonBankB = analogRead(BUTTONS_B_PIN);
   ControlButton buttonChoice;
 
-  buttonBankA = analogRead(BUTTONS_A_PIN);
-  buttonBankB = analogRead(BUTTONS_B_PIN);
   delay(10); // debounce (since button release bounce is not covered in the FSM)
 
   if (noButtonPressed) {
@@ -334,11 +328,13 @@ ControlButton pollButtons() {
       buttonChoice = SCAN;
     }
   }
+
   if (buttonBankA > 1 || buttonBankB > 1) {         // Stop reading values...
     noButtonPressed = false;
   } else if (buttonBankA < 2 && buttonBankB < 2 ) { // ...until all buttons are clearly released
     noButtonPressed = true;
   }
+
   return buttonChoice;
 }
 
@@ -356,7 +352,7 @@ void i2cReceive(int howMany) {
 
 void i2cRequest() {
   Wire.write(nextPiCmd);
-  nextPiCmd = CMD_IDLE;
+  nextPiCmd = CMD_NONE;
 }
 void tellRaspi(byte command) {
   Wire.beginTransmission(8); // This needs the Raspi's address
