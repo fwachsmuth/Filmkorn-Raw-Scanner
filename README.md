@@ -18,8 +18,8 @@ Arduino:
 ## Installation Steps (incomplete – see raspis history.txt)
 - Enable ssh from rapsi to Mac: `ssh-copy-id -i .ssh/id_rsa_piscan.pub peaceman@192.168.2.1`
 - Enable key auth via `.ssh/config`: 
-    ````
-Host *
+  ```
+  Host *
   AddKeysToAgent yes
   IdentityFile ~/.ssh/id_rsa_piscan
   ```
@@ -29,35 +29,27 @@ Host *
 - ...
 - Profit
 
-
 ## System Setup
-1. Powerup Raspi
-2. Powerup Arduino via FTDI
-3. Connect Ethernet to Mac
-4. Enable Internet Sharing if the Raspi needs Internet (Time, Updates, Packages etc.)
-4. Mac: Set eth-if to `192.168.2.1` (Raspi is `192.168.2.2`)
-5. Mac: **Enable** Settings -> General -> Sharing -> Remote Login, then click (i) and enable "Allow full disk access for remote users"
-5. 
-5. (Projektor starten)
-6. Raspi: `cd /home/pi/code/Piscanuino`
-7. Raspi: Adjust Target Path in `lsyncd.conf` if needed
-7. Raspi: `lsyncd lsyncd.conf &`
-8. Raspi: `/usr/bin/python3 /home/pi/code/Piscanuino/piscan.py`
-
-
-
-
-
-
+- Powerup Raspi
+- Powerup Arduino via FTDI
+- Connect Ethernet to Mac
+- Enable Internet Sharing if the Raspi needs Internet (Time, Updates, Packages etc.)
+- Mac: Set eth-if to `192.168.2.1` (Raspi is `192.168.2.2`)
+- Mac: **Enable** Settings -> General -> Sharing -> Remote Login, then click (i) and enable "Allow full disk access for remote users" 
+- (Projektor starten)
+- Raspi: `cd /home/pi/code/Piscanuino`
+- Raspi: Adjust Target Path in `lsyncd.conf` if needed – note that the Target drive can not be APFS!
+- Raspi: `lsyncd lsyncd.conf &`
+- Raspi: `python3 /home/pi/code/Piscanuino/piscan.py`
 
 ## Backup and Restore a uSD on a Mac
 Use ApplePiBaker, or 
 ```
 diskutil list
 sudo dd if=/dev/disk6 of=~/PiscanuinoSDCardBackup.dmg
-````
+```
 resp.
-````
+```
 diskutil unmountDisk /dev/disk6
 sudo dd if=~/PiscanuinoSDCardBackup.dmg of=/dev/disk6
 ```
