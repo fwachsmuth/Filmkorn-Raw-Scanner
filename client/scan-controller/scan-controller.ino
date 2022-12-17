@@ -1,7 +1,5 @@
 /*
  * Controller for the Noris based Film Scanner
- *
-
  */
 
 #include <Wire.h>
@@ -86,7 +84,7 @@ bool isScanning = false;
 volatile bool piIsReady = false;
 
 ControlButton currentButton = NONE;
-ControlButton prevButtonChoice = NONE;
+ControlButton prevButton = NONE;
 MotorState motorState = STOPPED;
 Command nextPiCmd = CMD_NONE;
 ZoomMode zoomMode = Z1_1;
@@ -126,8 +124,8 @@ void loop() {
 
   currentButton = pollButtons();
 
-  if (currentButton != prevButtonChoice) {
-    prevButtonChoice = currentButton;
+  if (currentButton != prevButton) {
+    prevButton = currentButton;
 
     if (!isScanning || currentButton == STOP) {
       switch (currentButton) {
@@ -144,6 +142,10 @@ void loop() {
           break;
         case STOP:
           if (isScanning) {
+            isScanning = false;
+            piIsReady = false;
+            setLampMode(false);
+            zoomMode = Z1_1;
             nextPiCmd = CMD_STOP_SCAN;
           } else {
             stopMotor();
@@ -185,9 +187,9 @@ void loop() {
           motorFwd();
           break;
         case SCAN:
-          if (!isScanning) {
-            nextPiCmd = CMD_START_SCAN;
-          }
+          isScanning = true;
+          nextPiCmd = CMD_START_SCAN;
+          setLampMode(true);
           // ... (don't forget to detach ISR)
           break;
       }
@@ -295,6 +297,8 @@ ControlButton pollButtons() {
   if (noButtonPressed) {
     if (buttonBankA < 2 && buttonBankB < 2) {
       buttonChoice = NONE;
+    
+    // Button bank A
     } else if (buttonBankA > 30 && buttonBankA < 70) {
       buttonChoice = ZOOM;
     } else if (buttonBankA > 120 && buttonBankA < 160) {
@@ -303,9 +307,9 @@ ControlButton pollButtons() {
       buttonChoice = RUNREV;
     } else if (buttonBankA > 990) {
       buttonChoice = REV1;
-    }
 
-    if (buttonBankB > 30 && buttonBankB < 70) {
+    // Button bank B
+    } else if (buttonBankB > 30 && buttonBankB < 70) {
       buttonChoice = STOP;
     } else if (buttonBankB > 120 && buttonBankB < 160) {
       buttonChoice = FWD1;
@@ -316,11 +320,8 @@ ControlButton pollButtons() {
     }
   }
 
-  if (buttonBankA > 1 || buttonBankB > 1) {         // Stop reading values...
-    noButtonPressed = false;
-  } else if (buttonBankA < 2 && buttonBankB < 2 ) { // ...until all buttons are clearly released
-    noButtonPressed = true;
-  }
+  // Stop reading values until all buttons are clearly released
+  noButtonPressed = buttonBankA < 2 && buttonBankB < 2;
 
   return buttonChoice;
 }
