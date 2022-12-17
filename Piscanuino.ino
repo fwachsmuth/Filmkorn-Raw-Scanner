@@ -1,20 +1,7 @@
 /*
  * Controller for the Noris based Film Scanner
  *
- * Todo:
- * 
- * 
- *
- * Raspi Todos:
- * - clear screen on boot / start my python code
- * - Enable Screen before Scan:
- *    - /opt/vc/bin/tvservice -p # Display an
- * - Disable Screen after Scan:
- *    - /opt/vc/bin/tvservice -o # Display aus
- *
- *
- * - Draw Schematics already
- *
+
  */
 
 #include <Wire.h>
