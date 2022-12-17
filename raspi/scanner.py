@@ -22,6 +22,8 @@ Hardware:
 - Redesign Lens Mount to allow cleaning the gate again
 """
 
+from time import sleep
+from typing import Optional
 import argparse
 import datetime
 import enum
@@ -29,12 +31,10 @@ import errno
 import subprocess
 import sys
 import time
-import typing
 import os
 
 from smbus import SMBus
 from picamera import PiCamera
-from time import sleep
 
 # Has to end with /
 RAW_DIRS_PATH = "/home/pi/Pictures/raw-intermediates/"
@@ -43,13 +43,15 @@ class Command(enum.Enum):
     # Arduino to Raspi
     IDLE = 0
     PING = 1
-    ZOOM_CYCLE = 2
-    SHOOT_RAW = 3
-    LAMP_ON = 4
-    LAMP_OFF = 5
-    INIT_SCAN = 6
-    START_SCAN = 7
-    STOP_SCAN = 8
+    Z1_1 = 2
+    Z3_1 = 3
+    Z10_1 = 4
+    SHOOT_RAW = 5
+    LAMP_OFF = 6
+    LAMP_ON = 7
+    INIT_SCAN = 8
+    START_SCAN = 9
+    STOP_SCAN = 10
 
     # Raspi to Arduino
     READY = 128
@@ -62,7 +64,7 @@ class ZoomMode(enum.Enum):
 class State:
     def __init__(self):
         self._zoom_mode = ZoomMode.Z1_1
-        self._raws_path: str = None
+        self.raws_path: Optional[str] = None
         self.raw_count = 0
         self.continue_dir = False
 
@@ -70,83 +72,24 @@ class State:
     def lamp_mode(self) -> bool:
         return camera.preview is not None
 
-    @lamp_mode.setter
-    def lamp_mode(self, value: bool):
-        if value == self.lamp_mode:
-            return
-
-        print("Lamp and camera preview ", end='')
-        if value:
-            camera.start_preview()
-            print("enabled")
-        else:
-            self.zoom_mode = ZoomMode.Z1_1
-            camera.stop_preview()
-            print("disabled")
-
     @property
     def zoom_mode(self) -> ZoomMode:
         return self._zoom_mode
 
-    @zoom_mode.setter
-    def zoom_mode(self, value: ZoomMode):
-        if value == self._zoom_mode:
-            return
-
-        if value != ZoomMode.Z1_1:
-            self.lamp_mode = True
-
-        self._zoom_mode = value
-
-        # Using dicts instead of if/elif statements
-        camera.zoom = {
-            ZoomMode.Z1_1: (0.0, 0.0, 1.0, 1.0), # (x, y, w, h) floats
-            ZoomMode.Z3_1: (1/3, 1/3, 1/3, 1/3),
-            ZoomMode.Z10_1: (0.45, 0.45, 0.1, 0.1)
-        }[value]
-
-        print("Zoom Level: " + {
-            ZoomMode.Z1_1: '1',
-            ZoomMode.Z3_1: '3',
-            ZoomMode.Z10_1: '10',
-        }[value] + ':1')
-
-    def cycle_zoom_mode(self):
-        if (self._zoom_mode == ZoomMode.Z10_1):
-            self.zoom_mode = ZoomMode.Z1_1
-        else:
-            self.zoom_mode = ZoomMode(self._zoom_mode.value + 1)
-
-    @property
-    def raws_path(self):
-        return self._raws_path
-
-    @raws_path.setter
-    def raws_path(self, value: typing.Union[str, datetime.datetime]):
-        if type(value) is str:
-            self._raws_path = value
-        else:
-            self._raws_path = RAW_DIRS_PATH + value.strftime("%Y-%m-%dT%H_%M_%S")
-
     def set_raws_path(self):
-        self.raws_path = datetime.datetime.now()
-        if os.path.exists(self._raws_path):
-            self.raws_path = datetime.datetime.now() + datetime.timedelta(seconds=1)
-
+        raws_path = datetime_to_raws_path(datetime.datetime.now())
         remove_empty_dirs()
-        os.makedirs(self._raws_path)
-
-        print("Set raws path to " + self._raws_path)
-
-        self._raws_path = os.path.join(self._raws_path, '') + "{:08d}.jpg"
+        os.makedirs(raws_path)
+        self.raws_path = os.path.join(raws_path, "{:08d}.jpg")
+        print(f"Set raws path to {raws_path}")
 
     def start_scan(self):
         if self.continue_dir:
             return
 
         self.raw_count = 0
-        self.zoom_mode = ZoomMode.Z1_1
-        self.lamp_mode = True
+        set_zoom_mode_1_1()
+        set_lamp_on()
         self.set_raws_path()
         print("Started scanning")
         shoot_raw()
@@ -154,7 +97,11 @@ class State:
     def stop_scan(self):
         self.continue_dir = False
         print("Nevermind; Stopped scanning")
-        self.lamp_mode = False
+        set_lamp_off()
+
+
+def datetime_to_raws_path(dt: datetime.datetime):
+    return RAW_DIRS_PATH + dt.strftime("%Y-%m-%dT%H_%M_%S")
 
 def remove_empty_dirs():
     for file_name in os.listdir(RAW_DIRS_PATH):
@@ -192,10 +139,12 @@ def loop():
     if command is not None and command != Command.IDLE:
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {
-            Command.ZOOM_CYCLE: state.cycle_zoom_mode,
+            Command.Z1_1: set_zoom_mode_1_1,
+            Command.Z3_1: set_zoom_mode_3_1,
+            Command.Z10_1: set_zoom_mode_10_1,
             Command.SHOOT_RAW: shoot_raw,
-            Command.LAMP_ON: lamp_on,
-            Command.LAMP_OFF: lamp_off,
+            Command.LAMP_ON: set_lamp_on,
+            Command.LAMP_OFF: set_lamp_off,
             Command.START_SCAN: state.start_scan,
             Command.STOP_SCAN: state.stop_scan
         }.get(command, None)
@@ -204,20 +153,27 @@ def loop():
             func()
 
 def tell_arduino(command: Command):
-    try:
-        arduino.write_byte(arduino_i2c_address, command.value)
-    except OSError as e:
-        if e.errno != errno.EREMOTEIO:
-            raise e
+    while True:
+        try:
+            arduino.write_byte(arduino_i2c_address, command.value)
+            return
+        except OSError as e:
+            if e.errno != errno.EREMOTEIO:
+                raise e
 
-        sleep(1)
-        tell_arduino(command)
+            sleep(1)
 
-def ask_arduino() -> typing.Optional[Command]:
+def ask_arduino() -> Optional[Command]:
     try:
-        return Command(arduino.read_byte(arduino_i2c_address))
+        cmd = arduino.read_byte(arduino_i2c_address)
     except OSError:
         print("No I2C answer")
+        return
+    
+    try:
+        return Command(cmd)
+    except ValueError:
+        print(f"Received unknown command {cmd}")
 
 def shoot_raw():
     start_time = time.time()
@@ -230,11 +186,31 @@ def say_ready():
     tell_arduino(Command.READY)
     print("Told Arduino we are ready")
 
-def lamp_on():
-    state.lamp_mode = True
+def set_zoom_mode_1_1():
+    state._zoom_mode = ZoomMode.Z1_1
+    camera.zoom = (0.0, 0.0, 1.0, 1.0)  # (x, y, w, h)
+    print("Zoom Level: 1:1")
 
-def lamp_off():
-    state.lamp_mode = False
+def set_zoom_mode_3_1():
+    set_lamp_on()
+    state._zoom_mode = ZoomMode.Z1_1
+    camera.zoom = (1/3, 1/3, 1/3, 1/3)  # (x, y, w, h)
+    print("Zoom Level: 3:1")
+
+def set_zoom_mode_10_1():
+    set_lamp_on()
+    state._zoom_mode = ZoomMode.Z1_1
+    camera.zoom = (0.45, 0.45, 0.1, 0.1)  # (x, y, w, h)
+    print("Zoom Level: 10:1")
+
+def set_lamp_off():
+    set_zoom_mode_1_1()
+    camera.stop_preview()
+    print("Lamp and camera preview disabled")
+
+def set_lamp_on():
+    camera.start_preview()
+    print("Lamp and camera preview enabled")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -254,6 +230,9 @@ if __name__ == '__main__':
         camera.start_preview()
         shoot_raw()
 
-    while True:
-        loop()
-        time.sleep(0.1)
+    try:
+        while True:
+            loop()
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        sys.exit(1)
