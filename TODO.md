@@ -37,6 +37,7 @@
 - [ ] Add XOR Gate to Lamp/Fan Out to turn off Lamp when fan is not running
 - [ ] Redesign Lens Mount to allow cleaning the gate again
 - [ ] Trafo-Brumm beseitigen
+- [ ] Try shorter camera cable
 
 
 ## Notes for future use:
