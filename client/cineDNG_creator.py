@@ -18,7 +18,7 @@ import os
 import sys
 import time
 
-from pydng.core import RPICAM2DNG as RPiCam2DNG
+from pidng.core import RPICAM2DNG as RPiCam2DNG
 
 class OutputDir(abc.ABC):
     def __init__(self, input: str, output: str):
@@ -212,7 +212,11 @@ if __name__ == '__main__':
 
         observer.start()
         print("Started watchdog")
-        while True:
-            time.sleep(1)
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print()
+            sys.exit(1)
 else:
     sys.modules[__name__] = convert

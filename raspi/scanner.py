@@ -235,4 +235,5 @@ if __name__ == '__main__':
             loop()
             time.sleep(0.1)
     except KeyboardInterrupt:
+        print()
         sys.exit(1)

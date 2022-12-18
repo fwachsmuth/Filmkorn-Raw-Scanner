@@ -26,6 +26,12 @@ Arduino:
 - Enable ssh from Mac to Raspi
 - Raspi: Install lsync
 - Mac: Update rsync (2.6.9 is too old, need 3.x): `brew install rsync` which goes into in `/opt/homebrew/bin/rsync` (ref'd as such in lsync.conf)
+- Mac: `pip3 install pidng==3.4.7`
+- Mac: `python3 cineDNG_creator.py -i /Volumes/Filme/raw-intermediates/ -o /Volumes/Filme/CinemaDNG --cinema-dng --keep-running`
+- Mac: `pip3 install -U watchdog`
+
+
+
 - ...
 - Profit
 
