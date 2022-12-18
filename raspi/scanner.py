@@ -1,27 +1,5 @@
 """Raspi-side Scan Control Glue communicating between Raspi, Arduino and the Raspi HQ Cam"""
 
-"""
-Todos
-
-Software:
-- Let piscan.py also start lsyncd (as daemon?)
-- Try performance of saving to an external disk instead of to uSD (autarky)
-- Let Preview Mode use dynamic exposure to allow easier focus adjustments
-- Make OSError in ask_arduino more specific (errno)
-- parallelize conversion
-
-Hardware:
-- Analyze i2c signal intergity with oscilloscope (pullups?)
-- Switch for pos / neg
-- switch for hd / rsync
-- Exposure Adjustment via pot
-- destination path
-- Add Film end Detector
-- Add Heatsink to LED-CC
-- Add XOR Gate to Lamp/Fan Out to turn off Lamp when fan is not running
-- Redesign Lens Mount to allow cleaning the gate again
-"""
-
 from time import sleep
 from typing import Optional
 import argparse
