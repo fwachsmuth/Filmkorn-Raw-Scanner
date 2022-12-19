@@ -12,23 +12,30 @@ Anyway, this repository is for the software part of the project, consistint of f
 3. The Arduino Software that controls your sacrificed projector and acts as the "glue" between the Raspberry Pi, the Camera, the Projector, and all controls.
 
 In addition to the software coming with this repo, you will need a couple of other libraries and tools, as mentioned in this Readme. 
-==Note that my main computer is a Mac, and that's what I am describing here, but nothing Mac-specific is actually needed. It should be totally possible (and rather easy) to use Windows or even Linux instead, too — if you do so, please share your Notes or create a PR to this Readme.==
 
+**Note that my main computer is a Mac, and that's what I am describing here, but nothing Mac-specific is actually needed. It should be totally possible (and rather easy) to use Windows or even Linux instead, too — if you do so, please share your Notes or create a PR to this Readme.**
 
+## Installation
 Some of the required software:
 
-Raspberry Pi APT packages:
-- python3
-- python3-smbus
-- python3-picamera
+### Raspberry Pi APT packages:
+- `python3` (latest should be fine, I'm using 3.10.9 right now)
+- `python3-smbus` to make python talk I^2^C 
+- `python3-picamera` for support of the Raspi HQ Camera
+- `lsync`
 
-To run convert.py:
-- Python 3
-- [PyDNG](https://github.com/schoolpost/PyDNG) ~2020
-- watchdog (will be added eventually)
+### For the Arduino
+- Arduino IDE, arduino-cli or the Arduino Extension for VSCode — or whatever you use to get your compiled AVR binaries onto the AtMega328P. It doesn't matter, the IDE is probably the easiest way.
 
-Arduino:
-- Arduino 2.0 IDE
+### On your Mac
+- [Homebrew](https://brew.sh/) to install the below things easily:
+- `rsync 3.x` since the `rsync 2.9.6` that Apple ships is not comaptible with `lsync`
+- `python3` (latest should be fine, I'm using 3.10.9 right now)
+  - `PiDNG` in version 3.4.7, whcih is ancient and yanked, but works. Newer versions broke support for the HQ Cam and are not working at this point.
+  - `watchdog`  
+
+
+
 
 ## Installation Steps (incomplete – see raspis history.txt)
 - Enable ssh from rapsi to Mac: `ssh-copy-id -i .ssh/id_rsa_piscan.pub peaceman@192.168.2.1`
