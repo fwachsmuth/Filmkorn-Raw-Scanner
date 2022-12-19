@@ -112,10 +112,19 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 GB 
 
 ## Using CinemaDNG
 *(incomplete)*
-- Set your Project Resolution to "4K wide aperture"
-- Set your Project fps to match (16 or 18 are okay, no frame interpolation needed)
+- Create a new Project
+- Go to File -> Project Settings
+- Set the Timeline Resolution to `4096 x 3112 Full Aperture`
+- Set the Timeline and Playback Framerate to 16, 18, 24 fps or whatever matches your scanned footage (16 or 18 are okay, no frame interpolation needed!)
 - Open the "Media" tab, open CinemaDNG folder in the file browser pane on the left
-- Drag and Drop onto Timeline
+- Drag and Drop the Project Folder (e.g. `2022-12-19T13_18_44`) onto the Mediapool
+- Go to the "Cut" Tab and drag the clip onto your timeline. Happy editing!
 - Note the "Camera Raw" tool in the Color Tab (Lift, Gain)
 - Enjoy 12 bit Raws
-- FOr negatives, use my convert plugin
+
+- For negatives, use my convert plugin
+- Go to the "Color" Tab
+- Click on "Effects" in the top right
+- Scroll down to the ColorNegInvert effect and drag it to the Node area. Make it the first Node (except Denoise, whcih shoudl always be first-first)
+
+- When Grading Reversal film, check the "Camera Raw" tool on the very left. If you chose "Decode Using: Clip", you can adjust DNG parameters simliar to Lightroom (but not exactly equal to). This is useful for a first base correction. Especially te "Lift" and "Gain" sliders are useful. (For negative film, the slider woudl all wrok inverted — it's better to use Davincis own grading here.)
