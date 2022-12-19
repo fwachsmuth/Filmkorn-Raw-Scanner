@@ -16,28 +16,41 @@ In addition to the software coming with this repo, you will need a couple of oth
 **Note that my main computer is a Mac, and that's what I am describing here, but nothing Mac-specific is actually needed. It should be totally possible (and rather easy) to use Windows or even Linux instead, too — if you do so, please share your Notes or create a PR to this Readme.**
 
 ## Installation
-Some of the required software:
+To get ready, you need to install software on all three parts of the system. In fact, this sscanner is actually using three reaal computers. :)
 
-### Raspberry Pi APT packages:
+### For the Arduino
+- Arduino IDE, arduino-cli or the Arduino Extension for VSCode — or whatever you like to use to get your compiled AVR binaries onto the AtMega328P. It doesn't matter, the IDE is probably the easiest way: Open the `scan-controller.ino` file from the repo, hit "Upload" and you are done.
+
+### On your Mac
+You should use the same Mac that also runs Davinci Resolve, wo you don't have to move tons of data around. The conversion process isn't crazy expensive, but not free either. On my intel iMac late 2015 with 4 GHz and 32 GB of RAM, the conversion was about as fast as the scanner delivered files, so it made a lot of sense to convert during scanning. On my current Apple Silicon MacBook Pro, conversion is so crazy fast that I don't mind converting after scanning has finished. :) 
+
+- First of all, you will need [Homebrew](https://brew.sh/) to install the below things easily. If you don't have it yet, install it as described on the Homebrew website. If you have it but it is no longer working, use `brew doctor` until it works again.
+- `rsync 3.x` since the `rsync 2.9.6` that Apple ships (even in macOS Ventura 13.0.1) is not comaptible with `lsync`. Install it via `brew install rsync` and note down where it gets installed (should be `/opt/homebrew/bin/rsync`, but brew likes to change its base paths)
+- `python3` (latest should be fine, I'm using 3.10.9 right now). Install via `brew install python3` if you don't have it yet. If you are unsure, `` `which python3` --version `` or `` `which python` --version `` should tell you what version(s) you have already installed, and how they are called. Once Python 3 is installed, add the following two packages (they will bring quite some dependencies):
+  - `PiDNG` in version 3.4.7, which is ancient and yanked, but works. Newer versions broke support for the HQ Cam and are not working at this point. Just type `pip3 install pidng==3.4.7` and you should be all set.
+  - `watchdog`. `pip3 install -U watchdog` does the trick.
+
+### On the Raspberry Pi:
+Note that you need a Raspberry Pi 4 to use this software — ideally with 4 GB of RAM. More never hurts, less is untested and not a good idea. We are cretaing and handling a ton of data here.
+
+*(Task list to be completed)*
+- Raaspbian 10
+- use raspi-conf to set foo and bar and baz.
+  - foo
+  - bar
+  - baz
 - `python3` (latest should be fine, I'm using 3.10.9 right now)
 - `python3-smbus` to make python talk I<sup>2</sup>C 
 - `python3-picamera` for support of the Raspi HQ Camera
 - `lsync`
 
-### For the Arduino
-- Arduino IDE, arduino-cli or the Arduino Extension for VSCode — or whatever you use to get your compiled AVR binaries onto the AtMega328P. It doesn't matter, the IDE is probably the easiest way.
-
-### On your Mac
-- [Homebrew](https://brew.sh/) to install the below things easily. Install it as described on teh website if you don't have it yet.
-- `rsync 3.x` since the `rsync 2.9.6` that Apple ships is not comaptible with `lsync`. Install it via `brew install rsync` and note down where it gets installed (should be `/opt/homebrew/bin/rsync`, but this could change)
-- `python3` (latest should be fine, I'm using 3.10.9 right now). Install via `brew install python3` if you don't have it yet. If you are unsure, `` `which python3` --version ` or `which python` --version ``should tell you what version(s) you have already installed.
-  - `PiDNG` in version 3.4.7, which is ancient and yanked, but works. Newer versions broke support for the HQ Cam and are not working at this point.
-  - `watchdog`.   
+## Connections
+- Connect I<sup>2</sup>C from Arduino with SMBus Pins on Raspi
+- Connect GND to have a common ground
 
 
-
-
-## Installation Steps (incomplete – see raspis history.txt)
+## Configuration
+### Installation Steps (incomplete)
 - Enable ssh from rapsi to Mac: `ssh-copy-id -i .ssh/id_rsa_piscan.pub peaceman@192.168.2.1`
 - Enable key auth via `.ssh/config`: 
   ```
@@ -46,30 +59,31 @@ Some of the required software:
   IdentityFile ~/.ssh/id_rsa_piscan
   ```
 - Enable ssh from Mac to Raspi
-- Raspi: Install lsync
-- Mac: Update rsync (2.6.9 is too old, need 3.x): `brew install rsync` which goes into in `/opt/homebrew/bin/rsync` (ref'd as such in lsync.conf)
-- Mac: `pip3 install pidng==3.4.7`
-- Mac: `python3 cineDNG_creator.py -i /Volumes/Filme/raw-intermediates/ -o /Volumes/Filme/CinemaDNG --cinema-dng --keep-running`
-- Mac: `pip3 install -U watchdog`
-
-
-
 - ...
 - Profit
 
 ## System Setup: Get ready to scan!
 - Powerup Raspi
-- Powerup Arduino via FTDI
-- Connect Ethernet to Mac
-- Enable Internet Sharing if the Raspi needs Internet (Time, Updates, Packages etc.)
+- Powerup Arduino (currently via FTDI)
+- Connect Ethernet Cable to Mac
+- Enable Internet Sharing since the Raspi needs Internet (Time, Updates, Packages etc.)
 - Mac: Set eth-if to `192.168.2.1` (Raspi is `192.168.2.2`)
 - Mac: **Enable** Settings -> General -> Sharing -> Remote Login, then click (i) and enable "Allow full disk access for remote users" 
-- (Projektor starten)
-- Blende auf 11
+- "Start" the Projector by pushing its "Fwd" Key. This gives power on the transformer. 
+- Set Aperture to 8. Smaller apertures will cause severe diffraction blurring and is not recommended.
 - Check `camera.shutter_speed` in scanner.px (on the Raspi)
-- Raspi: `cd /home/pi/code/Piscanuino`
-- Raspi: Adjust Target Path in `lsyncd.conf` if needed – note that the Target drive can not be APFS!
-- Raspi: `lsyncd lsyncd.conf &`
-- Raspi: `python3 /home/pi/code/Piscanuino/piscan.py`
+- Raspi: `cd /home/pi/code/Filmkorn-Raw-Scanner/raspi`
+- Raspi: Adjust Target Path in `lsyncd.conf` if needed
+- Raspi: `lsyncd lsyncd.conf &`. (Using a separate shell here might make sense to let lsync not bleed into the scanner's log output)
+- Raspi: `python3 /home/pi/code/Filmkorn-Raw-Scanner/raspi/scanner.py`
 - Mac: `python3 cineDNG_creator.py -i /Volumes/Filme/raw-intermediates/ -o /Volumes/Filme/CinemaDNG/. --cinema-dng --keep-running`
 
+## Using CinemaDNG
+*(incomplete)*
+- Set your Project Resolution to "4K wide aperture"
+- Set your Project fps to match (16 or 18 are okay, no frame interpolation needed)
+- Open the "Media" tab, open CinemaDNG folder in the file browser pane on the left
+- Drag and Drop onto Timeline
+- Note the "Camera Raw" tool in the Color Tab (Lift, Gain)
+- Enjoy 12 bit Raws
+- FOr negatives, use my convert plugin
