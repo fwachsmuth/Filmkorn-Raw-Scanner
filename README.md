@@ -1,11 +1,41 @@
 # Filmkorn Raw-Scanner
 
 ## What is this?
-The Filmkorn Raw-Scanner, formerly known as Piscanuino, is an open source solution to make film scanning in amazing quality possible at a lowe price. In factm the project originated from [a bet](https://www.filmvorfuehrer.de/topic/31851-challenge-framescanner-f%C3%BCr-350%E2%82%AC-bauen/): *Is it possible to build a high quality film scanner for < 350 €?*
+The Filmkorn Raw-Scanner, formerly known as Piscanuino, is an open source solution to make film scanning in amazing quality possible at a lowe price. In factm the project originated from [a bet](https://www.filmvorfuehrer.de/topic/31851-challenge-framescanner-f%C3%BCr-350%E2%82%AC-bauen/): 
+*Is it possible to build a high quality film scanner for < 350 €?*
 
 Well, it is, but this bet was won in 2020. Prices for many thing have gone up since then, so you might need to plan for a bit more, or get creative to stay within this budget.
 
-Anyway, this repository is for the software part of the project, consistint of four parts:
+### Shopping list
+This is what I bought from my budget to build this scanner.
+- Raspi 4 w/4GB of RAM: 50€
+- Raspberry Pi HQ Camera w/o lens: 50€
+- C-Mount Spacer Rings (Ebay or Aliexpress): 30€
+- M39 Enlarger lens EL-Nikkor 2.8/50mm: 50€
+- M39 to M42 adapter ring: 10€
+- M42 to C-Mount Adapter (Wittner): 30€
+- YUJILEDS Full Spectrum CRI 98 COB LED: €20
+- MDF wood, screws and hardware store stuff to mount it all
+
+You can definitely use other lenses, another LED and other ways than spacer rings to mount the Raspi Cam in front of the projector's gate. Get creative as needed. Note though that 50mm are pretty much perfect, shorter focal lengthes could be mechanically challenging, and longer focal lengths will be mechanically unstable and have plenty of air between the film and the sensor.
+Also, if you want to scan color film, make sure to get a decent high CRI LED. This is particularly important for scanning color neg film.
+
+The above totals to €240, so you have ~100€ left to get the electronics and an old Noris projector. (The Mac can't be part of the 350€ budget)
+
+#### The electronics
+Ebay and/or AliExpress are good sources here, depending on how long you can wait and/or risk counterfeits...
+- Arduino Pro Mini (AtMega328P) 3.3V / 8 MHz
+- 8 momentary switches (push buttons)
+- Constant Current Board for the LED
+- DRV8871 BoB to drive the projector DC motor
+- 74HC14 Schmitt Trigger
+- QRE1113 BoB (Sparkfun or Synkino)
+- 2 small Rectifiers and some passives 
+
+*(Schematics subject to be documented)*
+
+# Code!
+Anyway, this repository is for the software part of the project, consisting of four parts:
 
 1. The actual Scan Software that turns your Rasberry Pi with its HQ Cam into a digital camera, shooting one 4K 12-Bit Raw photo approximately every 0.6 seconds and transferring it to your main computer for further processing
 2. The Converter Software for your Mac that converts the incoming Raw files from their proprietary format into 4K CinmaDNG format, which can directly be imported into e.g. Davinci Resolve. Note that this is a lossless format with 12 Bit per color channel, so really really good (and big)
