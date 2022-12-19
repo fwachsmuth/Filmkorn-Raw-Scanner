@@ -20,7 +20,7 @@ Some of the required software:
 
 ### Raspberry Pi APT packages:
 - `python3` (latest should be fine, I'm using 3.10.9 right now)
-- `python3-smbus` to make python talk I^2^C 
+- `python3-smbus` to make python talk I<sup>2</sup>C 
 - `python3-picamera` for support of the Raspi HQ Camera
 - `lsync`
 
@@ -28,11 +28,11 @@ Some of the required software:
 - Arduino IDE, arduino-cli or the Arduino Extension for VSCode — or whatever you use to get your compiled AVR binaries onto the AtMega328P. It doesn't matter, the IDE is probably the easiest way.
 
 ### On your Mac
-- [Homebrew](https://brew.sh/) to install the below things easily:
-- `rsync 3.x` since the `rsync 2.9.6` that Apple ships is not comaptible with `lsync`
-- `python3` (latest should be fine, I'm using 3.10.9 right now)
-  - `PiDNG` in version 3.4.7, whcih is ancient and yanked, but works. Newer versions broke support for the HQ Cam and are not working at this point.
-  - `watchdog`  
+- [Homebrew](https://brew.sh/) to install the below things easily. Install it as described on teh website if you don't have it yet.
+- `rsync 3.x` since the `rsync 2.9.6` that Apple ships is not comaptible with `lsync`. Install it via `brew install rsync` and note down where it gets installed (should be `/opt/homebrew/bin/rsync`, but this could change)
+- `python3` (latest should be fine, I'm using 3.10.9 right now). Install via `brew install python3` if you don't have it yet. If you are unsure, `` `which python3` --version ` or `which python` --version ``should tell you what version(s) you have already installed.
+  - `PiDNG` in version 3.4.7, which is ancient and yanked, but works. Newer versions broke support for the HQ Cam and are not working at this point.
+  - `watchdog`.   
 
 
 
