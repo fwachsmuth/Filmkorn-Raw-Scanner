@@ -63,18 +63,68 @@ You should use the same Mac that also runs Davinci Resolve, wo you don't have to
   - `watchdog`. `pip3 install -U watchdog` does the trick.
 
 ### On the Raspberry Pi:
-Note that you need a Raspberry Pi 4 to use this software — ideally with 4 GB of RAM. More never hurts, less is untested and not a good idea. We are cretaing and handling a ton of data here.
+Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or more GB of RAM. More never hurts, less is untested and not a good idea. We are cretaing and handling a ton of data here.
+*Note: The guide below might not be a 100% step-by-step guide that you can always follow blindly. Some steps might differ a bit for you. If you get stuck, don't give up, but try again, google your probelm, poke around, or ask otehr people. This is all basic boot-strapping stuff in the linux world.*
 
-*(Task list to be completed)*
-- Raaspbian 10
-- use raspi-conf to set foo and bar and baz.
-  - foo
-  - bar
-  - baz
-- `python3` (latest should be fine, I'm using 3.10.9 right now)
-- `python3-smbus` to make python talk I<sup>2</sup>C 
-- `python3-picamera` for support of the Raspi HQ Camera
-- `lsync`
+- Before doing actual stuff on the Raspberry Pi, you need to create a "key pair" to maintain security. This might feel all very cryptic (it is!), but it is important to stick to it: Your scanner will sit on your network, so we absolutely do not want it to be a possible backdoor for intruders. The key-pair approach avoids weak things like passwords and assures that strictly only your Mac is able to control your Raspi via the network. [Here](https://docs.typo3.org/m/typo3/guide-contributionworkflow/main/en-us/Appendix/OSX/SSHKeyOSX.html) is one of a bazillion good tutorials. If you don't dare reading, jsut do the following:
+  - Open Terminal.app on your Mac
+  - Type (or copy) `ssh-keygen -t ed25519`. (FYI: ed25519 is just the most mdoern and secure key type, not a passord or so)
+  - Press `Enter` to accept the proposed name and storage location
+  - Press `Enter` again to not set a passphrase. You can also set a passphrase, but it makes things a tad more complicated — you'll need to read for that. If you don't hand out your private key to others (and you should really never ever do that, ever), you can live without a passphrase.
+  - Once you see the "randomart image", you are done.
+- Now download _Raspberry Pi Imager_ from the [Raspberry Pi Website](https://www.raspberrypi.com/software/) and start it
+- Under "Operating System, make sur eto pick the "Raspberry Pi OS (Legacy)", called "Buster", also known as version 10. The short description is _"A port of Debian Buster with security updates and desktop-environemnt"_. You do *not* want "Bullseye" (Version 11). While Buster is not the most recent version, it is the one that works with the Raspi HQ cam without a ton of changes that still need to be made (They changed the entire API in Version 11, and the Python bindings are still in beta, and completely different)
+- Under "Storage", select the microSD card you inserted into your card reader.
+- In the Mac Terminal.app, type `pbcopy < ~/.ssh/id_ed25519.pub` and hit Return. This copys the public key (which is a just text file) to your clipboard.
+- Before clicking "Write", click the gear icon in bottom right:
+  - Do not allow to copy the wiki password from keychain. We won't use Wifi, it is just too slow for the amount of data the scanner produces (about 30 MB/s while it is running)
+  - Set the hostname to `piscan.local` (You can totally use a different hostname than `piscan`, but this manual might not work without changes then)
+  - Allow "public-key authentication only" and paste your key into the "Set authorized_keys for 'pi'" line.
+  - Set the "locale settings" to a keyboard style of your liking
+- Now write the image. When done, insert the microSD card into your Raspi (without powering it up yet)
+- Connect the Raspi to your lcoal Network via wired Ethernet. If you don't have wired Ethernet, connect it to your Mac's Ethernet Jack, and enable "Internet Sharing" under "System Settings -> General -> Sharing" to share your Mac's Wifi with computers connected to its Ethernet port (Click on the little "i" to configure it like this). 
+- Connect the Raspi HQ Cam as described in its manual. Also, connect a monitor and a keyboard to the Raspi to finish the setup. Now give the Raspi power and see it power up. This might cause a few reboots and take a while, eventually you will a sunset picture and be asked to finish the setup: 
+  - Set Country/Language/Timezone as needed
+  - No need to change the default passowrd `raspberry`, since we won't allow password access from remote — so feel free to skip this step
+  - When prompted to select a Wifi, skip
+  - Update the Software packages as suggested, you might get critical security fixes here. This will not update to the (unwanted) "Bullseye" version though, so you are safe here.
+- When the wizard has finished, allow the potential reboot.
+- After the reboot, select the Raspberry Pi symbol in the start menu, click `Preferences` and select `Raspberry Pi Configuration`:
+  - Go to the `Interfaces` tab and click enable at least `Camera`, `SSH` and `I2C` and reboot once more.
+  - Due to some obscure bug, the keyboard locale is sometimes set wrong after setup. If you cannot write `-` or `/`or `ä` etc properly in the Raspi's Terminal, use the "Localizations" tab to re-configure your keyboard layout (propably "Apple ANSI", if you used your Mac's keyboard for setup)
+-  Just in case anything went wrong, you can start the wizard again via `sudo piwiz` in the Raspi Terminal
+- You can now disconnect the Monitor, Keyboard, Mouse and get back to your Mac.
+- In your Mac Terminal, type `ssh pi@piscan.local`. You should be greated with a few lines of text and see `pi@piscan2:~ $ ` as the last line. You just successfully and securely connected to your Raspi from your Mac! Note that no other computer can connect to your Raspi, unless you manually give it your private key (just don't).
+- ??? `python3` (latest should be fine, I'm using 3.10.9 right now) — no, it's 3.7.3 on the Raspi
+- ??? `python3-smbus` to make python talk I<sup>2</sup>C `sudo apt-get install python3-smbus` war schon da
+- ??? `python3-picamera` for support of the Raspi HQ Camera `sudo apt-get install python3-picamera` war schon da
+- `lsyncd`: `sudo apt-get install lsyncd`
+- `git clone https://github.com/fwachsmuth/Filmkorn-Raw-Scanner.git`
+- To allow the Raspi (only) to send files securely to the Mac, we need another key pair. In theory you could reuse the keys already created earlier, but since the scope of "allow configuring the film scanner" and "allow full access to my Mac" are very different scopes, we better maintain separate key-pairs. To do this,
+  - use Terminal.app on yor Mac, while it is connected to your Raspi. You can easily see this by the `pi@piscan:~ $` prompt in the terminal.
+  - type `ssh-keygen -t ed25519 -f .ssh/id_piscan_ed25519` and hit <Enter> thrice. This will create a secure key pair on the Raspberry Pi.
+  - For the next command, you need to know your Mac's Ethernet-Wire IP Address. To find it out,
+    - open System Settings App
+    - click on *Network*
+    - Select the Interface that represents your wired Ethernet. It is *not* called "Wi-Fi", and it hsould have a green dot next to it. The name could be sometning like "USB 10/100/1000 LAN" or something totally different.
+    - Now click on Details..." and then on "TCP/IP". Note down the IP-Adress (e.g. `192.168.178.42` or `192.168.2.1` or so)
+    OR
+    - `sudo apt-get install arp-scan`
+    - `sudo arp-scan -l`
+    ...but it's hard to see which one the Mac is. Plus, on the Mac, it needs an interface.
+    OR
+    - `sudo apt-get install avahi-utils`
+    - `avahi-browse -at`
+  - `whoami`on Mac
+  - Enable Remote Login on Mac
+  - `ssh-copy-id -i .ssh/id_piscan_ed25519.pub peaceman@192.168.2.1`
+- `mkdir ~/Pictures/raw-intermediates`
+- Display Drivers: `git clone https://github.com/goodtft/LCD-show.git`, `sudo ./MPI5001-show` # Don't messes up too many things
+
+
+
+
+
 
 ## Connections
 - Connect I<sup>2</sup>C from Arduino with SMBus Pins on Raspi
@@ -83,7 +133,7 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 GB 
 
 ## Configuration
 ### Installation Steps (incomplete)
-- Enable ssh from rapsi to Mac: `ssh-copy-id -i .ssh/id_rsa_piscan.pub peaceman@192.168.2.1`
+- Enable ssh from raspi to Mac: `ssh-copy-id -i .ssh/id_piscan_ed25519.pub peaceman@192.168.2.1`
 - Enable key auth via `.ssh/config`: 
   ```
   Host *
@@ -103,11 +153,11 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 GB 
 - Mac: **Enable** Settings -> General -> Sharing -> Remote Login, then click (i) and enable "Allow full disk access for remote users" 
 - "Start" the Projector by pushing its "Fwd" Key. This gives power on the transformer. 
 - Set Aperture to 8. Smaller apertures will cause severe diffraction blurring and is not recommended.
-- Check `camera.shutter_speed` in scanner.px (on the Raspi)
-- Raspi: `cd /home/pi/code/Filmkorn-Raw-Scanner/raspi`
+- Check `camera.shutter_speed` in scanner.py (on the Raspi)
+- Raspi: `cd /home/pi/Filmkorn-Raw-Scanner/raspi`
 - Raspi: Adjust Target Path in `lsyncd.conf` if needed
 - Raspi: `lsyncd lsyncd.conf &`. (Using a separate shell here might make sense to let lsync not bleed into the scanner's log output)
-- Raspi: `python3 /home/pi/code/Filmkorn-Raw-Scanner/raspi/scanner.py`
+- Raspi: `python3 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py`
 - Mac: `python3 cineDNG_creator.py -i /Volumes/Filme/raw-intermediates/ -o /Volumes/Filme/CinemaDNG/. --cinema-dng --keep-running`
 
 ## Using CinemaDNG
@@ -128,3 +178,4 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 GB 
 - Scroll down to the ColorNegInvert effect and drag it to the Node area. Make it the first Node (except Denoise, whcih shoudl always be first-first)
 
 - When Grading Reversal film, check the "Camera Raw" tool on the very left. If you chose "Decode Using: Clip", you can adjust DNG parameters simliar to Lightroom (but not exactly equal to). This is useful for a first base correction. Especially te "Lift" and "Gain" sliders are useful. (For negative film, the slider woudl all wrok inverted — it's better to use Davincis own grading here.)
+- You usually want to tick the "Highlight Recovery" Checkbox in the "Camera Raw" tool. watch any frame with blown-out highlights to see its doing its magic.

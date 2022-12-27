@@ -1,5 +1,11 @@
 # To Dos
 
+## For Image Generation
+- Adjust identity key path in lsyncd.conf
+- Test camera.preview_window = (0, 0, 640, 480) per https://picamera.readthedocs.io/en/release-1.13/deprecated.html?highlight=start_preview#preview-functions
+- Try $ sudo systemctl disable getty@tty1.service
+
+
 ## General
 - [ ] Make the Shutter Speed adjustable (pot?)
 
@@ -25,10 +31,11 @@
 
  
 ## Hardware
-- [ ] Arduino bruacht FTDI Power?
-- [ ] Staubschutz bauen
-- [ ] 1x Strom wäre schön
-- [ ] Fix the Fan
+- [ ] Rastkugeln im Objektivgang ausbauen
+- [ ] Arduino braucht FTDI Power — why?
+- [ ] Staubschutzhaube bauen
+- [ ] 1x Netzstrom wäre schön
+- [ ] Fix the Fan mount
 - [ ] Analyze i2c signal intergity with oscilloscope (pullups?)
 - [ ] Switch for pos / neg
 - [ ] switch for hd / rsync
