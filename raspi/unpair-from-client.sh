@@ -5,7 +5,7 @@
 # rm ~/.ssh/knwon_hosts.old
 
 echo "Removing client from Raspi's authorized_keys..."
-sed -i '\#`awk '{print $2}' ~/.ssh/id_filmkorn-scanner_ed25519.pub`#d' ~/.ssh/authorized_keys
+sed -i '\#scanning-#d' ~/.ssh/authorized_keys
 
 echo "Removing Raspi from this Computer's known_hosts..."
 ssh-keygen -R filmkorn-scanner.local
