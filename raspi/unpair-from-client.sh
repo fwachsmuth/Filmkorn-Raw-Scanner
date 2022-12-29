@@ -10,7 +10,7 @@ sed -i '\#`awk '{print $2}' ~/.ssh/id_filmkorn-scanner_ed25519.pub`#d' ~/.ssh/au
 echo "Removing Raspi from this Computer's known_hosts..."
 ssh-keygen -R filmkorn-scanner.local
 
-# Remove local and remote keypairs
+# Remove local keypairs
 echo "Removing keypair from this computer..."
 rm ~/.ssh/id_filmkorn-scanner_ed25519*
 
@@ -28,3 +28,5 @@ echo "------------------------------------------------"
 echo "Local config:"
 cat ~/.ssh/config
 echo "------------------------------------------------"
+
+echo "Unpairing completed."
