@@ -73,13 +73,13 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
   - Press `Enter` again to not set a passphrase. You can also set a passphrase, but it makes things a tad more complicated — you'll need to read for that. If you don't hand out your private key to others (and you should really never ever do that, ever), you can live without a passphrase.
   - Once you see the "randomart image", you are done.
 - Now download _Raspberry Pi Imager_ from the [Raspberry Pi Website](https://www.raspberrypi.com/software/) and start it
-- Under "Operating System, make sur eto pick the "Raspberry Pi OS (Legacy)", called "Buster", also known as version 10. The short description is _"A port of Debian Buster with security updates and desktop-environemnt"_. You do *not* want "Bullseye" (Version 11). While Buster is not the most recent version, it is the one that works with the Raspi HQ cam without a ton of changes that still need to be made (They changed the entire API in Version 11, and the Python bindings are still in beta, and completely different)
+- Under "Operating System, make sure to pick the "Raspberry Pi OS Lite (Legacy)", called "Buster", also known as version 10. The short description is _"A port of Debian Buster with security updates and no desktop-environemnt"_. You do *not* want "Bullseye" (Version 11). While Buster is not the most recent version, it is the one that works with the Raspi HQ cam without a ton of changes that still need to be made (They changed the entire API in Version 11, and the Python bindings are still in beta, and completely different)
 - Under "Storage", select the microSD card you inserted into your card reader.
 - In the Mac Terminal.app, type `pbcopy < ~/.ssh/id_ed25519.pub` and hit Return. This copys the public key (which is a just text file) to your clipboard.
 - Before clicking "Write", click the gear icon in bottom right:
   - Do not allow to copy the wiki password from keychain. We won't use Wifi, it is just too slow for the amount of data the scanner produces (about 30 MB/s while it is running)
-  - Set the hostname to `piscan.local` (You can totally use a different hostname than `piscan`, but this manual might not work without changes then)
-  - Allow "public-key authentication only" and paste your key into the "Set authorized_keys for 'pi'" line.
+  - Set the hostname to `filmkorn-scanner.local` (You can totally use a different hostname than `filmkorn-scanner`, but this manual might not work without changes then)
+  - Allow "Use password authentication" under "Enable SSH"
   - Set the "locale settings" to a keyboard style of your liking
 - Now write the image. When done, insert the microSD card into your Raspi (without powering it up yet)
 - Connect the Raspi to your lcoal Network via wired Ethernet. If you don't have wired Ethernet, connect it to your Mac's Ethernet Jack, and enable "Internet Sharing" under "System Settings -> General -> Sharing" to share your Mac's Wifi with computers connected to its Ethernet port (Click on the little "i" to configure it like this). 
@@ -91,14 +91,20 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
 - When the wizard has finished, allow the potential reboot.
 - After the reboot, select the Raspberry Pi symbol in the start menu, click `Preferences` and select `Raspberry Pi Configuration`:
   - Go to the `Interfaces` tab and click enable at least `Camera`, `SSH` and `I2C` and reboot once more.
+
   - Due to some obscure bug, the keyboard locale is sometimes set wrong after setup. If you cannot write `-` or `/`or `ä` etc properly in the Raspi's Terminal, use the "Localizations" tab to re-configure your keyboard layout (propably "Apple ANSI", if you used your Mac's keyboard for setup)
 -  Just in case anything went wrong, you can start the wizard again via `sudo piwiz` in the Raspi Terminal
 - You can now disconnect the Monitor, Keyboard, Mouse and get back to your Mac.
-- In your Mac Terminal, type `ssh pi@piscan.local`. You should be greated with a few lines of text and see `pi@piscan2:~ $ ` as the last line. You just successfully and securely connected to your Raspi from your Mac! Note that no other computer can connect to your Raspi, unless you manually give it your private key (just don't).
+- In your Mac Terminal, type `ssh pi@filmkorn-scanner.local`. You should be greated with a few lines of text and see `pi@filmkorn-scanner2:~ $ ` as the last line. You just successfully and securely connected to your Raspi from your Mac! Note that no other computer can connect to your Raspi, unless you manually give it your private key (just don't).
 - ??? `python3` (latest should be fine, I'm using 3.10.9 right now) — no, it's 3.7.3 on the Raspi
-- ??? `python3-smbus` to make python talk I<sup>2</sup>C `sudo apt-get install python3-smbus` war schon da
-- ??? `python3-picamera` for support of the Raspi HQ Camera `sudo apt-get install python3-picamera` war schon da
+- ??? `python3-smbus` to make python talk I<sup>2</sup>C `sudo apt-get install python3-smbus` 
+- ??? `python3-picamera` for support of the Raspi HQ Camera `sudo apt-get install python3-picamera` 
 - `lsyncd`: `sudo apt-get install lsyncd`
+- `mkdir ~/raw-intermediates`
+- `sudo nano /etc/ssh/sshd_config` to `PubkeyAuthentication yes`
+- Host * / StrictHostKeyChecking no to /etc/ssh_config
+
+
 - `git clone https://github.com/fwachsmuth/Filmkorn-Raw-Scanner.git`
 - To allow the Raspi (only) to send files securely to the Mac, we need another key pair. In theory you could reuse the keys already created earlier, but since the scope of "allow configuring the film scanner" and "allow full access to my Mac" are very different scopes, we better maintain separate key-pairs. To do this,
   - use Terminal.app on yor Mac, while it is connected to your Raspi. You can easily see this by the `pi@piscan:~ $` prompt in the terminal.
@@ -118,7 +124,6 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
   - `whoami`on Mac
   - Enable Remote Login on Mac
   - `ssh-copy-id -i .ssh/id_piscan_ed25519.pub peaceman@192.168.2.1`
-- `mkdir ~/Pictures/raw-intermediates`
 - Display Drivers: `git clone https://github.com/goodtft/LCD-show.git`, `sudo ./MPI5001-show` # Don't messes up too many things
 
 

@@ -4,6 +4,18 @@
 - Adjust identity key path in lsyncd.conf
 - Test camera.preview_window = (0, 0, 640, 480) per https://picamera.readthedocs.io/en/release-1.13/deprecated.html?highlight=start_preview#preview-functions
 - Try $ sudo systemctl disable getty@tty1.service
+- image creation pre-flight:
+    - remove my keys from ~/.ssh: `rm ~/.ssh/id_filmkorn-scanner_ed25519*`
+    - and my dev key for git
+    - remove history
+OR use -p on a linux PiShrink
+`sudo xz -zkv3T8 /Users/peaceman/Filmkorn-Scanner-small.img` keeps original and is verbose. 6 might be better but takes 2.3x longer at ~15% gain
+
+- remove dash from password?
+
+
+
+
 
 
 ## General
@@ -62,3 +74,37 @@ diskutil unmountDisk /dev/disk6
 sudo dd if=~/PiscanuinoSDCardBackup.dmg of=/dev/disk6
 ```
 
+## Remote execution snippets
+https://www.cyberciti.biz/faq/unix-linux-execute-command-using-ssh/
+ssh pi@piscan2.local -t python3 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py
+ssh pi@piscan2.local "lsyncd ~/Filmkorn-Raw-Scanner/raspi/lsyncd.conf &" # doesn't go to background yet.
+ssh -f pi@piscan2.local "nohup lsyncd ~/Filmkorn-Raw-Scanner/raspi/lsyncd.conf > /dev/null 2>&1 &" works
+or cleaner: ssh -n -f user@host "sh -c 'cd /whereever; nohup ./whatever > /dev/null 2>&1 &'"
+
+ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no pi@piscan2.local
+
+### Flow draft:
+#### Initial keypair creation: 
+`` `ssh-keygen -t ed25519 -f ~/.ssh/id_filmkorn-scanner_ed25519 -C scanning-`whoami`@`hostname -s` -N ''` ``
+`ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub pi@filmkorn-scanner.local` yes / filmkorn-rocks
+
+```
+cat <<EOT >> ~/.ssh/config
+Host filmkorn-scanner.local
+  IdentityFile ~/.ssh/id_filmkorn-scanner_ed25519
+  StrictHostKeyChecking no
+EOT
+```
+`sudo launchctl stop com.openssh.sshd` ??
+`sudo launchctl startp com.openssh.sshd` ??
+`ssh pi@filmkorn-scanner.local "ssh-keygen -t ed25519 -f ~/.ssh/id_filmkorn-scanner_ed25519 -C pi@filmkorn-scanner -N ''"`
+`` `ssh pi@filmkorn-scanner.local -t "ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub `whoami`@`hostname -s`.local"` ``
+
+
+
+
+
+~create /etc/ssh/sshd_config with password allowed~
+add keys
+exchange /etc/ssh/sshd_config
+restart sshd `sudo systemctl restart sshd`
