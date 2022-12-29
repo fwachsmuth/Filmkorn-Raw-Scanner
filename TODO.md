@@ -9,8 +9,7 @@
     - and my dev key for git
     - remove history
 OR use -p on a linux PiShrink
-`sudo xz -zkv3T8 /Users/peaceman/Filmkorn-Scanner-small.img` keeps original and is verbose. 6 might be better but takes 2.3x longer at ~15% gain
-
+`sudo xz -zkv3T8 /Users/peaceman/Filmkorn-Scanner-small.img` 
 - remove dash from password?
 
 
