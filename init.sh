@@ -23,6 +23,6 @@ echo "Please enter the password of this Mac to allow receiving scanned film fram
 echo ""
 ssh pi@filmkorn-scanner.local -t "ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub `whoami`@`hostname -s`.local"
 
-# Download latest Repo
-ssh pi@filmkorn-scanner.local "git clone https://github.com/fwachsmuth/Filmkorn-Raw-Scanner.git"
+echo ""
+echo "Pairing complete!"
 
