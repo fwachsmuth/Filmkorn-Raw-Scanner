@@ -7,14 +7,19 @@ ssh-keygen -t ed25519 -q -f ~/.ssh/id_filmkorn-scanner_ed25519 -C scanning-`whoa
 if ! grep -q filmkorn-scanner.local ~/.ssh/config; then
   cat <<EOT >> ~/.ssh/config
 Host filmkorn-scanner.local
+  AddKeysToAgent no
+  UseKeychain no
+  IdentitiesOnly yes
   IdentityFile ~/.ssh/id_filmkorn-scanner_ed25519
   StrictHostKeyChecking no
 EOT
 fi
 
 # To do: Use sesame key for ssh-copy and delete it afterwards
-echo "Please enter the temporary Raspi password "filmkorn-rocks" to allow pairing."
-ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub pi@filmkorn-scanner.local
+bold=$(tput bold)
+normal=$(tput sgr0)
+echo "Please enter the temporary Raspi password ${bold}'filmkorn-rocks'${normal} to allow pairing."
+ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub pi@filmkorn-scanner.local > /dev/null 2> /dev/null
 
 
 # On the Raspi, generate and deploy a keypair to send files to this computer
@@ -22,8 +27,16 @@ ssh pi@filmkorn-scanner.local "ssh-keygen -t ed25519 -q -f ~/.ssh/id_filmkorn-sc
 echo ""
 echo "Please enter the password of this Mac to allow receiving scanned film frames going forward."
 echo ""
-ssh pi@filmkorn-scanner.local -t "ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub `whoami`@`hostname -s`.local"
+ssh pi@filmkorn-scanner.local -t "ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub `whoami`@`hostname -s`.local > /dev/null 2> /dev/null"
 
 echo ""
 echo "Pairing complete!"
+echo ""
+
+echo "Downloading latest Scanner Code..."
+ssh pi@filmkorn-scanner.local "test -d ~/Filmkorn-Raw-Scanner || git clone https://github.com/fwachsmuth/Filmkorn-Raw-Scanner.git"
+ssh pi@filmkorn-scanner.local "cd ~/Filmkorn-Raw-Scanner; git pull"
+
+echo ""
+echo "Latest Code installed."
 echo ""
