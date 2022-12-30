@@ -25,4 +25,4 @@ ssh pi@filmkorn-scanner.local -t "ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25
 
 echo ""
 echo "Pairing complete!"
-
+echo ""
