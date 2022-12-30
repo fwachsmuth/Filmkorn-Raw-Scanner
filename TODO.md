@@ -12,7 +12,7 @@ OR use -p on a linux PiShrink
 `sudo xz -zkv3T8 /Users/peaceman/Filmkorn-Scanner-small.img` 
 - remove dash from password?
 
-
+- add dtoverlay=disable-wifi and dtoverlay=disable-bt to /boot/config.txt
 
 
 

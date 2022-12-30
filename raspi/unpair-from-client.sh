@@ -17,16 +17,17 @@ rm ~/.ssh/id_filmkorn-scanner_ed25519*
 # Verify
 echo "------------------------------------------------"
 echo "Raspi's knwon_hosts:"
-cat ~/.ssh/known_hosts
+test ~/.ssh/known_hosts && cat ~/.ssh/known_hosts
 echo "------------------------------------------------"
 echo "Raspi's authorized_keys:"
-cat ~/.ssh/authorized_keys
+test ~/.ssh/authorized_keys && cat ~/.ssh/authorized_keys
 echo "------------------------------------------------"
 echo "Raspi's keys:"
 ls -la ~/.ssh/
 echo "------------------------------------------------"
 echo "Raspi's config:"
-cat ~/.ssh/config
+test ~/.ssh/config && cat ~/.ssh/config
 echo "------------------------------------------------"
 
-echo "Unpairing completed."
+echo "Raspi finished its unpairing."
+echo ""
