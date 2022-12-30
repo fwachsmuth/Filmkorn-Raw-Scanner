@@ -13,6 +13,8 @@ sed -i '' '\#pi@filmkorn-scanner#d' ~/.ssh/authorized_keys # extra quotes for BS
 echo "Removing keypair from this computer..."
 rm ~/.ssh/id_filmkorn-scanner_ed25519*
 
+rm .paired
+
 # Verify
 echo "------------------------------------------------"
 echo "Local knwon_hosts:"
