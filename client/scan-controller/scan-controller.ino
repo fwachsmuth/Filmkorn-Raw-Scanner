@@ -37,16 +37,20 @@ enum MotorState {
 };
 
 // Define the Hardware wiring
+#define EYE_PIN         2 // ISR
+#define FILM_END_PIN    3
+#define MOTOR_B_PIN     5 // PWM
+#define MOTOR_A_PIN     6 // PWM
+#define TRIGGER_PIN     7
 #define FAN_PIN         8
 #define LAMP_PIN        9
-#define MOTOR_A_PIN     6   // PWM
-#define MOTOR_B_PIN     5   // PWM
-#define TRIGGER_PIN     7
-#define EYE_PIN         2   // ISR
+#define LED_PIN         13
 #define BUTTONS_A_PIN   A0
 #define BUTTONS_B_PIN   A1
 #define SINGLE_STEP_POT A2
 #define CONT_RUN_POT    A3
+#define EXPOSURE_POT    A6
+
 
 enum Command {
   CMD_NONE,
@@ -95,12 +99,15 @@ void setup() {
   pinMode(BUTTONS_B_PIN, INPUT);
   pinMode(SINGLE_STEP_POT, INPUT);
   pinMode(CONT_RUN_POT, INPUT);
+  pinMode(EXPOSURE_POT, INPUT);
   pinMode(FAN_PIN, OUTPUT);
   pinMode(LAMP_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
   pinMode(MOTOR_A_PIN, OUTPUT);
   pinMode(MOTOR_B_PIN, OUTPUT);
   pinMode(TRIGGER_PIN, OUTPUT);
   pinMode(EYE_PIN, INPUT);
+  pinMode(FILM_END_PIN, INPUT);
 
   // Stop the engines
   analogWrite(MOTOR_A_PIN, 0);
@@ -112,7 +119,10 @@ void setup() {
 }
 
 void loop() {
-  if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN) {
+  digitalWrite(LED_PIN, digitalRead(FILM_END_PIN));
+
+  if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
+  {
     piIsReady = false;
     motorFWD1();                // advance
     nextPiCmd = CMD_SHOOT_RAW;  // tell to shoot
