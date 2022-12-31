@@ -119,13 +119,17 @@ void setup() {
 }
 
 void loop() {
-  digitalWrite(LED_PIN, digitalRead(FILM_END_PIN));
+  digitalWrite(LED_PIN, digitalRead(FILM_END_PIN));   // 0 when film ends 
 
-  if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
-  {
+  if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN) {
     piIsReady = false;
-    motorFWD1();                // advance
-    nextPiCmd = CMD_SHOOT_RAW;  // tell to shoot
+    if (!digitalRead(FILM_END_PIN)) {
+      Serial.println("Film ended");
+      stopScanning();
+    } else {
+      motorFWD1();                // advance
+      nextPiCmd = CMD_SHOOT_RAW;  // tell to shoot
+    }
   }
 
   // Read the trim pots to determine PWM width for the Motor
@@ -152,11 +156,7 @@ void loop() {
           break;
         case STOP:
           if (isScanning) {
-            isScanning = false;
-            piIsReady = false;
-            setLampMode(false);
-            zoomMode = Z1_1;
-            nextPiCmd = CMD_STOP_SCAN;
+            stopScanning();
           } else {
             stopMotor();
           }
@@ -293,6 +293,14 @@ void stopMotorISR() {
   digitalWrite(MOTOR_A_PIN, HIGH);
   digitalWrite(MOTOR_B_PIN, HIGH);
 //  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
+}
+
+void stopScanning() {
+  isScanning = false;
+  piIsReady = false;
+  setLampMode(false);
+  zoomMode = Z1_1;
+  nextPiCmd = CMD_STOP_SCAN;
 }
 
 ControlButton pollButtons() {
