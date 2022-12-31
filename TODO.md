@@ -47,12 +47,11 @@
 - [ ] Arduino braucht FTDI Power — why?
 - [ ] Staubschutzhaube bauen
 - [ ] 1x Netzstrom wäre schön
-- [ ] Fix the Fan mount
+- [x] Fix the Fan mount
 - [ ] Analyze i2c signal intergity with oscilloscope (pullups?)
-- [ ] Switch for pos / neg
 - [ ] switch for hd / rsync
 - [ ] Exposure Adjustment via pot
-- [ ] Add Film end Detector
+- [x] Add Film end Detector
 - [ ] Add XOR Gate to Lamp/Fan Out to turn off Lamp when fan is not running
 - [ ] Redesign Lens Mount to allow cleaning the gate again
 - [ ] Trafo-Brumm beseitigen
