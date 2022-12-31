@@ -15,7 +15,7 @@ from smbus import SMBus
 from picamera import PiCamera
 
 # Has to end with /
-RAW_DIRS_PATH = "/home/pi/Pictures/raw-intermediates/"
+RAW_DIRS_PATH = "/home/pi/raw-intermediates/"
 
 class Command(enum.Enum):
     # Arduino to Raspi
