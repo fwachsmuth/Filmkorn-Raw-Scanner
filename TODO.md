@@ -1,19 +1,20 @@
 # To Dos
 
 ## For Install scripts
+
+## Pairing/Unpairing
 - [ ] Determine if pair/unpair scripts are running on Mac or Raspi
-- [ ] configure `host` in `lsyncd.conf`s
 - [ ] remove dash from password to better support non-german keyboard layouts on console
 
-## For scanner.pv
-- [ ] configure `lsyncd.conf`'s `targetdir` via `scanner.py` parameter
+## For Client 
+- [ ] prune empty dirs after conversion 
 
 ## For SD-Image Generation 
 ### For `imagingpre-flight.sh`
 - [ ] Add development key removal 
 - [ ] Remove logs and history
 ### General
-- [ ] Inflate Filesystem again
+- [ ] Inflate Filesystem once, `raspi-config --expand-rootfs`
 - [ ] add `dtoverlay=disable-wifi` and `dtoverlay=disable-bt` to `/boot/config.txt`
 - [ ] remove dash from password to better support non-german keyboard layouts on console
 
@@ -22,14 +23,11 @@
 - [x] Draw Schematics already
 - [ ] Update ReadMes
 
-## Client Todos
-- [ ] prune empty dirs after conversion 
-
-
 ## Raspi Todos:
 ### scanner.py
 - [x] start lsyncd as demon
 - [x] Support setting a destination user / host / path via arguments
+- [ ] Start conversion watchdog on client
 - [ ] Test: Spaces in -p paths
 - [ ] Test camera.preview_window = (0, 0, 640, 480) per https://picamera.readthedocs.io/en/release-1.13/deprecated.html?highlight=start_preview#preview-functions
 - [ ] Let Preview Mode use dynamic exposure to allow easier focus adjustments
