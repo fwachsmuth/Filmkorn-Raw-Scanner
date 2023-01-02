@@ -177,7 +177,7 @@ def find_files(dir: str):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description="convert RPi Cam JPGs in a dir to DNGs")
+        description="convert RPi HQ Cam Raws in a dir to DNGs")
     parser.add_argument(
         '-i', '--input', default=os.getcwd(), type=str,
         help="(default: .)", metavar="<input dir>")
