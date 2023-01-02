@@ -28,8 +28,9 @@
 
 ## Raspi Todos:
 ### scanner.py
-- [x] lsync als daemon starten
-- [ ] Support setting a destination user / host / path via arguments
+- [x] start lsyncd as demon
+- [x] Support setting a destination user / host / path via arguments
+- [ ] Test: Spaces in -p paths
 - [ ] Test camera.preview_window = (0, 0, 640, 480) per https://picamera.readthedocs.io/en/release-1.13/deprecated.html?highlight=start_preview#preview-functions
 - [ ] Let Preview Mode use dynamic exposure to allow easier focus adjustments
 - [ ] Exposure Adjustment via pot
