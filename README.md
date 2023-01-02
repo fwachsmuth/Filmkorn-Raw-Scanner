@@ -69,6 +69,7 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
 *Note: The guide below might not be a 100% step-by-step guide that you can always follow blindly. Some steps might differ a bit for you. If you get stuck, don't give up, but try again, google your probelm, poke around, or ask otehr people. This is all basic boot-strapping stuff in the linux world.*
 
 
+
 ## Connections
 - Connect I<sup>2</sup>C from Arduino with SMBus Pins on Raspi
 - Connect GND to have a common ground
@@ -88,13 +89,11 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
 - Profit
 
 ## System Setup: Get ready to scan!
+- Connect Ethernet Cable to Hub or Mac
 - Powerup Raspi
-- Powerup Arduino (currently via FTDI)
-- Connect Ethernet Cable to Mac
-- Enable Internet Sharing since the Raspi needs Internet (Time, Updates, Packages etc.)
-- Mac: Set eth-if to `192.168.2.1` (Raspi is `192.168.2.2`)
-- Mac: **Enable** Settings -> General -> Sharing -> Remote Login, then click (i) and enable "Allow full disk access for remote users" 
 - "Start" the Projector by pushing its "Fwd" Key. This gives power on the transformer. 
+- Enable Internet Sharing since the Raspi needs Internet (Time, Updates, Packages etc.)
+- Mac: **Enable** Settings -> General -> Sharing -> Remote Login, then click (i) and enable "Allow full disk access for remote users" 
 - Set Aperture to 8. Smaller apertures will cause severe diffraction blurring and is not recommended.
 - Check `camera.shutter_speed` in scanner.py (on the Raspi)
 - Raspi: `cd /home/pi/Filmkorn-Raw-Scanner/raspi`
