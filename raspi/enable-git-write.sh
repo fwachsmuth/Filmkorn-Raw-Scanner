@@ -4,7 +4,7 @@
 cd Filmkorn-Raw-Scanner
 git remote set-url origin git@github.com:fwachsmuth/Filmkorn-Raw-Scanner.git
 #git config --global user.email ""
-#git config --global user.name ""
+git config --global user.name "Friedemann Wachsmuth"
 if ! grep -q id_filmkorn-scanner-dev_ed25519 ~/.ssh/config; then
     cat <<EOT >> ~/.ssh/config
 Host github.com
