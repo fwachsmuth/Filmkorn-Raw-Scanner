@@ -1,5 +1,7 @@
 #!/bin/bash
-kill `cat /tmp/lsyncd.pid``
+echo "Killing lsyncd..."
+kill `cat /tmp/lsyncd.pid`
+echo "Waiting..."
+sleep 2
+echo "Starting lsyncd..."
 lsyncd lsyncd.conf
-
-
