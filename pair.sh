@@ -36,6 +36,9 @@ EOT
   ssh pi@filmkorn-scanner.local "test -d ~/Filmkorn-Raw-Scanner || git clone https://github.com/fwachsmuth/Filmkorn-Raw-Scanner.git"
   ssh pi@filmkorn-scanner.local "cd ~/Filmkorn-Raw-Scanner; git pull"
 
+  echo "Configuring where on the Mac the scans should be stored..."
+  ssh pi@filmkorn-scanner.local "./Filmkorn-Raw-Scanner/raspi/update-destination.sh -h `whoami`@`hostname -s`.local -p /Volumes/Filme"
+
   echo ""
   echo "Latest Code installed."
   echo ""
