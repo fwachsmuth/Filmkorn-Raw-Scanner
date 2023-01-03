@@ -29,7 +29,7 @@
 - [x] Support setting a destination user / host / path via arguments
 - [ ] Start conversion watchdog on client
 - [ ] Test: Spaces in -p paths
-- [ ] Test camera.preview_window = (0, 0, 640, 480) per https://picamera.readthedocs.io/en/release-1.13/deprecated.html?highlight=start_preview#preview-functions
+- [x] Fixed Preview Aspect Ratio by editing /boot/config.txt to match the 5" 800x480 screen requirements
 - [ ] Let Preview Mode use dynamic exposure to allow easier focus adjustments
 - [ ] Exposure Adjustment via pot
 
