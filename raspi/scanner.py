@@ -106,8 +106,7 @@ camera.contrast = 0    # (-100 to 100)
 camera.saturation = 0  # (-100 to 100)
 camera.exposure_compensation = 0 # (-25 to 25)
 camera.awb_mode = 'sunlight'     # off becomes green, irrelevant anyway since we do Raws
-camera.shutter_speed = 1200      # 2000      
-# camera.exposure_mode = 'off'   # lock all settings
+camera.shutter_speed = 3300      #       
 # sleep(2)
 
 img_transfer_process: subprocess.Popen = None
