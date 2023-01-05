@@ -29,6 +29,7 @@
 - [x] Support setting a destination user / host / path via arguments
 - [ ] Start conversion watchdog on client
 - [ ] Test: Spaces in -p paths
+- [ ] Consider using https://pypi.org/project/picamerax/
 - [x] Fixed Preview Aspect Ratio by editing /boot/config.txt to match the 5" 800x480 screen requirements
 - [ ] Let Preview Mode use dynamic exposure to allow easier focus adjustments
 - [ ] Exposure Adjustment via pot
