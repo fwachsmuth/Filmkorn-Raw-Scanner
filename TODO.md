@@ -8,6 +8,21 @@
 
 ## For Client 
 - [ ] prune empty dirs after conversion 
+- [ ] re-enable packing DNGs
+- Fix "As Shot Neutral 1 1 1" issue. gain_r and gain_b are 1.000 in the jpeg+raw file.
+````
+g = camera.awb_gains
+camera.awb_mode = 'off'
+camera.awb_gains = g
+````
+or is it the lack of xwindow?
+or picamerax? no
+or picamera 1.13?
+- the old image (pisca) works. 
+    - only diff in scanner.py is not using a ramdisk
+    - python 3.7.3 on both
+
+
 
 ## For SD-Image Generation 
 ### For `imagingpre-flight.sh`
