@@ -183,8 +183,8 @@ def set_zoom_mode_10_1():
     set_lamp_on()
     state._zoom_mode = ZoomMode.Z1_1
     camera.shutter_speed = 0
-    camera.zoom = (0.45, 0.45, 0.1, 0.1)  # (x, y, w, h)
-    print("Zoom Level: 10:1")
+    camera.zoom = (0.42, 0.42, 1/6, 1/6)  # (x, y, w, h)
+    print("Zoom Level: 6:1")
 
 def set_lamp_off():
     set_zoom_mode_1_1()
