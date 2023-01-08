@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """Raspi-side Scan Control Glue communicating between Raspi, Arduino and the Raspi HQ Cam"""
 
 from time import sleep
@@ -18,6 +19,12 @@ from picamera import PiCamera
 RAW_DIRS_PATH = "/mnt/ramdisk/"
 fixed_shutter_speed = 2000  # Todo: make this somehow controllable for other LEDs / Setups
 
+# print ("\033c")   # Clear Screen
+
+subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/images/successful_connection_to_raspi.png"])
+# proc = subprocess.Popen(["rm","-r","some.file"]), then to kill: proc.terminate()
+
+
 class Command(enum.Enum):
     # Arduino to Raspi
     IDLE = 0
@@ -37,6 +44,7 @@ class Command(enum.Enum):
 
 class ZoomMode(enum.Enum):
     Z1_1 = 0
+    
     Z3_1 = 1
     Z10_1 = 2
 
