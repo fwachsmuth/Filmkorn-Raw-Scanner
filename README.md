@@ -108,6 +108,17 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
 - Go to File -> Project Settings
 - Set the Timeline Resolution to `4096 x 3112 Full Aperture`
 - Set the Timeline and Playback Framerate to 16, 18, 24 fps or whatever matches your scanned footage (16 or 18 are okay, no frame interpolation needed!)
+- Project Settings -> Camera RAW:
+  - RAW Profile: CinemaDNG
+  - Decode using Project 
+  - White Balance: Daylight
+  - Use Color Space Rec.709
+  - Use Gamma = Gamma 2.4
+  - Enable Highlight Recovery
+  - Midtone Detail 25, Sharpness 25
+  - Optional: Sharpness & Midtone Detail up
+
+
 - Open the "Media" tab, open CinemaDNG folder in the file browser pane on the left
 - Drag and Drop the Project Folder (e.g. `2022-12-19T13_18_44`) onto the Mediapool
 - Go to the "Cut" Tab and drag the clip onto your timeline. Happy editing!
@@ -121,3 +132,9 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
 
 - When Grading Reversal film, check the "Camera Raw" tool on the very left. If you chose "Decode Using: Clip", you can adjust DNG parameters simliar to Lightroom (but not exactly equal to). This is useful for a first base correction. Especially te "Lift" and "Gain" sliders are useful. (For negative film, the slider woudl all wrok inverted — it's better to use Davincis own grading here.)
 - You usually want to tick the "Highlight Recovery" Checkbox in the "Camera Raw" tool. watch any frame with blown-out highlights to see its doing its magic.
+
+
+
+- Use WHite Balance = Daylight
+- Use Color Space Rec.709
+- Use Gamma = Gamma 2.4
