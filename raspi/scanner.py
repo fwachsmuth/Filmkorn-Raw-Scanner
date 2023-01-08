@@ -16,6 +16,7 @@ from picamera import PiCamera
 
 # Has to end with /
 RAW_DIRS_PATH = "/mnt/ramdisk/"
+fixed_shutter_speed = 2000  # Todo: make this somehow controllable for other LEDs / Setups
 
 class Command(enum.Enum):
     # Arduino to Raspi
@@ -106,7 +107,8 @@ camera.contrast = 0    # (-100 to 100)
 camera.saturation = 0  # (-100 to 100)
 camera.exposure_compensation = 0 # (-25 to 25)
 camera.awb_mode = 'sunlight'     # off becomes green, irrelevant anyway since we do Raws
-camera.shutter_speed = 3300      #       
+camera.shutter_speed = fixed_shutter_speed
+camera.shutter_speed = 0    # This enables AE
 # sleep(2)
 
 img_transfer_process: subprocess.Popen = None
@@ -144,7 +146,7 @@ def ask_arduino() -> Optional[Command]:
     try:
         cmd = arduino.read_byte(arduino_i2c_address)
     except OSError:
-        print("No I2C answer")
+        print("No I2C answer. Is the Arduino powered up?")
         return
     
     try:
@@ -153,6 +155,7 @@ def ask_arduino() -> Optional[Command]:
         print(f"Received unknown command {cmd}")
 
 def shoot_raw():
+    camera.shutter_speed = fixed_shutter_speed
     start_time = time.time()
     camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
     state.raw_count += 1
@@ -165,27 +168,32 @@ def say_ready():
 
 def set_zoom_mode_1_1():
     state._zoom_mode = ZoomMode.Z1_1
+    camera.shutter_speed = fixed_shutter_speed
     camera.zoom = (0.0, 0.0, 1.0, 1.0)  # (x, y, w, h)
     print("Zoom Level: 1:1")
 
 def set_zoom_mode_3_1():
     set_lamp_on()
     state._zoom_mode = ZoomMode.Z1_1
+    camera.shutter_speed = 0
     camera.zoom = (1/3, 1/3, 1/3, 1/3)  # (x, y, w, h)
     print("Zoom Level: 3:1")
 
 def set_zoom_mode_10_1():
     set_lamp_on()
     state._zoom_mode = ZoomMode.Z1_1
-    camera.zoom = (0.45, 0.45, 0.1, 0.1)  # (x, y, w, h)
-    print("Zoom Level: 10:1")
+    camera.shutter_speed = 0
+    camera.zoom = (0.42, 0.42, 1/6, 1/6)  # (x, y, w, h)
+    print("Zoom Level: 6:1")
 
 def set_lamp_off():
     set_zoom_mode_1_1()
     camera.stop_preview()
+    camera.shutter_speed = fixed_shutter_speed
     print("Lamp and camera preview disabled")
 
 def set_lamp_on():
+    # camera.shutter_speed = 0
     camera.start_preview()
     print("Lamp and camera preview enabled")
 
