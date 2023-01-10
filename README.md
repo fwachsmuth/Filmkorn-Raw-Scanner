@@ -15,7 +15,7 @@ This is what I bought from my budget to build this scanner.
 - M39 to M42 adapter ring: 10€
 - M42 to C-Mount Adapter (Wittner): 30€
 - YUJILEDS Full Spectrum CRI 98 COB LED [BC 135L (5600K, 9W)](https://www.yujiintl.com/bc-135l/): €20 ([potential alternative for 4€ ?](https://www.leds.de/nichia-ntcws024b-v2-cob-led-5000k-r95-32105.html))
-- Display
+- [Display](https://www.amazon.de/gp/product/B07YCBWRQP/) for focusing and framing (and watching the scan going on)
 - MDF wood, screws and hardware store stuff to mount it all
 
 You can definitely use other lenses, another LED and other ways than spacer rings to mount the Raspi Cam in front of the projector's gate. Get creative as needed. Note though that 50mm are pretty much perfect, shorter focal lengthes could be mechanically challenging, and longer focal lengths will be mechanically unstable and have plenty of air between the film and the sensor.
