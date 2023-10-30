@@ -57,6 +57,8 @@ sudo rpi-update 0642816ed05d31fb37fc8fbbba9e1774b475113f worked (to get back to 
 
  
 ## Hardware
+- [ ] Replace Transformer
+- [ ] Add soft reset button
 - [ ] Rastkugeln im Objektivgang ausbauen
 - [x] ~Arduino needs FTDI Power — why?~ Only when Projector isn't running
 - [ ] Staubschutzhaube bauen

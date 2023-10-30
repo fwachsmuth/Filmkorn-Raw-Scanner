@@ -96,11 +96,12 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
 - Mac: **Enable** Settings -> General -> Sharing -> Remote Login, then click (i) and enable "Allow full disk access for remote users" 
 - Set Aperture to 8. Smaller apertures will cause severe diffraction blurring and is not recommended.
 - Check `camera.shutter_speed` in scanner.py (on the Raspi)
+- `ssh pi@filmkorn-scanner.local`
 - Raspi: `cd /home/pi/Filmkorn-Raw-Scanner/raspi`
 - Raspi: Adjust Target Path in `lsyncd.conf` if needed
 - Raspi: `lsyncd lsyncd.conf &`. (Using a separate shell here might make sense to let lsync not bleed into the scanner's log output)
 - Raspi: `python3 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py`
-- Mac: `python3 cineDNG_creator.py -i /Volumes/Filme/raw-intermediates/ -o /Volumes/Filme/CinemaDNG/. --cinema-dng --keep-running`
+- Mac: `python3 cineDNG_creator.py -i /Volumes/Filme\ 4TB/raw-intermediates/ -o /Volumes/Filme\ 4TB/CinemaDNG/. --cinema-dng --keep-running`
 
 ## Using CinemaDNG
 *(incomplete)*
@@ -120,7 +121,7 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
 
 
 - Open the "Media" tab, open CinemaDNG folder in the file browser pane on the left
-- Drag and Drop the Project Folder (e.g. `2022-12-19T13_18_44`) onto the Mediapool
+- Drag and Drop the Project Folder (e.g. `2022-12-19T13_18_44`) onto the Mediapool at the bottom
 - Go to the "Cut" Tab and drag the clip onto your timeline. Happy editing!
 - Note the "Camera Raw" tool in the Color Tab (Lift, Gain)
 - Enjoy 12 bit Raws
@@ -130,6 +131,9 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
 - Click on "Effects" in the top right
 - Scroll down to the ColorNegInvert effect and drag it to the Node area. Make it the first Node (except Denoise, whcih shoudl always be first-first)
 
+The three sliders “Mask color” define the RGB values of the color that is substracted. To start with, one can put the three sliders to the maximum value and then bring them back one by one towards the left. For each channel, when you go towards the left, there is a point where the image stops being modified : stop there. Once the three channels approximately tuned, refine by moving each one slowly from right to left and left to right : one can sense the moment when the image goes from red to cyan, from green to magenta and from blue to yellow.
+
+
 - When Grading Reversal film, check the "Camera Raw" tool on the very left. If you chose "Decode Using: Clip", you can adjust DNG parameters simliar to Lightroom (but not exactly equal to). This is useful for a first base correction. Especially te "Lift" and "Gain" sliders are useful. (For negative film, the slider woudl all wrok inverted — it's better to use Davincis own grading here.)
 - You usually want to tick the "Highlight Recovery" Checkbox in the "Camera Raw" tool. watch any frame with blown-out highlights to see its doing its magic.
 
@@ -138,3 +142,7 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
 - Use WHite Balance = Daylight
 - Use Color Space Rec.709
 - Use Gamma = Gamma 2.4
+
+
+ssh pi@filmkorn-scanner.local
+python3 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py
