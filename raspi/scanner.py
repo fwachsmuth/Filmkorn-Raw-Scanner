@@ -29,6 +29,7 @@ class Command(enum.Enum):
     # Arduino to Raspi
     IDLE = 0
     PING = 1
+
     Z1_1 = 2
     Z3_1 = 3
     Z10_1 = 4
