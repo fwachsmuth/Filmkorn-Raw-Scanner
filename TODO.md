@@ -1,5 +1,17 @@
 # To Dos
 
+## Useful Links
+    Useful Links:
+    https://cdn.sparkfun.com/assets/c/6/2/2/1/ProMini8MHzv2.pdf
+    https://support.jlcpcb.com/article/84-how-to-generate-the-bom-and-centroid-file-from-kicad
+    https://yaqwsx.github.io/jlcparts/#/
+    https://ravikiranb.com/projects/kicad-rpiz-uhat-template/
+    https://pcbchecklist.com/
+    https://arduino.stackexchange.com/a/9858
+    https://github.com/raspberrypi/hats/blob/master/designguide.md
+    https://learn.adafruit.com/program-an-avr-or-arduino-using-raspberry-pi-gpio-pins/configuration
+    https://forums.raspberrypi.com//viewtopic.php?f=91&t=217442 // Shutodwn pin: dtoverlay=gpio-shutdown,gpio_pin=26,active_low=1,gpio_pull=up
+
 ## For Install scripts
 
 ## Pairing/Unpairing
@@ -70,6 +82,7 @@ sudo rpi-update 0642816ed05d31fb37fc8fbbba9e1774b475113f worked (to get back to 
 - [ ] Trafo-Brumm beseitigen
 - [ ] Try shorter camera cable against the noise
 - [ ] ~switch for hd / rsync~
+- [ ] Test a Um-Switch to tunr it off/on
 
 ## Remote execution snippets
 https://www.cyberciti.biz/faq/unix-linux-execute-command-using-ssh/
