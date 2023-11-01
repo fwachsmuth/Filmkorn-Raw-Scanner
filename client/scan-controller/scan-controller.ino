@@ -44,7 +44,7 @@ enum MotorState {
 #define TRIGGER_PIN     7
 #define FAN_PIN         8
 #define LAMP_PIN        9
-#define LED_PIN         13
+#define LED_PIN         13 // use D4 on the PCB, since D13 is shared with SCK
 #define BUTTONS_A_PIN   A0
 #define BUTTONS_B_PIN   A1
 #define SINGLE_STEP_POT A2
