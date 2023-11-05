@@ -82,7 +82,7 @@ sudo rpi-update 0642816ed05d31fb37fc8fbbba9e1774b475113f worked (to get back to 
 - [ ] Trafo-Brumm beseitigen
 - [ ] Try shorter camera cable against the noise
 - [ ] ~switch for hd / rsync~
-- [ ] Test a Um-Switch to tunr it off/on
+- [ ] Test higher PWM freqs
 
 ## Remote execution snippets
 https://www.cyberciti.biz/faq/unix-linux-execute-command-using-ssh/
