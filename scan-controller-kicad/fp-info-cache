@@ -1,4 +1,4 @@
-22380593402488184
+22389089971112787
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -92365,9 +92365,44 @@ varistor
 2
 2
 easyeda2kicad
+CONN-TH_2P-P5.08_KF142R-5.08-2P
+
+
+0
+4
+2
+easyeda2kicad
+CONN-TH_3P-P2.54_KF141R-2.54-3P
+
+
+0
+6
+3
+easyeda2kicad
+HDR-TH_40P-P2.54-V-F-R2-C20-S2.54-2
+
+
+0
+40
+40
+easyeda2kicad
 IND-SMD_L13.5-W12.6_TMPA1265SP-100MN-D
 
 
 0
 2
 2
+easyeda2kicad
+KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH-small
+
+
+0
+6
+4
+easyeda2kicad
+RES-ADJ-SMD_RDC506002A
+
+
+0
+7
+3
