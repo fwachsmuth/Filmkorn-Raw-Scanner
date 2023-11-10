@@ -936,7 +936,7 @@
           (reference "R2") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "R2") (unit 1)
+          (reference "R30") (unit 1)
         )
       )
     )
@@ -968,7 +968,7 @@
           (reference "R19") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "R19") (unit 1)
+          (reference "R29") (unit 1)
         )
       )
     )
@@ -999,7 +999,7 @@
           (reference "TP4") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "TP4") (unit 1)
+          (reference "TP14") (unit 1)
         )
       )
     )
@@ -1027,7 +1027,7 @@
           (reference "#PWR05") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "#PWR023") (unit 1)
+          (reference "#PWR031") (unit 1)
         )
       )
     )
@@ -1048,7 +1048,10 @@
     (property "Datasheet" "https://lcsc.com/product-detail/New-Quadratic-Unclassified-Data_Cixi-Kefa-Elec-KF141R-2-54-3P_C475125.html" (at 150.495 53.34 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC Part" "C475125" (at 150.495 55.88 0)
+    (property "LCSC Part" "" (at 150.495 55.88 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "LCSC" "C475125" (at 150.495 40.64 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 1d74d2df-c342-401e-a210-1c6a4d3c62ec))
@@ -1060,7 +1063,7 @@
           (reference "CN5") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "CN4") (unit 1)
+          (reference "CN6") (unit 1)
         )
       )
     )
@@ -1092,7 +1095,7 @@
           (reference "R3") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "R15") (unit 1)
+          (reference "R31") (unit 1)
         )
       )
     )
@@ -1120,7 +1123,7 @@
           (reference "#PWR022") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "#PWR025") (unit 1)
+          (reference "#PWR032") (unit 1)
         )
       )
     )
@@ -1152,7 +1155,7 @@
           (reference "R15") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "R3") (unit 1)
+          (reference "R32") (unit 1)
         )
       )
     )
@@ -1191,7 +1194,7 @@
           (reference "U5") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "U4") (unit 1)
+          (reference "U5") (unit 1)
         )
       )
     )
@@ -1222,7 +1225,7 @@
           (reference "TP5") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "TP5") (unit 1)
+          (reference "TP15") (unit 1)
         )
       )
     )
@@ -1255,7 +1258,7 @@
           (reference "Q5") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "Q3") (unit 1)
+          (reference "Q7") (unit 1)
         )
       )
     )
@@ -1276,7 +1279,7 @@
     (property "Datasheet" "~" (at 53.975 38.1 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC" " C267472" (at 53.975 38.1 0)
+    (property "LCSC" "C267472" (at 53.975 38.1 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 8b0ce148-0601-45f5-9232-2b353008c78d))
@@ -1287,7 +1290,7 @@
           (reference "C7") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "C7") (unit 1)
+          (reference "C14") (unit 1)
         )
       )
     )
@@ -1318,7 +1321,7 @@
           (reference "TP1") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "TP1") (unit 1)
+          (reference "TP12") (unit 1)
         )
       )
     )
@@ -1350,7 +1353,7 @@
           (reference "C8") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "C8") (unit 1)
+          (reference "C15") (unit 1)
         )
       )
     )
@@ -1381,7 +1384,7 @@
           (reference "TP2") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "TP2") (unit 1)
+          (reference "TP13") (unit 1)
         )
       )
     )
@@ -1402,7 +1405,10 @@
     (property "Datasheet" "https://lcsc.com/product-detail/New-Quadratic-Unclassified-Data_Cixi-Kefa-Elec-KF141R-2-54-3P_C475125.html" (at 118.745 127 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC Part" "C475125" (at 118.745 129.54 0)
+    (property "LCSC Part" "" (at 118.745 129.54 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "LCSC" "C475125" (at 118.745 114.3 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid a20384fd-0fb1-40eb-b3ec-867a50055e40))
@@ -1442,7 +1448,7 @@
           (reference "#PWR025") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "#PWR09") (unit 1)
+          (reference "#PWR029") (unit 1)
         )
       )
     )
@@ -1480,7 +1486,7 @@
           (reference "D4") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "D4") (unit 1)
+          (reference "D5") (unit 1)
         )
       )
     )
@@ -1518,7 +1524,7 @@
           (reference "D2") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "D2") (unit 1)
+          (reference "D4") (unit 1)
         )
       )
     )
@@ -1556,7 +1562,7 @@
           (reference "Q1") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "Q1") (unit 1)
+          (reference "Q6") (unit 1)
         )
       )
     )
@@ -1584,7 +1590,7 @@
           (reference "#PWR023") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "#PWR04") (unit 1)
+          (reference "#PWR028") (unit 1)
         )
       )
     )
@@ -1605,7 +1611,10 @@
     (property "Datasheet" "https://lcsc.com/product-detail/New-Quadratic-Unclassified-Data_Cixi-Kefa-Elec-KF142R-5-08-2P_C475144.html" (at 86.36 64.77 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC Part" "C475144" (at 86.36 67.31 0)
+    (property "LCSC Part" "" (at 86.36 67.31 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "LCSC" "C475144" (at 86.36 53.34 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 5ca7cc78-d292-4641-b213-1553c72a3570))
@@ -1616,7 +1625,7 @@
           (reference "CN6") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "CN6") (unit 1)
+          (reference "CN4") (unit 1)
         )
       )
     )
@@ -1644,7 +1653,7 @@
           (reference "#PWR030") (unit 1)
         )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "#PWR026") (unit 1)
+          (reference "#PWR030") (unit 1)
         )
       )
     )

@@ -2646,7 +2646,7 @@
   (symbol (lib_id "MCU_Microchip_ATmega:ATmega328P-A") (at 188.595 107.95 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e110a1e)
-    (property "Reference" "U6" (at 188.595 106.68 0)
+    (property "Reference" "U1" (at 188.595 106.68 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "ATmega328P" (at 188.595 109.855 0)
@@ -2696,7 +2696,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "U6") (unit 1)
+          (reference "U1") (unit 1)
         )
       )
     )
@@ -2705,7 +2705,7 @@
   (symbol (lib_id "Device:C_Small") (at 158.115 92.71 90) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e11a53a)
-    (property "Reference" "C15" (at 160.655 93.98 90)
+    (property "Reference" "C4" (at 160.655 93.98 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "22p" (at 155.575 91.44 90)
@@ -2725,7 +2725,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C15") (unit 1)
+          (reference "C4") (unit 1)
         )
       )
     )
@@ -2734,7 +2734,7 @@
   (symbol (lib_id "Device:C_Small") (at 158.115 97.79 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e11b014)
-    (property "Reference" "C16" (at 160.655 96.52 90)
+    (property "Reference" "C5" (at 160.655 96.52 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "22p" (at 155.575 99.06 90)
@@ -2754,7 +2754,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C16") (unit 1)
+          (reference "C5") (unit 1)
         )
       )
     )
@@ -2763,7 +2763,7 @@
   (symbol (lib_id "Device:C_Small") (at 211.455 80.01 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e11b384)
-    (property "Reference" "C12" (at 211.455 77.47 0)
+    (property "Reference" "C7" (at 211.455 77.47 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "100n" (at 211.455 82.55 0)
@@ -2783,7 +2783,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C12") (unit 1)
+          (reference "C7") (unit 1)
         )
       )
     )
@@ -2821,7 +2821,7 @@
   (symbol (lib_id "power:GNDD") (at 151.765 95.25 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e123e9b)
-    (property "Reference" "#PWR042" (at 151.765 101.6 0)
+    (property "Reference" "#PWR07" (at 151.765 101.6 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 150.495 99.06 0)
@@ -2837,7 +2837,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR042") (unit 1)
+          (reference "#PWR07") (unit 1)
         )
       )
     )
@@ -2846,7 +2846,7 @@
   (symbol (lib_id "power:GNDD") (at 188.595 148.59 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e133b8f)
-    (property "Reference" "#PWR037" (at 188.595 154.94 0)
+    (property "Reference" "#PWR010" (at 188.595 154.94 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 188.595 152.4 0)
@@ -2862,7 +2862,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR037") (unit 1)
+          (reference "#PWR010") (unit 1)
         )
       )
     )
@@ -2871,7 +2871,7 @@
   (symbol (lib_id "Device:R") (at 159.385 109.22 90) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e13d4fb)
-    (property "Reference" "R27" (at 159.385 106.68 90)
+    (property "Reference" "R4" (at 159.385 106.68 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "10K" (at 159.385 109.22 90)
@@ -2891,7 +2891,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R27") (unit 1)
+          (reference "R4") (unit 1)
         )
       )
     )
@@ -2900,7 +2900,7 @@
   (symbol (lib_id "power:GNDD") (at 48.26 42.545 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e14e141)
-    (property "Reference" "#PWR08" (at 48.26 48.895 0)
+    (property "Reference" "#PWR02" (at 48.26 48.895 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 48.26 46.355 0)
@@ -2916,7 +2916,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR08") (unit 1)
+          (reference "#PWR02") (unit 1)
         )
       )
     )
@@ -2925,19 +2925,19 @@
   (symbol (lib_id "Device:C_Polarized_Small") (at 48.26 31.115 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e1637d0)
-    (property "Reference" "C2" (at 48.895 29.21 0)
+    (property "Reference" "C1" (at 48.895 29.21 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "470u" (at 48.895 33.655 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 48.26 31.115 0)
+    (property "Footprint" "easyeda2kicad:CAP-SMD_BD12.5-L13.0-W13.0-RD" (at 48.26 31.115 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 48.26 31.115 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC" "" (at 48.26 31.115 0)
+    (property "LCSC" "C90272" (at 48.26 31.115 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid a9ba514f-1e43-43a3-94bf-035c7f3f4273))
@@ -2945,7 +2945,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C2") (unit 1)
+          (reference "C1") (unit 1)
         )
       )
     )
@@ -2954,7 +2954,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x06") (at 226.06 103.505 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e178cc1)
-    (property "Reference" "J6" (at 228.092 103.7082 0)
+    (property "Reference" "J4" (at 228.092 103.7082 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "FTDI" (at 226.06 113.665 0)
@@ -2978,7 +2978,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "J6") (unit 1)
+          (reference "J4") (unit 1)
         )
       )
     )
@@ -2987,7 +2987,7 @@
   (symbol (lib_id "power:GND") (at 44.45 42.545 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e17c54b)
-    (property "Reference" "#PWR07" (at 44.45 48.895 0)
+    (property "Reference" "#PWR01" (at 44.45 48.895 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 43.18 46.355 0)
@@ -3003,7 +3003,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR07") (unit 1)
+          (reference "#PWR01") (unit 1)
         )
       )
     )
@@ -3012,7 +3012,7 @@
   (symbol (lib_id "Device:C_Small") (at 217.17 111.125 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e1c6352)
-    (property "Reference" "C17" (at 215.9 113.665 90)
+    (property "Reference" "C8" (at 215.9 113.665 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "100n" (at 222.25 113.665 90)
@@ -3032,7 +3032,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C17") (unit 1)
+          (reference "C8") (unit 1)
         )
       )
     )
@@ -3041,7 +3041,7 @@
   (symbol (lib_id "Connector:TestPoint") (at 48.26 23.495 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e1c6d0f)
-    (property "Reference" "TP3" (at 46.99 15.24 0)
+    (property "Reference" "TP1" (at 46.99 15.24 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "24V" (at 46.99 17.78 0)
@@ -3060,7 +3060,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "TP3") (unit 1)
+          (reference "TP1") (unit 1)
         )
       )
     )
@@ -3069,7 +3069,7 @@
   (symbol (lib_id "Connector:AVR-ISP-6") (at 220.98 135.255 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e20ba79)
-    (property "Reference" "J5" (at 229.362 132.8166 0)
+    (property "Reference" "J3" (at 229.362 132.8166 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "ICSP" (at 213.36 144.145 0)
@@ -3093,7 +3093,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "J5") (unit 1)
+          (reference "J3") (unit 1)
         )
       )
     )
@@ -3102,7 +3102,7 @@
   (symbol (lib_id "power:GNDD") (at 223.52 146.685 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e214d8e)
-    (property "Reference" "#PWR043" (at 223.52 153.035 0)
+    (property "Reference" "#PWR012" (at 223.52 153.035 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 223.52 150.495 0)
@@ -3118,7 +3118,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR043") (unit 1)
+          (reference "#PWR012") (unit 1)
         )
       )
     )
@@ -3127,7 +3127,7 @@
   (symbol (lib_id "Device:C_Small") (at 182.245 66.04 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e242cd2)
-    (property "Reference" "C14" (at 183.515 64.77 90)
+    (property "Reference" "C6" (at 183.515 64.77 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100n" (at 175.895 64.77 90)
@@ -3147,7 +3147,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C14") (unit 1)
+          (reference "C6") (unit 1)
         )
       )
     )
@@ -3193,7 +3193,10 @@
     (property "Datasheet" "https://lcsc.com/product-detail/New-Quadratic-Unclassified-Data_Cixi-Kefa-Elec-KF142R-5-08-2P_C475144.html" (at 21.59 23.495 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC Part" "C475144" (at 21.59 20.955 0)
+    (property "LCSC Part" "" (at 21.59 20.955 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "LCSC" "C475144" (at 21.59 34.925 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 3bfbcfe4-f298-450f-b568-ce1ef5ab0161))
@@ -3210,7 +3213,7 @@
   (symbol (lib_id "Connector:TestPoint") (at 85.725 132.715 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1b5df390-2172-48bd-b69d-7518b712a6cb)
-    (property "Reference" "TP10" (at 85.09 133.985 90)
+    (property "Reference" "TP4" (at 85.09 133.985 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "GPIO6" (at 76.2 132.715 90)
@@ -3229,7 +3232,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "TP10") (unit 1)
+          (reference "TP4") (unit 1)
         )
       )
     )
@@ -3238,7 +3241,7 @@
   (symbol (lib_id "power:GNDD") (at 93.98 146.05 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 2005ef99-676c-4f09-8a8a-3863f023888b)
-    (property "Reference" "#PWR031" (at 93.98 152.4 0)
+    (property "Reference" "#PWR04" (at 93.98 152.4 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 93.98 149.86 0)
@@ -3254,7 +3257,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR031") (unit 1)
+          (reference "#PWR04") (unit 1)
         )
       )
     )
@@ -3263,7 +3266,7 @@
   (symbol (lib_id "Connector_Generic:Conn_02x20_Odd_Even") (at 100.965 117.475 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 2cd5c011-d59c-44f0-83aa-bfb9fe669b57)
-    (property "Reference" "J3" (at 102.235 91.44 0)
+    (property "Reference" "J1" (at 102.235 91.44 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "Raspi GPIO" (at 102.235 147.32 0)
@@ -3321,7 +3324,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "J3") (unit 1)
+          (reference "J1") (unit 1)
         )
       )
     )
@@ -3330,7 +3333,7 @@
   (symbol (lib_id "power:GNDD") (at 178.435 67.31 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 34d11236-fdf3-4344-8d33-9cb2455f1f4d)
-    (property "Reference" "#PWR039" (at 178.435 73.66 0)
+    (property "Reference" "#PWR09" (at 178.435 73.66 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 178.435 71.12 0)
@@ -3346,7 +3349,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR039") (unit 1)
+          (reference "#PWR09") (unit 1)
         )
       )
     )
@@ -3355,7 +3358,7 @@
   (symbol (lib_id "power:PWR_FLAG") (at 92.075 86.995 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 385abbc9-9485-4a10-a83e-3d2b4ae09abb)
-    (property "Reference" "#FLG04" (at 92.075 85.09 0)
+    (property "Reference" "#FLG03" (at 92.075 85.09 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "PWR_FLAG" (at 92.075 82.55 0)
@@ -3371,7 +3374,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#FLG04") (unit 1)
+          (reference "#FLG03") (unit 1)
         )
       )
     )
@@ -3380,7 +3383,7 @@
   (symbol (lib_id "Switch:SW_Push") (at 159.385 115.57 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 3d63457a-f5b0-4bc7-bb55-b7b1af223d4d)
-    (property "Reference" "SW6" (at 154.305 114.3 0)
+    (property "Reference" "SW1" (at 154.305 114.3 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "Reset" (at 159.385 118.11 0)
@@ -3400,7 +3403,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "SW6") (unit 1)
+          (reference "SW1") (unit 1)
         )
       )
     )
@@ -3440,7 +3443,7 @@
   (symbol (lib_id "Connector:TestPoint") (at 85.725 130.175 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6236421f-7fdb-459c-b238-3def2feef779)
-    (property "Reference" "TP9" (at 85.09 128.905 90)
+    (property "Reference" "TP3" (at 85.09 128.905 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "GPIO5" (at 76.2 130.175 90)
@@ -3459,7 +3462,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "TP9") (unit 1)
+          (reference "TP3") (unit 1)
         )
       )
     )
@@ -3468,7 +3471,7 @@
   (symbol (lib_id "power:GNDD") (at 211.455 85.09 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 71aff437-e154-400d-8c70-578ba32e7e68)
-    (property "Reference" "#PWR033" (at 211.455 91.44 0)
+    (property "Reference" "#PWR011" (at 211.455 91.44 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 211.455 88.9 0)
@@ -3484,7 +3487,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR033") (unit 1)
+          (reference "#PWR011") (unit 1)
         )
       )
     )
@@ -3493,7 +3496,7 @@
   (symbol (lib_id "power:GNDD") (at 153.035 115.57 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 7ba53d7e-56f6-45fa-8b5c-f5706c32bafd)
-    (property "Reference" "#PWR041" (at 153.035 121.92 0)
+    (property "Reference" "#PWR08" (at 153.035 121.92 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 148.59 117.475 0)
@@ -3509,7 +3512,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR041") (unit 1)
+          (reference "#PWR08") (unit 1)
         )
       )
     )
@@ -3518,10 +3521,10 @@
   (symbol (lib_id "Device:R_Small") (at 121.285 59.055 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 7c64ac5a-0751-4ed9-9a07-99a554b5ce0a)
-    (property "Reference" "R16" (at 121.92 57.15 90)
+    (property "Reference" "R1" (at 121.92 57.15 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "220" (at 121.92 60.96 90)
+    (property "Value" "220R" (at 121.92 60.96 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 121.285 59.055 0)
@@ -3530,7 +3533,7 @@
     (property "Datasheet" "~" (at 121.285 59.055 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC" "" (at 121.285 59.055 0)
+    (property "LCSC" "C17557" (at 121.285 59.055 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 6d3c2783-2aea-4e32-9846-d62e51da77cd))
@@ -3538,7 +3541,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R16") (unit 1)
+          (reference "R1") (unit 1)
         )
       )
     )
@@ -3547,7 +3550,7 @@
   (symbol (lib_id "Connector:TestPoint") (at 203.835 85.09 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 8f303c86-76f2-4eb8-b6e4-2284f45d60ce)
-    (property "Reference" "TP13" (at 203.2 89.535 90)
+    (property "Reference" "TP9" (at 203.2 89.535 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "A7" (at 203.835 86.995 90)
@@ -3566,7 +3569,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "TP13") (unit 1)
+          (reference "TP9") (unit 1)
         )
       )
     )
@@ -3575,7 +3578,7 @@
   (symbol (lib_id "Connector:TestPoint") (at 86.995 109.855 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 91720786-311c-472b-833c-c584668fadcd)
-    (property "Reference" "TP12" (at 87.63 114.3 90)
+    (property "Reference" "TP6" (at 87.63 114.3 90)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
     (property "Value" "GPIO27" (at 81.915 109.855 90)
@@ -3594,7 +3597,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "TP12") (unit 1)
+          (reference "TP6") (unit 1)
         )
       )
     )
@@ -3603,7 +3606,7 @@
   (symbol (lib_id "Device:R_Small") (at 125.095 48.26 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 9e8345a5-54e7-4af1-bb80-04753d53fc61)
-    (property "Reference" "R17" (at 123.19 48.26 90)
+    (property "Reference" "R2" (at 123.19 48.26 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "10K" (at 127 48.26 90)
@@ -3615,7 +3618,7 @@
     (property "Datasheet" "~" (at 125.095 48.26 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC" "" (at 125.095 48.26 0)
+    (property "LCSC" "C17414" (at 125.095 48.26 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 3ed3a6c0-6d2b-4ecd-85ad-cd9cbf0d662f))
@@ -3623,7 +3626,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R17") (unit 1)
+          (reference "R2") (unit 1)
         )
       )
     )
@@ -3632,7 +3635,7 @@
   (symbol (lib_id "power:GNDD") (at 65.405 43.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a47fa45b-5b35-4a52-9bfe-ba02e4865b47)
-    (property "Reference" "#PWR015" (at 65.405 49.53 0)
+    (property "Reference" "#PWR03" (at 65.405 49.53 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 65.405 46.99 0)
@@ -3648,7 +3651,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR015") (unit 1)
+          (reference "#PWR03") (unit 1)
         )
       )
     )
@@ -3657,7 +3660,7 @@
   (symbol (lib_id "Connector:TestPoint") (at 168.91 138.43 90) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a4c8d7ab-9217-4656-8a3b-bf363a30bb84)
-    (property "Reference" "TP14" (at 167.005 140.335 90)
+    (property "Reference" "TP8" (at 167.005 140.335 90)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
     (property "Value" "D7" (at 169.545 137.16 90)
@@ -3676,7 +3679,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "TP14") (unit 1)
+          (reference "TP8") (unit 1)
         )
       )
     )
@@ -3710,7 +3713,7 @@
   (symbol (lib_id "Device:C_Polarized_Small") (at 113.665 92.075 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid bd93bc4d-41ae-4b3d-8601-074d730e1f45)
-    (property "Reference" "C9" (at 111.76 87.63 0)
+    (property "Reference" "C2" (at 111.76 87.63 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "47u" (at 114.3 93.98 0)
@@ -3722,7 +3725,7 @@
     (property "Datasheet" "~" (at 113.665 92.075 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC" " C72515" (at 113.665 92.075 0)
+    (property "LCSC" "C72515" (at 113.665 92.075 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid fdc5fbfc-0b39-4bdf-a159-4bf19de7b3ee))
@@ -3730,7 +3733,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C9") (unit 1)
+          (reference "C2") (unit 1)
         )
       )
     )
@@ -3739,7 +3742,7 @@
   (symbol (lib_id "Device:R_Small") (at 125.095 66.04 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid be68d3ae-72ba-47ea-b016-c7cd7386a30a)
-    (property "Reference" "R18" (at 123.19 66.04 90)
+    (property "Reference" "R3" (at 123.19 66.04 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "47K" (at 127 66.04 90)
@@ -3751,7 +3754,7 @@
     (property "Datasheet" "~" (at 125.095 66.04 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC" "" (at 125.095 66.04 0)
+    (property "LCSC" "C17713" (at 125.095 66.04 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid defdd903-5cd1-485e-b632-3c70ba49acb1))
@@ -3759,7 +3762,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R18") (unit 1)
+          (reference "R3") (unit 1)
         )
       )
     )
@@ -3768,7 +3771,7 @@
   (symbol (lib_id "power:PWR_FLAG") (at 108.585 85.09 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid bf49ee5e-ba14-44cb-a78b-6c8a70c96656)
-    (property "Reference" "#FLG03" (at 108.585 83.185 0)
+    (property "Reference" "#FLG04" (at 108.585 83.185 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "PWR_FLAG" (at 108.585 80.645 0)
@@ -3784,7 +3787,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#FLG03") (unit 1)
+          (reference "#FLG04") (unit 1)
         )
       )
     )
@@ -3793,7 +3796,7 @@
   (symbol (lib_id "Connector:TestPoint") (at 86.995 107.315 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid c0986134-1b34-4fff-96e7-3367c339c234)
-    (property "Reference" "TP11" (at 87.63 111.76 90)
+    (property "Reference" "TP5" (at 87.63 111.76 90)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
     (property "Value" "GPIO17" (at 81.915 107.315 90)
@@ -3812,7 +3815,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "TP11") (unit 1)
+          (reference "TP5") (unit 1)
         )
       )
     )
@@ -3821,7 +3824,7 @@
   (symbol (lib_id "power:GNDD") (at 125.095 70.485 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid c43d6306-432b-4dbe-83c8-7c2cbb4104a1)
-    (property "Reference" "#PWR028" (at 125.095 76.835 0)
+    (property "Reference" "#PWR06" (at 125.095 76.835 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 125.095 74.295 0)
@@ -3837,7 +3840,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR028") (unit 1)
+          (reference "#PWR06") (unit 1)
         )
       )
     )
@@ -3846,7 +3849,7 @@
   (symbol (lib_id "Connector:TestPoint") (at 167.005 82.55 90) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid c5b0e13e-d8fa-4171-baaa-0e0cec4c894b)
-    (property "Reference" "TP15" (at 165.1 84.455 90)
+    (property "Reference" "TP7" (at 165.1 84.455 90)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
     (property "Value" "D10" (at 169.545 81.28 90)
@@ -3865,7 +3868,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "TP15") (unit 1)
+          (reference "TP7") (unit 1)
         )
       )
     )
@@ -3874,7 +3877,7 @@
   (symbol (lib_id "Connector:TestPoint") (at 54.61 41.275 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid c6e13ef9-e538-45c3-a511-eb34d1dd610a)
-    (property "Reference" "TP6" (at 55.88 49.53 0)
+    (property "Reference" "TP2" (at 55.88 49.53 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
     (property "Value" "GND" (at 56.515 46.99 0)
@@ -3893,7 +3896,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "TP6") (unit 1)
+          (reference "TP2") (unit 1)
         )
       )
     )
@@ -3902,7 +3905,7 @@
   (symbol (lib_id "Device:C_Small") (at 120.015 92.075 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid dc6b74cc-52be-406c-8fe0-8c98aa96bc5e)
-    (property "Reference" "C10" (at 118.745 87.63 0)
+    (property "Reference" "C3" (at 118.745 87.63 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100n" (at 121.285 93.98 0)
@@ -3922,7 +3925,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C10") (unit 1)
+          (reference "C3") (unit 1)
         )
       )
     )
@@ -3931,7 +3934,7 @@
   (symbol (lib_id "Transistor_FET:IRLML0030") (at 130.175 59.055 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e073ea73-abd8-4888-9f87-bb8f70b96a87)
-    (property "Reference" "Q6" (at 135.255 60.325 0)
+    (property "Reference" "Q1" (at 135.255 60.325 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "IRLML2502" (at 133.985 62.865 0)
@@ -3952,7 +3955,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "Q6") (unit 1)
+          (reference "Q1") (unit 1)
         )
       )
     )
@@ -3986,7 +3989,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x02") (at 120.65 102.235 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid ea4847f8-935c-47cf-b177-74a37b11e8c6)
-    (property "Reference" "J4" (at 120.015 107.95 0)
+    (property "Reference" "J2" (at 120.015 107.95 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "Raspi UART" (at 122.555 102.235 0)
@@ -4006,7 +4009,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "J4") (unit 1)
+          (reference "J2") (unit 1)
         )
       )
     )
@@ -4015,7 +4018,7 @@
   (symbol (lib_id "power:GNDD") (at 113.665 95.25 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid f4e13897-4bc5-450a-aec1-261452c4fd9f)
-    (property "Reference" "#PWR032" (at 113.665 101.6 0)
+    (property "Reference" "#PWR05" (at 113.665 101.6 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 113.665 99.06 0)
@@ -4031,7 +4034,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR032") (unit 1)
+          (reference "#PWR05") (unit 1)
         )
       )
     )
@@ -4040,7 +4043,7 @@
   (symbol (lib_id "Transistor_FET:IRLML5203") (at 132.715 46.355 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid fe8ccd93-a7fc-46f0-a53b-d752ef0bca23)
-    (property "Reference" "Q7" (at 135.255 47.625 90)
+    (property "Reference" "Q2" (at 135.255 47.625 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "IRLML6402" (at 133.985 50.165 90)
@@ -4061,7 +4064,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "Q7") (unit 1)
+          (reference "Q2") (unit 1)
         )
       )
     )
