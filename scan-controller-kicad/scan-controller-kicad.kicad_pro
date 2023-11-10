@@ -495,6 +495,18 @@
     [
       "13a79e71-0548-4260-a23d-d56f2aa50ff3",
       "Zero Voltage Diode"
+    ],
+    [
+      "486b6b54-3904-49a9-9b52-9c586c7b0887",
+      "User Interface"
+    ],
+    [
+      "32afee9c-f78c-4810-b9e6-48288995c3da",
+      "Sensors"
+    ],
+    [
+      "f199f7c1-4da9-41da-ae5e-c136f90f6de6",
+      "Drivers"
     ]
   ],
   "text_variables": {}
