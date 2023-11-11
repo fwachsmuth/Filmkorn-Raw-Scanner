@@ -1674,6 +1674,9 @@
   (junction (at 108.585 94.615) (diameter 0) (color 0 0 0 0)
     (uuid 61e31125-8315-41c3-bd0a-f91b01ea37a8)
   )
+  (junction (at 178.435 66.04) (diameter 0) (color 0 0 0 0)
+    (uuid 6201b55b-c438-4749-a332-6ceea7ff78e3)
+  )
   (junction (at 45.72 23.495) (diameter 0) (color 0 0 0 0)
     (uuid 62a11437-2187-4e5f-aa8e-ed82e6c19e1a)
   )
@@ -1694,6 +1697,9 @@
   )
   (junction (at 110.49 130.175) (diameter 0) (color 0 0 0 0)
     (uuid 8a540978-87bd-4a33-b82c-e95470da635a)
+  )
+  (junction (at 188.595 58.42) (diameter 0) (color 0 0 0 0)
+    (uuid 964aa514-f2cd-49f7-ab2e-c050adc68239)
   )
   (junction (at 113.665 89.535) (diameter 0) (color 0 0 0 0)
     (uuid 9eaf9c92-289c-44a6-b0b7-c6734cc4993d)
@@ -1825,7 +1831,7 @@
     (stroke (width 0) (type default))
     (uuid 19240752-1355-451b-9c9c-77497ac07ae5)
   )
-  (wire (pts (xy 188.595 60.96) (xy 188.595 66.04))
+  (wire (pts (xy 188.595 58.42) (xy 188.595 66.04))
     (stroke (width 0) (type default))
     (uuid 19e192d1-e556-4155-a27f-9afedfdb3a22)
   )
@@ -1876,6 +1882,10 @@
   (wire (pts (xy 48.26 23.495) (xy 49.53 23.495))
     (stroke (width 0) (type default))
     (uuid 2cf09c52-31b7-4dc6-a7be-59e96743e352)
+  )
+  (wire (pts (xy 188.595 45.72) (xy 188.595 58.42))
+    (stroke (width 0) (type default))
+    (uuid 2d8accbf-1616-46a8-a0aa-e66dbec00e7e)
   )
   (wire (pts (xy 155.575 95.25) (xy 151.765 95.25))
     (stroke (width 0) (type default))
@@ -2125,6 +2135,10 @@
     (stroke (width 0) (type default))
     (uuid 93f862ed-2b39-442c-832c-f8c44900f6e0)
   )
+  (wire (pts (xy 184.785 58.42) (xy 188.595 58.42))
+    (stroke (width 0) (type default))
+    (uuid 941932c6-1741-4eba-812a-2290a637d597)
+  )
   (wire (pts (xy 95.885 104.775) (xy 93.98 104.775))
     (stroke (width 0) (type default))
     (uuid 96e22126-0a98-404f-98d8-9c1be7c929a3)
@@ -2192,6 +2206,10 @@
   (wire (pts (xy 54.61 75.565) (xy 52.705 75.565))
     (stroke (width 0) (type default))
     (uuid b7f1899d-f035-4bd7-8921-f18ba71d2aa6)
+  )
+  (wire (pts (xy 178.435 58.42) (xy 179.705 58.42))
+    (stroke (width 0) (type default))
+    (uuid b88719d3-8a04-44f8-b11e-ecfb98cd0161)
   )
   (wire (pts (xy 41.91 41.275) (xy 26.67 41.275))
     (stroke (width 0) (type default))
@@ -2272,6 +2290,10 @@
   (wire (pts (xy 86.995 140.335) (xy 89.535 140.335))
     (stroke (width 0) (type default))
     (uuid d69de43a-307f-45e9-a086-16d26603b5ab)
+  )
+  (wire (pts (xy 178.435 58.42) (xy 178.435 66.04))
+    (stroke (width 0) (type default))
+    (uuid d6b3a4f5-92ff-4667-b846-9772d69d4823)
   )
   (wire (pts (xy 108.585 135.255) (xy 110.49 135.255))
     (stroke (width 0) (type default))
@@ -2626,10 +2648,10 @@
       (effects (font (size 1.27 1.27)) (justify right) hide)
     )
   )
-  (global_label "3.3V-uC" (shape input) (at 188.595 60.96 180) (fields_autoplaced)
+  (global_label "3.3V-uC" (shape input) (at 188.595 45.72 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 9b31c8b6-7188-4730-a1f9-5457c7af3cc2)
-    (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 177.506 60.96 0)
+    (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 177.506 45.72 0)
       (effects (font (size 1.27 1.27)) (justify right) hide)
     )
   )
@@ -2669,38 +2691,38 @@
     (property "Inventory" "E" (at 188.595 107.95 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 5468c35f-04ea-4b53-843a-f5b898bf23bb))
-    (pin "10" (uuid 1884479e-4f33-4db3-9e89-7a9b62485054))
-    (pin "11" (uuid 7e802c6b-9a48-4507-b976-bcac592d2b02))
-    (pin "12" (uuid 256a984a-c1a7-45bc-be0f-8ffd78de462e))
-    (pin "13" (uuid 1656fc39-ab7d-470b-9136-2f179a3b9e8b))
-    (pin "14" (uuid 1ff4a8a0-aea5-4750-b32f-40f7c38fd614))
-    (pin "15" (uuid 05ff28dd-a027-4bda-b0d8-f5b016a54f57))
-    (pin "16" (uuid 85d5866a-9341-475d-8bc1-b29f7c74eb51))
-    (pin "17" (uuid ec4d26b2-867d-4364-8e5e-66c6513b07f2))
-    (pin "18" (uuid 3b8818e5-ba25-406e-b101-20881f5d5e5d))
-    (pin "19" (uuid 2b0ce5d1-2f93-4703-823b-db03298f1891))
-    (pin "2" (uuid 20132422-ba35-492e-883e-f5796897ef12))
-    (pin "20" (uuid 61cd68eb-842e-4077-a0a7-11ca5b8332f7))
-    (pin "21" (uuid f3ce49f2-c60e-4c7c-a65b-c250c48b1a5b))
-    (pin "22" (uuid d76cc49b-f174-4374-9a5b-629b57a14d7a))
-    (pin "23" (uuid 63d4e6a3-e624-456a-9d3a-8af6b7437d2b))
-    (pin "24" (uuid 7837bcbd-fefd-4eba-85ef-6060407eccba))
-    (pin "25" (uuid d783c83d-eb2d-4bd4-a007-68fa41756a09))
-    (pin "26" (uuid cc647e6e-f6f5-4cd7-b61c-d3c186a8c5fe))
-    (pin "27" (uuid 6e1cc22a-d4a2-4c61-b2c0-e93a05f79bba))
-    (pin "28" (uuid d8c35bc0-757c-4871-83b7-392a628d1d5a))
-    (pin "29" (uuid c93e8311-2c59-4263-af00-3c30ba52d951))
-    (pin "3" (uuid c9954e01-e3b7-4bd1-bb4b-fac6178dce1e))
-    (pin "30" (uuid d791e5eb-12c9-4b44-8ff8-c3189c970419))
-    (pin "31" (uuid ae8f87d4-c189-4b95-bc49-90cc8888b570))
-    (pin "32" (uuid 451af803-d2e5-48df-a0dd-f2c00d54a397))
-    (pin "4" (uuid 1919086f-cf72-47d7-ba16-4237888a4f17))
-    (pin "5" (uuid c96b3ca8-29de-4333-b92a-505ea02b7ae7))
-    (pin "6" (uuid e74197d2-a415-4f5c-82dd-76851555d570))
-    (pin "7" (uuid 90cd36cf-de98-42af-831c-998a2bcd1cfe))
-    (pin "8" (uuid 564b2721-66c4-46d1-a352-576664b661e7))
-    (pin "9" (uuid c019dfd3-6970-49f9-b844-ddee728e0b1b))
+    (pin "1" (uuid d028d3b9-54f6-4fab-a83b-95974dbf77eb))
+    (pin "10" (uuid 41e6b002-612a-4fbc-87fc-53bdaf1738a5))
+    (pin "11" (uuid ec2f62ff-2ab9-4dfc-a2a4-159e3b24355c))
+    (pin "12" (uuid 048bbc73-d1e8-4e3c-9f07-8748e29ea3c1))
+    (pin "13" (uuid 397cf170-b1ba-43f4-a8dd-a5ff11b34723))
+    (pin "14" (uuid 6d6df9bf-9364-40f9-821e-c3eec7667e29))
+    (pin "15" (uuid bf73777d-2635-4ffb-aa8d-4e62d5783176))
+    (pin "16" (uuid 4fa1aa93-903d-42bf-b564-5ded6900d549))
+    (pin "17" (uuid 1a5aa018-7ff0-4c38-aa04-447000ebd749))
+    (pin "18" (uuid be14e3ac-6a0d-44ae-ad6a-d7f45650285d))
+    (pin "19" (uuid 788ea426-becb-44de-99fa-14fc65460905))
+    (pin "2" (uuid d809375b-800a-44a1-a3fa-3655e2e39210))
+    (pin "20" (uuid e0ce6b9a-731c-4a06-b383-f9d37bc39573))
+    (pin "21" (uuid 50a69318-e31a-497e-a49c-4db128e575d7))
+    (pin "22" (uuid 36791b6c-881e-4a8e-861e-f01f36cd74be))
+    (pin "23" (uuid 5acd6301-bc79-4720-ad0f-d9b5c99e8391))
+    (pin "24" (uuid 13d637cf-bdc2-4392-ad40-b77effec7124))
+    (pin "25" (uuid 7e3fa686-b334-4778-8724-f2ed721716fd))
+    (pin "26" (uuid 7efbeca8-b2f7-4b06-8b5f-e5e444964738))
+    (pin "27" (uuid eeacdf7e-e397-4265-8585-69153f45431d))
+    (pin "28" (uuid 475d9590-1e87-42d4-a8b8-edcdbb6baab4))
+    (pin "29" (uuid 7fbc48f1-fedd-4873-a620-8736ff2138c8))
+    (pin "3" (uuid 36ab7820-cda8-4e65-82fd-d26ff21da35f))
+    (pin "30" (uuid f6760732-6642-482d-af9e-b759cc3f9f96))
+    (pin "31" (uuid d4926209-8a1b-43d4-93fc-08fdeff580f6))
+    (pin "32" (uuid 9b50fa83-5b80-426e-87b2-32feaa2c7590))
+    (pin "4" (uuid b0ea2664-ed22-49ab-a0cc-187ed0b78d1e))
+    (pin "5" (uuid 7681cc9e-6e7a-402d-a265-64caf03d5fb5))
+    (pin "6" (uuid 35de9541-5b86-41a9-a200-27492b24658c))
+    (pin "7" (uuid 40624374-566e-43ab-9c07-4c84d679a83f))
+    (pin "8" (uuid 47df1b9c-8fef-4b5f-8c66-80c0ad80916d))
+    (pin "9" (uuid 1a48eaf3-2c70-4d6c-b646-3be211635793))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -2731,8 +2753,8 @@
     (property "Inventory" "B" (at 158.115 92.71 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 6809f7f0-930b-45fc-8975-db9e2c94822e))
-    (pin "2" (uuid 8f0b9230-8bc7-4639-9f4e-d1791fc3c584))
+    (pin "1" (uuid e7b4b001-09a8-4e95-9e51-746c217d20d8))
+    (pin "2" (uuid d9860fe8-33eb-4622-bb52-becd6a16af45))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -2763,8 +2785,8 @@
     (property "Inventory" "B" (at 158.115 97.79 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 66d2e6f5-2bb2-4084-83b5-65ce29e1b34d))
-    (pin "2" (uuid bf7d4dfc-c534-4e93-a5d1-24505cb3127a))
+    (pin "1" (uuid 5069bba2-287f-4908-902c-9a7bf2f4e05a))
+    (pin "2" (uuid 4f6e8462-6f40-42f0-866b-e06ad3eb1d28))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -2777,7 +2799,7 @@
   (symbol (lib_id "Device:C_Small") (at 211.455 80.01 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e11b384)
-    (property "Reference" "C7" (at 211.455 77.47 0)
+    (property "Reference" "C8" (at 211.455 77.47 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "100n" (at 211.455 82.55 0)
@@ -2795,12 +2817,12 @@
     (property "Inventory" "B" (at 211.455 80.01 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 2254ff54-d431-428a-b1ce-d77db47fb953))
-    (pin "2" (uuid 86b31c45-e85f-4690-a8d2-ab8fba92de83))
+    (pin "1" (uuid 629d3fbb-801a-458d-b9ab-aa4fbd2ae8ea))
+    (pin "2" (uuid 4236e7bd-cdd9-4c65-a728-2810940ede07))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C7") (unit 1)
+          (reference "C8") (unit 1)
         )
       )
     )
@@ -2827,8 +2849,8 @@
     (property "Inventory" "B" (at 164.465 95.25 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 995fd9de-d009-4bec-8345-c5754229fad2))
-    (pin "2" (uuid 32eaf03e-1181-4272-bb2a-b27473fab911))
+    (pin "1" (uuid 48bc7c80-caeb-4c06-b5ce-510eaf8d59e1))
+    (pin "2" (uuid e7fabb0b-b32e-4fa4-8f14-f0baa80d0c0e))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -2853,7 +2875,7 @@
     (property "Datasheet" "" (at 151.765 95.25 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid edf57090-9cea-4a76-91e0-c2b6c4168b83))
+    (pin "1" (uuid 08eaf1b2-0514-4080-a2f6-145b0e28b436))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -2878,7 +2900,7 @@
     (property "Datasheet" "" (at 188.595 148.59 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid e3e55668-2171-44b8-95d3-32a1134c2fbd))
+    (pin "1" (uuid d2287355-82df-475d-9528-92468cc3dcb8))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -2909,8 +2931,8 @@
     (property "Inventory" "B" (at 159.385 109.22 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 4f99dd95-a332-41bf-b9ab-f4c9976eb645))
-    (pin "2" (uuid 29a97f37-e5dc-417f-ae10-e3037d19f384))
+    (pin "1" (uuid 3121e983-a3bb-4519-8ee9-8827e69b226a))
+    (pin "2" (uuid 77ba8260-9518-4143-9fcb-eb817a33684d))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -3041,7 +3063,7 @@
   (symbol (lib_id "Device:C_Small") (at 217.17 111.125 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e1c6352)
-    (property "Reference" "C8" (at 215.9 113.665 90)
+    (property "Reference" "C9" (at 215.9 113.665 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "100n" (at 222.25 113.665 90)
@@ -3064,7 +3086,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C8") (unit 1)
+          (reference "C9") (unit 1)
         )
       )
     )
@@ -3122,12 +3144,12 @@
     (property "Inventory" "" (at 220.98 135.255 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid db80e7ff-7f64-42a5-948b-3e430be40d55))
-    (pin "2" (uuid d6d95cca-095d-4e42-a306-5f224486ac2a))
-    (pin "3" (uuid a872c8d6-c870-4747-a869-9c6934f0ae3f))
-    (pin "4" (uuid ff7e2baa-a999-40fd-af6c-f83b9bf5d28d))
-    (pin "5" (uuid 189f5e9f-a4fc-412d-ad78-1bdd48806285))
-    (pin "6" (uuid cefb35c0-ad39-4b1e-b9ce-612d6cad61f1))
+    (pin "1" (uuid e3330a35-db0b-45f2-914d-f4bc3c3a0d97))
+    (pin "2" (uuid 0b2f3538-c068-4812-9718-004a61427484))
+    (pin "3" (uuid 9a1c0964-bdb4-4881-86fa-589ad92d1428))
+    (pin "4" (uuid d5438bde-7f23-4d90-861f-24e677b9afc6))
+    (pin "5" (uuid b4f82475-7158-443e-a343-6e5c4840cedf))
+    (pin "6" (uuid 5b61de23-5887-4b4a-8f97-6e2ad1157e41))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -3152,7 +3174,7 @@
     (property "Datasheet" "" (at 223.52 146.685 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid f577a3e6-bcde-4f9b-bab8-2f00446179df))
+    (pin "1" (uuid 34b9b8b1-57f8-44e3-9453-6fd7fe7d2fdb))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -3165,10 +3187,10 @@
   (symbol (lib_id "Device:C_Small") (at 182.245 66.04 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-00005e242cd2)
-    (property "Reference" "C6" (at 183.515 64.77 90)
+    (property "Reference" "C7" (at 183.515 64.77 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "100n" (at 175.895 64.77 90)
+    (property "Value" "100n" (at 179.07 62.865 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 182.245 66.04 0)
@@ -3183,12 +3205,12 @@
     (property "Inventory" "B" (at 182.245 66.04 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 68fcc0f3-c708-479b-86cb-6f251f343b7d))
-    (pin "2" (uuid 5b5ec8bd-9025-4cf1-9fc5-8204e280dfb9))
+    (pin "1" (uuid fb63caa7-60b4-47c0-b71a-897de1772fcf))
+    (pin "2" (uuid b2331521-d38a-457d-86d7-b7adfd8312a3))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C6") (unit 1)
+          (reference "C7") (unit 1)
         )
       )
     )
@@ -3395,7 +3417,7 @@
     (property "Datasheet" "" (at 178.435 67.31 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 02f82bb9-8387-465e-93a8-96c35e90d17b))
+    (pin "1" (uuid 3d19fed4-ae9b-4ed6-97fe-15f54e6ebc08))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -3451,8 +3473,8 @@
     (property "Inventory" "B" (at 159.385 115.57 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 38710947-533f-4859-ab95-7286c7ff33aa))
-    (pin "2" (uuid a569df4c-4198-42b6-bb83-f2c7be99dbaa))
+    (pin "1" (uuid 5d574a7d-af8b-4427-9b13-936a330d75b5))
+    (pin "2" (uuid e351b49d-268f-4a23-87a8-fe42def8f360))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -3542,7 +3564,7 @@
     (property "Datasheet" "" (at 211.455 85.09 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid cedf6656-4044-4f51-adbd-55884116d9d2))
+    (pin "1" (uuid 2dc9c4e8-1cc2-4d67-a5f1-74f4d804365d))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -3567,7 +3589,7 @@
     (property "Datasheet" "" (at 153.035 115.57 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid c3043005-c4d8-4c01-96cb-aca47c4c1dcd))
+    (pin "1" (uuid 3be61fa3-d83e-467c-b08f-3d079f84558c))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -3630,7 +3652,7 @@
     (property "Inventory" "" (at 203.835 85.09 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid bff431a2-77bb-4cb2-970d-50fa314b8d74))
+    (pin "1" (uuid bfc743db-194e-48ca-82b3-940595964f8a))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -3749,7 +3771,7 @@
     (property "Inventory" "" (at 168.91 138.43 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 7b765090-544b-4694-a363-9f59bf768fe2))
+    (pin "1" (uuid 325ad244-52dd-42e0-a205-27337e8e4754))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -3950,7 +3972,7 @@
     (property "Inventory" "" (at 167.005 82.55 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 96df1d40-fb7a-44e3-8b4a-25c431462f36))
+    (pin "1" (uuid a6ecf394-e2e9-4aa0-888d-063ac89ac62f))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
@@ -4076,6 +4098,38 @@
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
           (reference "#FLG05") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_id "Device:C_Small") (at 182.245 58.42 270) (mirror x) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid e596b206-b215-4859-a54d-a67b730cc632)
+    (property "Reference" "C6" (at 184.15 57.15 90)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Value" "100n" (at 179.07 55.245 90)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 182.245 58.42 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21B104KCFNNNE_C28233.pdf" (at 182.245 58.42 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "LCSC" "C28233" (at 182.245 58.42 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Inventory" "B" (at 182.245 58.42 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid a6c3bba0-f403-4988-95f7-504dab1b01c6))
+    (pin "2" (uuid a43d7f5c-5bac-4da7-91f7-2c2f91446d8f))
+    (instances
+      (project "scan-controller-kicad"
+        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
+          (reference "C6") (unit 1)
         )
       )
     )
