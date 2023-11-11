@@ -609,13 +609,13 @@
     )
   )
 
-  (symbol (lib_id "Device:R_Small") (at 146.685 93.98 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+  (symbol (lib_id "Device:R_Small") (at 146.685 93.98 0) (mirror x) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid a37f60b9-ea83-4124-a855-ccbd603ee84d)
-    (property "Reference" "R14" (at 148.59 92.71 0)
+    (property "Reference" "R14" (at 148.59 95.25 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "47K" (at 148.59 95.25 0)
+    (property "Value" "47K" (at 148.59 92.71 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 146.685 93.98 0)
@@ -630,8 +630,8 @@
     (property "Inventory" "B" (at 146.685 93.98 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 5050e8d6-e85f-4d3d-8213-54f690fd8e0a))
-    (pin "2" (uuid 24f9e168-ed76-432c-9d9c-b9cf8b543205))
+    (pin "1" (uuid 63a71b32-8ca8-4984-bee4-11d7671c5651))
+    (pin "2" (uuid 988a2f04-0e30-414b-9e51-889f4e7017a1))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
