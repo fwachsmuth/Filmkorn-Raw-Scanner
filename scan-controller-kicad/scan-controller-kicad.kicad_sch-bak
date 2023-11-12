@@ -2418,6 +2418,11 @@
     (uuid fedfdce6-91e9-4a4e-9ce7-944997c12f53)
   )
 
+  (text "IRF7389 instead?" (at 142.24 56.515 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 221c448d-9b3d-4e57-976b-98156034f447)
+  )
+
   (label "GNDD" (at 57.15 42.545 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 0e65b464-3ab8-406c-8069-7778dae2f17f)
