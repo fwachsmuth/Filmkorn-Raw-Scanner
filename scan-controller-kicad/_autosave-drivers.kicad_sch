@@ -3029,8 +3029,8 @@
     (property "Inventory" "B" (at 201.93 114.3 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid a56f782c-3a0e-47fb-a754-188657c92c56))
-    (pin "2" (uuid cc3cf57c-4022-4066-ae02-9da0fe1a7ad4))
+    (pin "1" (uuid fefde50f-d70b-4e00-974c-8116440bf668))
+    (pin "2" (uuid 5756cb28-e608-4018-867c-b03792a878ab))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
@@ -3102,8 +3102,8 @@
     (property "LCSC" "C127698" (at 220.345 121.285 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 22eaf63a-81eb-4d10-a439-d9ec127768d1))
-    (pin "2" (uuid 4c46241e-d313-4e87-a3f7-7e23507b5b3e))
+    (pin "1" (uuid 21a8950c-8b2f-4072-a5b5-aee7817451c1))
+    (pin "2" (uuid 1127187a-9380-4008-9fd3-e89a54d4ed5e))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
