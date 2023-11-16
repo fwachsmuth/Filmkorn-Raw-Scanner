@@ -30,7 +30,7 @@
 	(layer "?.Silkscreen"))
 
 (rule "Pad to Silkscreen"
-	(constraint silk_clearance (min 0.15mm))
+	(constraint silk_clearance (min 0.13mm))
 	(layer outer)
 	(condition "A.Type == 'pad' && (B.Type == 'text' || B.Type == 'graphic')"))
 
