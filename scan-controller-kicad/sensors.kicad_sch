@@ -1800,7 +1800,7 @@
   )
 
   (symbol (lib_id "Connector_Generic:Conn_01x03") (at 116.205 73.66 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
+    (in_bom no) (on_board yes) (dnp no)
     (uuid 2febaa50-38a7-4947-9b92-f421cf3f3441)
     (property "Reference" "J2" (at 114.935 68.58 0)
       (effects (font (size 1.27 1.27)) (justify left))
@@ -2072,7 +2072,7 @@
   )
 
   (symbol (lib_id "Connector:TestPoint") (at 200.025 121.92 180) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
+    (in_bom no) (on_board yes) (dnp no)
     (uuid 544f2f66-9b34-4d58-8372-c8d82f512e6a)
     (property "Reference" "TP8" (at 204.597 125.476 0)
       (effects (font (size 1.27 1.27)) (justify left))
@@ -2749,7 +2749,7 @@
   )
 
   (symbol (lib_id "Connector:TestPoint") (at 199.39 76.2 180) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
+    (in_bom no) (on_board yes) (dnp no)
     (uuid df45fd47-9017-437c-98b8-66b4516e6e7e)
     (property "Reference" "TP7" (at 203.962 79.756 0)
       (effects (font (size 1.27 1.27)) (justify left))
@@ -2783,7 +2783,7 @@
   )
 
   (symbol (lib_id "Connector_Generic:Conn_01x03") (at 117.475 119.38 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
+    (in_bom no) (on_board yes) (dnp no)
     (uuid e36220a6-7049-42b6-9a9f-0da68a2cc6a4)
     (property "Reference" "J1" (at 116.205 114.3 0)
       (effects (font (size 1.27 1.27)) (justify left))

@@ -3077,7 +3077,7 @@
     (property "Datasheet" "https://datasheet.lcsc.com/lcsc/1912111437_Infineon-Technologies-IRF7470TRPBF_C386356.pdf" (at 126.365 118.745 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (property "LCSC" "C386356" (at 126.365 118.745 0)
+    (property "LCSC" "C693168" (at 126.365 118.745 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Inventory" "E" (at 126.365 118.745 0)
