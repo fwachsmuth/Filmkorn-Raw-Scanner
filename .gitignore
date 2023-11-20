@@ -24,6 +24,10 @@ fp-info-cache
 *.dsn
 *.ses
 
+# BOM files
+*.xml
+*.csv
+
 # kicad 8 backups
 *-backups
 *-bak
