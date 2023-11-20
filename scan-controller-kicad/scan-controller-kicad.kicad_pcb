@@ -553,7 +553,7 @@
     (property "ki_keywords" "resistor variable")
     (path "/f199f7c1-4da9-41da-ae5e-c136f90f6de6/5ce584d0-9acb-4087-aca1-1bb90a9b2578")
     (attr through_hole)
-    (fp_text reference "RV5" (at -1.758 3.062) (layer "F.SilkS")
+    (fp_text reference "RV5" (at -1.758 3.062) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 1f74a28c-57a6-4a2a-804b-1f4c9f251a93)
     )
