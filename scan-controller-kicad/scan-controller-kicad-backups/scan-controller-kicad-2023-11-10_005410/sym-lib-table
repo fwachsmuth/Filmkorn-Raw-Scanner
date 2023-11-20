@@ -1,5 +1,0 @@
-(sym_lib_table
-  (version 7)
-  (lib (name "ErnoCCC-rescue")(type "KiCad")(uri "/Users/peaceman/code/ErnoCCC/ErnoCCC-Kicad/ErnoCCC-rescue.kicad_sym")(options "")(descr ""))
-  (lib (name "roodialino-rescue")(type "KiCad")(uri "/Users/peaceman/code/rooDialino/rooDialino-KiCad/roodialino-rescue.kicad_sym")(options "")(descr ""))
-)
