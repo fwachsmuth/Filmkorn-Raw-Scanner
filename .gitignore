@@ -2,3 +2,12 @@
 __pycache__/
 .paired
 raspi/lsyncd.conf
+*-bak
+*-backups
+fp-info-cache
+*-bak*
+_autosave*
+\#auto_saved_files\#
+*-save.pro
+*-save.kicad_pcb
+*.kicad_prl
