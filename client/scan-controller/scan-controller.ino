@@ -315,26 +315,26 @@ ControlButton pollButtons() {
   if (noButtonPressed) {
     if (buttonBankA < 2 && buttonBankB < 2) {
       buttonChoice = NONE;
-    
+  
     // Button bank A
     } else if (buttonBankA > 30 && buttonBankA < 70) {
-      buttonChoice = ZOOM;
+      buttonChoice = REV1;    // on Vero Board: ZOOM
     } else if (buttonBankA > 120 && buttonBankA < 160) {
-      buttonChoice = LIGHT;
+      buttonChoice = RUNREV;  // on Vero Board: LIGHT
     } else if (buttonBankA > 290 && buttonBankA < 330) {
-      buttonChoice = RUNREV;
+      buttonChoice = ZOOM;    // on Vero Board: RUNREV
     } else if (buttonBankA > 990) {
-      buttonChoice = REV1;
+      buttonChoice = LIGHT;   // on Vero Board: REV1
 
     // Button bank B
     } else if (buttonBankB > 30 && buttonBankB < 70) {
-      buttonChoice = STOP;
+      buttonChoice = SCAN;     // on Vero Board: STOP
     } else if (buttonBankB > 120 && buttonBankB < 160) {
-      buttonChoice = FWD1;
+      buttonChoice = RUNFWD;  // on Vero Board: FWD1
     } else if (buttonBankB > 290 && buttonBankB < 330) {
-      buttonChoice = RUNFWD;
+      buttonChoice = FWD1;    // on Vero Board: RUNFWD
     } else if (buttonBankB > 990) {
-      buttonChoice = SCAN;
+      buttonChoice = STOP;    // on Vero Board: SCAN
     }
   }
 

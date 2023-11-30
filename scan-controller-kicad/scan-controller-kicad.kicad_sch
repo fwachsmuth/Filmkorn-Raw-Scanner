@@ -2422,6 +2422,12 @@
     (uuid fedfdce6-91e9-4a4e-9ce7-944997c12f53)
   )
 
+  (text "D2 ist zu hell\nKamerakabel-Schlitz?\nTP umbenennen oder entfernen"
+    (at 222.885 27.305 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid b1232cab-d7d7-476c-9584-f6db18e2dde0)
+  )
+
   (label "GNDD" (at 57.15 42.545 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 0e65b464-3ab8-406c-8069-7778dae2f17f)
