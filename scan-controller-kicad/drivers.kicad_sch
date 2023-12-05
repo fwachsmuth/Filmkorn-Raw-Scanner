@@ -2777,7 +2777,7 @@
     (property "Inventory" "E" (at 207.01 95.885 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC" "C104550" (at 207.01 95.885 0)
+    (property "LCSC" "C137558" (at 207.01 95.885 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid f68cdb68-293c-4830-b327-cfff8623b1c3))
