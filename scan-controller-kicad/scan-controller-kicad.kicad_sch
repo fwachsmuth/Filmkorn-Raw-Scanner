@@ -2426,7 +2426,7 @@
     (effects (font (size 1 1)) (justify left bottom))
     (uuid 6dcbeaf2-fb34-4253-abf9-17a67cadc5fd)
   )
-  (text "~(D2 ist zu hell)\n~(U6 flippen)\nKamerakabel-Schlitz?\nTP umbenennen oder entfernen\n~(I2c fixen)\n~(Power switch fixen)\nAdd I2C TPs\nTarget Schalter größer?"
+  (text "Kamerakabel-Schlitz?\nTP umbenennen oder entfernen\nAdd I2C TPs\nTarget Schalter größer?\nFTDI Masse kennzeichnen\nExp/Current prüfen\nKSQ LEDs nötig?"
     (at 217.17 40.005 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid b1232cab-d7d7-476c-9584-f6db18e2dde0)
