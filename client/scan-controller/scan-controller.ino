@@ -264,14 +264,14 @@ void setZoomMode(ZoomMode mode) {
 
 void motorFWD1() {
   EIFR = 1; // clear flag for interrupt
-  attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
   analogWrite(MOTOR_A_PIN, singleStepMotorPower);
   analogWrite(MOTOR_B_PIN, 0);
 }
 
 void motorREV1() {
   EIFR = 1; // clear flag for interrupt
-  attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
   analogWrite(MOTOR_A_PIN, 0);
   analogWrite(MOTOR_B_PIN, singleStepMotorPower);
 }
