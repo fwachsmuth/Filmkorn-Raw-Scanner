@@ -2426,7 +2426,7 @@
     (effects (font (size 1 1)) (justify left bottom))
     (uuid 6dcbeaf2-fb34-4253-abf9-17a67cadc5fd)
   )
-  (text "Kamerakabel-Schlitz?\nTP umbenennen oder entfernen\nAdd I2C TPs\nTarget Schalter größer?\nFTDI Masse kennzeichnen\nExp/Current prüfen\nKSQ LEDs nötig?"
+  (text "eKamerakabel-Schlitz?\nTP umbenennen oder entfernen\nTPs mit Löchern (i2c zumindest)\nAdd I2C TPs\nTarget Schalter größer?\nFTDI Masse kennzeichnen\nExp/Current prüfen\nKSQ LEDs nötig?\nShaft LED als Einbauhilfe\nEye-Connectoren spiegeln (GND!)\nTransistor am Shaft Eye ergänzen\nTaster durch SMD ersetzen"
     (at 217.17 40.005 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid b1232cab-d7d7-476c-9584-f6db18e2dde0)
