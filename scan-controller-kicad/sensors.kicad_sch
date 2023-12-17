@@ -1678,7 +1678,7 @@
     )
   )
 
-  (hierarchical_label "Film End" (shape input) (at 201.295 119.38 0) (fields_autoplaced)
+  (hierarchical_label "Film End LED" (shape input) (at 201.295 119.38 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 6b641ddb-9e6f-4499-b85d-35c332b828b7)
   )
@@ -1715,7 +1715,7 @@
   (symbol (lib_id "74xx:74HC14") (at 50.8 97.79 0) (unit 7)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 071b9ef9-609d-409f-a6f9-88f48aa83c1e)
-    (property "Reference" "U1" (at 56.642 96.6216 0)
+    (property "Reference" "U2" (at 56.642 96.6216 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "74LVC14" (at 56.642 98.933 0)
@@ -1749,9 +1749,6 @@
     (pin "7" (uuid 4a7b7eb8-3457-484f-ade4-6fbf827c3970))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "U1") (unit 7)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "U2") (unit 7)
         )
@@ -1762,7 +1759,7 @@
   (symbol (lib_id "Device:R_Small") (at 157.48 69.85 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 185eda36-2f3c-4d76-8045-0c1dab4ce2c9)
-    (property "Reference" "R8" (at 158.9786 68.6816 0)
+    (property "Reference" "R25" (at 158.9786 68.6816 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "3K" (at 158.9786 70.993 0)
@@ -1784,9 +1781,6 @@
     (pin "2" (uuid da415402-2d52-4e74-aafd-fb3f99be8bdf))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R8") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "R25") (unit 1)
         )
@@ -1797,7 +1791,7 @@
   (symbol (lib_id "Device:C_Small") (at 183.515 125.73 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 2ce95088-1234-4c28-ad57-66d6f63d65bf)
-    (property "Reference" "C5" (at 186.055 125.73 0)
+    (property "Reference" "C14" (at 186.055 125.73 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100n" (at 186.055 128.27 0)
@@ -1819,9 +1813,6 @@
     (pin "2" (uuid 87b90852-722a-4ce8-a03b-ceb5e26f1727))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C5") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "C14") (unit 1)
         )
@@ -1832,7 +1823,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x03") (at 116.205 73.66 0) (mirror x) (unit 1)
     (in_bom no) (on_board yes) (dnp no)
     (uuid 2febaa50-38a7-4947-9b92-f421cf3f3441)
-    (property "Reference" "J2" (at 115.57 67.945 0)
+    (property "Reference" "J6" (at 115.57 67.945 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "Film End Eye" (at 112.395 78.74 0)
@@ -1855,9 +1846,6 @@
     (pin "3" (uuid 40726dcb-b763-4a87-b1b3-c8ae6298de00))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "J2") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "J6") (unit 1)
         )
@@ -1868,7 +1856,7 @@
   (symbol (lib_id "Device:C_Small") (at 182.88 78.74 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 3233cb9c-d457-4f8c-8823-c314a98f086f)
-    (property "Reference" "C4" (at 185.42 78.74 0)
+    (property "Reference" "C13" (at 185.42 78.74 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100n" (at 185.42 81.28 0)
@@ -1890,9 +1878,6 @@
     (pin "2" (uuid 4c25aa5f-6233-4595-a412-6442336291e3))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C4") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "C13") (unit 1)
         )
@@ -1903,7 +1888,7 @@
   (symbol (lib_id "74xx:74HC14") (at 167.64 73.66 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 3739cfde-c63e-40f0-8d56-94df4f3bb5ff)
-    (property "Reference" "U1" (at 168.91 77.216 0)
+    (property "Reference" "U2" (at 168.91 77.216 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LVC14" (at 169.672 69.342 0)
@@ -1937,9 +1922,6 @@
     (pin "7" (uuid e57fa11d-f0ff-41db-a6f9-fe6c01904314))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "U1") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "U2") (unit 1)
         )
@@ -1950,7 +1932,7 @@
   (symbol (lib_id "Device:R_Small") (at 158.115 115.57 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4689c621-f010-4b9f-8f7b-3537362a030f)
-    (property "Reference" "R9" (at 159.6136 114.4016 0)
+    (property "Reference" "R26" (at 159.6136 114.4016 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "3K" (at 159.6136 116.713 0)
@@ -1972,9 +1954,6 @@
     (pin "2" (uuid 6cf852b0-5267-44b5-b326-5bc74409d699))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R9") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "R26") (unit 1)
         )
@@ -1985,7 +1964,7 @@
   (symbol (lib_id "Device:R_Small") (at 107.315 114.3 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4cc2883a-1c95-465b-af56-5ea4ca91e2d4)
-    (property "Reference" "R4" (at 104.775 114.3 90)
+    (property "Reference" "R21" (at 104.775 114.3 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "47K" (at 109.855 115.57 90)
@@ -2007,9 +1986,6 @@
     (pin "2" (uuid f6297bb8-7de9-410e-b5df-0a3756c7edae))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R4") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "R21") (unit 1)
         )
@@ -2020,7 +1996,7 @@
   (symbol (lib_id "Transistor_BJT:BC847") (at 154.94 80.01 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4f278f41-71f8-45b6-8fe0-5872ab976544)
-    (property "Reference" "Q2" (at 159.7914 78.8416 0)
+    (property "Reference" "Q8" (at 159.7914 78.8416 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "SS8050" (at 159.7914 81.153 0)
@@ -2043,9 +2019,6 @@
     (pin "3" (uuid 4cc8bd15-b554-4a54-9ddb-f550c3f57f8a))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "Q2") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "Q8") (unit 1)
         )
@@ -2056,7 +2029,7 @@
   (symbol (lib_id "74xx:74HC14") (at 168.275 119.38 0) (unit 3)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 50cc5075-c130-46fd-bb8d-bd93344b64c4)
-    (property "Reference" "U1" (at 169.545 122.555 0)
+    (property "Reference" "U2" (at 169.545 122.555 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LVC14" (at 170.815 114.935 0)
@@ -2090,9 +2063,6 @@
     (pin "7" (uuid ea6a15b3-6347-4b14-914b-6310d44d6291))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "U1") (unit 3)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "U2") (unit 3)
         )
@@ -2103,7 +2073,7 @@
   (symbol (lib_id "Sensor_Proximity:QRE1113") (at 98.425 76.2 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 54143f12-07f5-4eee-87d1-e9bf2a1aa701)
-    (property "Reference" "U3" (at 98.425 68.1482 0)
+    (property "Reference" "U4" (at 98.425 68.1482 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "QRE1113" (at 98.425 70.4596 0)
@@ -2127,9 +2097,6 @@
     (pin "4" (uuid 27bfb7b5-14e2-43bd-9a17-859457ed6f6c))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "U3") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "U4") (unit 1)
         )
@@ -2140,10 +2107,10 @@
   (symbol (lib_id "Connector:TestPoint") (at 200.025 121.92 180) (unit 1)
     (in_bom no) (on_board yes) (dnp no)
     (uuid 544f2f66-9b34-4d58-8372-c8d82f512e6a)
-    (property "Reference" "TP8" (at 204.597 125.476 0)
+    (property "Reference" "TP11" (at 206.375 125.095 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "Film End" (at 203.835 128.524 0)
+    (property "Value" "Film End" (at 207.01 128.27 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "TestPoint:TestPoint_Pad_1.5x1.5mm" (at 194.945 121.92 0)
@@ -2161,9 +2128,6 @@
     (pin "1" (uuid c84faf27-137a-40a6-8c45-21bfd4c20a55))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "TP8") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "TP11") (unit 1)
         )
@@ -2174,7 +2138,7 @@
   (symbol (lib_name "QRE1113_1") (lib_id "Sensor_Proximity:QRE1113") (at 99.695 121.92 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 54f7e9f1-d422-45df-9920-d8a59a878c00)
-    (property "Reference" "U2" (at 99.695 113.8682 0)
+    (property "Reference" "U3" (at 99.695 113.8682 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "QRE1113" (at 99.695 116.1796 0)
@@ -2198,9 +2162,6 @@
     (pin "4" (uuid 080b8193-85fe-42a2-9116-2c276c2d85d5))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "U2") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "U3") (unit 1)
         )
@@ -2211,7 +2172,7 @@
   (symbol (lib_id "Device:R_Small") (at 152.4 73.66 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 5bb0f95e-d84a-4fb2-ac1e-f5a81ea39055)
-    (property "Reference" "R6" (at 152.4 71.12 90)
+    (property "Reference" "R23" (at 152.4 71.12 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "470K" (at 152.4 76.2 90)
@@ -2233,9 +2194,6 @@
     (pin "2" (uuid 2fb4780e-b9ab-4712-b91f-6c46cda66a56))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R6") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "R23") (unit 1)
         )
@@ -2246,7 +2204,7 @@
   (symbol (lib_id "power:GNDD") (at 157.48 86.36 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 5dfc9573-859d-4df1-991e-74788bafb144)
-    (property "Reference" "#PWR012" (at 157.48 92.71 0)
+    (property "Reference" "#PWR025" (at 157.48 92.71 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 157.48 90.17 0)
@@ -2261,9 +2219,6 @@
     (pin "1" (uuid bf78811a-6199-4df5-9444-23dc3643bcdc))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR012") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "#PWR025") (unit 1)
         )
@@ -2300,9 +2255,6 @@
     (pin "3" (uuid e941e047-60b5-4d0b-97cf-01fbe6cd519d))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "CN2") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "CN2") (unit 1)
         )
@@ -2313,7 +2265,7 @@
   (symbol (lib_id "Device:R_Small") (at 179.705 119.38 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 625d4ee5-c102-4de3-93fa-ad56dfab2ea7)
-    (property "Reference" "R13" (at 179.705 116.84 90)
+    (property "Reference" "R28" (at 179.705 116.84 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "3K3" (at 179.705 121.92 90)
@@ -2335,9 +2287,6 @@
     (pin "2" (uuid f781d1fc-78a8-4018-a348-2dbf52eef4dd))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R13") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "R28") (unit 1)
         )
@@ -2348,7 +2297,7 @@
   (symbol (lib_id "Device:R_Small") (at 90.805 68.58 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6a628951-14da-4a36-bb0e-7d3adc2bec29)
-    (property "Reference" "R5" (at 93.345 68.58 90)
+    (property "Reference" "R20" (at 93.345 68.58 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100R" (at 88.265 69.85 90)
@@ -2370,9 +2319,6 @@
     (pin "2" (uuid 4ebf0d84-3f6f-4a1c-8c8a-625a782ab3ad))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R5") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "R20") (unit 1)
         )
@@ -2383,7 +2329,7 @@
   (symbol (lib_id "power:GNDD") (at 50.8 114.3 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6bac1ea3-d088-4fb1-a284-2c39e50659b8)
-    (property "Reference" "#PWR01" (at 50.8 120.65 0)
+    (property "Reference" "#PWR021" (at 50.8 120.65 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 50.8 118.11 0)
@@ -2398,9 +2344,6 @@
     (pin "1" (uuid 3d2768fb-ea0e-4ef6-99aa-8761519d2090))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR01") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "#PWR021") (unit 1)
         )
@@ -2411,7 +2354,7 @@
   (symbol (lib_id "Transistor_BJT:BC847") (at 155.575 125.73 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 748837fe-c1a2-4ae5-bf4c-2bc67f467a59)
-    (property "Reference" "Q2" (at 160.4264 124.5616 0)
+    (property "Reference" "Q5" (at 160.4264 124.5616 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "SS8050" (at 160.4264 126.873 0)
@@ -2434,9 +2377,6 @@
     (pin "3" (uuid 3bd687e0-7e95-44bf-b9fc-20901f0b29a1))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "Q2") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "Q5") (unit 1)
         )
@@ -2472,7 +2412,7 @@
   (symbol (lib_id "power:GNDD") (at 158.115 132.08 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 803245d0-1f75-4346-b7b6-ca0f3149999e)
-    (property "Reference" "#PWR013" (at 158.115 138.43 0)
+    (property "Reference" "#PWR026" (at 158.115 138.43 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 158.115 135.89 0)
@@ -2487,9 +2427,6 @@
     (pin "1" (uuid 8e870b14-b607-42df-80b6-40ec7cc84f1b))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR013") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "#PWR026") (unit 1)
         )
@@ -2526,9 +2463,6 @@
     (pin "3" (uuid 23b5fd03-f1c7-448b-81df-2901f88efc47))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "CN3") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "CN3") (unit 1)
         )
@@ -2539,7 +2473,7 @@
   (symbol (lib_id "Device:R_Small") (at 153.035 119.38 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a0449305-fea6-4ee2-a8c5-992c70c74b4e)
-    (property "Reference" "R7" (at 153.035 116.84 90)
+    (property "Reference" "R24" (at 153.035 116.84 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "470K" (at 153.035 121.92 90)
@@ -2561,9 +2495,6 @@
     (pin "2" (uuid 54836883-d172-4be4-a2df-82ad6430e04f))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R7") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "R24") (unit 1)
         )
@@ -2574,7 +2505,7 @@
   (symbol (lib_id "Device:C_Small") (at 59.69 83.82 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid ac02af75-e4ec-4690-8679-5797cb6b1a17)
-    (property "Reference" "C1" (at 59.69 81.28 0)
+    (property "Reference" "C12" (at 59.69 81.28 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100n" (at 59.69 86.36 0)
@@ -2596,9 +2527,6 @@
     (pin "2" (uuid afd32536-bcc9-4ea6-8ee1-f2c0386a26c8))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "C1") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "C12") (unit 1)
         )
@@ -2609,7 +2537,7 @@
   (symbol (lib_id "74xx:74HC14") (at 191.77 73.66 0) (unit 2)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid b1c22022-5efe-4a98-8879-22391357f90d)
-    (property "Reference" "U1" (at 194.31 76.708 0)
+    (property "Reference" "U2" (at 194.31 76.708 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LVC14" (at 194.818 69.596 0)
@@ -2643,9 +2571,6 @@
     (pin "7" (uuid dd666399-146d-489d-aa63-282125011cc8))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "U1") (unit 2)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "U2") (unit 2)
         )
@@ -2656,7 +2581,7 @@
   (symbol (lib_id "power:GNDD") (at 59.69 86.36 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid b236e9df-03ab-4407-a0a4-4cd3acb8d2f1)
-    (property "Reference" "#PWR03" (at 59.69 92.71 0)
+    (property "Reference" "#PWR022" (at 59.69 92.71 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 59.69 90.17 0)
@@ -2671,9 +2596,6 @@
     (pin "1" (uuid 3fb3a2fd-d9ef-4854-a5b5-1cef728c2ac6))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR03") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "#PWR022") (unit 1)
         )
@@ -2684,7 +2606,7 @@
   (symbol (lib_id "Device:R_Small") (at 179.07 73.66 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid b6ac9492-481a-43fe-a267-839b28beab7c)
-    (property "Reference" "R12" (at 179.07 71.12 90)
+    (property "Reference" "R27" (at 179.07 71.12 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "3K3" (at 179.07 76.2 90)
@@ -2706,9 +2628,6 @@
     (pin "2" (uuid 6fd3d8cd-5657-4832-8c0d-99e62c036697))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R12") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "R27") (unit 1)
         )
@@ -2719,7 +2638,7 @@
   (symbol (lib_id "Device:R_Small") (at 106.045 68.58 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid bc94d285-1d15-40f5-b021-ff592891cbe0)
-    (property "Reference" "R10" (at 103.505 68.58 90)
+    (property "Reference" "R22" (at 103.505 68.58 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "47K" (at 108.585 69.85 90)
@@ -2741,9 +2660,6 @@
     (pin "2" (uuid 161fada6-8371-487e-b578-4d056fa7b932))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R10") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "R22") (unit 1)
         )
@@ -2754,7 +2670,7 @@
   (symbol (lib_id "Device:R_Small") (at 92.075 114.3 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid cd4e0518-ebb8-4354-8038-7ec699163992)
-    (property "Reference" "R1" (at 94.615 114.3 90)
+    (property "Reference" "R19" (at 94.615 114.3 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100R" (at 89.535 115.57 90)
@@ -2776,9 +2692,6 @@
     (pin "2" (uuid ba0401ca-704f-4511-99aa-a1f8445ece00))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R1") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "R19") (unit 1)
         )
@@ -2789,10 +2702,10 @@
   (symbol (lib_id "Connector:TestPoint") (at 199.39 76.2 180) (unit 1)
     (in_bom no) (on_board yes) (dnp no)
     (uuid df45fd47-9017-437c-98b8-66b4516e6e7e)
-    (property "Reference" "TP7" (at 203.962 79.756 0)
+    (property "Reference" "TP10" (at 205.74 79.375 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "Main Shaft" (at 204.47 82.042 0)
+    (property "Value" "Main Shaft" (at 208.28 82.55 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "TestPoint:TestPoint_Pad_1.5x1.5mm" (at 194.31 76.2 0)
@@ -2810,9 +2723,6 @@
     (pin "1" (uuid 68143f64-77bb-49a6-aecc-d6296a94f389))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "TP7") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "TP10") (unit 1)
         )
@@ -2823,7 +2733,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x03") (at 117.475 119.38 0) (mirror x) (unit 1)
     (in_bom no) (on_board yes) (dnp no)
     (uuid e36220a6-7049-42b6-9a9f-0da68a2cc6a4)
-    (property "Reference" "J1" (at 116.84 113.665 0)
+    (property "Reference" "J5" (at 116.84 113.665 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "Shaft Eye" (at 114.3 125.095 0)
@@ -2846,9 +2756,6 @@
     (pin "3" (uuid 25179971-9e4e-43e8-9edb-c29d6ba55f15))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "J1") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "J5") (unit 1)
         )
@@ -2859,7 +2766,7 @@
   (symbol (lib_id "74xx:74HC14") (at 192.405 119.38 0) (unit 4)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid f07e5336-d648-456c-ae69-165ae6354e21)
-    (property "Reference" "U1" (at 194.31 122.555 0)
+    (property "Reference" "U2" (at 194.31 122.555 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LVC14" (at 195.58 115.57 0)
@@ -2893,9 +2800,6 @@
     (pin "7" (uuid 7cd25a20-c2b3-40a0-915b-edfda0d6b0f0))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "U1") (unit 4)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
           (reference "U2") (unit 4)
         )

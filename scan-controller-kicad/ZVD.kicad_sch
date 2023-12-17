@@ -471,7 +471,7 @@
   (symbol (lib_id "Device:R_Small") (at 126.365 93.98 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 20214bb5-0771-4a2b-aa76-7b8f59c6cc80)
-    (property "Reference" "R11" (at 128.27 92.71 0)
+    (property "Reference" "R5" (at 128.27 92.71 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "10K" (at 128.27 95.25 0)
@@ -493,9 +493,6 @@
     (pin "2" (uuid 80e604c2-4286-4950-993c-8ed814f29f5c))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R11") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/13a79e71-0548-4260-a23d-d56f2aa50ff3"
           (reference "R5") (unit 1)
         )
@@ -532,9 +529,6 @@
     (pin "5" (uuid 197141ce-82fd-462f-b811-3c04f2e34955))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "Q3") (unit 2)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/13a79e71-0548-4260-a23d-d56f2aa50ff3"
           (reference "Q3") (unit 2)
         )
@@ -571,9 +565,6 @@
     (pin "5" (uuid f1ec11a4-cf5b-4ae2-9b59-c807b4d6403e))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "Q3") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/13a79e71-0548-4260-a23d-d56f2aa50ff3"
           (reference "Q3") (unit 1)
         )
@@ -584,7 +575,7 @@
   (symbol (lib_id "power:GNDD") (at 126.365 97.79 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 646e3301-725a-4b01-8e0f-6a955133a7b0)
-    (property "Reference" "#PWR017" (at 126.365 104.14 0)
+    (property "Reference" "#PWR013" (at 126.365 104.14 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 126.365 101.6 0)
@@ -599,9 +590,6 @@
     (pin "1" (uuid 88b9d761-4b0e-4858-87ad-f02145563e6b))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR017") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/13a79e71-0548-4260-a23d-d56f2aa50ff3"
           (reference "#PWR013") (unit 1)
         )
@@ -612,7 +600,7 @@
   (symbol (lib_id "Device:R_Small") (at 146.685 93.98 0) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a37f60b9-ea83-4124-a855-ccbd603ee84d)
-    (property "Reference" "R14" (at 148.59 95.25 0)
+    (property "Reference" "R6" (at 148.59 95.25 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "47K" (at 148.59 92.71 0)
@@ -634,9 +622,6 @@
     (pin "2" (uuid 988a2f04-0e30-414b-9e51-889f4e7017a1))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "R14") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/13a79e71-0548-4260-a23d-d56f2aa50ff3"
           (reference "R6") (unit 1)
         )
@@ -670,9 +655,6 @@
     (pin "3" (uuid 29136870-2be7-40ba-a68d-fdc1623fcb78))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "Q4") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/13a79e71-0548-4260-a23d-d56f2aa50ff3"
           (reference "Q4") (unit 1)
         )
@@ -683,7 +665,7 @@
   (symbol (lib_id "power:GNDD") (at 146.685 97.79 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid fb0e1294-1aa5-4494-8de4-ff86c709d1fe)
-    (property "Reference" "#PWR020" (at 146.685 104.14 0)
+    (property "Reference" "#PWR014" (at 146.685 104.14 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 146.685 101.6 0)
@@ -698,9 +680,6 @@
     (pin "1" (uuid 53f57542-b6e3-4da9-b536-0a485281c3e0))
     (instances
       (project "scan-controller-kicad"
-        (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-          (reference "#PWR020") (unit 1)
-        )
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/13a79e71-0548-4260-a23d-d56f2aa50ff3"
           (reference "#PWR014") (unit 1)
         )
