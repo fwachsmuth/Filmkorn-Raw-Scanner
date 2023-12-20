@@ -471,7 +471,7 @@
   (symbol (lib_id "Device:R_Small") (at 126.365 93.98 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 20214bb5-0771-4a2b-aa76-7b8f59c6cc80)
-    (property "Reference" "R5" (at 128.27 92.71 0)
+    (property "Reference" "R36" (at 128.27 92.71 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "10K" (at 128.27 95.25 0)
@@ -494,7 +494,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/13a79e71-0548-4260-a23d-d56f2aa50ff3"
-          (reference "R5") (unit 1)
+          (reference "R36") (unit 1)
         )
       )
     )
@@ -503,7 +503,7 @@
   (symbol (lib_id "Device:Q_Dual_PNP_PNP_C1B1B2C2E2E1") (at 144.145 83.185 0) (mirror x) (unit 2)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 37d88a1c-d2b4-4923-ba50-647c5c245360)
-    (property "Reference" "Q3" (at 149.86 84.455 0)
+    (property "Reference" "Q7" (at 149.86 84.455 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "DMMT5401" (at 149.86 81.915 0)
@@ -530,7 +530,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/13a79e71-0548-4260-a23d-d56f2aa50ff3"
-          (reference "Q3") (unit 2)
+          (reference "Q7") (unit 2)
         )
       )
     )
@@ -539,7 +539,7 @@
   (symbol (lib_id "Device:Q_Dual_PNP_PNP_C1B1B2C2E2E1") (at 128.905 83.185 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 4e21b720-06ae-47c0-a796-a331558ecec0)
-    (property "Reference" "Q3" (at 123.825 81.915 0)
+    (property "Reference" "Q7" (at 123.825 81.915 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "DMMT5401" (at 123.825 84.455 0)
@@ -566,7 +566,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/13a79e71-0548-4260-a23d-d56f2aa50ff3"
-          (reference "Q3") (unit 1)
+          (reference "Q7") (unit 1)
         )
       )
     )
@@ -600,7 +600,7 @@
   (symbol (lib_id "Device:R_Small") (at 146.685 93.98 0) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a37f60b9-ea83-4124-a855-ccbd603ee84d)
-    (property "Reference" "R6" (at 148.59 95.25 0)
+    (property "Reference" "R34" (at 148.59 95.25 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "47K" (at 148.59 92.71 0)
@@ -623,7 +623,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/13a79e71-0548-4260-a23d-d56f2aa50ff3"
-          (reference "R6") (unit 1)
+          (reference "R34") (unit 1)
         )
       )
     )
