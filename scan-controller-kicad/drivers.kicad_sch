@@ -1996,7 +1996,7 @@
   (symbol (lib_id "Amplifier_Operational:LM358") (at 212.09 80.01 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 028f674c-a007-4ba1-adb2-c7123e076351)
-    (property "Reference" "U10" (at 214.63 76.2 0)
+    (property "Reference" "U8" (at 214.63 76.2 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "LM358" (at 214.376 83.82 0)
@@ -2025,7 +2025,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "U10") (unit 1)
+          (reference "U8") (unit 1)
         )
       )
     )
@@ -2034,7 +2034,7 @@
   (symbol (lib_id "Device:C_Polarized_Small") (at 217.805 54.61 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 037044e6-9d67-476d-81e6-8c0af98d7ec8)
-    (property "Reference" "C23" (at 218.44 52.705 0)
+    (property "Reference" "C15" (at 218.44 52.705 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "470u" (at 218.44 57.15 0)
@@ -2057,7 +2057,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "C23") (unit 1)
+          (reference "C15") (unit 1)
         )
       )
     )
@@ -2066,7 +2066,7 @@
   (symbol (lib_id "Device:R_Small") (at 144.145 73.025 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 10325623-97c8-47c8-bda9-ef1ff26c03ec)
-    (property "Reference" "R32" (at 147.32 74.93 0)
+    (property "Reference" "R8" (at 147.32 74.93 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "150R" (at 147.955 72.39 0)
@@ -2089,7 +2089,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "R32") (unit 1)
+          (reference "R8") (unit 1)
         )
       )
     )
@@ -2098,7 +2098,7 @@
   (symbol (lib_id "Device:R_Small") (at 77.47 60.96 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 117c1f62-e522-44a2-8675-e442101756dd)
-    (property "Reference" "R30" (at 78.74 59.69 0)
+    (property "Reference" "R19" (at 78.74 59.69 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "30K" (at 78.74 64.135 0)
@@ -2121,7 +2121,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "R30") (unit 1)
+          (reference "R19") (unit 1)
         )
       )
     )
@@ -2155,7 +2155,7 @@
   (symbol (lib_id "easyeda2kicad:KF141R-2.54-3P") (at 58.42 90.805 0) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 185ff876-c273-405c-91b5-a4d9f0d1f5ce)
-    (property "Reference" "CN4" (at 57.15 97.155 0)
+    (property "Reference" "CN3" (at 57.15 97.155 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "Fan" (at 57.785 84.455 0)
@@ -2182,7 +2182,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "CN4") (unit 1)
+          (reference "CN3") (unit 1)
         )
       )
     )
@@ -2191,7 +2191,7 @@
   (symbol (lib_id "Device:C_Small") (at 211.455 54.61 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1d4b209c-7cdb-4005-98d4-38cfabb3df67)
-    (property "Reference" "C22" (at 212.09 52.705 0)
+    (property "Reference" "C19" (at 212.09 52.705 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "10u" (at 212.09 57.15 0)
@@ -2214,7 +2214,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "C22") (unit 1)
+          (reference "C19") (unit 1)
         )
       )
     )
@@ -2223,7 +2223,7 @@
   (symbol (lib_id "Device:C_Small") (at 156.21 88.9 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1ed76ab9-2ec5-4b30-9850-7418cad194a7)
-    (property "Reference" "C17" (at 156.845 86.995 0)
+    (property "Reference" "C1" (at 156.845 86.995 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "10u" (at 157.48 91.44 0)
@@ -2246,7 +2246,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "C17") (unit 1)
+          (reference "C1") (unit 1)
         )
       )
     )
@@ -2255,7 +2255,7 @@
   (symbol (lib_id "Device:R_Small") (at 140.335 83.185 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 235671cc-e5a7-4c59-aad3-8c344b1c0995)
-    (property "Reference" "R31" (at 138.176 85.344 90)
+    (property "Reference" "R9" (at 138.176 85.344 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "47K" (at 138.43 81.28 90)
@@ -2278,7 +2278,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "R31") (unit 1)
+          (reference "R9") (unit 1)
         )
       )
     )
@@ -2287,13 +2287,13 @@
   (symbol (lib_id "Amplifier_Operational:LM358") (at 212.09 80.01 0) (unit 3)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 280ae59f-6b61-462f-9319-1f9c5424241f)
-    (property "Reference" "U10" (at 211.328 78.74 0)
+    (property "Reference" "U8" (at 211.328 78.74 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
     (property "Value" "LM358" (at 210.566 80.01 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (property "Footprint" "" (at 212.09 80.01 0)
+    (property "Footprint" "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" (at 212.09 80.01 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "http://www.ti.com/lit/ds/symlink/lm2904-n.pdf" (at 212.09 80.01 0)
@@ -2310,7 +2310,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "U10") (unit 3)
+          (reference "U8") (unit 3)
         )
       )
     )
@@ -2319,7 +2319,7 @@
   (symbol (lib_id "Device:D_Schottky") (at 201.93 54.61 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 29e82ee3-1a4b-4bd9-838b-9708a519836c)
-    (property "Reference" "D5" (at 203.835 55.245 90)
+    (property "Reference" "D4" (at 203.835 55.245 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "SS54" (at 202.565 57.785 90)
@@ -2342,7 +2342,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "D5") (unit 1)
+          (reference "D4") (unit 1)
         )
       )
     )
@@ -2376,7 +2376,7 @@
   (symbol (lib_id "Device:R_Small") (at 180.34 77.47 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 36e193bd-30f2-47a5-a9a3-44255b8c2c27)
-    (property "Reference" "R33" (at 180.34 75.565 90)
+    (property "Reference" "R10" (at 180.34 75.565 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "2K2" (at 180.34 79.375 90)
@@ -2399,7 +2399,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "R33") (unit 1)
+          (reference "R10") (unit 1)
         )
       )
     )
@@ -2408,7 +2408,7 @@
   (symbol (lib_id "Device:R_Small") (at 38.1 99.695 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 39692fde-4c56-43d9-a22d-1b411b1c5811)
-    (property "Reference" "R29" (at 38.1 97.155 90)
+    (property "Reference" "R38" (at 38.1 97.155 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "2K2" (at 38.1 102.235 90)
@@ -2431,7 +2431,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "R29") (unit 1)
+          (reference "R38") (unit 1)
         )
       )
     )
@@ -2440,7 +2440,7 @@
   (symbol (lib_id "Peacemans_Teile:TestPoint_named") (at 227.33 48.26 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4a5c1836-4895-40ab-8931-19a79c13580f)
-    (property "Reference" "TP14" (at 227.33 41.402 0)
+    (property "Reference" "TP15" (at 227.33 41.402 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "TestPoint" (at 227.33 43.18 0)
@@ -2459,7 +2459,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "TP14") (unit 1)
+          (reference "TP15") (unit 1)
         )
       )
     )
@@ -2468,7 +2468,7 @@
   (symbol (lib_id "Driver_Motor:DRV8871DDA") (at 67.31 53.34 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 509a08db-1378-4987-818e-22ecefb47de9)
-    (property "Reference" "U5" (at 62.23 62.865 0)
+    (property "Reference" "U4" (at 62.23 62.865 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "DRV8871DDA" (at 67.945 46.355 0)
@@ -2498,7 +2498,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "U5") (unit 1)
+          (reference "U4") (unit 1)
         )
       )
     )
@@ -2507,7 +2507,7 @@
   (symbol (lib_id "Peacemans_Teile:TestPoint_named") (at 176.53 97.155 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 5730d3de-51e1-4557-ac3d-6db7b103c204)
-    (property "Reference" "TP16" (at 176.53 104.013 0)
+    (property "Reference" "TP9" (at 176.53 104.013 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "TestPoint" (at 176.53 102.235 0)
@@ -2526,7 +2526,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "TP16") (unit 1)
+          (reference "TP9") (unit 1)
         )
       )
     )
@@ -2535,7 +2535,7 @@
   (symbol (lib_id "Device:R_Potentiometer_Small") (at 224.79 54.61 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 5ce584d0-9acb-4087-aca1-1bb90a9b2578)
-    (property "Reference" "RV5" (at 231.14 53.34 0)
+    (property "Reference" "RV3" (at 231.14 53.34 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "10K" (at 231.14 55.88 0)
@@ -2559,7 +2559,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "RV5") (unit 1)
+          (reference "RV3") (unit 1)
         )
       )
     )
@@ -2568,7 +2568,7 @@
   (symbol (lib_id "Reference_Voltage:TL431DBZ") (at 187.325 81.915 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 64211b6b-90cf-4847-8f98-e9202308e0e5)
-    (property "Reference" "U8" (at 187.96 80.01 90)
+    (property "Reference" "U6" (at 187.96 80.01 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "TL431" (at 188.595 81.915 90)
@@ -2592,7 +2592,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "U8") (unit 1)
+          (reference "U6") (unit 1)
         )
       )
     )
@@ -2601,7 +2601,7 @@
   (symbol (lib_id "Device:R_Potentiometer_Small") (at 198.12 85.09 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 68b00a4d-ff94-4f59-8fac-6a8ebaae767d)
-    (property "Reference" "RV4" (at 196.85 84.455 0)
+    (property "Reference" "RV1" (at 196.85 84.455 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "10K" (at 196.85 86.36 0)
@@ -2625,7 +2625,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "RV4") (unit 1)
+          (reference "RV1") (unit 1)
         )
       )
     )
@@ -2634,7 +2634,7 @@
   (symbol (lib_id "Transistor_BJT:BC847") (at 46.99 99.695 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6aceadd9-8c4b-4926-90ca-225a34fd889f)
-    (property "Reference" "Q6" (at 51.8414 98.5266 0)
+    (property "Reference" "Q8" (at 51.8414 98.5266 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "SS8050" (at 51.8414 100.838 0)
@@ -2658,7 +2658,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "Q6") (unit 1)
+          (reference "Q8") (unit 1)
         )
       )
     )
@@ -2667,7 +2667,7 @@
   (symbol (lib_id "Device:R_Small") (at 136.525 61.595 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6ba523c4-c9be-41ca-85e2-188c1c3c5141)
-    (property "Reference" "R43" (at 137.795 62.865 0)
+    (property "Reference" "R26" (at 137.795 62.865 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "2K2" (at 137.795 60.96 0)
@@ -2690,7 +2690,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "R43") (unit 1)
+          (reference "R26") (unit 1)
         )
       )
     )
@@ -2699,7 +2699,7 @@
   (symbol (lib_id "Peacemans_Teile:TestPoint_named") (at 240.03 61.595 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 70f11125-2e3c-4a14-be2a-acc8710c4019)
-    (property "Reference" "TP15" (at 246.888 61.595 0)
+    (property "Reference" "TP14" (at 246.888 61.595 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "TestPoint" (at 245.11 61.595 0)
@@ -2718,7 +2718,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "TP15") (unit 1)
+          (reference "TP14") (unit 1)
         )
       )
     )
@@ -2727,7 +2727,7 @@
   (symbol (lib_id "Device:C_Polarized_Small") (at 53.34 36.83 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 7361c1c3-5985-4463-b855-2c58a5c152a7)
-    (property "Reference" "C15" (at 46.99 35.56 0)
+    (property "Reference" "C17" (at 46.99 35.56 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "22u" (at 46.99 38.1 0)
@@ -2750,7 +2750,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "C15") (unit 1)
+          (reference "C17") (unit 1)
         )
       )
     )
@@ -2759,7 +2759,7 @@
   (symbol (lib_id "Device:C_Small") (at 59.69 36.83 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 829f2e62-d28b-486d-a398-d825b5935988)
-    (property "Reference" "C16" (at 62.23 35.56 0)
+    (property "Reference" "C18" (at 62.23 35.56 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100n" (at 62.23 38.1 0)
@@ -2782,7 +2782,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "C16") (unit 1)
+          (reference "C18") (unit 1)
         )
       )
     )
@@ -2791,7 +2791,7 @@
   (symbol (lib_id "Device:C_Polarized_Small") (at 167.64 54.61 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 8f6bf6d9-2530-491b-894a-d19b62d73e85)
-    (property "Reference" "C18" (at 161.925 52.705 0)
+    (property "Reference" "C2" (at 161.925 52.705 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "470u" (at 161.925 56.515 0)
@@ -2814,7 +2814,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "C18") (unit 1)
+          (reference "C2") (unit 1)
         )
       )
     )
@@ -2823,7 +2823,7 @@
   (symbol (lib_id "Device:R_Small") (at 224.79 66.04 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 92c90219-582a-4ae1-abeb-5667a0b08f01)
-    (property "Reference" "R35" (at 226.06 64.77 0)
+    (property "Reference" "R16" (at 226.06 64.77 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "270R" (at 226.06 67.31 0)
@@ -2846,7 +2846,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "R35") (unit 1)
+          (reference "R16") (unit 1)
         )
       )
     )
@@ -2855,7 +2855,7 @@
   (symbol (lib_id "Diode:1N4448W") (at 219.71 66.04 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 96f5a095-2f59-4787-aa34-a768ebaa2bcc)
-    (property "Reference" "D6" (at 215.265 64.77 90)
+    (property "Reference" "D5" (at 215.265 64.77 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "1N4148W" (at 210.312 69.342 90)
@@ -2881,7 +2881,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "D6") (unit 1)
+          (reference "D5") (unit 1)
         )
       )
     )
@@ -2890,7 +2890,7 @@
   (symbol (lib_id "easyeda2kicad:KF141R-2.54-3P") (at 242.57 52.07 0) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 97183070-ffa7-4ca1-9677-3bbeb8213ea1)
-    (property "Reference" "CN6" (at 241.3 58.42 0)
+    (property "Reference" "CN4" (at 241.3 58.42 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "Lamp" (at 241.935 45.72 0)
@@ -2917,7 +2917,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "CN6") (unit 1)
+          (reference "CN4") (unit 1)
         )
       )
     )
@@ -2926,7 +2926,7 @@
   (symbol (lib_id "Amplifier_Operational:LM358") (at 227.965 105.41 0) (unit 2)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 97322f12-be49-475c-ace8-e0755a8b3446)
-    (property "Reference" "U10" (at 230.251 101.346 0)
+    (property "Reference" "U8" (at 230.251 101.346 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "LM358" (at 230.251 109.474 0)
@@ -2955,7 +2955,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "U10") (unit 2)
+          (reference "U8") (unit 2)
         )
       )
     )
@@ -3024,7 +3024,7 @@
   (symbol (lib_id "Device:LED_Small") (at 136.525 68.58 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a10c657a-8932-4028-ba90-97028efe590f)
-    (property "Reference" "D9" (at 133.985 66.675 90)
+    (property "Reference" "D6" (at 133.985 66.675 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "Lamp (wh)" (at 130.175 69.85 90)
@@ -3047,7 +3047,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "D9") (unit 1)
+          (reference "D6") (unit 1)
         )
       )
     )
@@ -3056,7 +3056,7 @@
   (symbol (lib_id "Peacemans_Teile:TestPoint_named") (at 236.22 48.26 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a5e966a1-2088-4eb7-94ff-33aaf0f4f70c)
-    (property "Reference" "TP13" (at 236.22 41.402 0)
+    (property "Reference" "TP16" (at 236.22 41.402 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "TestPoint" (at 236.22 43.18 0)
@@ -3075,7 +3075,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "TP13") (unit 1)
+          (reference "TP16") (unit 1)
         )
       )
     )
@@ -3084,7 +3084,7 @@
   (symbol (lib_id "Diode:1N4001") (at 49.53 89.535 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid aeb32de8-1cb5-4912-83e0-ecc83bf046b7)
-    (property "Reference" "D4" (at 44.45 88.265 90)
+    (property "Reference" "D8" (at 44.45 88.265 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "1N4007" (at 39.37 90.805 90)
@@ -3113,7 +3113,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "D4") (unit 1)
+          (reference "D8") (unit 1)
         )
       )
     )
@@ -3122,7 +3122,7 @@
   (symbol (lib_id "Device:R_Small") (at 193.04 77.47 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid b5981fc1-65b8-4f26-b03b-964ee8a2c66b)
-    (property "Reference" "R34" (at 193.04 73.66 90)
+    (property "Reference" "R17" (at 193.04 73.66 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "71K5" (at 193.04 75.565 90)
@@ -3145,7 +3145,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "R34") (unit 1)
+          (reference "R17") (unit 1)
         )
       )
     )
@@ -3154,7 +3154,7 @@
   (symbol (lib_id "Device:C_Small") (at 219.71 83.82 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid b7f9c42c-0c55-40f6-9362-a8c60d4fc5fa)
-    (property "Reference" "C24" (at 219.71 81.915 0)
+    (property "Reference" "C16" (at 219.71 81.915 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "1u" (at 220.345 85.725 0)
@@ -3177,7 +3177,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "C24") (unit 1)
+          (reference "C16") (unit 1)
         )
       )
     )
@@ -3186,7 +3186,7 @@
   (symbol (lib_id "Transistor_FET:IRF7403") (at 144.145 94.615 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid bf4619ea-e836-45e6-87cf-57fc1e7ac079)
-    (property "Reference" "Q7" (at 143.002 100.965 90)
+    (property "Reference" "Q1" (at 143.002 100.965 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "IRF7470" (at 143.002 103.505 90)
@@ -3215,7 +3215,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "Q7") (unit 1)
+          (reference "Q1") (unit 1)
         )
       )
     )
@@ -3224,7 +3224,7 @@
   (symbol (lib_id "Device:R_Small") (at 237.49 85.09 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid bfaf3b81-718b-40a2-bb03-ae9efa0861c5)
-    (property "Reference" "R38" (at 240.792 83.82 0)
+    (property "Reference" "R18" (at 240.792 83.82 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "0.05R" (at 241.554 85.852 0)
@@ -3247,7 +3247,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "R38") (unit 1)
+          (reference "R18") (unit 1)
         )
       )
     )
@@ -3316,7 +3316,7 @@
   (symbol (lib_id "Device:C_Small") (at 183.515 88.265 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid d4a66e0c-a8f5-4c47-b0a6-b0215b5c61b1)
-    (property "Reference" "C21" (at 179.705 86.36 0)
+    (property "Reference" "C12" (at 179.705 86.36 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "1u" (at 180.34 90.17 0)
@@ -3339,7 +3339,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "C21") (unit 1)
+          (reference "C12") (unit 1)
         )
       )
     )
@@ -3348,7 +3348,7 @@
   (symbol (lib_id "easyeda2kicad:KF142R-5.08-2P") (at 85.09 52.07 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid d5424b0f-5d26-4cb4-8338-7d208852c1fc)
-    (property "Reference" "CN5" (at 85.725 46.99 0)
+    (property "Reference" "CN2" (at 85.725 46.99 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "Motor" (at 85.725 57.15 0)
@@ -3374,7 +3374,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "CN5") (unit 1)
+          (reference "CN2") (unit 1)
         )
       )
     )
@@ -3383,7 +3383,7 @@
   (symbol (lib_id "Regulator_Linear:L78L05_SOT89") (at 167.64 77.47 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid d9f7e59f-7f23-4158-9af5-3d7fec38a5f5)
-    (property "Reference" "U6" (at 167.64 71.12 0)
+    (property "Reference" "U3" (at 167.64 71.12 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "78L05" (at 167.64 73.66 0)
@@ -3407,7 +3407,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "U6") (unit 1)
+          (reference "U3") (unit 1)
         )
       )
     )
@@ -3416,7 +3416,7 @@
   (symbol (lib_id "Device:C_Small") (at 172.72 52.07 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid dfdd7dd3-3b3a-41a7-8c46-3c7e7efadf02)
-    (property "Reference" "C19" (at 174.625 50.8 0)
+    (property "Reference" "C14" (at 174.625 50.8 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "1u" (at 173.355 55.88 0)
@@ -3439,7 +3439,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "C19") (unit 1)
+          (reference "C14") (unit 1)
         )
       )
     )
@@ -3473,7 +3473,7 @@
   (symbol (lib_id "Device:C_Small") (at 176.53 88.265 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid f5d027e3-d361-413f-9b78-3073879b3f58)
-    (property "Reference" "C20" (at 172.085 90.17 0)
+    (property "Reference" "C3" (at 172.085 90.17 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "1u" (at 173.99 86.36 0)
@@ -3496,7 +3496,7 @@
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-          (reference "C20") (unit 1)
+          (reference "C3") (unit 1)
         )
       )
     )
