@@ -1975,7 +1975,7 @@
     (property "ki_keywords" "connector")
     (path "/ea4847f8-935c-47cf-b177-74a37b11e8c6")
     (attr through_hole exclude_from_bom)
-    (fp_text reference "J6" (at -0.39 -2.89) (layer "F.SilkS")
+    (fp_text reference "J6" (at -0.39 -2.89) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp e6be7728-8990-4101-9584-880195d77dc0)
     )
@@ -4104,7 +4104,7 @@
     (descr "Mounting Hole 3.2mm, M3")
     (tags "mounting hole 3.2mm m3")
     (attr board_only exclude_from_pos_files exclude_from_bom)
-    (fp_text reference "REF**" (at 0 -4.2) (layer "F.SilkS")
+    (fp_text reference "REF**" (at 0 -4.2) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp fbb34ab5-f145-4135-8fa0-12530eab89a9)
     )
@@ -4627,7 +4627,7 @@
     (descr "Mounting Hole 3.2mm, M3")
     (tags "mounting hole 3.2mm m3")
     (attr board_only exclude_from_pos_files exclude_from_bom)
-    (fp_text reference "REFe" (at 0 -4.2) (layer "F.SilkS")
+    (fp_text reference "REFe" (at 0 -4.2) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp ecad807a-9d83-459d-b51a-1bd9076a87f3)
     )
