@@ -2013,6 +2013,15 @@
     (uuid ffd71922-56df-46a5-a481-de16ef8dd5aa)
   )
 
+  (text "Current" (at 172.085 120.65 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 749f83f5-fec4-433e-b16a-6dc4fa6fe8ea)
+  )
+  (text "Voltage" (at 209.55 89.535 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid d0b88537-9a4a-4aaa-957d-c35078cd2327)
+  )
+
   (label "Lamp-GND" (at 133.985 124.46 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 90cf72ab-5095-4cee-9fbb-73937c0ef175)
