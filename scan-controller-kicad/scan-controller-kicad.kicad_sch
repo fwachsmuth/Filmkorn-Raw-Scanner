@@ -4202,7 +4202,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x02") (at 120.65 102.235 0) (unit 1)
     (in_bom no) (on_board yes) (dnp no)
     (uuid ea4847f8-935c-47cf-b177-74a37b11e8c6)
-    (property "Reference" "J2" (at 120.015 107.95 0)
+    (property "Reference" "J2" (at 122.555 105.41 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "Raspi UART" (at 122.555 102.235 0)

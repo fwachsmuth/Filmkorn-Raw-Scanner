@@ -2916,14 +2916,14 @@
     (property "LCSC" "C7950" (at 227.965 105.41 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "8" (uuid 4c8b44cd-a247-4a2e-b29f-180602cef176))
-    (pin "2" (uuid 286e930a-eeb3-4ce7-a451-3401d97dd54a))
-    (pin "5" (uuid c99a5fcd-3314-43a3-b905-9c4cfad3b279))
-    (pin "3" (uuid 62382398-41c9-4441-b829-4a83266e45fd))
-    (pin "6" (uuid 285c0576-dcc4-4485-a6c6-66f7ca9eb1d9))
-    (pin "4" (uuid 58dfad1c-b843-4e8d-a196-b611d6c46618))
-    (pin "1" (uuid c2275f37-33b3-4b60-aa65-fb360930b39b))
-    (pin "7" (uuid 2bb9ece3-9460-4dd7-a638-8702434a5e5c))
+    (pin "8" (uuid 4c8b44cd-a247-4a2e-b29f-180602cef177))
+    (pin "2" (uuid 286e930a-eeb3-4ce7-a451-3401d97dd54b))
+    (pin "5" (uuid c99a5fcd-3314-43a3-b905-9c4cfad3b27a))
+    (pin "3" (uuid 62382398-41c9-4441-b829-4a83266e45fe))
+    (pin "6" (uuid 285c0576-dcc4-4485-a6c6-66f7ca9eb1da))
+    (pin "4" (uuid 58dfad1c-b843-4e8d-a196-b611d6c46619))
+    (pin "1" (uuid c2275f37-33b3-4b60-aa65-fb360930b39c))
+    (pin "7" (uuid 2bb9ece3-9460-4dd7-a638-8702434a5e5d))
     (instances
       (project "scan-controller-kicad"
         (path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
