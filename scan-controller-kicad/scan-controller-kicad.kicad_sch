@@ -3919,7 +3919,7 @@
     (property "Footprint" "Capacitor_SMD:C_1206_3216Metric" (at 113.665 92.075 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "~" (at 113.665 92.075 0)
+    (property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL31A476MPHNNNE_C96123.pdf" (at 113.665 92.075 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "LCSC" "C96123" (at 113.665 92.075 0)
