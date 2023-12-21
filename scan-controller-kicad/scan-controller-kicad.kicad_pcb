@@ -3966,7 +3966,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp a79915dd-5f3e-4a72-a4ae-f5e3079f6875)
     )
-    (fp_text user "${TP_Label}" (at 0 -2.286) (layer "F.SilkS" knockout)
+    (fp_text user "${TP_Label}" (at -1.524 -2.286) (layer "F.SilkS" knockout)
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 036986a1-edf4-4699-9f8f-e33a78733c83)
     )
