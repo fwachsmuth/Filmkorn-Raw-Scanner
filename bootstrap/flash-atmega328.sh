@@ -11,13 +11,10 @@ sudo avrdude \
     -v \
     -p atmega328p \
     -c pi_1 \
-    -U lock:w:0x2F:m \
+    -U lock:w:0x3F:m \
     -U efuse:w:0xFD:m \
-    -U hfuse:w:0xD6:m \
-    -U lfuse:w:0xF7:m 
-# avrdude: safemode: lfuse reads as FF
-# avrdude: safemode: hfuse reads as DA
-# avrdude: safemode: efuse reads as FD
+    -U hfuse:w:0xDA:m \
+    -U lfuse:w:0xFF:m 
 
 
 # Burn uC Code & bootloader
