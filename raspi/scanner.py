@@ -21,7 +21,7 @@ fixed_shutter_speed = 2000  # Todo: make this somehow controllable for other LED
 
 # print ("\033c")   # Clear Screen
 
-subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/images/successful_connection_to_raspi.png"])
+subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/images/ready-to-scan.png"])
 # proc = subprocess.Popen(["rm","-r","some.file"]), then to kill: proc.terminate()
 
 
