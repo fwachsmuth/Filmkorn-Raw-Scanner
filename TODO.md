@@ -4,8 +4,6 @@
     Useful Links:
     https://cdn.sparkfun.com/assets/c/6/2/2/1/ProMini8MHzv2.pdf
     https://support.jlcpcb.com/article/84-how-to-generate-the-bom-and-centroid-file-from-kicad
-    https://yaqwsx.github.io/jlcparts/#/
-    https://ravikiranb.com/projects/kicad-rpiz-uhat-template/
     https://pcbchecklist.com/
     https://arduino.stackexchange.com/a/9858
     https://github.com/raspberrypi/hats/blob/master/designguide.md

@@ -147,3 +147,8 @@ The three sliders “Mask color” define the RGB values of the color that is su
 
 ssh pi@filmkorn-scanner.local
 python3 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py
+
+## Make the Raspi a AVR Porgrammer
+`sudo apt-get install avrdude`
+`cp /etc/avrdude.conf ~/avrdude_gpio.conf`
+`nano ~/avrdude_gpio.conf`
