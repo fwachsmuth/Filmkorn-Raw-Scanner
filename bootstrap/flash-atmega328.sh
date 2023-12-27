@@ -23,4 +23,4 @@ sudo avrdude \
     -v \
 	-p atmega328p \
 	-c pi_1 \
-	-U flash:w:~/Filmkorn-Raw-Scanner/bootstrap/scan-controller-v1.0.ino.hex:i
+	-U flash:w:scan-controller-v1.0.ino.hex:i
