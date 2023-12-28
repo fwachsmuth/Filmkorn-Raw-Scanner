@@ -34,48 +34,31 @@
 
 ## Housekeeping:
 - [ ] Document bootstrapping/installation on Raspi & Mac
-- [x] Draw Schematics already
 - [ ] Update ReadMes
 
 ## Raspi Todos:
 ### scanner.py
-- [x] start lsyncd as demon
 - [x] Support setting a destination user / host / path via arguments
 - [ ] Start conversion watchdog on client
 - [ ] Test: Spaces in -p paths (lsync config)
 - [ ] Consider using https://pypi.org/project/picamerax/
-- [x] Fixed Preview Aspect Ratio by editing /boot/config.txt to match the 5" 800x480 screen requirements
-- [x] Let Preview Mode use dynamic exposure to allow easier focus adjustments
 - [ ] Exposure Adjustment via potentiometer — this would require arguemnt transmission via I2C
 - [ ] Consider the switch state on GPIO17 and allow local storage
 - [ ] Implement watermarking checks for the ramdisk
 - `fim --quiet -d /dev/fb0 successful_connection_to_raspi.png` # or pygame? https://stackoverflow.com/questions/70685286/how-to-use-pygame-to-display-something-via-hdmi-on-dev-fb0-using-raspian-os-li
 
 ### System Config
-- [x] Update Raspi OS — no Bullseye until PiCamera2 is out of Beta
-- [x] Try $ sudo systemctl disable getty@tty1.service — not clearing screen, so not really necessary?
 - [ ] clear screen on boot / start my python code
-- [x] consider not writing to SD (wear), but to Ramdisk or external drive
-- [x] find out why the occasional slow writes happen
 - [ ] Inflate /root on first run
 - [ ] lsync currently 2.2.3, 2.3.1 is recent
-- [x] more Ramdisks
 
  
 ## Hardware
-- [x] Replace Transformer
-- [x] Add soft reset button
 - [ ] Rastkugeln im Objektivgang ausbauen
-- [x] ~Arduino needs FTDI Power — why?~ Only when Projector isn't running
 - [ ] Staubschutzhaube bauen
 - [ ] 1x Netzstrom wäre schön
-- [x] Fix the Fan mount
-- [x] Analyze i2c signal intergity with oscilloscope (pullups?)
-- [x] Add Film-end Detector
 - [ ] Redesign Lens Mount to allow cleaning the gate again
 - [ ] Trafo-Brumm beseitigen
-- [x] Try shorter camera cable against the noise
-- [x] ~switch for hd / rsync~
 - [ ] Test higher PWM freqs
 
 ## Remote execution snippets
