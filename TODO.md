@@ -1,5 +1,16 @@
 # To Dos
 
+## Next
+- [ ] Make `/home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py` always running
+- [ ] think about an update scneario (version info?)
+- [ ] let the pi start the converter on the Mac
+- [ ] Exposure Adjustment via potentiometer — this would require arguemnt transmission via I2C
+- [ ] Consider the switch state on GPIO17 and allow local storage
+- [ ] Implement watermarking checks for the ramdisk
+- [ ] Bauanleitung schreiben
+- [ ] Try out platformio
+
+
 ## Useful Links
     Useful Links:
     https://cdn.sparkfun.com/assets/c/6/2/2/1/ProMini8MHzv2.pdf
