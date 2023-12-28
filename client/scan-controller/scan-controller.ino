@@ -77,11 +77,10 @@ enum ZoomMode {
   Z10_1 // 10:1
 };
 
-// Define some constants
+// Define some global variables
 uint8_t fps18MotorPower = 0;
 uint8_t singleStepMotorPower = 0;
 
-// Define some global variables
 bool lampMode = false;
 bool isScanning = false;
 
@@ -89,6 +88,7 @@ volatile bool piIsReady = false;
 
 ControlButton currentButton = NONE;
 ControlButton prevButton = NONE;
+uint8_t currentMotor = 0;
 MotorState motorState = STOPPED;
 Command nextPiCmd = CMD_NONE;
 ZoomMode zoomMode = Z1_1;
@@ -205,6 +205,10 @@ void loop() {
       }
     }
   }
+
+  if (motorState == FWD || motorState == REV) {
+    analogWrite(currentMotor, fps18MotorPower);
+  }
 }
 
 void stopMotor() {
@@ -278,12 +282,14 @@ void motorREV1() {
 
 void motorFwd() {
   detachInterrupt(digitalPinToInterrupt(EYE_PIN));
+  currentMotor = MOTOR_A_PIN;
   analogWrite(MOTOR_A_PIN, fps18MotorPower);
   analogWrite(MOTOR_B_PIN, 0);
 }
 
 void motorRev() {
   detachInterrupt(digitalPinToInterrupt(EYE_PIN));
+  currentMotor = MOTOR_B_PIN;
   analogWrite(MOTOR_A_PIN, 0);
   analogWrite(MOTOR_B_PIN, fps18MotorPower);
 }
