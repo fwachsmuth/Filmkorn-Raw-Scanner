@@ -3,11 +3,9 @@
 ## Useful Links
     Useful Links:
     https://cdn.sparkfun.com/assets/c/6/2/2/1/ProMini8MHzv2.pdf
-    https://support.jlcpcb.com/article/84-how-to-generate-the-bom-and-centroid-file-from-kicad
     https://pcbchecklist.com/
     https://arduino.stackexchange.com/a/9858
     https://github.com/raspberrypi/hats/blob/master/designguide.md
-    https://learn.adafruit.com/program-an-avr-or-arduino-using-raspberry-pi-gpio-pins/configuration
     https://forums.raspberrypi.com//viewtopic.php?f=91&t=217442 // Shutodwn pin: dtoverlay=gpio-shutdown,gpio_pin=26,active_low=1,gpio_pull=up
 
 ## For Install scripts
@@ -21,11 +19,8 @@
 - [ ] prune empty dirs after conversion 
 - [ ] test re-enabling packing DNGs
 
-sudo rpi-update 0642816ed05d31fb37fc8fbbba9e1774b475113f worked (to get back to old 5.4.x kernel with awb)
-
-
 ## For SD-Image Generation 
-### For `imagingpre-flight.sh`
+### For `imaging-preflight.sh`
 - [ ] Add development key removal 
 - [ ] Remove logs and history `history -c && history -w`
 - [ ] prune /boot.bak?
@@ -52,6 +47,7 @@ sudo rpi-update 0642816ed05d31fb37fc8fbbba9e1774b475113f worked (to get back to 
 - [x] Fixed Preview Aspect Ratio by editing /boot/config.txt to match the 5" 800x480 screen requirements
 - [x] Let Preview Mode use dynamic exposure to allow easier focus adjustments
 - [ ] Exposure Adjustment via potentiometer — this would require arguemnt transmission via I2C
+- [ ] Consider the switch state on GPIO17 and allow local storage
 - [ ] Implement watermarking checks for the ramdisk
 - `fim --quiet -d /dev/fb0 successful_connection_to_raspi.png` # or pygame? https://stackoverflow.com/questions/70685286/how-to-use-pygame-to-display-something-via-hdmi-on-dev-fb0-using-raspian-os-li
 
@@ -67,19 +63,19 @@ sudo rpi-update 0642816ed05d31fb37fc8fbbba9e1774b475113f worked (to get back to 
 
  
 ## Hardware
-- [ ] Replace Transformer
-- [ ] Add soft reset button
+- [x] Replace Transformer
+- [x] Add soft reset button
 - [ ] Rastkugeln im Objektivgang ausbauen
 - [x] ~Arduino needs FTDI Power — why?~ Only when Projector isn't running
 - [ ] Staubschutzhaube bauen
 - [ ] 1x Netzstrom wäre schön
 - [x] Fix the Fan mount
 - [x] Analyze i2c signal intergity with oscilloscope (pullups?)
-- [x] Add Film end Detector
+- [x] Add Film-end Detector
 - [ ] Redesign Lens Mount to allow cleaning the gate again
 - [ ] Trafo-Brumm beseitigen
-- [ ] Try shorter camera cable against the noise
-- [ ] ~switch for hd / rsync~
+- [x] Try shorter camera cable against the noise
+- [x] ~switch for hd / rsync~
 - [ ] Test higher PWM freqs
 
 ## Remote execution snippets
