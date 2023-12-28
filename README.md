@@ -152,3 +152,19 @@ python3 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py
 `sudo apt-get install avrdude`
 `cp /etc/avrdude.conf ~/avrdude_gpio.conf`
 `nano ~/avrdude_gpio.conf`
+Add
+```
+# Linux GPIO configuration for avrdude.
+# Change the lines below to the GPIO pins connected to the AVR.
+programmer
+  id    = "pi_1";
+  desc  = "Use the Linux sysfs interface to bitbang GPIO lines";
+  type  = "linuxgpio";
+  reset = 12;
+  sck   = 24;
+  mosi  = 23;
+  miso  = 18;
+;
+```
+at the very bottom.
+test with `sudo avrdude -p atmega328p -C ~/avrdude_gpio.conf -c pi_1 -v`
