@@ -1,5 +1,5 @@
 #!/bin/bash
-# Mostly copied from "Burn Bootloader"
+# When the Arduino IDE creates it's final avrdude line, navigate to the hex' parent directory and look out for the .with_bootloader hex to retain serial programming support.
 
 # !!!!!!!
 # Make sure to run this on the Raspi, which will directly flash the AtMega328 on the controller board.
