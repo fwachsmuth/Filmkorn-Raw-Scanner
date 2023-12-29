@@ -367,8 +367,8 @@ void i2cRequest() {
   nextPiCmd = CMD_NONE;
 }
 void tellRaspi(byte command) {
-  Wire.beginTransmission(8); // This needs the Raspi's address
-  wireWriteData(command);
+  Wire.beginTransmission(8); // This needs the Raspi's address (8)
+  wireWriteData(command);    // https://github.com/bhagman/WireData
   Wire.endTransmission();    // stop transmitting
   // delay(20);
 }
