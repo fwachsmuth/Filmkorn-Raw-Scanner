@@ -51,8 +51,8 @@ enum MotorState {
 #define CONT_RUN_POT    A3
 #define EXPOSURE_POT    A6
 
-
-enum Command {
+enum Command
+{
   CMD_NONE,
 
   // Arduino to Raspi
@@ -66,9 +66,10 @@ enum Command {
   CMD_INIT_SCAN,
   CMD_START_SCAN,
   CMD_STOP_SCAN,
+  CMD_SET_EXP,
 
   // Raspi to Arduino
-  CMD_READY = 128
+  CMD_READY = 128,
 };
 
 enum ZoomMode {
@@ -80,6 +81,8 @@ enum ZoomMode {
 // Define some global variables
 uint8_t fps18MotorPower = 0;
 uint8_t singleStepMotorPower = 0;
+int16_t lastExposurePot = 0;
+int16_t exposurePot = 0;
 
 bool lampMode = false;
 bool isScanning = false;
@@ -119,22 +122,29 @@ void setup() {
 }
 
 void loop() {
-  digitalWrite(LED_PIN, digitalRead(FILM_END_PIN));   // 0 when film ends 
+  digitalWrite(LED_PIN, digitalRead(FILM_END_PIN));   // 0 when film ends
 
-  if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN) {
+  readExposurePot(); // reads with some hysteresis to avoid flickering
+
+  if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
+  {
     piIsReady = false;
-    if (!digitalRead(FILM_END_PIN)) {
+    if (!digitalRead(FILM_END_PIN))
+    {
       Serial.println("Film ended");
       stopScanning();
-    } else {
-      motorFWD1();                // advance
-      nextPiCmd = CMD_SHOOT_RAW;  // tell to shoot
+    }
+    else
+    {
+      motorFWD1();               // advance
+      nextPiCmd = CMD_SHOOT_RAW; // tell to shoot
     }
   }
 
   // Read the trim pots to determine PWM width for the Motor
   fps18MotorPower = map(analogRead(CONT_RUN_POT), 0, 1023, 255, 100); // 100 since lower values don't start the motor
   singleStepMotorPower = map(analogRead(SINGLE_STEP_POT), 0, 1023, 255, 100);
+  
 
   currentButton = pollButtons();
 
@@ -208,6 +218,19 @@ void loop() {
 
   if (motorState == FWD || motorState == REV) {
     analogWrite(currentMotor, fps18MotorPower);
+  }
+}
+
+void readExposurePot() {
+  lastExposurePot = exposurePot;
+  if (abs(lastExposurePot - analogRead(EXPOSURE_POT)) > 1)
+  {
+    exposurePot = analogRead(EXPOSURE_POT);
+    Serial.print("New Exposure Setting: ");
+    Serial.print(exposurePot);
+    Serial.println("   ");
+    nextPiCmd = CMD_SET_EXP;
+    i2cRequest();
   }
 }
 
@@ -364,11 +387,9 @@ void i2cReceive(int howMany) {
 
 void i2cRequest() {
   Wire.write(nextPiCmd);
+  if (nextPiCmd == CMD_SET_EXP) {
+    Serial.println("Requesting new Exposure Time value.");
+    Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
+  }
   nextPiCmd = CMD_NONE;
-}
-void tellRaspi(byte command) {
-  Wire.beginTransmission(8); // This needs the Raspi's address (8)
-  wireWriteData(command);    // https://github.com/bhagman/WireData
-  Wire.endTransmission();    // stop transmitting
-  // delay(20);
 }
