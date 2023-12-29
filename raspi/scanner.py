@@ -17,7 +17,9 @@ from picamera import PiCamera
 
 # Has to end with /
 RAW_DIRS_PATH = "/mnt/ramdisk/"
-fixed_shutter_speed = 2000  # Todo: make this somehow controllable for other LEDs / Setups
+FIXED_SHUTTER_SPEED = 2000  # Todo: make this somehow controllable for other LEDs / Setups
+DISK_SPACE_WAIT_THRESHOLD = 200_000_000  # 200 MB
+DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 
 # print ("\033c")   # Clear Screen
 
@@ -39,6 +41,7 @@ class Command(enum.Enum):
     INIT_SCAN = 8
     START_SCAN = 9
     STOP_SCAN = 10
+    SET_EXP = 11
 
     # Raspi to Arduino
     READY = 128
@@ -116,7 +119,7 @@ camera.contrast = 0    # (-100 to 100)
 camera.saturation = 0  # (-100 to 100)
 camera.exposure_compensation = 0 # (-25 to 25)
 camera.awb_mode = 'sunlight'     # off becomes green, irrelevant anyway since we do Raws
-camera.shutter_speed = fixed_shutter_speed
+camera.shutter_speed = FIXED_SHUTTER_SPEED
 camera.shutter_speed = 0    # This enables AE
 # sleep(2)
 
@@ -124,7 +127,7 @@ img_transfer_process: subprocess.Popen = None
 
 def loop():
     command = ask_arduino()
-    if command is not None and command != Command.IDLE:
+    if command is not None:
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {
             Command.Z1_1: set_zoom_mode_1_1,
@@ -134,7 +137,8 @@ def loop():
             Command.LAMP_ON: set_lamp_on,
             Command.LAMP_OFF: set_lamp_off,
             Command.START_SCAN: state.start_scan,
-            Command.STOP_SCAN: state.stop_scan
+            Command.STOP_SCAN: state.stop_scan,
+            Command.SET_EXP: set_exposure
         }.get(command, None)
 
         if func is not None:
@@ -151,20 +155,23 @@ def tell_arduino(command: Command):
 
             sleep(1)
 
-def ask_arduino() -> Optional[Command]:
+def ask_arduino_raw() -> Optional[int]:
     try:
-        cmd = arduino.read_byte(arduino_i2c_address)
+        return arduino.read_byte(arduino_i2c_address)
     except OSError:
         print("No I2C answer. Is the Arduino powered up?")
-        return
+
+def ask_arduino() -> Optional[Command]:
+    raw = ask_arduino_raw()
     
     try:
-        return Command(cmd)
+        return Command(raw)
     except ValueError:
-        print(f"Received unknown command {cmd}")
+        print(f"Received unknown command {raw}")
 
-def check_availbable_disk_space() -> int:
+def get_available_disk_space() -> int:
     info = os.statvfs(RAW_DIRS_PATH)
+<<<<<<< Updated upstream
     available = info.f_bavail * info.f_bsize
     if available < 200000000:   # 200 MiB
         print(f"WARNING: Only {available} bytes left on the volume")
@@ -173,11 +180,42 @@ def check_availbable_disk_space() -> int:
         # wait until available > 800 MiB
         # enable preview and resume scanning
     if available < 30000000:    # 30 MiB  
+=======
+    return info.f_bavail * info.f_bsize
+
+def check_available_disk_space():
+    available = get_available_disk_space()
+    if available < DISK_SPACE_WAIT_THRESHOLD:   # 200 MB
+        print(f"Only {available} bytes left on the volume; waiting for more space")
+        camera.stop_preview()
+        camera.shutter_speed = FIXED_SHUTTER_SPEED
+        subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/images/waiting-for-files-to-sync.png"])
+        while True:
+            sleep(1)
+            if get_available_disk_space() >= DISK_SPACE_WAIT_THRESHOLD:
+                camera.start_preview()
+                return
+
+    if available < DISK_SPACE_ABORT_THRESHOLD:    # 30 MB  
+>>>>>>> Stashed changes
         print(f"Only {available} bytes left on the volume; aborting")
         sys.exit(1)
 
+def set_exposure():
+    print("set_exposure")
+    hi, lo = None, None
+    while lo is None:
+        #lo = arduino.read_byte_data(arduino_i2c_address, 1)
+        lo = ask_arduino_raw()
+    while hi is None:
+        #hi = arduino.read_byte_data(arduino_i2c_address, 2)
+        hi = ask_arduino_raw()
+
+    val = hi << 8 | lo
+    print("Received new Exposure Value:", val)
+
 def shoot_raw():
-    camera.shutter_speed = fixed_shutter_speed
+    camera.shutter_speed = FIXED_SHUTTER_SPEED
     start_time = time.time()
     camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
     state.raw_count += 1
@@ -190,7 +228,7 @@ def say_ready():
 
 def set_zoom_mode_1_1():
     state._zoom_mode = ZoomMode.Z1_1
-    camera.shutter_speed = fixed_shutter_speed
+    camera.shutter_speed = FIXED_SHUTTER_SPEED
     camera.zoom = (0.0, 0.0, 1.0, 1.0)  # (x, y, w, h)
     print("Zoom Level: 1:1")
 
@@ -211,7 +249,7 @@ def set_zoom_mode_10_1():
 def set_lamp_off():
     set_zoom_mode_1_1()
     camera.stop_preview()
-    camera.shutter_speed = fixed_shutter_speed
+    camera.shutter_speed = FIXED_SHUTTER_SPEED
     print("Lamp and camera preview disabled")
 
 def set_lamp_on():
@@ -240,7 +278,7 @@ if __name__ == '__main__':
     try:
         while True:
             loop()
-            check_availbable_disk_space()
+            check_available_disk_space()
             time.sleep(0.1)
     except KeyboardInterrupt:
         print()
