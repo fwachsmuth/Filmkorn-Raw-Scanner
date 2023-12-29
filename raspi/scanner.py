@@ -163,6 +163,15 @@ def ask_arduino() -> Optional[Command]:
     except ValueError:
         print(f"Received unknown command {cmd}")
 
+def check_availbable_disk_space() -> int:
+    info = os.statvfs(RAW_DIRS_PATH)
+    available = info.f_bavail * info.f_bsize
+    if available < 200000000:   # 200 MiB
+        print(f"WARNING: Only {available} bytes left on the volume")
+    if available < 30000000:    # 30 MiB  
+        print(f"Only {available} bytes left on the volume; aborting")
+        sys.exit(1)
+
 def shoot_raw():
     camera.shutter_speed = fixed_shutter_speed
     start_time = time.time()
@@ -227,6 +236,7 @@ if __name__ == '__main__':
     try:
         while True:
             loop()
+            check_availbable_disk_space()
             time.sleep(0.1)
     except KeyboardInterrupt:
         print()
