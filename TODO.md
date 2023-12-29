@@ -7,7 +7,7 @@
 - [ ] Implement watermarking checks for the ramdisk
 - [ ] Update .hex in repo
 - [ ] Do I need the time.sleep(0.1)? Could save 6 minutes / roll
-- [ ] Test with 2 GB (1 GB Ramdisk)
+- [ ] Test with 2 GB Raspi (1 GB Ramdisk)
 
 - [ ] let the pi start the converter on the Mac
 - [ ] Make `/home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py` always running
