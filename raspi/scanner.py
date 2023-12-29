@@ -168,6 +168,10 @@ def check_availbable_disk_space() -> int:
     available = info.f_bavail * info.f_bsize
     if available < 200000000:   # 200 MiB
         print(f"WARNING: Only {available} bytes left on the volume")
+        subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/images/waiting-for-files-to-sync.png"])
+        # disable preview
+        # wait until available > 800 MiB
+        # enable preview and resume scanning
     if available < 30000000:    # 30 MiB  
         print(f"Only {available} bytes left on the volume; aborting")
         sys.exit(1)
@@ -177,12 +181,12 @@ def shoot_raw():
     start_time = time.time()
     camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
     state.raw_count += 1
-    print("One raw taken ({:.3}s); ".format(time.time() - start_time), end='')
+    print("One raw taken ({:.2}s); ".format(time.time() - start_time), end='')
     say_ready()
 
 def say_ready():
     tell_arduino(Command.READY)
-    print("Told Arduino we are ready")
+    print("then told Arduino we are ready")
 
 def set_zoom_mode_1_1():
     state._zoom_mode = ZoomMode.Z1_1
