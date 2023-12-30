@@ -69,7 +69,7 @@ enum Command
   CMD_SET_EXP,
 
   // Raspi to Arduino
-  CMD_READY = 128,
+  CMD_READY = 128
 };
 
 enum ZoomMode {
@@ -124,7 +124,7 @@ void setup() {
 void loop() {
   digitalWrite(LED_PIN, digitalRead(FILM_END_PIN));   // 0 when film ends
 
-  readExposurePot(); // reads with some hysteresis to avoid flickering
+  // readExposurePot(); // reads with some hysteresis to avoid flickering
 
   if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
   {
@@ -387,9 +387,9 @@ void i2cReceive(int howMany) {
 
 void i2cRequest() {
   Wire.write(nextPiCmd);
-  if (nextPiCmd == CMD_SET_EXP) {
-    Serial.println("Requesting new Exposure Time value.");
-    // Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
-  }
+  // if (nextPiCmd == CMD_SET_EXP) {
+  //   Serial.println("Requesting new Exposure Time value.");
+  //   // Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
+  // }
   nextPiCmd = CMD_NONE;
 }
