@@ -230,7 +230,7 @@ void readExposurePot() {
     Serial.print(exposurePot);
     Serial.println("   ");
     nextPiCmd = CMD_SET_EXP;
-    i2cRequest();
+    // i2cRequest();
   }
 }
 
