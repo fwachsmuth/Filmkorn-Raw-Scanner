@@ -389,7 +389,7 @@ void i2cRequest() {
   Wire.write(nextPiCmd);
   if (nextPiCmd == CMD_SET_EXP) {
     Serial.println("Requesting new Exposure Time value.");
-    Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
+    // Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
   }
   nextPiCmd = CMD_NONE;
 }

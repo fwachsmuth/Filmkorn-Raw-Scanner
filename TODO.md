@@ -4,7 +4,7 @@
 - [ ] Support reading the CONT_RUN_POT at runtime
 - [ ] Exposure Adjustment via potentiometer — this would require arguemnt transmission via I2C
 - [ ] Consider the switch state on GPIO17 and allow local storage
-- [ ] Implement watermarking checks for the ramdisk
+- [x] Implement watermarking checks for the ramdisk
 - [ ] Update .hex in repo
 - [ ] Do I need the time.sleep(0.1)? Could save 6 minutes / roll
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
