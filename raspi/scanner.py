@@ -171,16 +171,6 @@ def ask_arduino() -> Optional[Command]:
 
 def get_available_disk_space() -> int:
     info = os.statvfs(RAW_DIRS_PATH)
-<<<<<<< Updated upstream
-    available = info.f_bavail * info.f_bsize
-    if available < 200000000:   # 200 MiB
-        print(f"WARNING: Only {available} bytes left on the volume")
-        subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/images/waiting-for-files-to-sync.png"])
-        # disable preview
-        # wait until available > 800 MiB
-        # enable preview and resume scanning
-    if available < 30000000:    # 30 MiB  
-=======
     return info.f_bavail * info.f_bsize
 
 def check_available_disk_space():
@@ -197,7 +187,6 @@ def check_available_disk_space():
                 return
 
     if available < DISK_SPACE_ABORT_THRESHOLD:    # 30 MB  
->>>>>>> Stashed changes
         print(f"Only {available} bytes left on the volume; aborting")
         sys.exit(1)
 
