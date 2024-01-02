@@ -237,8 +237,7 @@ void readExposurePot() {
     Serial.print("New Exposure Setting: ");
     Serial.print(exposurePot);
     Serial.println("   ");
-    // nextPiCmd = CMD_SET_EXP; // This breaks the state machine somehow (IDLE -> SCAN does not work)
-    // i2cRequest();
+    nextPiCmd = CMD_SET_EXP; // This breaks the state machine somehow (IDLE -> SCAN does not work)
   }
 }
 
@@ -395,9 +394,10 @@ void i2cReceive(int howMany) {
 
 void i2cRequest() {
   Wire.write(nextPiCmd);
+
   if (nextPiCmd == CMD_SET_EXP) {
     Serial.println("Requesting new Exposure Time value.");
-    // Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
+    Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
   }
   nextPiCmd = CMD_NONE;
 }
