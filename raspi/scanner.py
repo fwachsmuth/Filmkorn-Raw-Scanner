@@ -28,7 +28,7 @@ subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-S
 
 
 class Command(enum.Enum):
-    # Arduino to Raspi
+    # Arduino to Raspi. Note we are polling though, since we are master.
     IDLE = 0
     PING = 1
 
@@ -126,7 +126,7 @@ camera.shutter_speed = 0    # This enables AE
 img_transfer_process: subprocess.Popen = None
 
 def loop():
-    command = ask_arduino()
+    command = ask_arduino() # This tells us what to do next. See Command enum.
     if command is not None:
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {
@@ -144,7 +144,7 @@ def loop():
         if func is not None:
             func()
 
-def tell_arduino(command: Command):
+def tell_arduino(command: Command): # All we actually ever say is that we are ready (after having taken a photo)
     while True:
         try:
             arduino.write_byte(arduino_i2c_address, command.value)
@@ -158,6 +158,9 @@ def tell_arduino(command: Command):
 def ask_arduino() -> Optional[Command]:
     try:
         cmd = arduino.read_byte(arduino_i2c_address)
+        # cmd = arduino.read_i2c_block_data(arduino_i2c_address, 4)
+        # if 11 then get another byte or two 
+        # read_byte_data, read_word_data, read_block_data, read_i2c_block_data
     except OSError:
         print("No I2C answer. Is the Arduino powered up?")
         return
