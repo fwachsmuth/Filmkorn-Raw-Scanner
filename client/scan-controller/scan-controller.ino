@@ -6,6 +6,14 @@
 #include <WireData.h>
 
 const byte SLAVE_ADDRESS = 42; // Our i2c address here
+/*
+i2c Setup:
+The Raspi is the i2c Master (it can only be a master, and it isn't even running i2c, but SMBus.)
+It polls the Arduino periodically for next thing to do, which is served by the i2cRequest() fuction, attached to the 
+i2c ISR via `Wire.onRequest(i2cRequest);`in setup().
+
+The response the Arduino sends is usually just one byte right now.
+*/
 
 // Define the Control Buttons
 enum ControlButton {
@@ -124,7 +132,7 @@ void setup() {
 void loop() {
   digitalWrite(LED_PIN, digitalRead(FILM_END_PIN));   // 0 when film ends
 
-  // readExposurePot(); // reads with some hysteresis to avoid flickering
+  readExposurePot(); // reads with some hysteresis to avoid flickering
 
   if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
   {
@@ -229,7 +237,7 @@ void readExposurePot() {
     Serial.print("New Exposure Setting: ");
     Serial.print(exposurePot);
     Serial.println("   ");
-    nextPiCmd = CMD_SET_EXP;
+    // nextPiCmd = CMD_SET_EXP; // This breaks the state machine somehow (IDLE -> SCAN does not work)
     // i2cRequest();
   }
 }
@@ -387,9 +395,18 @@ void i2cReceive(int howMany) {
 
 void i2cRequest() {
   Wire.write(nextPiCmd);
-  // if (nextPiCmd == CMD_SET_EXP) {
-  //   Serial.println("Requesting new Exposure Time value.");
-  //   // Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
-  // }
+  if (nextPiCmd == CMD_SET_EXP) {
+    Serial.println("Requesting new Exposure Time value.");
+    // Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
+  }
   nextPiCmd = CMD_NONE;
+}
+
+void tellRaspi(byte command) // This is actually an unused sub! Borrowed from Synkino, usin WireData
+{
+  Wire.beginTransmission(8); // This needs the Raspi's address — 8 seems to be from Synkino days?
+  wireWriteData(command);    // https://github.com/bhagman/WireData
+  wireWriteData(parameter);
+  Wire.endTransmission();     // stop transmitting
+  // delay(20);
 }
