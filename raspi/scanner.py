@@ -74,7 +74,7 @@ class State:
         self.raws_path = os.path.join(raws_path, "{:08d}.jpg")
         print(f"Set raws path to {raws_path}")
 
-    def start_scan(self):
+    def start_scan(self, arg_bytes=None):
         if self.continue_dir:
             return
 
@@ -85,7 +85,7 @@ class State:
         print("Started scanning")
         shoot_raw()
 
-    def stop_scan(self):
+    def stop_scan(self, arg_bytes=None):
         self.continue_dir = False
         print("Nevermind; Stopped scanning")
         set_lamp_off()
@@ -126,7 +126,12 @@ camera.shutter_speed = 0    # This enables AE
 img_transfer_process: subprocess.Popen = None
 
 def loop():
-    command = ask_arduino() # This tells us what to do next. See Command enum.
+    received = ask_arduino() # This tells us what to do next. See Command enum.
+    try:
+        command = Command(received[0])
+    except ValueError:
+        print(f"Received unknown command {command}")
+
     if command is not None:
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {
@@ -142,7 +147,7 @@ def loop():
         }.get(command, None)
 
         if func is not None:
-            func()
+            func(received[1:])
 
 def tell_arduino(command: Command): # All we actually ever say is that we are ready (after having taken a photo)
     while True:
@@ -155,37 +160,11 @@ def tell_arduino(command: Command): # All we actually ever say is that we are re
 
             sleep(1)
 
-def ask_arduino() -> Optional[Command]:
+def ask_arduino() -> Optional["list[int]"]:
     try:
-        cmd = arduino.read_i2c_block_data(arduino_i2c_address, 0, 3)
-        # if cmd = SET_EXP:
-        # if 11 then get another byte or two 
-        # read_byte_data, read_word_data, read_block_data, read_i2c_block_data
+        return arduino.read_i2c_block_data(arduino_i2c_address, 0, 3)
     except OSError:
         print("No I2C answer. Is the Arduino powered up?")
-        return
-    
-    try:
-        return Command(cmd)
-    except ValueError:
-        print(f"Received unknown command {cmd}")
-
-# This was experimental from Kalle
-# def ask_arduino() -> Optional[Command]:
-#     raw = ask_arduino_raw()
-    
-#     try:
-#         return Command(raw)
-#     except ValueError:
-#         print(f"Received unknown command {raw}")
-
-# The following is experimental and only called by `set_exposure()` at this point
-def ask_arduino_raw() -> Optional[int]:
-    try:
-        return arduino.read_byte(arduino_i2c_address)
-    except OSError:
-        print("No I2C answer. Is the Arduino powered up?")
-
 
 def get_available_disk_space() -> int:
     info = os.statvfs(RAW_DIRS_PATH)
@@ -208,20 +187,11 @@ def check_available_disk_space():
         print(f"Only {available} bytes left on the volume; aborting")
         sys.exit(1)
 
-def set_exposure():
-    print("set_exposure")
-    hi, lo = None, None
-    while lo is None:
-        #lo = arduino.read_byte_data(arduino_i2c_address, 1)
-        lo = ask_arduino_raw()
-    while hi is None:
-        #hi = arduino.read_byte_data(arduino_i2c_address, 2)
-        hi = ask_arduino_raw()
-
-    val = hi << 8 | lo
+def set_exposure(arg_bytes):
+    val = arg_bytes[1] << 8 | arg_bytes[0]
     print("Received new Exposure Value:", val)
 
-def shoot_raw():
+def shoot_raw(arg_bytes=None):
     camera.shutter_speed = FIXED_SHUTTER_SPEED
     start_time = time.time()
     camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
@@ -233,33 +203,33 @@ def say_ready():
     tell_arduino(Command.READY)
     print("then told Arduino we are ready")
 
-def set_zoom_mode_1_1():
+def set_zoom_mode_1_1(arg_bytes=None):
     state._zoom_mode = ZoomMode.Z1_1
     camera.shutter_speed = FIXED_SHUTTER_SPEED
     camera.zoom = (0.0, 0.0, 1.0, 1.0)  # (x, y, w, h)
     print("Zoom Level: 1:1")
 
-def set_zoom_mode_3_1():
+def set_zoom_mode_3_1(arg_bytes=None):
     set_lamp_on()
     state._zoom_mode = ZoomMode.Z1_1
     camera.shutter_speed = 0
     camera.zoom = (1/3, 1/3, 1/3, 1/3)  # (x, y, w, h)
     print("Zoom Level: 3:1")
 
-def set_zoom_mode_10_1():
+def set_zoom_mode_10_1(arg_bytes=None):
     set_lamp_on()
     state._zoom_mode = ZoomMode.Z1_1
     camera.shutter_speed = 0
     camera.zoom = (0.42, 0.42, 1/6, 1/6)  # (x, y, w, h)
     print("Zoom Level: 6:1")
 
-def set_lamp_off():
+def set_lamp_off(arg_bytes=None):
     set_zoom_mode_1_1()
     camera.stop_preview()
     camera.shutter_speed = FIXED_SHUTTER_SPEED
     print("Lamp and camera preview disabled")
 
-def set_lamp_on():
+def set_lamp_on(arg_bytes=None):
     # camera.shutter_speed = 0
     camera.start_preview()
     print("Lamp and camera preview enabled")
