@@ -157,8 +157,8 @@ def tell_arduino(command: Command): # All we actually ever say is that we are re
 
 def ask_arduino() -> Optional[Command]:
     try:
-        cmd = arduino.read_byte(arduino_i2c_address)
-        # cmd = arduino.read_i2c_block_data(arduino_i2c_address, 4)
+        cmd = arduino.read_i2c_block_data(arduino_i2c_address, 0, 3)
+        # if cmd = SET_EXP:
         # if 11 then get another byte or two 
         # read_byte_data, read_word_data, read_block_data, read_i2c_block_data
     except OSError:
@@ -185,6 +185,7 @@ def ask_arduino_raw() -> Optional[int]:
         return arduino.read_byte(arduino_i2c_address)
     except OSError:
         print("No I2C answer. Is the Arduino powered up?")
+
 
 def get_available_disk_space() -> int:
     info = os.statvfs(RAW_DIRS_PATH)
