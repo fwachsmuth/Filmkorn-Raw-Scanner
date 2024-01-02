@@ -155,19 +155,33 @@ def tell_arduino(command: Command):
 
             sleep(1)
 
+def ask_arduino() -> Optional[Command]:
+    try:
+        cmd = arduino.read_byte(arduino_i2c_address)
+    except OSError:
+        print("No I2C answer. Is the Arduino powered up?")
+        return
+    
+    try:
+        return Command(cmd)
+    except ValueError:
+        print(f"Received unknown command {cmd}")
+
+# This was experimental from Kalle
+# def ask_arduino() -> Optional[Command]:
+#     raw = ask_arduino_raw()
+    
+#     try:
+#         return Command(raw)
+#     except ValueError:
+#         print(f"Received unknown command {raw}")
+
+# The following is experimental and only called by `set_exposure()` at this point
 def ask_arduino_raw() -> Optional[int]:
     try:
         return arduino.read_byte(arduino_i2c_address)
     except OSError:
         print("No I2C answer. Is the Arduino powered up?")
-
-def ask_arduino() -> Optional[Command]:
-    raw = ask_arduino_raw()
-    
-    try:
-        return Command(raw)
-    except ValueError:
-        print(f"Received unknown command {raw}")
 
 def get_available_disk_space() -> int:
     info = os.statvfs(RAW_DIRS_PATH)
