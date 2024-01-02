@@ -401,12 +401,3 @@ void i2cRequest() {
   }
   nextPiCmd = CMD_NONE;
 }
-
-void tellRaspi(byte command) // This is actually an unused sub! Borrowed from Synkino, usin WireData
-{
-  Wire.beginTransmission(8); // This needs the Raspi's address — 8 seems to be from Synkino days?
-  wireWriteData(command);    // https://github.com/bhagman/WireData
-  wireWriteData(parameter);
-  Wire.endTransmission();     // stop transmitting
-  // delay(20);
-}
