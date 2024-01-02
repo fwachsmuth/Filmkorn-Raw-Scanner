@@ -18,6 +18,10 @@ This is what I bought from my budget to build this scanner.
 - [Display](https://www.amazon.de/gp/product/B07YCBWRQP/) for focusing and framing (and watching the scan going on)
 - MDF wood, screws and hardware store stuff to mount it all
 
+- Aluminium Heatsink 40x40x20: 5€
+- Chipset Fan 40x40x20 (12V / 115 mA / 1.38W), zB MF40201VX-A99 https://de.elv.com/sunon-12-v-axial-luefter-mf40201vx-a99-40-x-40-x-20-mm-112421 6€
+- 25g Bariumsulfat, 20g PVA, 10g IPA, Magnetrührer, coaten
+
 You can definitely use other lenses, another LED and other ways than spacer rings to mount the Raspi Cam in front of the projector's gate. Get creative as needed. Note though that 50mm are pretty much perfect, shorter focal lengthes could be mechanically challenging, and longer focal lengths will be mechanically unstable and have plenty of air between the film and the sensor.
 Also, if you want to scan color film, make sure to get a decent high CRI LED. This is particularly important for scanning color neg film.
 
