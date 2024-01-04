@@ -127,10 +127,12 @@ img_transfer_process: subprocess.Popen = None
 
 def loop():
     received = ask_arduino() # This tells us what to do next. See Command enum.
-    try:
-        command = Command(received[0])
-    except ValueError:
-        print(f"Received unknown command {command}")
+    command = None
+    if received is not None:
+        try:
+            command = Command(received[0])
+        except ValueError:
+            print(f"Received unknown command {command}")
 
     if command is not None:
         # Using a dict instead of a switch/case, mapping I2C commands to functions
