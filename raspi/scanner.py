@@ -7,6 +7,7 @@ import argparse
 import datetime
 import enum
 import errno
+import math
 import subprocess
 import sys
 import time
@@ -189,9 +190,16 @@ def check_available_disk_space():
         print(f"Only {available} bytes left on the volume; aborting")
         sys.exit(1)
 
+SHUTTER_SPEED_RANGE = 300, 1_000_000
+EXPOSURE_VAL_FACTOR = math.log(SHUTTER_SPEED_RANGE[1] / SHUTTER_SPEED_RANGE[0]) / 1024
+
 def set_exposure(arg_bytes):
-    val = arg_bytes[1] << 8 | arg_bytes[0]
-    print("Received new Exposure Value:", val)
+    exposure_val = arg_bytes[1] << 8 | arg_bytes[0]
+    print("Received new Exposure Value:", exposure_val)
+
+    # calculate the pot value into meaningful new shutter speeds
+    shutter_speed = int(math.exp(exposure_val * EXPOSURE_VAL_FACTOR) * SHUTTER_SPEED_RANGE[0])
+    print("Would be shutter speed (µs):", shutter_speed)
 
 def shoot_raw(arg_bytes=None):
     camera.shutter_speed = FIXED_SHUTTER_SPEED
