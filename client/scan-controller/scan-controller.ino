@@ -132,8 +132,6 @@ void setup() {
 void loop() {
   digitalWrite(LED_PIN, digitalRead(FILM_END_PIN));   // 0 when film ends
 
-  readExposurePot(); // reads with some hysteresis to avoid flickering
-
   if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
   {
     piIsReady = false;
@@ -222,6 +220,9 @@ void loop() {
           break;
       }
     }
+  } else {
+    // don't readExposurePot if a button has been pressed
+    readExposurePot(); // reads with some hysteresis to avoid flickering
   }
 
   if (motorState == FWD || motorState == REV) {
@@ -231,13 +232,12 @@ void loop() {
 
 void readExposurePot() {
   lastExposurePot = exposurePot;
-  if (abs(lastExposurePot - analogRead(EXPOSURE_POT)) > 1)
-  {
-    exposurePot = analogRead(EXPOSURE_POT);
+  int16_t newExposurePot = analogRead(EXPOSURE_POT);
+  if (abs(lastExposurePot - newExposurePot) > 1) {
+    exposurePot = newExposurePot;
     Serial.print("New Exposure Setting: ");
-    Serial.print(exposurePot);
-    Serial.println("   ");
-    nextPiCmd = CMD_SET_EXP; // This breaks the state machine somehow (IDLE -> SCAN does not work)
+    Serial.println(exposurePot);
+    nextPiCmd = CMD_SET_EXP;
   }
 }
 
