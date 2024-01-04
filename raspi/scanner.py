@@ -119,7 +119,7 @@ camera.contrast = 0    # (-100 to 100)
 camera.saturation = 0  # (-100 to 100)
 camera.exposure_compensation = 0 # (-25 to 25)
 camera.awb_mode = 'sunlight'     # off becomes green, irrelevant anyway since we do Raws
-camera.shutter_speed = FIXED_SHUTTER_SPEED
+camera.shutter_speed = FIXED_SHUTTER_SPEED # Shutter Speed in microseconds
 camera.shutter_speed = 0    # This enables AE
 # sleep(2)
 
@@ -258,7 +258,7 @@ if __name__ == '__main__':
         while True:
             loop()
             check_available_disk_space()
-            time.sleep(0.1)
+            # time.sleep(0.1)
     except KeyboardInterrupt:
         print()
         sys.exit(1)
