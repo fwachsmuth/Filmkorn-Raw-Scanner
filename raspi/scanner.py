@@ -7,6 +7,7 @@ import argparse
 import datetime
 import enum
 import errno
+import math
 import subprocess
 import sys
 import time
@@ -18,6 +19,7 @@ from picamera import PiCamera
 # Has to end with /
 RAW_DIRS_PATH = "/mnt/ramdisk/"
 FIXED_SHUTTER_SPEED = 2000  # Todo: make this somehow controllable for other LEDs / Setups
+shutter_speed = 2000 # initial value until Arduino tells us something new
 DISK_SPACE_WAIT_THRESHOLD = 200_000_000  # 200 MB
 DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 
@@ -28,7 +30,7 @@ subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-S
 
 
 class Command(enum.Enum):
-    # Arduino to Raspi. Note we are polling though, since we are master.
+    # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
     IDLE = 0
     PING = 1
 
@@ -119,7 +121,7 @@ camera.contrast = 0    # (-100 to 100)
 camera.saturation = 0  # (-100 to 100)
 camera.exposure_compensation = 0 # (-25 to 25)
 camera.awb_mode = 'sunlight'     # off becomes green, irrelevant anyway since we do Raws
-camera.shutter_speed = FIXED_SHUTTER_SPEED
+camera.shutter_speed = FIXED_SHUTTER_SPEED # Shutter Speed in microseconds
 camera.shutter_speed = 0    # This enables AE
 # sleep(2)
 
@@ -166,7 +168,7 @@ def ask_arduino() -> Optional["list[int]"]:
     try:
         return arduino.read_i2c_block_data(arduino_i2c_address, 0, 3)
     except OSError:
-        print("No I2C answer. Is the Arduino powered up?")
+        print("No I2C answer. Is the Arduino busy?")
 
 def get_available_disk_space() -> int:
     info = os.statvfs(RAW_DIRS_PATH)
@@ -189,16 +191,25 @@ def check_available_disk_space():
         print(f"Only {available} bytes left on the volume; aborting")
         sys.exit(1)
 
+SHUTTER_SPEED_RANGE = 300, 500_000  # 300µs to 0.5s
+EXPOSURE_VAL_FACTOR = math.log(SHUTTER_SPEED_RANGE[1] / SHUTTER_SPEED_RANGE[0]) / 1024
+
 def set_exposure(arg_bytes):
-    val = arg_bytes[1] << 8 | arg_bytes[0]
-    print("Received new Exposure Value:", val)
+    exposure_val = arg_bytes[1] << 8 | arg_bytes[0]
+    print("Received new Exposure Value:", exposure_val)
+
+    # calculate the pot value into meaningful new shutter speeds
+    global shutter_speed
+    shutter_speed = int(math.exp(exposure_val * EXPOSURE_VAL_FACTOR) * SHUTTER_SPEED_RANGE[0])
+    print("Would be shutter speed (µs):", shutter_speed)
 
 def shoot_raw(arg_bytes=None):
-    camera.shutter_speed = FIXED_SHUTTER_SPEED
+    camera.shutter_speed = shutter_speed
     start_time = time.time()
     camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
     state.raw_count += 1
     print("One raw taken ({:.2}s); ".format(time.time() - start_time), end='')
+    print("with shutter speed", shutter_speed)
     say_ready()
 
 def say_ready():
@@ -258,7 +269,7 @@ if __name__ == '__main__':
         while True:
             loop()
             check_available_disk_space()
-            time.sleep(0.1)
+            time.sleep(0.01)
     except KeyboardInterrupt:
         print()
         sys.exit(1)
