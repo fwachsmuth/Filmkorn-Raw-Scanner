@@ -150,7 +150,6 @@ void loop() {
   // Read the trim pots to determine PWM width for the Motor
   fps18MotorPower = map(analogRead(CONT_RUN_POT), 0, 1023, 255, 100); // 100 since lower values don't start the motor
   singleStepMotorPower = map(analogRead(SINGLE_STEP_POT), 0, 1023, 255, 100);
-  
 
   currentButton = pollButtons();
 
@@ -342,16 +341,17 @@ void stopScanning() {
 ControlButton pollButtons() {
   static bool noButtonPressed = false;
 
-  int buttonBankA = analogRead(BUTTONS_A_PIN);
-  int buttonBankB = analogRead(BUTTONS_B_PIN);
+  int buttonBankA = analogRead(BUTTONS_A_PIN) - 5; // Substract 5 since A0 tends to get noisy when other A-ins are used!?
+  int buttonBankB = analogRead(BUTTONS_B_PIN) - 5;
   ControlButton buttonChoice;
 
   delay(10); // debounce (since button release bounce is not covered in the FSM)
 
-  if (noButtonPressed) {
+  if (noButtonPressed)
+  {
     if (buttonBankA < 2 && buttonBankB < 2) {
       buttonChoice = NONE;
-  
+
     // Button bank A
     } else if (buttonBankA > 30 && buttonBankA < 70) {
       buttonChoice = REV1;    // on Vero Board: ZOOM
