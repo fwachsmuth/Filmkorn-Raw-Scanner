@@ -233,7 +233,7 @@ void loop() {
 void readExposurePot() {
   lastExposurePot = exposurePot;
   int16_t newExposurePot = analogRead(EXPOSURE_POT);
-  if (abs(lastExposurePot - newExposurePot) > 1) {
+  if (abs(lastExposurePot - newExposurePot) >= 5) {
     exposurePot = newExposurePot;
     Serial.print("New Exposure Setting: ");
     Serial.println(exposurePot);
