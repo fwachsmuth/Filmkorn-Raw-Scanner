@@ -2462,7 +2462,7 @@
     (effects (font (size 1 1)) (justify left bottom))
     (uuid 6dcbeaf2-fb34-4253-abf9-17a67cadc5fd)
   )
-  (text "eFTDI Masse kennzeichnen\n" (at 59.69 189.865 0)
+  (text "FTDI Pins kennzeichnen\nR platzieren\n" (at 59.69 189.865 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid b1232cab-d7d7-476c-9584-f6db18e2dde0)
   )
