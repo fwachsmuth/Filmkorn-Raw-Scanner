@@ -91,6 +91,7 @@ uint8_t fps18MotorPower = 0;
 uint8_t singleStepMotorPower = 0;
 int16_t lastExposurePot = 0;
 int16_t exposurePot = 0;
+int dummyread; // for throw-away ADC reads (avoids multiplex-carryover of S&H cap charges)
 
 bool lampMode = false;
 bool isScanning = false;
@@ -148,9 +149,10 @@ void loop() {
   }
 
   // Read the trim pots to determine PWM width for the Motor
+  dummyread = analogRead(CONT_RUN_POT);
   fps18MotorPower = map(analogRead(CONT_RUN_POT), 0, 1023, 255, 100); // 100 since lower values don't start the motor
+  dummyread = analogRead(SINGLE_STEP_POT);
   singleStepMotorPower = map(analogRead(SINGLE_STEP_POT), 0, 1023, 255, 100);
-  
 
   currentButton = pollButtons();
 
@@ -232,8 +234,9 @@ void loop() {
 
 void readExposurePot() {
   lastExposurePot = exposurePot;
+  dummyread = analogRead(EXPOSURE_POT);
   int16_t newExposurePot = analogRead(EXPOSURE_POT);
-  if (abs(lastExposurePot - newExposurePot) > 1) {
+  if (abs(lastExposurePot - newExposurePot) >= 2) {
     exposurePot = newExposurePot;
     Serial.print("New Exposure Setting: ");
     Serial.println(exposurePot);
@@ -341,17 +344,19 @@ void stopScanning() {
 
 ControlButton pollButtons() {
   static bool noButtonPressed = false;
-
-  int buttonBankA = analogRead(BUTTONS_A_PIN);
-  int buttonBankB = analogRead(BUTTONS_B_PIN);
+  dummyread = analogRead(BUTTONS_A_PIN); // avoid spill-over from multiplexed ADC (discharge S&H cap)
+  int buttonBankA = analogRead(BUTTONS_A_PIN); // Substract 5 since A0 tends to get noisy when other A-ins are used!?
+  dummyread = analogRead(BUTTONS_B_PIN);   // avoid spill-over from multiplexed ADC (discharge S&H cap)
+  int buttonBankB = analogRead(BUTTONS_B_PIN) ;
   ControlButton buttonChoice;
 
   delay(10); // debounce (since button release bounce is not covered in the FSM)
 
-  if (noButtonPressed) {
+  if (noButtonPressed)
+  {
     if (buttonBankA < 2 && buttonBankB < 2) {
       buttonChoice = NONE;
-  
+
     // Button bank A
     } else if (buttonBankA > 30 && buttonBankA < 70) {
       buttonChoice = REV1;    // on Vero Board: ZOOM
