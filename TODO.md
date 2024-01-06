@@ -7,6 +7,7 @@
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
 - [ ] Consider the switch state on GPIO17 and allow local storage
 - [ ] Write Build-your-own howtos
+- [ ] Add "Insert Film to Scan" gfx in addition to status LED
 - [x] Support reading the CONT_RUN_POT at runtime
 - [x] Exposure Adjustment via potentiometer — this would require arguemnt transmission via I2C
 - [x] Implement watermarking checks for the ramdisk

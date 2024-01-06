@@ -1,5 +1,7 @@
 #!/bin/bash
-# This script is called by opme.sh, after pairing. 
+# to be run on the raspi, not on the host computer!
+
+# This script is called from remote by opme.sh, after pairing. 
 
 cd Filmkorn-Raw-Scanner
 git remote set-url origin git@github.com:fwachsmuth/Filmkorn-Raw-Scanner.git
