@@ -129,6 +129,7 @@ img_transfer_process: subprocess.Popen = None
 
 def loop():
     received = ask_arduino() # This tells us what to do next. See Command enum.
+    sleep(0.05) # avoid some i2c collisions?
     command = None
     if received is not None:
         try:
@@ -269,7 +270,7 @@ if __name__ == '__main__':
         while True:
             loop()
             check_available_disk_space()
-            time.sleep(0.01)
+            # time.sleep(0.02)
     except KeyboardInterrupt:
         print()
         sys.exit(1)
