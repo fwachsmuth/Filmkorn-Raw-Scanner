@@ -1,5 +1,5 @@
 #!/bin/bash
-# tobe run on the host computer, not on the raspi!
+# to be run on the host computer, not on the raspi!
 
 if [ -f ".paired" ]; then
   echo "Systems already paired. Use ./unpair.sh first if you want to initiate pairing again."
