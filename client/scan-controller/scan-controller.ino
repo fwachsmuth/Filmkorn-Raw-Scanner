@@ -3,7 +3,6 @@
  */
 
 #include <Wire.h>
-#include <WireData.h>
 
 const byte SLAVE_ADDRESS = 42; // Our i2c address here
 /*
@@ -387,19 +386,23 @@ ControlButton pollButtons() {
 }
 
 void i2cReceive(int howMany) {
+  // This is called when the Pi tells us something (like: ready to take next photo)
   uint8_t i2cCommand;
   if (howMany >= (sizeof i2cCommand)) {
-    wireReadData(i2cCommand);
-    // try wire.read per https://forums.raspberrypi.com/viewtopic.php?t=203286 ?
+    while (Wire.available()) {
+      i2cCommand = Wire.read();
+    }
+    //delay(100); // doesnt se to be necessary
 
     // Don't set piIsReady if we aren't scanning anymore
     if ((Command)i2cCommand == CMD_READY && isScanning) {
       piIsReady = true;
     }
-  }  // end if have enough data
-}  // end of receive-ISR
+  } 
+}  
 
 void i2cRequest() {
+  // This gets called when the Pi uses ask_arduino() to request 3 bytes (1 cmd, two params)
   Wire.write(nextPiCmd);
 
   if (nextPiCmd == CMD_SET_EXP) {
