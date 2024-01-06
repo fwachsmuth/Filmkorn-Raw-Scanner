@@ -7,7 +7,7 @@
 
 # writing Fuses
 sudo avrdude \
-    -C ~/avrdude_gpio.conf \
+    -C ~/Filmkorn-Raw-Scanner/scan-controller/bootstrap/avrdude_gpio.conf \
     -v \
     -p atmega328p \
     -c pi_1 \
@@ -20,7 +20,7 @@ sudo avrdude \
 
 # Burn uC Code & bootloader
 sudo avrdude \
-    -C ~/avrdude_gpio.conf \
+    -C ~/Filmkorn-Raw-Scanner/scan-controller/bootstrap/avrdude_gpio.conf \
     -v \
 	-p atmega328p \
 	-c pi_1 \
