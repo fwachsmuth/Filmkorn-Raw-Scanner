@@ -1,5 +1,5 @@
 """
-Converts raw RPi Cam "JPGs" to DNGs using PyDNG
+Converts raw data attached in the EXIF blob of Raspi HQ Cam "JPGs" to DNGs using PyDNG
 
 # Usage
 
