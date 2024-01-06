@@ -1,20 +1,20 @@
 # To Dos
 
 ## Next
+- [ ] Let pair.sh take a parameter for the (Mac-side) raw-intermediates
+- [ ] let the pi start the converter on the Mac
+- [ ] think about an update scneario (version info?)
+- [ ] Test with 2 GB Raspi (1 GB Ramdisk)
+- [ ] Consider the switch state on GPIO17 and allow local storage
+- [ ] Write Build-your-own howtos
 - [x] Support reading the CONT_RUN_POT at runtime
 - [x] Exposure Adjustment via potentiometer — this would require arguemnt transmission via I2C
-- [ ] Consider the switch state on GPIO17 and allow local storage
 - [x] Implement watermarking checks for the ramdisk
-- [ ] Update .hex in repo
+- [x] Update .hex in repo
 - [x] Do I need the time.sleep(0.1)? Could save 6 minutes / roll
-- [ ] Test with 2 GB Raspi (1 GB Ramdisk)
 
-- [ ] let the pi start the converter on the Mac
 - [x] Make `/home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py` always running
-- [ ] think about an update scneario (version info?)
-- [ ] Let pair.sh take a parameter for the (local) raw-intermediates
 
-- [ ] Bauanleitung schreiben
 - [ ] Try out platformio
 
 
