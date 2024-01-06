@@ -1,16 +1,16 @@
 # To Dos
 
 ## Next
-- [ ] Support reading the CONT_RUN_POT at runtime
-- [ ] Exposure Adjustment via potentiometer — this would require arguemnt transmission via I2C
+- [x] Support reading the CONT_RUN_POT at runtime
+- [x] Exposure Adjustment via potentiometer — this would require arguemnt transmission via I2C
 - [ ] Consider the switch state on GPIO17 and allow local storage
 - [x] Implement watermarking checks for the ramdisk
 - [ ] Update .hex in repo
-- [ ] Do I need the time.sleep(0.1)? Could save 6 minutes / roll
+- [x] Do I need the time.sleep(0.1)? Could save 6 minutes / roll
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
 
 - [ ] let the pi start the converter on the Mac
-- [ ] Make `/home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py` always running
+- [x] Make `/home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py` always running
 - [ ] think about an update scneario (version info?)
 - [ ] Let pair.sh take a parameter for the (local) raw-intermediates
 
