@@ -390,6 +390,7 @@ void i2cReceive(int howMany) {
   uint8_t i2cCommand;
   if (howMany >= (sizeof i2cCommand)) {
     wireReadData(i2cCommand);
+    // try wire.read per https://forums.raspberrypi.com/viewtopic.php?t=203286 ?
 
     // Don't set piIsReady if we aren't scanning anymore
     if ((Command)i2cCommand == CMD_READY && isScanning) {
