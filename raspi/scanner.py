@@ -13,7 +13,7 @@ import sys
 import time
 import os
 
-from smbus import SMBus
+from smbus2 import SMBus
 from picamera import PiCamera
 
 # Has to end with /
