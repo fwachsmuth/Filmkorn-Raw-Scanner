@@ -23,7 +23,7 @@ shutter_speed = 2000 # initial value until Arduino tells us something new
 DISK_SPACE_WAIT_THRESHOLD = 200_000_000  # 200 MB
 DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 
-# print ("\033c")   # Clear Screen
+print ("\033c")   # Clear Screen
 
 subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/images/ready-to-scan.png"])
 # proc = subprocess.Popen(["rm","-r","some.file"]), then to kill: proc.terminate()
