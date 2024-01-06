@@ -13,7 +13,7 @@ import sys
 import time
 import os
 
-from smbus import SMBus
+from smbus2 import SMBus
 from picamera import PiCamera
 
 # Has to end with /
@@ -105,6 +105,7 @@ def remove_empty_dirs():
 state = State()
 
 arduino = SMBus(1) # Indicates /dev/ic2-1 where the Arduino is connected
+sleep(1) # wait a bit here to avoid i2c IO Errors
 arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
 
 camera = PiCamera(resolution=(507, 380)) # keep the exact AR to avoid rounding errors casuing overflow freezes
@@ -129,7 +130,6 @@ img_transfer_process: subprocess.Popen = None
 
 def loop():
     received = ask_arduino() # This tells us what to do next. See Command enum.
-    sleep(0.05) # avoid some i2c collisions?
     command = None
     if received is not None:
         try:
@@ -160,16 +160,20 @@ def tell_arduino(command: Command): # All we actually ever say is that we are re
             arduino.write_byte(arduino_i2c_address, command.value)
             return
         except OSError as e:
+            print("No I2C answer when telling the Arduino something.")
             if e.errno != errno.EREMOTEIO:
                 raise e
-
-            sleep(1)
+            sleep(0.1)
 
 def ask_arduino() -> Optional["list[int]"]:
+    # sleep(0.05) # avoid some i2c collisions?
     try:
         return arduino.read_i2c_block_data(arduino_i2c_address, 0, 3)
-    except OSError:
-        print("No I2C answer. Is the Arduino busy?")
+    except OSError as e:
+        print("No I2C answer from Arduino. Is the Arduino busy?")
+        if e.errno != errno.EREMOTEIO:
+            raise e
+        sleep(0.1)
 
 def get_available_disk_space() -> int:
     info = os.statvfs(RAW_DIRS_PATH)
