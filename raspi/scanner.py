@@ -25,7 +25,7 @@ DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 
 print ("\033c")   # Clear Screen
 
-subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/images/ready-to-scan.png"])
+subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/ready-to-scan.png"])
 # proc = subprocess.Popen(["rm","-r","some.file"]), then to kill: proc.terminate()
 
 
@@ -185,7 +185,7 @@ def check_available_disk_space():
         print(f"Only {available} bytes left on the volume; waiting for more space")
         camera.stop_preview()
         camera.shutter_speed = FIXED_SHUTTER_SPEED
-        subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/images/waiting-for-files-to-sync.png"])
+        subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/waiting-for-files-to-sync.png"])
         while True:
             sleep(1)
             if get_available_disk_space() >= DISK_SPACE_WAIT_THRESHOLD:
