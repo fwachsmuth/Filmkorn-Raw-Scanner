@@ -25,9 +25,27 @@ DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 
 print ("\033c")   # Clear Screen
 
-subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/ready-to-scan.png"])
+subprocess.Popen(["fim", "--quiet",  "-d /dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/ready-to-scan.png"])
 # os.system('fim --quiet -d /dev/fb0 /home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/ready-to-scan.png &')
-os.system('nohup ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "cd `cat ~/Filmkorn-Raw-Scanner/raspi/.host_path`; ./start_converting.sh" &')
+os.system('nohup ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "cd `cat ~/Filmkorn-Raw-Scanner/raspi/.host_path`; ./start_converting.sh" >/dev/null 2>&1 &')
+
+''' To consider instead: https://janakiev.com/blog/python-shell-commands/
+ssh = subprocess.Popen(["ssh", "-i .ssh/id_rsa", "user@host"],
+                        stdin =subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        universal_newlines=True,
+                        bufsize=0)
+ 
+# Send ssh commands to stdin
+ssh.stdin.write("uname -a\n")
+ssh.stdin.write("uptime\n")
+ssh.stdin.close()
+
+# Fetch output
+for line in ssh.stdout:
+    print(line.strip())
+'''
 
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
@@ -50,7 +68,6 @@ class Command(enum.Enum):
 
 class ZoomMode(enum.Enum):
     Z1_1 = 0
-    
     Z3_1 = 1
     Z10_1 = 2
 
