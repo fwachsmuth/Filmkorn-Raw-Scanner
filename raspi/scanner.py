@@ -26,7 +26,8 @@ DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 print ("\033c")   # Clear Screen
 
 subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/ready-to-scan.png"])
-os.system('ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat .user_and_host` "cd `cat .host_path`; ./start_converting.sh" &')
+# os.system('fim --quiet -d /dev/fb0 /home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/ready-to-scan.png &')
+os.system('nohup ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "cd `cat ~/Filmkorn-Raw-Scanner/raspi/.host_path`; ./start_converting.sh" &')
 
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
