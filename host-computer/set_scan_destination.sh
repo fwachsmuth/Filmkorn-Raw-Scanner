@@ -42,6 +42,9 @@ if [ -d "$rawpath" ] && [ ! -z "$rawpath" ]; then # Check if a path was supplied
     fi
     echo "${rawpath%/}" > .scan_destination
     ssh pi@filmkorn-scanner.local "./Filmkorn-Raw-Scanner/raspi/update-destination.sh -h `whoami`@`hostname -s`.local -p \"${rawpath%/}\""
+    # propagate some variables to the raspi
+    ssh pi@filmkorn-scanner.local "echo `whoami`@`hostname -s`.local > ./Filmkorn-Raw-Scanner/raspi/.user_and_host"
+    ssh pi@filmkorn-scanner.local "echo `pwd` > ./Filmkorn-Raw-Scanner/raspi/.host_path"
 else
     if [ -z "$rawpath" ]; then
         echo "No new path has been defined."
