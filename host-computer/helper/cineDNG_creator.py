@@ -20,6 +20,12 @@ import time
 
 from pidng.core import RPICAM2DNG as RPiCam2DNG
 
+# log a pid
+""" if not os.path.exists('/tmp/cineDNG_creator.pid'):
+    f = open('/tmp/cineDNG_creator.pid', 'a+')
+    f.write(str(os.getpid()))
+    f.close() """
+
 class OutputDir(abc.ABC):
     def __init__(self, input: str, output: str):
         self.input_len = len(input)
