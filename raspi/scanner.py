@@ -25,6 +25,8 @@ DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 
 print ("\033c")   # Clear Screen
 
+# python3 cineDNG_creator.py -i /Volumes/Filme\ 4TB/raw-intermediates/ -o /Volumes/Filme\ 4TB/CinemaDNG/. --cinema-dng --keep-running
+# subprocess.Popen([])
 subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/ready-to-scan.png"])
 # proc = subprocess.Popen(["rm","-r","some.file"]), then to kill: proc.terminate()
 

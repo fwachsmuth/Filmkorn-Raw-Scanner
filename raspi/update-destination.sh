@@ -40,7 +40,7 @@ sync {
   default.rsyncssh,
   source = "/mnt/ramdisk/",
   host = "${userhost}",
-  targetdir = "${rawpath}",
+  targetdir = "${rawpath}/raw-intermediates",
   delete = false,
   rsync = {
     archive = true,
@@ -58,7 +58,7 @@ sync {
   }
 }
 EOFCONFIGFILE
-    echo "${rawpath%/}" > ~/Filmkorn-Raw-Scanner/.scan_destination
+    echo "${rawpath%/}" > ~/Filmkorn-Raw-Scanner/raspi/.scan_destination
     echo "New host: ${userhost}"
     echo "New path: ${rawpath%/}"
     ~/Filmkorn-Raw-Scanner/raspi/lsyncd-restart.sh
