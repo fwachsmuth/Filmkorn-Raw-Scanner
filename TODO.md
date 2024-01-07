@@ -2,7 +2,7 @@
 
 ## Next
 - [x] Let pair.sh take a parameter for the (Mac-side) raw-intermediates
-- [ ] let the pi start the converter on the Mac
+- [x] let the pi start the converter on the Mac
 - [ ] think about an update scneario (version info?)
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
 - [ ] Consider the switch state on GPIO17 and allow local storage
