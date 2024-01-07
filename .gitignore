@@ -2,6 +2,8 @@
 __pycache__/
 .paired
 .scan_destination
+.user_and_host
+.host_path
 raspi/lsyncd.conf
 # Kicad Temporary files
 *.000
