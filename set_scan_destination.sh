@@ -1,7 +1,8 @@
 #!/bin/bash
 # to be run on the host computer, not on the raspi!
+# This script chnages the destination base path for scan results and propagates it to all places where its needed.
 
-# touch "`cat host-computer/destination_path.conf`/foobar"
+# note touch "`cat host-computer/destination_path.conf`/foobar"
 
 helpFunction()
 {
@@ -32,11 +33,15 @@ done
 
 if [ -d "$rawpath" ] && [ ! -z "$rawpath" ]; then # Check if a path was supplied and exists
     if [ -f ".scan_destination" ]; then
-        echo "Changing to ${rawpath%/}"
+        echo "Changing to" 
+        echo
+        echo "${rawpath%/}"
+        echo
     else
         echo "Setting Scan Destination to ${rawpath%/}"
     fi
     echo "${rawpath%/}" > .scan_destination
+    ssh pi@filmkorn-scanner.local "./Filmkorn-Raw-Scanner/raspi/update-destination.sh -h `whoami`@`hostname -s`.local -p \"${rawpath%/}\""
 else
     if [ -z "$rawpath" ]; then
         echo "No new path has been defined."
