@@ -58,8 +58,9 @@ sync {
   }
 }
 EOFCONFIGFILE
+    echo "${rawpath%/}" > ~/Filmkorn-Raw-Scanner/.scan_destination
     echo "New host: $userhost"
-    echo "New path: $rawpath"
+    echo "New path: $rawpath%/"
     ~/Filmkorn-Raw-Scanner/raspi/lsyncd-restart.sh
     echo "Configuration updated."
 fi
