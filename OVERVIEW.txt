@@ -1,0 +1,54 @@
+        Host Computer                                   Raspberry Pi
+
+
+┌────────────────────────────┐
+│ pair.sh                    │
+│                            │
+│ - creates and installs an  │
+│   ssh keypair to allow the │
+│   raspi to send us files   │
+│ - updates the repository   │                 ┌──────────────────────────────┐
+│   on the raspi             │                 │ update-destination.sh        │
+│ - attempts to update the   ├────────────────►│                              │
+│   destination paths        │      calls      │ - creates lsyncd.conf        │
+└────────────────────────────┘                 │ - creates .scan_destination  │
+                                      ┌───────►│                              │
+┌────────────────────────────┐        │        └─────────────┬────────────────┘
+│ set_scan_destination.sh    │        │                      │
+│                            │        │                      │ calls
+│ - updates the file         ├────────┘                      ▼
+│   .scan_destination        │      calls      ┌──────────────────────────────┐
+│                            │                 │ lsyncd-restart.sh            │
+└────────────────────────────┘                 │                              │
+                                               └──────────────────────────────┘
+
+
+
+┌────────────────────────────┐                 ┌──────────────────────────────┐
+│ unpair.sh                  │                 │ unpair-from-client.sh        │
+│                            │      calls      │                              │
+│ - removes ssh keys and     ├────────────────►│ - removes ssh keys and       │
+│   raspi's allowances       │                 │   makes the host computer    │
+│                            │                 │   unknown                    │
+└────────────────────────────┘                 │                              │
+                                               └──────────────────────────────┘
+
+
+┌────────────────────────────┐                 ┌──────────────────────────────┐
+│ start_converting.sh        │                 │ scanner.py                   │
+│                            │      calls      │                              │
+│ - launches the watchdog    │◄────────────────┤ - controls the digital       │
+│   and DNG converter if     │                 │   camera                     │
+│   not running already      │                 │ - interfaces with controller │
+│                            │                 │   board                      │
+└────────────────────────────┘                 │ - emits the scans            │
+                                               │                              │
+                                               └──────────────────────────────┘
+
+
+
+
+
+
+
+                           ▼
