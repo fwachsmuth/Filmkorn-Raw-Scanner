@@ -1,4 +1,5 @@
 #!/bin/bash
+# to be run on the raspi, not on the host computer!
 
 # echo "Removing known_hosts..."
 # rm ~/.ssh/knwon_hosts
