@@ -13,18 +13,63 @@ Python:
 
 import abc
 import argparse
+import atexit
+import errno
 import io
 import os
+import signal
 import sys
 import time
 
 from pidng.core import RPICAM2DNG as RPiCam2DNG
 
+PID_FILE_PATH = "/tmp/cineDNG_creator.pid"
+
+def process_is_running(contents: str) -> bool:
+    try:
+        pid = int(contents)
+    except ValueError:
+        return False
+
+    if pid <= 0:
+        return False # invalid
+
+    try:
+        os.kill(pid, 0) # signal 0 doesn't do anything
+    except OSError as err:
+        if err.errno == errno.ESRCH: # no such process
+            return False
+        if err.errno == errno.EPERM: # no permission, but process exists
+            return True
+
+        raise
+
+    return True
+
+def clear_pid_file():
+    os.remove(PID_FILE_PATH)
+
 # log a pid
-""" if not os.path.exists('/tmp/cineDNG_creator.pid'):
-    f = open('/tmp/cineDNG_creator.pid', 'a+')
-    f.write(str(os.getpid()))
-    f.close() """
+try:
+    file = open(PID_FILE_PATH, "r+")
+except OSError:
+    # no such file
+    file = open(PID_FILE_PATH, "w+")
+
+with file:
+    contents = file.read()
+    if len(contents) != 0:
+        # file is not empty, it has a PID
+        if process_is_running(contents):
+            print(f"Process {contents} is already running")
+            sys.exit(0)
+
+        file.seek(0)
+        file.truncate()
+
+    signal.signal(signal.SIGTERM, clear_pid_file)
+    atexit.register(clear_pid_file)
+    file.write(str(os.getpid()))
 
 class OutputDir(abc.ABC):
     def __init__(self, input: str, output: str):
