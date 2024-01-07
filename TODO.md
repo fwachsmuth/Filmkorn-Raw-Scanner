@@ -1,13 +1,14 @@
 # To Dos
 
 ## Next
-- [ ] Let pair.sh take a parameter for the (Mac-side) raw-intermediates
+- [x] Let pair.sh take a parameter for the (Mac-side) raw-intermediates
 - [ ] let the pi start the converter on the Mac
 - [ ] think about an update scneario (version info?)
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
 - [ ] Consider the switch state on GPIO17 and allow local storage
 - [ ] Write Build-your-own howtos
 - [ ] Add "Insert Film to Scan" gfx in addition to status LED
+- [ ] list python requirements (on host computer) per https://stackoverflow.com/a/68006970
 - [x] Support reading the CONT_RUN_POT at runtime
 - [x] Exposure Adjustment via potentiometer — this would require arguemnt transmission via I2C
 - [x] Implement watermarking checks for the ramdisk
