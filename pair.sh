@@ -36,8 +36,12 @@ EOT
   ssh pi@filmkorn-scanner.local "test -d ~/Filmkorn-Raw-Scanner || git clone https://github.com/fwachsmuth/Filmkorn-Raw-Scanner.git"
   ssh pi@filmkorn-scanner.local "cd ~/Filmkorn-Raw-Scanner; git pull"
 
-  echo "Configuring where on the Mac the scans should be stored..."
-  ssh pi@filmkorn-scanner.local "./Filmkorn-Raw-Scanner/raspi/update-destination.sh -h `whoami`@`hostname -s`.local -p \"`cat .scan_destination`\""
+  if [ -f ".scan_destination" ]; then
+    echo "Configuring where on the Mac the scans should be stored..."
+    ssh pi@filmkorn-scanner.local "./Filmkorn-Raw-Scanner/raspi/update-destination.sh -h `whoami`@`hostname -s`.local -p \"`cat .scan_destination`\""
+  else
+    echo "${bold}Warning:${normal} No Scanning Destination defined yet. Run ${bold}set_scan_destination.sh${normal} to do so."
+  fi
 
   echo ""
   echo "Latest Code installed."
