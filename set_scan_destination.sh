@@ -14,9 +14,12 @@ helpFunction()
    echo
 }
 if [ -f ".scan_destination" ]; then
-    echo "Currently configured Scan Destination: `cat .scan_destination`"
+    echo "Currently configured Scan Destination:"
+    echo
+    echo "`cat .scan_destination`"
+    echo
 else
-    echo "No Scan Destination has been configured yet."
+    echo "No Scan Destination has previously been configured yet."
 fi
 
 while getopts "p:" opt
@@ -35,6 +38,10 @@ if [ -d "$rawpath" ] && [ ! -z "$rawpath" ]; then # Check if a path was supplied
     fi
     echo "${rawpath%/}" > .scan_destination
 else
+    if [ -z "$rawpath" ]; then
+        echo "No new path has been defined."
+        helpFunction    
+    fi
     if [ ! -d "$rawpath" ]; then
         echo "ERROR: The path ${rawpath%/} does not seem to exist. Please check yor path and try again."
         echo "If your path contains spaces, wrap it in quotes, e.g. \"/Volumes/Macintosh HD\""
