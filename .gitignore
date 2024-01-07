@@ -1,6 +1,7 @@
 .vs*
 __pycache__/
 .paired
+.scan_destination
 raspi/lsyncd.conf
 # Kicad Temporary files
 *.000
