@@ -4,6 +4,7 @@ __pycache__/
 .scan_destination
 .user_and_host
 .host_path
+nohup.out
 raspi/lsyncd.conf
 # Kicad Temporary files
 *.000
