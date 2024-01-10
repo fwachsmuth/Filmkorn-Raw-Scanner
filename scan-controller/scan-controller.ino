@@ -51,7 +51,7 @@ enum MotorState {
 #define TRIGGER_PIN     7
 #define FAN_PIN         8
 #define LAMP_PIN        9
-#define LED_PIN         13 // use D4 on the PCB, since D13 is shared with SCK
+// #define LED_PIN         unused
 #define BUTTONS_A_PIN   A0
 #define BUTTONS_B_PIN   A1
 #define SINGLE_STEP_POT A2
@@ -92,6 +92,8 @@ uint8_t fps18MotorPower = 0;
 uint8_t singleStepMotorPower = 0;
 int16_t lastExposurePot = 0;
 int16_t exposurePot = 0;
+bool lastFilmEndState;
+bool filmEndState;
 int dummyread; // for throw-away ADC reads (avoids multiplex-carryover of S&H cap charges)
 
 bool lampMode = false;
@@ -115,7 +117,7 @@ void setup() {
   pinMode(EXPOSURE_POT, INPUT);
   pinMode(FAN_PIN, OUTPUT);
   pinMode(LAMP_PIN, OUTPUT);
-  pinMode(LED_PIN, OUTPUT);
+  // pinMode(LED_PIN, OUTPUT);
   pinMode(MOTOR_A_PIN, OUTPUT);
   pinMode(MOTOR_B_PIN, OUTPUT);
   pinMode(TRIGGER_PIN, OUTPUT);
@@ -132,7 +134,18 @@ void setup() {
 }
 
 void loop() {
-  digitalWrite(LED_PIN, digitalRead(FILM_END_PIN));   // 0 when film ends
+  // digitalWrite(LED_PIN, digitalRead(FILM_END_PIN));   // 0 when film ends
+  lastFilmEndState = filmEndState;
+  filmEndState = digitalRead(FILM_END_PIN);
+  if (filmEndState != lastFilmEndState) {
+    if (filmEndState == 0) {
+      nextPiCmd = CMD_SHOW_INSERT_FILM;
+    }
+    else
+    {
+      nextPiCmd = CMD_SHOW_READY_TO_SCAN;
+    }
+  }
 
   if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
   {
