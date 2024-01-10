@@ -1,14 +1,19 @@
 # To Dos
 
 ## Next
-- [x] Let pair.sh take a parameter for the (Mac-side) raw-intermediates
-- [x] let the pi start the converter on the Mac
-- [ ] think about an update scneario (version info?)
+- [ ] Add dedicated voltage source for Fan
+- [ ] fim needs up to 100% CPU during scanning?
+- [ ] create scripts to restart scanner and converter
+- [ ] Don't ever start scanner.py twice
+- [ ] think about an update scenario (version info?)
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
 - [ ] Consider the switch state on GPIO17 and allow local storage
 - [ ] Write Build-your-own howtos
 - [ ] Add "Insert Film to Scan" gfx in addition to status LED
 - [ ] list python requirements (on host computer) per https://stackoverflow.com/a/68006970
+- [x] Let pair.sh take a parameter for the (Mac-side) raw-intermediates
+- [x] let the pi start the converter on the Mac
+- [x] Fix scanner autostart (systemd instead of rc.local) https://learn.sparkfun.com/tutorials/how-to-run-a-raspberry-pi-program-on-startup/all#example-code
 - [x] Support reading the CONT_RUN_POT at runtime
 - [x] Exposure Adjustment via potentiometer — this would require arguemnt transmission via I2C
 - [x] Implement watermarking checks for the ramdisk
