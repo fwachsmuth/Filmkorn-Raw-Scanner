@@ -64,16 +64,18 @@ enum Command
 
   // Arduino to Raspi
   CMD_PING,
-  CMD_Z1_1,
-  CMD_Z3_1,
-  CMD_Z10_1,
+  CMD_Z1_1,     // Zoom Leel 1:1
+  CMD_Z3_1,     // Zoom Leel 3:1
+  CMD_Z10_1,    // Zoom Leel 6:1
   CMD_SHOOT_RAW,
   CMD_LAMP_OFF, // needs to stay at an even number
   CMD_LAMP_ON,
-  CMD_INIT_SCAN,
+  CMD_INIT_SCAN,  // never used?
   CMD_START_SCAN,
   CMD_STOP_SCAN,
-  CMD_SET_EXP,
+  CMD_SET_EXP,  // set new exposure time per trimpot position  
+  CMD_SHOW_INSERT_FILM,
+  CMD_SHOW_READY_TO_SCAN,
 
   // Raspi to Arduino
   CMD_READY = 128
