@@ -74,14 +74,22 @@ with file:
     atexit.register(clear_pid_file)
     file.write(str(os.getpid()))
 
+def insert_into_string(value):
+    result_string = f'This is the inserted string: {value}'
+    return result_string
 
-print ("\033c")   # Clear Screen
-
-subprocess.Popen(["fim", "--quiet", "-d /dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/ready-to-scan.png"],
+def show_screen(message):
+    message_path = f'/home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/{message}.png'
+    subprocess.Popen(["fim", "--quiet", "-d /dev/fb0", message_path],
                         stdin =subprocess.PIPE,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE)
-# os.system('fim --quiet -d /dev/fb0 /home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/ready-to-scan.png &')
+# start running
+
+print ("\033c")   # Clear Screen
+show_screen("ready-to-scan")
+
+# start the converter on the Mac
 os.system('nohup ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "cd `cat ~/Filmkorn-Raw-Scanner/raspi/.host_path`; ./start_converting.sh" >/dev/null 2>&1 &')
 ''' 
 # To consider, something like this instead (https://janakiev.com/blog/python-shell-commands/)
@@ -260,10 +268,11 @@ def check_available_disk_space():
         print(f"Only {available} bytes left on the volume; waiting for more space")
         camera.stop_preview()
         camera.shutter_speed = FIXED_SHUTTER_SPEED
-        subprocess.Popen(["fim", "--quiet",  "-d",  "/dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/waiting-for-files-to-sync.png"])
+        show_screen("waiting-for-files-to-sync")
         while True:
             sleep(1)
             if get_available_disk_space() >= DISK_SPACE_WAIT_THRESHOLD:
+                show_screen("ready-to-scan")
                 camera.start_preview()
                 return
 
