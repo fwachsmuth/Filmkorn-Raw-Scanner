@@ -92,8 +92,12 @@ uint8_t fps18MotorPower = 0;
 uint8_t singleStepMotorPower = 0;
 int16_t lastExposurePot = 0;
 int16_t exposurePot = 0;
+uint16_t loopCounter;
+
 bool lastFilmEndState;
 bool filmEndState;
+
+
 int dummyread; // for throw-away ADC reads (avoids multiplex-carryover of S&H cap charges)
 
 bool lampMode = false;
@@ -134,19 +138,6 @@ void setup() {
 }
 
 void loop() {
-  // digitalWrite(LED_PIN, digitalRead(FILM_END_PIN));   // 0 when film ends
-  lastFilmEndState = filmEndState;
-  filmEndState = digitalRead(FILM_END_PIN);
-  if (filmEndState != lastFilmEndState) {
-    if (filmEndState == 0) {
-      nextPiCmd = CMD_SHOW_INSERT_FILM;
-    }
-    else
-    {
-      nextPiCmd = CMD_SHOW_READY_TO_SCAN;
-    }
-  }
-
   if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
   {
     piIsReady = false;
@@ -239,6 +230,7 @@ void loop() {
   } else {
     // don't readExposurePot if a button has been pressed
     readExposurePot(); // reads with some hysteresis to avoid flickering
+    readFilmEndSensor();
   }
 
   if (motorState == FWD || motorState == REV) {
@@ -256,6 +248,23 @@ void readExposurePot() {
     Serial.print("New Exposure Setting: ");
     Serial.println(exposurePot);
     nextPiCmd = CMD_SET_EXP;
+  }
+}
+
+void readFilmEndSensor() {
+  lastFilmEndState = filmEndState;
+  filmEndState = digitalRead(FILM_END_PIN);
+  loopCounter++;
+  if ((filmEndState != lastFilmEndState) || (loopCounter % 300 == 0)) // about every 3 seconds, send an update about the film end sensor
+  {
+    if (filmEndState == 0)
+    {
+      nextPiCmd = CMD_SHOW_INSERT_FILM;
+    }
+    else
+    {
+      nextPiCmd = CMD_SHOW_READY_TO_SCAN;
+    }
   }
 }
 
