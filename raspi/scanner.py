@@ -93,7 +93,7 @@ show_screen("ready-to-scan")
 os.system('nohup ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "cd `cat ~/Filmkorn-Raw-Scanner/raspi/.host_path`; ./start_converting.sh" >/dev/null 2>&1 &')
 ''' 
 # To consider, something like this instead (https://janakiev.com/blog/python-shell-commands/)
-# Doesn't work though yet.
+# Doesn't work though, yet.
 ssh = subprocess.Popen(["ssh", "-i ~/.ssh/id_filmkorn-scanner_ed25519", "`cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host`"],
                         stdin =subprocess.PIPE,
                         stdout=subprocess.PIPE,
@@ -128,6 +128,8 @@ class Command(enum.Enum):
     START_SCAN = 9
     STOP_SCAN = 10
     SET_EXP = 11
+    SHOW_INSERT_FILM = 12
+    SHOW_READY_TO_SCAN = 13
 
     # Raspi to Arduino
     READY = 128
@@ -231,11 +233,21 @@ def loop():
             Command.LAMP_OFF: set_lamp_off,
             Command.START_SCAN: state.start_scan,
             Command.STOP_SCAN: state.stop_scan,
-            Command.SET_EXP: set_exposure
+            Command.SET_EXP: set_exposure,
+            Command.SHOW_INSERT_FILM: showInsertFilm,
+            Command.SHOW_READY_TO_SCAN: showReadyToScan
         }.get(command, None)
 
         if func is not None:
             func(received[1:])
+
+def showInsertFilm(arg_bytes=None):
+    print("Please insert film.")
+    show_screen("insert-film")
+
+def showReadyToScan(arg_bytes=None):
+    print("Ready to Scan.")
+    show_screen("ready-to-scan")
 
 def tell_arduino(command: Command): # All we actually ever say is that we are ready (after having taken a photo)
     while True:
@@ -358,7 +370,7 @@ if __name__ == '__main__':
         while True:
             loop()
             check_available_disk_space()
-            # time.sleep(0.02)
+            time.sleep(0.01) # less i2c collisions
     except KeyboardInterrupt:
         print()
         sys.exit(1)
