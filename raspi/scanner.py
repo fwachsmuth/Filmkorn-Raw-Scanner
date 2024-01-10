@@ -77,7 +77,10 @@ with file:
 
 print ("\033c")   # Clear Screen
 
-subprocess.Popen(["fim", "--quiet", "-d /dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/ready-to-scan.png"])
+subprocess.Popen(["fim", "--quiet", "-d /dev/fb0", "/home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/ready-to-scan.png"],
+                        stdin =subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE)
 # os.system('fim --quiet -d /dev/fb0 /home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/ready-to-scan.png &')
 os.system('nohup ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "cd `cat ~/Filmkorn-Raw-Scanner/raspi/.host_path`; ./start_converting.sh" >/dev/null 2>&1 &')
 ''' 
