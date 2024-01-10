@@ -10,8 +10,11 @@ import errno
 import math
 import subprocess
 import sys
+import signal
 import time
 import os
+import atexit
+
 
 from smbus2 import SMBus
 from picamera import PiCamera
@@ -22,6 +25,55 @@ FIXED_SHUTTER_SPEED = 2000  # Todo: make this somehow controllable for other LED
 shutter_speed = 2000 # initial value until Arduino tells us something new
 DISK_SPACE_WAIT_THRESHOLD = 200_000_000  # 200 MB
 DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
+
+PID_FILE_PATH = "/tmp/scanner.pid"
+
+def process_is_running(contents: str) -> bool:
+    try:
+        pid = int(contents)
+    except ValueError:
+        return False
+
+    if pid <= 0:
+        return False # invalid
+
+    try:
+        os.kill(pid, 0) # signal 0 doesn't do anything
+    except OSError as err:
+        if err.errno == errno.ESRCH: # no such process
+            return False
+        if err.errno == errno.EPERM: # no permission, but process exists
+            return True
+
+        raise
+
+    return True
+
+def clear_pid_file():
+    os.remove(PID_FILE_PATH)
+
+# log a pid
+try:
+    file = open(PID_FILE_PATH, "r+")
+except OSError:
+    # no such file
+    file = open(PID_FILE_PATH, "w+")
+
+with file:
+    contents = file.read()
+    if len(contents) != 0:
+        # file is not empty, it has a PID
+        if process_is_running(contents):
+            print(f"Process {contents} is already running")
+            sys.exit(0)
+
+        file.seek(0)
+        file.truncate()
+
+    signal.signal(signal.SIGTERM, clear_pid_file)
+    atexit.register(clear_pid_file)
+    file.write(str(os.getpid()))
+
 
 print ("\033c")   # Clear Screen
 
