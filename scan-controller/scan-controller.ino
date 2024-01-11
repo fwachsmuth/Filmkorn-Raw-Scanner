@@ -27,15 +27,6 @@ enum ControlButton {
   SCAN    // Radio
 };
 
-/* Define the States we can be in
- * enum {
- *   IDLE,
- *   SCAN,
- *   PREVIEW,
- *   RUN
- * } state = IDLE, prevState = IDLE;
- */
-
 // Define the motor states
 enum MotorState {
   REV = -1,
@@ -64,21 +55,22 @@ enum Command
 
   // Arduino to Raspi
   CMD_PING,
-  CMD_Z1_1,     // Zoom Leel 1:1
-  CMD_Z3_1,     // Zoom Leel 3:1
-  CMD_Z10_1,    // Zoom Leel 6:1
+  CMD_Z1_1,  // Zoom Leel 1:1
+  CMD_Z3_1,  // Zoom Leel 3:1
+  CMD_Z10_1, // Zoom Leel 6:1
   CMD_SHOOT_RAW,
   CMD_LAMP_OFF, // needs to stay at an even number
   CMD_LAMP_ON,
-  CMD_INIT_SCAN,  // never used?
+  CMD_INIT_SCAN, // never used?
   CMD_START_SCAN,
   CMD_STOP_SCAN,
-  CMD_SET_EXP,  // set new exposure time per trimpot position  
+  CMD_SET_EXP, // set new exposure time per trimpot position
   CMD_SHOW_INSERT_FILM,
   CMD_SHOW_READY_TO_SCAN,
 
   // Raspi to Arduino
-  CMD_READY = 128
+  CMD_READY = 128,
+  CMD_TELL_LOADSTATE
 };
 
 enum ZoomMode {
@@ -254,19 +246,15 @@ void readExposurePot() {
 void readFilmEndSensor() {
   lastFilmEndState = filmEndState;
   filmEndState = digitalRead(FILM_END_PIN);
-  loopCounter++;
-  if ((filmEndState != lastFilmEndState) || (loopCounter % 300 == 0)) // about every 3 seconds, send an update about the film end sensor
-  {
-    if (filmEndState == 0)
-    {
+  if (filmEndState != lastFilmEndState) {
+    if (filmEndState == 0) {
       nextPiCmd = CMD_SHOW_INSERT_FILM;
-    }
-    else
-    {
+    } else {
       nextPiCmd = CMD_SHOW_READY_TO_SCAN;
     }
   }
 }
+
 
 void stopMotor() {
   // ...
@@ -412,7 +400,9 @@ ControlButton pollButtons() {
 void i2cReceive(int howMany) {
   // This is called when the Pi tells us something (like: ready to take next photo)
   uint8_t i2cCommand;
-  if (howMany >= (sizeof i2cCommand)) {
+  uint8_t filmLoadState;
+  if (howMany >= (sizeof i2cCommand))
+  {
     while (Wire.available()) {
       i2cCommand = Wire.read();
     }
@@ -422,11 +412,21 @@ void i2cReceive(int howMany) {
     if ((Command)i2cCommand == CMD_READY && isScanning) {
       piIsReady = true;
     }
-  } 
-}  
+    if ((Command)i2cCommand == CMD_TELL_LOADSTATE) {
+      nextPiCmd = CMD_SHOW_INSERT_FILM + digitalRead(FILM_END_PIN); // 0 with no film, 1 with film loaded
+      // filmLoadState = digitalRead(FILM_END_PIN);
+      // if (filmLoadState == 0) {
+      //   nextPiCmd = CMD_SHOW_INSERT_FILM;
+      // } else {
+      //   nextPiCmd = CMD_SHOW_READY_TO_SCAN;
+      // }
+    }
+  }
+} 
+
 
 void i2cRequest() {
-  // This gets called when the Pi uses ask_arduino() to request 3 bytes (1 cmd, two params)
+  // This gets called when the Pi uses ask_arduino() in its loop to ask what to do next. 
   Wire.write(nextPiCmd);
 
   if (nextPiCmd == CMD_SET_EXP) {
