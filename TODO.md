@@ -12,6 +12,7 @@
 - [ ] list python requirements (on host computer) per https://stackoverflow.com/a/68006970, https://stackoverflow.com/questions/51308683/how-to-move-all-modules-to-new-version-of-python-from-3-6-to-3-7/59608886#59608886
 - [ ] Create a pyenv on the host computer
 - [ ] Update python on the raspi
+- [ ] avoid too many fims
 - [x] Add "Insert Film to Scan" gfx in addition to status LED
 - [x] fim needs up to 100% CPU during scanning?
 - [x] After low disk space ever showed, wrong png is shown after STOP
