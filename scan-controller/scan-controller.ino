@@ -27,15 +27,6 @@ enum ControlButton {
   SCAN    // Radio
 };
 
-/* Define the States we can be in
- * enum {
- *   IDLE,
- *   SCAN,
- *   PREVIEW,
- *   RUN
- * } state = IDLE, prevState = IDLE;
- */
-
 // Define the motor states
 enum MotorState {
   REV = -1,
@@ -64,21 +55,24 @@ enum Command
 
   // Arduino to Raspi
   CMD_PING,
-  CMD_Z1_1,     // Zoom Leel 1:1
-  CMD_Z3_1,     // Zoom Leel 3:1
-  CMD_Z10_1,    // Zoom Leel 6:1
+  CMD_Z1_1,  // Zoom Leel 1:1
+  CMD_Z3_1,  // Zoom Leel 3:1
+  CMD_Z10_1, // Zoom Leel 6:1
   CMD_SHOOT_RAW,
   CMD_LAMP_OFF, // needs to stay at an even number
   CMD_LAMP_ON,
-  CMD_INIT_SCAN,  // never used?
+  CMD_INIT_SCAN, // never used?
   CMD_START_SCAN,
   CMD_STOP_SCAN,
-  CMD_SET_EXP,  // set new exposure time per trimpot position  
+  CMD_SET_EXP, // set new exposure time per trimpot position
   CMD_SHOW_INSERT_FILM,
   CMD_SHOW_READY_TO_SCAN,
+  CMD_SET_INITVALUES, // get load state and exposure pot value (both only get send when they change)
 
   // Raspi to Arduino
-  CMD_READY = 128
+  CMD_READY = 128,
+  CMD_TELL_INITVALUES, // send film load state and exposure pot value (both only get send when they change)
+  CMD_TELL_LOADSTATE
 };
 
 enum ZoomMode {
@@ -87,13 +81,24 @@ enum ZoomMode {
   Z10_1 // 10:1
 };
 
+#define INIT_VALUES_SIZE 3
+struct InitValues {
+  uint16_t exposureVal;
+  uint8_t filmLoadState;
+};
+
 // Define some global variables
 uint8_t fps18MotorPower = 0;
 uint8_t singleStepMotorPower = 0;
 int16_t lastExposurePot = 0;
 int16_t exposurePot = 0;
+// uint16_t loopCounter;
+uint8_t filmLoadState;
+
 bool lastFilmEndState;
 bool filmEndState;
+
+
 int dummyread; // for throw-away ADC reads (avoids multiplex-carryover of S&H cap charges)
 
 bool lampMode = false;
@@ -134,19 +139,6 @@ void setup() {
 }
 
 void loop() {
-  // digitalWrite(LED_PIN, digitalRead(FILM_END_PIN));   // 0 when film ends
-  lastFilmEndState = filmEndState;
-  filmEndState = digitalRead(FILM_END_PIN);
-  if (filmEndState != lastFilmEndState) {
-    if (filmEndState == 0) {
-      nextPiCmd = CMD_SHOW_INSERT_FILM;
-    }
-    else
-    {
-      nextPiCmd = CMD_SHOW_READY_TO_SCAN;
-    }
-  }
-
   if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
   {
     piIsReady = false;
@@ -239,6 +231,7 @@ void loop() {
   } else {
     // don't readExposurePot if a button has been pressed
     readExposurePot(); // reads with some hysteresis to avoid flickering
+    readFilmEndSensor();
   }
 
   if (motorState == FWD || motorState == REV) {
@@ -258,6 +251,19 @@ void readExposurePot() {
     nextPiCmd = CMD_SET_EXP;
   }
 }
+
+void readFilmEndSensor() {
+  lastFilmEndState = filmEndState;
+  filmEndState = digitalRead(FILM_END_PIN);
+  if (filmEndState != lastFilmEndState) {
+    if (filmEndState == 0) {
+      nextPiCmd = CMD_SHOW_INSERT_FILM;
+    } else {
+      nextPiCmd = CMD_SHOW_READY_TO_SCAN;
+    }
+  }
+}
+
 
 void stopMotor() {
   // ...
@@ -403,7 +409,8 @@ ControlButton pollButtons() {
 void i2cReceive(int howMany) {
   // This is called when the Pi tells us something (like: ready to take next photo)
   uint8_t i2cCommand;
-  if (howMany >= (sizeof i2cCommand)) {
+  if (howMany >= (sizeof i2cCommand))
+  {
     while (Wire.available()) {
       i2cCommand = Wire.read();
     }
@@ -413,16 +420,33 @@ void i2cReceive(int howMany) {
     if ((Command)i2cCommand == CMD_READY && isScanning) {
       piIsReady = true;
     }
-  } 
-}  
+    if ((Command)i2cCommand == CMD_TELL_INITVALUES)
+    {
+      filmLoadState = digitalRead(FILM_END_PIN);
+      dummyread = analogRead(EXPOSURE_POT);
+      exposurePot = analogRead(EXPOSURE_POT);
+      Serial.print("Current Film load state: ");
+      Serial.println(filmLoadState);
+      Serial.print("Current Exposure Setting: ");
+      Serial.println(exposurePot);
+      nextPiCmd = CMD_SET_INITVALUES;
+    }
+  }
+} 
+
 
 void i2cRequest() {
-  // This gets called when the Pi uses ask_arduino() to request 3 bytes (1 cmd, two params)
+  // This gets called when the Pi uses ask_arduino() in its loop to ask what to do next. 
   Wire.write(nextPiCmd);
 
   if (nextPiCmd == CMD_SET_EXP) {
     Serial.println("Requesting new Exposure Time value.");
     Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
+  }
+  if (nextPiCmd == CMD_SET_INITVALUES) {
+    Serial.println("Sending initial values.");
+    InitValues vals{exposurePot, filmLoadState};
+    Wire.write((const uint8_t *)&vals, INIT_VALUES_SIZE); // little endian
   }
   nextPiCmd = CMD_NONE;
 }
