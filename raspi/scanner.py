@@ -26,6 +26,28 @@ shutter_speed = 2000 # initial value until Arduino tells us something new
 DISK_SPACE_WAIT_THRESHOLD = 200_000_000  # 200 MB
 DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 
+class Command(enum.Enum):
+    # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
+    IDLE = 0
+    PING = 1
+
+    Z1_1 = 2
+    Z3_1 = 3
+    Z10_1 = 4
+    SHOOT_RAW = 5
+    LAMP_OFF = 6
+    LAMP_ON = 7
+    INIT_SCAN = 8
+    START_SCAN = 9
+    STOP_SCAN = 10
+    SET_EXP = 11
+    SHOW_INSERT_FILM = 12
+    SHOW_READY_TO_SCAN = 13
+
+    # Raspi to Arduino
+    READY = 128
+    TELL_LOADSTATE = 129
+
 PID_FILE_PATH = "/tmp/scanner.pid"
 
 def process_is_running(contents: str) -> bool:
@@ -86,8 +108,27 @@ def show_screen(message):
                         stderr=subprocess.PIPE)
 # start running
 
+arduino = SMBus(1) # Indicates /dev/ic2-1 where the Arduino is connected
+sleep(1) # wait a bit here to avoid i2c IO Errors
+arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
+
+
+def tell_arduino(command: Command): # All we actually ever say is that we are ready (after having taken a photo)
+    while True:
+        try:
+            arduino.write_byte(arduino_i2c_address, command.value)
+            return
+        except OSError as e:
+            print("No I2C answer when telling the Arduino something.")
+            if e.errno != errno.EREMOTEIO:
+                raise e
+            sleep(0.1)
+            
 print ("\033c")   # Clear Screen
 show_screen("ready-to-scan")
+tell_arduino(Command.TELL_LOADSTATE)
+print("Asked about the film load state")
+
 
 # start the converter on the Mac
 os.system('nohup ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "cd `cat ~/Filmkorn-Raw-Scanner/raspi/.host_path`; ./start_converting.sh" >/dev/null 2>&1 &')
@@ -113,26 +154,6 @@ for line in ssh.stdout:
 # Open the target folder in the Finder
 os.system('ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "open \\"`cat ~/Filmkorn-Raw-Scanner/raspi/.scan_destination`/CinemaDNG\\""')
 
-class Command(enum.Enum):
-    # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
-    IDLE = 0
-    PING = 1
-
-    Z1_1 = 2
-    Z3_1 = 3
-    Z10_1 = 4
-    SHOOT_RAW = 5
-    LAMP_OFF = 6
-    LAMP_ON = 7
-    INIT_SCAN = 8
-    START_SCAN = 9
-    STOP_SCAN = 10
-    SET_EXP = 11
-    SHOW_INSERT_FILM = 12
-    SHOW_READY_TO_SCAN = 13
-
-    # Raspi to Arduino
-    READY = 128
 
 class ZoomMode(enum.Enum):
     Z1_1 = 0
@@ -176,6 +197,7 @@ class State:
         self.continue_dir = False
         print("Nevermind; Stopped scanning")
         set_lamp_off()
+        tell_arduino(Command.TELL_LOADSTATE)
 
 
 def datetime_to_raws_path(dt: datetime.datetime):
@@ -188,10 +210,6 @@ def remove_empty_dirs():
             os.rmdir(file_path)
 
 state = State()
-
-arduino = SMBus(1) # Indicates /dev/ic2-1 where the Arduino is connected
-sleep(1) # wait a bit here to avoid i2c IO Errors
-arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
 
 camera = PiCamera(resolution=(507, 380)) # keep the exact AR to avoid rounding errors casuing overflow freezes
 
@@ -240,6 +258,7 @@ def loop():
 
         if func is not None:
             func(received[1:])
+# end loop
 
 def showInsertFilm(arg_bytes=None):
     print("Please insert film.")
@@ -248,17 +267,6 @@ def showInsertFilm(arg_bytes=None):
 def showReadyToScan(arg_bytes=None):
     print("Ready to Scan.")
     show_screen("ready-to-scan")
-
-def tell_arduino(command: Command): # All we actually ever say is that we are ready (after having taken a photo)
-    while True:
-        try:
-            arduino.write_byte(arduino_i2c_address, command.value)
-            return
-        except OSError as e:
-            print("No I2C answer when telling the Arduino something.")
-            if e.errno != errno.EREMOTEIO:
-                raise e
-            sleep(0.1)
 
 def ask_arduino() -> Optional["list[int]"]:
     # sleep(0.05) # avoid some i2c collisions?
