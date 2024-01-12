@@ -2462,7 +2462,7 @@
     (effects (font (size 1 1)) (justify left bottom))
     (uuid 6dcbeaf2-fb34-4253-abf9-17a67cadc5fd)
   )
-  (text "UART Pins kennzeichnen\nShaft LED platzieren\nPCB nach oben erweitern\nRev D\nReset Taster verlegen"
+  (text "UART Pins kennzeichnen\nShaft LED platzieren\nPCB nach oben erweitern\nRev D\nReset Taster verlegen\nBetter 5V Source?"
     (at 208.915 34.29 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid b1232cab-d7d7-476c-9584-f6db18e2dde0)
