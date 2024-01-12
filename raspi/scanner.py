@@ -323,10 +323,11 @@ def set_init_values(arg_bytes):
     print("equals shutter speed (µs):", shutter_speed)
 
     if arg_bytes[2] == 0:
-        print("Insert Film")
+        print("No Film loaded.")
+        show_screen("insert-film")
     else:
-        print("Film loaded")
-
+        print("Film loaded, ready to scan.")
+        show_screen("ready-to-scan")
 
 def shoot_raw(arg_bytes=None):
     camera.shutter_speed = shutter_speed
