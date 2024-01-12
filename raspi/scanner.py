@@ -102,12 +102,21 @@ def insert_into_string(value):
     result_string = f'This is the inserted string: {value}'
     return result_string
 
+last_fim_pid = 0
 def show_screen(message):
+    global last_fim_pid
     message_path = f'/home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/{message}.png'
-    subprocess.Popen(["fim", "--quiet", "-d /dev/fb0", message_path],
-                        stdin =subprocess.PIPE,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE)
+    command = ["fim", "--quiet", "-d /dev/fb0", message_path]
+
+    if last_fim_pid != 0:
+        subprocess.Popen(["kill", "-9", str(last_fim_pid)])    
+    fim = subprocess.Popen(command,
+                           stdin =subprocess.PIPE,
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE)
+    last_fim_pid = fim.pid
+    print(f"fim PID: {fim.pid}")                        
+
 # start running
 
 arduino = SMBus(1) # Indicates /dev/ic2-1 where the Arduino is connected
@@ -239,7 +248,7 @@ camera.awb_mode = 'sunlight'     # off becomes green, irrelevant anyway since we
 camera.shutter_speed = 0    # 0 enables AE, used in Preview Modes
 # sleep(2)
 
-img_transfer_process: subprocess.Popen = None
+# img_transfer_process: subprocess.Popen = None
 
 def loop():
     received = ask_arduino() # This tells us what to do next. See Command enum.
