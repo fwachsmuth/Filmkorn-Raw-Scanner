@@ -81,11 +81,6 @@ enum ZoomMode {
   Z10_1 // 10:1
 };
 
-#define INIT_VALUES_SIZE 3
-struct InitValues {
-  uint16_t exposureVal;
-  uint8_t filmLoadState;
-};
 
 // Define some global variables
 uint8_t fps18MotorPower = 0;
@@ -439,14 +434,17 @@ void i2cRequest() {
   // This gets called when the Pi uses ask_arduino() in its loop to ask what to do next. 
   Wire.write(nextPiCmd);
 
+  // Special cas ewhen the exposure pot was changed
   if (nextPiCmd == CMD_SET_EXP) {
     Serial.println("Requesting new Exposure Time value.");
     Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
   }
+
+  // Special case to get initial (current) values of film load switch and exposue pot
   if (nextPiCmd == CMD_SET_INITVALUES) {
-    Serial.println("Sending initial values.");
-    InitValues vals{exposurePot, filmLoadState};
-    Wire.write((const uint8_t *)&vals, INIT_VALUES_SIZE); // little endian
+    #define INIT_VALUES_SIZE 3
+    Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot); // little endian
+    Wire.write(filmLoadState);
   }
   nextPiCmd = CMD_NONE;
 }
