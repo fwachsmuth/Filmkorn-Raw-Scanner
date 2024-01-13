@@ -692,11 +692,11 @@
       )
     )
     (symbol "Driver_FET:MCP1416" (in_bom yes) (on_board yes)
-      (property "Reference" "U" (at -5.08 6.35 0)
-        (effects (font (size 1.27 1.27)) (justify left))
+      (property "Reference" "U11" (at 3.175 8.255 0)
+        (effects (font (size 1.27 1.27)))
       )
-      (property "Value" "MCP1416" (at 1.27 6.35 0)
-        (effects (font (size 1.27 1.27)) (justify left))
+      (property "Value" "MCP1416" (at 5.715 6.35 0)
+        (effects (font (size 1.27 1.27)))
       )
       (property "Footprint" "Package_TO_SOT_SMD:SOT-23-5" (at 0 -10.16 0)
         (effects (font (size 1.27 1.27) italic) hide)
@@ -720,8 +720,8 @@
         )
       )
       (symbol "MCP1416_1_1"
-        (pin no_connect line (at 7.62 -2.54 180) (length 2.54) hide
-          (name "NC" (effects (font (size 1.27 1.27))))
+        (pin power_in line (at 7.62 -2.54 180) (length 2.54) hide
+          (name "GND" (effects (font (size 1.27 1.27))))
           (number "1" (effects (font (size 1.27 1.27))))
         )
         (pin power_in line (at 0 7.62 270) (length 2.54)
