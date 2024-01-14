@@ -59,6 +59,7 @@ class Command(enum.Enum):
     TELL_INITVALUES = 129 # asks for film load state and exposure pot value (both only get send when they change)
     TELL_LOADSTATE = 130
 
+# ---- Make sure we only run once, to avoid horrible crashes ¯\_(ツ)_/¯ 
 PID_FILE_PATH = "/tmp/scanner.pid"
 
 def process_is_running(contents: str) -> bool:
@@ -107,10 +108,9 @@ with file:
     atexit.register(clear_pid_file)
     file.write(str(os.getpid()))
 
-def insert_into_string(value):
-    result_string = f'This is the inserted string: {value}'
-    return result_string
+# ---- Done with the pid handling. ------------
 
+# Diaplsays a PNG in full screen, making our UI
 last_fim_pid = 0
 def show_screen(message):
     global last_fim_pid
@@ -126,14 +126,15 @@ def show_screen(message):
     last_fim_pid = fim.pid
     print(f"fim PID: {fim.pid}")                        
 
-# start running
 
+# init i2c comms 
 arduino = SMBus(1) # Indicates /dev/ic2-1 where the Arduino is connected
 sleep(1) # wait a bit here to avoid i2c IO Errors
 arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
 
-
-def tell_arduino(command: Command): # Things the Raspi says (Ready to take next photo, give me value x)
+# For things the Raspi tells (Ready to take next photo, give me value x).
+# In most cases, we are polling the Arduino, which owns flow control (but can't be master due to Raspi limitations)
+def tell_arduino(command: Command): 
     while True:
         try:
             arduino.write_byte(arduino_i2c_address, command.value)
@@ -144,6 +145,7 @@ def tell_arduino(command: Command): # Things the Raspi says (Ready to take next 
                 raise e
             sleep(0.1)
 
+# For retrieving (multi-byte) answers to explicit tells
 def ask_arduino() -> Optional["list[int]"]:
     try:
         return arduino.read_i2c_block_data(arduino_i2c_address, 0, 4)
@@ -153,13 +155,10 @@ def ask_arduino() -> Optional["list[int]"]:
             raise e
         sleep(0.1)
 
-print("\033c")   # Clear Screen
-show_screen("ready-to-scan")
-tell_arduino(Command.TELL_INITVALUES)
-print("Asked about the initial values: ")
 
+# start the converter on the Host Computer
+print("Starting Converter Process on the Host Computer...")
 
-# start the converter on the Mac
 os.system('nohup ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "cd `cat ~/Filmkorn-Raw-Scanner/raspi/.host_path`; ./start_converting.sh" >/dev/null 2>&1 &')
 ''' 
 # To consider, something like this instead (https://janakiev.com/blog/python-shell-commands/)
@@ -180,9 +179,15 @@ ssh.stdin.close()
 for line in ssh.stdout:
     print(line.strip())
 '''
+
 # Open the target folder in the Finder
 os.system('ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "open \\"`cat ~/Filmkorn-Raw-Scanner/raspi/.scan_destination`/CinemaDNG\\""')
 
+# Show a first screen to indicate we are running
+# print("\033c")   # Clear Screen
+show_screen("ready-to-scan")
+tell_arduino(Command.TELL_INITVALUES)
+print("Asked Controller about the initial values. ")
 
 class ZoomMode(enum.Enum):
     Z1_1 = 0
@@ -228,7 +233,6 @@ class State:
         set_lamp_off()
         tell_arduino(Command.TELL_LOADSTATE)
 
-
 def datetime_to_raws_path(dt: datetime.datetime):
     return RAW_DIRS_PATH + dt.strftime("%Y-%m-%dT%H_%M_%S")
 
@@ -238,11 +242,13 @@ def remove_empty_dirs():
         if os.path.isdir(file_path) and len(os.listdir(file_path)) == 0:
             os.rmdir(file_path)
 
+# Instanziate things
 state = State()
+camera = PiCamera(resolution=(507, 380)) # keep the exact AR to avoid rounding errors casuing overflow freezes. This
+                                         # only impacts the (unused) jpeg previews, not the scanned Raws!
 
-camera = PiCamera(resolution=(507, 380)) # keep the exact AR to avoid rounding errors casuing overflow freezes
-
-# Init the Camera
+# Init the Camera with some base parameters for scanning
+# Some of these parameters are totally irrelevant for our Raws, but still need to be set to let Raw capture work correctly
 camera.rotation = 180
 camera.hflip = True
 camera.vflip = False
@@ -255,10 +261,8 @@ camera.saturation = 0  # (-100 to 100)
 camera.exposure_compensation = 0 # (-25 to 25)
 camera.awb_mode = 'sunlight'     # off becomes green, irrelevant anyway since we do Raws
 camera.shutter_speed = 0    # 0 enables AE, used in Preview Modes
-# sleep(2)
 
-# img_transfer_process: subprocess.Popen = None
-
+# Main control loop
 def loop():
     received = ask_arduino() # This tells us what to do next. See Command enum.
     command = None
@@ -314,7 +318,6 @@ def check_available_disk_space():
                 show_screen("ready-to-scan")
                 camera.start_preview()
                 return
-
     if available < DISK_SPACE_ABORT_THRESHOLD:    # 30 MB  
         print(f"Only {available} bytes left on the volume; aborting")
         sys.exit(1)
