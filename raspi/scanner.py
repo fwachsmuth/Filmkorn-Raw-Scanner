@@ -109,7 +109,7 @@ with file:
     if len(contents) != 0:
         # file is not empty, it has a PID
         if process_is_running(contents):
-            print(f"Process {contents} is already running")
+            logging.error(f"Scan Process is already running woth pid {contents}")
             sys.exit(0)
 
         file.seek(0)
@@ -135,7 +135,7 @@ def show_screen(message):
                            stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE)
     last_fim_pid = fim.pid
-    print(f"fim PID: {fim.pid}")                        
+    logging.debug(f"fim PID: {fim.pid}")                        
 
 
 # init i2c comms 
@@ -151,7 +151,7 @@ def tell_arduino(command: Command):
             arduino.write_byte(arduino_i2c_address, command.value)
             return
         except OSError as e:
-            print("No I2C answer when telling the Arduino something.")
+            logging.warning("Got no I2C answer when telling the Arduino something.")
             if e.errno != errno.EREMOTEIO:
                 raise e
             sleep(0.1)
@@ -161,14 +161,14 @@ def ask_arduino() -> Optional["list[int]"]:
     try:
         return arduino.read_i2c_block_data(arduino_i2c_address, 0, 4)
     except OSError as e:
-        print("No I2C answer from Arduino. Is the Arduino busy?")
+        logging.debug("No I2C answer when polling Arduino. Probably busy right now?")
         if e.errno != errno.EREMOTEIO:
             raise e
         sleep(0.1)
 
 
 # start the converter on the Host Computer
-print("Starting Converter Process on the Host Computer...")
+logging.info("Starting Converter Process on the Host Computer...")
 
 os.system('nohup ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "cd `cat ~/Filmkorn-Raw-Scanner/raspi/.host_path`; ./start_converting.sh" >/dev/null 2>&1 &')
 ''' 
@@ -198,7 +198,7 @@ os.system('ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner
 # print("\033c")   # Clear Screen
 show_screen("ready-to-scan")
 tell_arduino(Command.TELL_INITVALUES)
-print("Asked Controller about the initial values. ")
+logging.info("Asked Controller about the initial values. ")
 
 class ZoomMode(enum.Enum):
     Z1_1 = 0
@@ -225,7 +225,7 @@ class State:
         remove_empty_dirs()
         os.makedirs(raws_path)
         self.raws_path = os.path.join(raws_path, "{:08d}.jpg")
-        print(f"Set raws path to {raws_path}")
+        logging.info(f"Set raws path to {raws_path}")
 
     def start_scan(self, arg_bytes=None):
         if self.continue_dir:
@@ -235,12 +235,12 @@ class State:
         set_zoom_mode_1_1()
         set_lamp_on()
         self.set_raws_path()
-        print("Started scanning")
+        logging.info("Started scanning")
         shoot_raw()
 
     def stop_scan(self, arg_bytes=None):
         self.continue_dir = False
-        print("Nevermind; Stopped scanning")
+        logging.info("Nevermind; Stopped scanning")
         set_lamp_off()
         tell_arduino(Command.TELL_LOADSTATE)
 
@@ -281,7 +281,7 @@ def loop():
         try:
             command = Command(received[0])
         except ValueError:
-            print(f"Received unknown command {command}")
+            logging.error(f"Received unknown command {command}")
 
     if command is not None:
         # Using a dict instead of a switch/case, mapping I2C commands to functions
@@ -305,11 +305,11 @@ def loop():
 # end loop
 
 def showInsertFilm(arg_bytes=None):
-    print("Please insert film.")
+    logging.info("Showing Screen: Please insert film")
     show_screen("insert-film")
 
 def showReadyToScan(arg_bytes=None):
-    print("Ready to Scan.")
+    logging.info("Showing Screen: Ready to Scan")
     show_screen("ready-to-scan")
 
 def get_available_disk_space() -> int:
@@ -319,7 +319,7 @@ def get_available_disk_space() -> int:
 def check_available_disk_space():
     available = get_available_disk_space()
     if available < DISK_SPACE_WAIT_THRESHOLD:   # 200 MB
-        print(f"Only {available} bytes left on the volume; waiting for more space")
+        logging.warning(f"Only {available} bytes left on the volume; waiting for more space")
         camera.stop_preview()
         camera.shutter_speed = AUTO_SHUTTER_SPEED
         show_screen("waiting-for-files-to-sync")
@@ -330,7 +330,7 @@ def check_available_disk_space():
                 camera.start_preview()
                 return
     if available < DISK_SPACE_ABORT_THRESHOLD:    # 30 MB  
-        print(f"Only {available} bytes left on the volume; aborting")
+        logging.error(f"Fatal: Only {available} bytes left on the volume; aborting")
         sys.exit(1)
 
 SHUTTER_SPEED_RANGE = 300, 500_000  # 300µs to 0.5s
@@ -338,27 +338,27 @@ EXPOSURE_VAL_FACTOR = math.log(SHUTTER_SPEED_RANGE[1] / SHUTTER_SPEED_RANGE[0]) 
 
 def set_exposure(arg_bytes):
     exposure_val = arg_bytes[1] << 8 | arg_bytes[0]
-    print("Received new Exposure Value:", exposure_val)
+    logging.info("Received new Exposure Value from Scan Controller:", exposure_val)
 
     # calculate the pot value into meaningful new shutter speeds
     global shutter_speed
     shutter_speed = int(math.exp(exposure_val * EXPOSURE_VAL_FACTOR) * SHUTTER_SPEED_RANGE[0])
-    print("Would be shutter speed (µs):", shutter_speed)
+    logging.info("This equals shutter speed (µs):", shutter_speed)
 
 def set_init_values(arg_bytes):
     exposure_val = arg_bytes[1] << 8 | arg_bytes[0]
-    print("Received initial Exposure Value:", exposure_val)
+    logging.info(f"Received currently set Exposure Value: {exposure_val}")
 
     # calculate the pot value into meaningful new shutter speeds
     global shutter_speed
     shutter_speed = int(math.exp(exposure_val * EXPOSURE_VAL_FACTOR) * SHUTTER_SPEED_RANGE[0])
-    print("equals shutter speed (µs):", shutter_speed)
+    logging.info(f"This equals shutter speed {shutter_speed} µs")
 
     if arg_bytes[2] == 0:
-        print("No Film loaded.")
+        logging.info("Starting with Screen \"No Film loaded\"")
         show_screen("insert-film")
     else:
-        print("Film loaded, ready to scan.")
+        logging.info("Starting with Screen \"Film loaded, ready to scan\"")
         show_screen("ready-to-scan")
 
 def shoot_raw(arg_bytes=None):
@@ -366,44 +366,44 @@ def shoot_raw(arg_bytes=None):
     start_time = time.time()
     camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
     state.raw_count += 1
-    print("One raw taken ({:.2}s); ".format(time.time() - start_time), end='')
-    print("with shutter speed", shutter_speed)
+    elapsed_time = time.time() - start_time
+    logging.info(f"One raw with shutter speed {shutter_speed}µs taken and saved in {elapsed_time:.2f}s, equalling {1/elapsed_time:.1f}fps")
     say_ready()
 
 def say_ready():
     tell_arduino(Command.READY)
-    print("then told Arduino we are ready")
+    logging.debug("Told Arduino we are ready for next image")
 
 def set_zoom_mode_1_1(arg_bytes=None):
     state._zoom_mode = ZoomMode.Z1_1
     camera.shutter_speed = AUTO_SHUTTER_SPEED
     camera.zoom = (0.0, 0.0, 1.0, 1.0)  # (x, y, w, h)
-    print("Zoom Level: 1:1")
+    logging.info("Changing Preview Zoom Level to 1:1")
 
 def set_zoom_mode_3_1(arg_bytes=None):
     set_lamp_on()
     state._zoom_mode = ZoomMode.Z1_1
     camera.shutter_speed = 0
     camera.zoom = (1/3, 1/3, 1/3, 1/3)  # (x, y, w, h)
-    print("Zoom Level: 3:1")
+    logging.info("Changing Preview Zoom Level to 3:1")
 
 def set_zoom_mode_10_1(arg_bytes=None):
     set_lamp_on()
     state._zoom_mode = ZoomMode.Z1_1
     camera.shutter_speed = 0
     camera.zoom = (0.42, 0.42, 1/6, 1/6)  # (x, y, w, h)
-    print("Zoom Level: 6:1")
+    logging.info("Changing Preview Zoom Level to 6:1")
 
 def set_lamp_off(arg_bytes=None):
     set_zoom_mode_1_1()
     camera.stop_preview()
     camera.shutter_speed = AUTO_SHUTTER_SPEED
-    print("Lamp and camera preview disabled")
+    logging.info("Lamp turned off and camera preview disabled")
 
 def set_lamp_on(arg_bytes=None):
     # camera.shutter_speed = 0
     camera.start_preview()
-    print("Lamp and camera preview enabled")
+    logging.info("Lamp turned on and camera preview enabled")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
