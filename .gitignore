@@ -5,7 +5,9 @@ __pycache__/
 .user_and_host
 .host_path
 nohup.out
-raspi/lsyncd.conf
+lsyncd.conf
+scanner.log
+
 # Kicad Temporary files
 *.000
 *.bak
@@ -43,4 +45,3 @@ _autosave*
 *-save.pro
 *-save.kicad_pcb
 *.kicad_prl
-raspi/scanner.log
