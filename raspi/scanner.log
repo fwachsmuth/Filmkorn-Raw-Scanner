@@ -18,3 +18,245 @@ INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
 INFO:root:----------------------------------------------------------------------------------
 INFO:root:Scanner started at 2024-01-14 12:47:00
 INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 22:53:48
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 26079
+INFO:root:Asked Controller about the initial values. 
+INFO:root:Received currently set Exposure Value: 277
+INFO:root:This equals shutter speed 2231 µs
+INFO:root:Starting with Screen "Film loaded, ready to scan"
+DEBUG:root:fim PID: 26098
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Changing Preview Zoom Level to 3:1
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Set raws path to /mnt/ramdisk/2024-01-14 at 22_54_05
+INFO:root:Started scanning
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:Nevermind; Stopped scanning
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned off and camera preview disabled
+DEBUG:root:No I2C answer when polling Arduino. Probably busy right now?
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 22:55:01
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 26272
+INFO:root:Asked Controller about the initial values. 
+INFO:root:Received currently set Exposure Value: 277
+INFO:root:This equals shutter speed 2231 µs
+INFO:root:Starting with Screen "Film loaded, ready to scan"
+DEBUG:root:fim PID: 26283
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Set raws path to /mnt/ramdisk/2024-01-14 at 22_55_15
+INFO:root:Started scanning
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:Nevermind; Stopped scanning
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned off and camera preview disabled
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 22:55:30
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 26414
+INFO:root:Asked Controller about the initial values. 
+INFO:root:Received currently set Exposure Value: 277
+INFO:root:This equals shutter speed 2231 µs
+INFO:root:Starting with Screen "Film loaded, ready to scan"
+DEBUG:root:fim PID: 26445
+INFO:root:Nevermind; Stopped scanning
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned off and camera preview disabled
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Set raws path to /mnt/ramdisk/2024-01-14 at 22_55_45
+INFO:root:Started scanning
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.43s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:Nevermind; Stopped scanning
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned off and camera preview disabled
+DEBUG:root:No I2C answer when polling Arduino. Probably busy right now?
+DEBUG:root:No I2C answer when polling Arduino. Probably busy right now?
+DEBUG:root:No I2C answer when polling Arduino. Probably busy right now?
+DEBUG:root:No I2C answer when polling Arduino. Probably busy right now?
+DEBUG:root:No I2C answer when polling Arduino. Probably busy right now?
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 23:05:24
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 26835
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 23:07:21
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 26916
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 23:11:34
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 27014
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 23:12:47
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 27088
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 23:14:08
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 27164
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 23:15:40
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 27299
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 23:17:36
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 27380
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 23:18:53
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 27460
+INFO:root:Asked Controller about the initial values. 
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 23:19:25
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 27575
+INFO:root:Asked Controller about the initial values. 
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 23:20:26
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 27667
+INFO:root:Asked Controller about the initial values. 
+INFO:root:Received currently set Exposure Value: 277
+INFO:root:This equals shutter speed 2231 µs
+INFO:root:Starting with Screen "Film loaded, ready to scan"
+DEBUG:root:fim PID: 27688
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 23:20:48
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 27769
+INFO:root:Asked Controller about the initial values. 
+INFO:root:Received currently set Exposure Value: 277
+INFO:root:This equals shutter speed 2231 µs
+INFO:root:Starting with Screen "Film loaded, ready to scan"
+DEBUG:root:fim PID: 27790
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Changing Preview Zoom Level to 3:1
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Changing Preview Zoom Level to 6:1
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Changing Preview Zoom Level to 3:1
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned off and camera preview disabled
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned off and camera preview disabled
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Set raws path to /mnt/ramdisk/2024-01-14 at 23_21_04
+INFO:root:Started scanning
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.41s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:Nevermind; Stopped scanning
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned off and camera preview disabled
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Set raws path to /mnt/ramdisk/2024-01-14 at 23_21_09
+INFO:root:Started scanning
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:Nevermind; Stopped scanning
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned off and camera preview disabled
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 23:21:44
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 27976
+INFO:root:Asked Controller about the initial values. 
+INFO:root:Received currently set Exposure Value: 277
+INFO:root:This equals shutter speed 2231 µs
+INFO:root:Starting with Screen "No Film loaded"
+DEBUG:root:fim PID: 27997
+INFO:root:Showing Screen: Ready to Scan
+DEBUG:root:fim PID: 28021
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Set raws path to /mnt/ramdisk/2024-01-14 at 23_21_57
+INFO:root:Started scanning
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:Nevermind; Stopped scanning
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned off and camera preview disabled
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned off and camera preview disabled
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Changing Preview Zoom Level to 3:1
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Changing Preview Zoom Level to 6:1
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned off and camera preview disabled
+INFO:root:Showing Screen: Please insert film
+DEBUG:root:fim PID: 28069
