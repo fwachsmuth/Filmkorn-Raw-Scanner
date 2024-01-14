@@ -14,7 +14,7 @@ import signal
 import time
 import os
 import atexit
-
+import RPi.GPIO as GPIO
 
 from smbus2 import SMBus
 from picamera import PiCamera
@@ -24,6 +24,15 @@ AUTO_SHUTTER_SPEED = 0  # Zero enables AE, used in Preview mode.
 shutter_speed = 2000 # initial value until Arduino tells us something new
 DISK_SPACE_WAIT_THRESHOLD = 200_000_000  # 200 MB
 DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
+
+# Set the GPIO mode to BCM
+GPIO.setmode(GPIO.BCM)
+
+# Set up GPIO pin 17 as an input. The "Target" Switch is connected here.
+GPIO.setup(17, GPIO.IN)
+input_state = GPIO.input(17)
+print(f"GPIO pin 17 state: {input_state}") # 0 is Net, 1 is HDD
+
 
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
