@@ -55,7 +55,6 @@ class Command(enum.Enum):
     TELL_INITVALUES = 129 # asks for film load state and exposure pot value (both only get send when they change)
     TELL_LOADSTATE = 130
 
-def process_is_running(contents: str) -> bool:
     try:
         pid = int(contents)
     except ValueError:
@@ -75,65 +74,6 @@ def process_is_running(contents: str) -> bool:
         raise
 
     return True
-
-def clear_pid_file():
-    os.remove(PID_FILE_PATH)
-
-# Displays a PNG in full screen, making our UI
-last_fim_pid = 0
-def show_screen(message):
-    global last_fim_pid
-    message_path = f'controller-screens/{message}.png'
-    command = ["fim", "--quiet", "-d /dev/fb0", message_path]
-
-    if last_fim_pid != 0:
-        subprocess.run(["kill", "-9", str(last_fim_pid)])    
-    fim = subprocess.Popen(command,
-                        #  stdin =subprocess.PIPE,
-                           stdout=subprocess.PIPE,
-                           stderr=subprocess.PIPE)
-    # stdout, stderr = fim.communicate()
-    # logging.info(f"Command output:\nstdout: {stdout}\nstderr: {stderr}")
-
-    last_fim_pid = fim.pid
-    logging.debug(f"fim PID: {fim.pid}")                        
-
-# For things the Raspi tells (Ready to take next photo, give me value x).
-# In most cases, we are polling the Arduino, which owns flow control (but can't be master due to Raspi limitations)
-def tell_arduino(command: Command): 
-    while True:
-        try:
-            arduino.write_byte(arduino_i2c_address, command.value)
-            return
-        except OSError as e:
-            logging.warning("Got no I2C answer when telling the Arduino something.")
-            if e.errno != errno.EREMOTEIO:
-                raise e
-            sleep(0.1)
-
-# For retrieving (multi-byte) answers to explicit tells
-def ask_arduino() -> Optional["list[int]"]:
-    try:
-        return arduino.read_i2c_block_data(arduino_i2c_address, 0, 4)
-    except OSError as e:
-        logging.debug("No I2C answer when polling Arduino. Probably busy right now?")
-        if e.errno != errno.EREMOTEIO:
-            raise e
-        sleep(0.1)
-
-def poll_ssh_subprocess():
-    global ssh_subprocess
-
-    if ssh_subprocess is not None and ssh_subprocess.poll():
-        # Command is done; check if the command was successful
-        if ssh_subprocess.returncode == 0:
-            print('Remote script exited successfully.')
-        else:
-            print(f'Error executing remote script. Return code: {ssh_subprocess.returncode}')
-            print('Output:', ssh_subprocess.stdout.read().decode())
-            print('Error:', ssh_subprocess.stderr.read().decode())
-
-        ssh_subprocess = None
 
 class ZoomMode(enum.Enum):
     Z1_1 = 0
@@ -179,14 +119,23 @@ class State:
         set_lamp_off()
         tell_arduino(Command.TELL_LOADSTATE)
 
-def datetime_to_raws_path(dt: datetime):
-    return RAW_DIRS_PATH + dt.strftime("%Y-%m-%d at %H_%M_%S")
+# Displays a PNG in full screen, making our UI
+def show_screen(message):
+    global last_fim_pid
+    message_path = f'controller-screens/{message}.png'
+    command = ["fim", "--quiet", "-d /dev/fb0", message_path]
 
-def remove_empty_dirs():
-    for file_name in os.listdir(RAW_DIRS_PATH):
-        file_path = RAW_DIRS_PATH + file_name
-        if os.path.isdir(file_path) and len(os.listdir(file_path)) == 0:
-            os.rmdir(file_path)
+    if last_fim_pid != 0:
+        subprocess.run(["kill", "-9", str(last_fim_pid)])    
+    fim = subprocess.Popen(command,
+                        #  stdin =subprocess.PIPE,
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE)
+    # stdout, stderr = fim.communicate()
+    # logging.info(f"Command output:\nstdout: {stdout}\nstderr: {stderr}")
+
+    last_fim_pid = fim.pid
+    logging.debug(f"fim PID: {fim.pid}")                        
 
 def showInsertFilm(arg_bytes=None):
     logging.info("Showing Screen: Please insert film")
@@ -195,6 +144,55 @@ def showInsertFilm(arg_bytes=None):
 def showReadyToScan(arg_bytes=None):
     logging.info("Showing Screen: Ready to Scan")
     show_screen("ready-to-scan")
+
+# For things the Raspi tells (Ready to take next photo, give me value x).
+# In most cases, we are polling the Arduino, which owns flow control (but can't be master due to Raspi limitations)
+def tell_arduino(command: Command): 
+    while True:
+        try:
+            arduino.write_byte(arduino_i2c_address, command.value)
+            return
+        except OSError as e:
+            logging.warning("Got no I2C answer when telling the Arduino something.")
+            if e.errno != errno.EREMOTEIO:
+                raise e
+            sleep(0.1)
+
+# For retrieving (multi-byte) answers to explicit tells
+def ask_arduino() -> Optional["list[int]"]:
+    try:
+        return arduino.read_i2c_block_data(arduino_i2c_address, 0, 4)
+    except OSError as e:
+        logging.debug("No I2C answer when polling Arduino. Probably busy right now?")
+        if e.errno != errno.EREMOTEIO:
+            raise e
+        sleep(0.1)
+
+def poll_ssh_subprocess():
+    global ssh_subprocess
+
+    if ssh_subprocess is not None and ssh_subprocess.poll():
+        # Command is done; check if the command was successful
+        if ssh_subprocess.returncode == 0:
+            print('Remote script exited successfully.')
+        else:
+            print(f'Error executing remote script. Return code: {ssh_subprocess.returncode}')
+            print('Output:', ssh_subprocess.stdout.read().decode())
+            print('Error:', ssh_subprocess.stderr.read().decode())
+
+        ssh_subprocess = None
+
+def clear_pid_file():
+    os.remove(PID_FILE_PATH)
+
+def datetime_to_raws_path(dt: datetime):
+    return RAW_DIRS_PATH + dt.strftime("%Y-%m-%d at %H_%M_%S")
+
+def remove_empty_dirs():
+    for file_name in os.listdir(RAW_DIRS_PATH):
+        file_path = RAW_DIRS_PATH + file_name
+        if os.path.isdir(file_path) and len(os.listdir(file_path)) == 0:
+            os.rmdir(file_path)
 
 def get_available_disk_space() -> int:
     info = os.statvfs(RAW_DIRS_PATH)
@@ -217,15 +215,7 @@ def check_available_disk_space():
         logging.error(f"Fatal: Only {available} bytes left on the volume; aborting")
         sys.exit(1)
 
-def set_exposure(arg_bytes):
-    exposure_val = arg_bytes[1] << 8 | arg_bytes[0]
-    logging.info("Received new Exposure Value from Scan Controller:", exposure_val)
-
-    # calculate the pot value into meaningful new shutter speeds
-    global shutter_speed
-    shutter_speed = int(math.exp(exposure_val * EXPOSURE_VAL_FACTOR) * SHUTTER_SPEED_RANGE[0])
-    logging.info("This equals shutter speed (µs):", shutter_speed)
-
+# Camera Features
 def set_init_values(arg_bytes):
     exposure_val = arg_bytes[1] << 8 | arg_bytes[0]
     logging.info(f"Received currently set Exposure Value: {exposure_val}")
@@ -241,19 +231,6 @@ def set_init_values(arg_bytes):
     else:
         logging.info("Starting with Screen \"Film loaded, ready to scan\"")
         show_screen("ready-to-scan")
-
-def shoot_raw(arg_bytes=None):
-    camera.shutter_speed = shutter_speed
-    start_time = time.time()
-    camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
-    state.raw_count += 1
-    elapsed_time = time.time() - start_time
-    logging.info(f"One raw with shutter speed {shutter_speed}µs taken and saved in {elapsed_time:.2f}s, equalling {1/elapsed_time:.1f}fps")
-    say_ready()
-
-def say_ready():
-    tell_arduino(Command.READY)
-    logging.debug("Told Arduino we are ready for next image")
 
 def set_zoom_mode_1_1(arg_bytes=None):
     state._zoom_mode = ZoomMode.Z1_1
@@ -286,9 +263,32 @@ def set_lamp_on(arg_bytes=None):
     camera.start_preview()
     logging.info("Lamp turned on and camera preview enabled")
 
+def shoot_raw(arg_bytes=None):
+    camera.shutter_speed = shutter_speed
+    start_time = time.time()
+    camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
+    state.raw_count += 1
+    elapsed_time = time.time() - start_time
+    logging.info(f"One raw with shutter speed {shutter_speed}µs taken and saved in {elapsed_time:.2f}s, equalling {1/elapsed_time:.1f}fps")
+    say_ready()
+
+def set_exposure(arg_bytes):
+    exposure_val = arg_bytes[1] << 8 | arg_bytes[0]
+    logging.info("Received new Exposure Value from Scan Controller:", exposure_val)
+
+    # calculate the pot value into meaningful new shutter speeds
+    global shutter_speed
+    shutter_speed = int(math.exp(exposure_val * EXPOSURE_VAL_FACTOR) * SHUTTER_SPEED_RANGE[0])
+    logging.info("This equals shutter speed (µs):", shutter_speed)
+
+def say_ready():
+    tell_arduino(Command.READY)
+    logging.debug("Told Arduino we are ready for next image")
+
+
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, last_fim_pid
     
     # set up logging
     logging.basicConfig(filename='scanner.log', level=logging.DEBUG)
