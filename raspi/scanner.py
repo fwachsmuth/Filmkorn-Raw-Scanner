@@ -4,7 +4,6 @@
 from time import sleep
 from typing import Optional
 import argparse
-import datetime
 import enum
 import errno
 import math
@@ -15,9 +14,21 @@ import time
 import os
 import atexit
 import RPi.GPIO as GPIO
+import logging
 
 from smbus2 import SMBus
 from picamera import PiCamera
+from datetime import datetime
+
+# set up logging
+logging.basicConfig(filename='scanner.log', level=logging.DEBUG)
+console_handler = logging.StreamHandler()  # Create a handler for stdout
+console_handler.setLevel(logging.DEBUG)    # Set the logging level for the handler
+logging.getLogger('').addHandler(console_handler)  # Add the handler to the root logger
+
+logging.info(f"----------------------------------------------------------------------------------") 
+logging.info(f"Scanner started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}") 
+
 
 RAW_DIRS_PATH = "/mnt/ramdisk/" # Has to end with 
 AUTO_SHUTTER_SPEED = 0  # Zero enables AE, used in Preview mode. 
@@ -31,7 +42,7 @@ GPIO.setmode(GPIO.BCM)
 # Set up GPIO pin 17 as an input. The "Target" Switch is connected here.
 GPIO.setup(17, GPIO.IN)
 input_state = GPIO.input(17)
-print(f"GPIO pin 17 state: {input_state}") # 0 is Net, 1 is HDD
+logging.info(f"GPIO pin 17 state (0 is Net, 1 is HDD): {input_state}") 
 
 
 class Command(enum.Enum):
@@ -210,7 +221,7 @@ class State:
         return self._zoom_mode
 
     def set_raws_path(self):
-        raws_path = datetime_to_raws_path(datetime.datetime.now())
+        raws_path = datetime_to_raws_path(datetime.now())
         remove_empty_dirs()
         os.makedirs(raws_path)
         self.raws_path = os.path.join(raws_path, "{:08d}.jpg")
@@ -233,7 +244,7 @@ class State:
         set_lamp_off()
         tell_arduino(Command.TELL_LOADSTATE)
 
-def datetime_to_raws_path(dt: datetime.datetime):
+def datetime_to_raws_path(dt: datetime):
     return RAW_DIRS_PATH + dt.strftime("%Y-%m-%dT%H_%M_%S")
 
 def remove_empty_dirs():

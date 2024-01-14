@@ -1,0 +1,20 @@
+DEBUG:root:GPIO pin 17 state: 1
+DEBUG:root:GPIO pin 17 state: 1
+INFO:root:GPIO pin 17 state: 1
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 12:41:08
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 12:41:22
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 12:43:31
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 12:45:21
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-14 12:47:00
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
