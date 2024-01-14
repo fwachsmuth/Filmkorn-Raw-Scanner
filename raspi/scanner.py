@@ -12,6 +12,7 @@ import sys
 import signal
 import time
 import os
+import os.path
 import atexit
 import RPi.GPIO as GPIO
 import logging
@@ -125,15 +126,18 @@ with file:
 last_fim_pid = 0
 def show_screen(message):
     global last_fim_pid
-    message_path = f'/home/pi/Filmkorn-Raw-Scanner/raspi/controller-screens/{message}.png'
+    message_path = f'controller-screens/{message}.png'
     command = ["fim", "--quiet", "-d /dev/fb0", message_path]
 
     if last_fim_pid != 0:
-        subprocess.Popen(["kill", "-9", str(last_fim_pid)])    
+        subprocess.run(["kill", "-9", str(last_fim_pid)])    
     fim = subprocess.Popen(command,
-                           stdin =subprocess.PIPE,
+                        #  stdin =subprocess.PIPE,
                            stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE)
+    # stdout, stderr = fim.communicate()
+    # logging.info(f"Command output:\nstdout: {stdout}\nstderr: {stderr}")
+
     last_fim_pid = fim.pid
     logging.debug(f"fim PID: {fim.pid}")                        
 
@@ -168,31 +172,57 @@ def ask_arduino() -> Optional["list[int]"]:
 
 
 # start the converter on the Host Computer
-logging.info("Starting Converter Process on the Host Computer...")
 
-os.system('nohup ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "cd `cat ~/Filmkorn-Raw-Scanner/raspi/.host_path`; ./start_converting.sh" >/dev/null 2>&1 &')
-''' 
+#os.system('nohup ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "cd `cat ~/Filmkorn-Raw-Scanner/raspi/.host_path`; ./start_converting.sh" >/dev/null 2>&1 &')
+ 
 # To consider, something like this instead (https://janakiev.com/blog/python-shell-commands/)
 # Doesn't work though, yet.
-ssh = subprocess.Popen(["ssh", "-i ~/.ssh/id_filmkorn-scanner_ed25519", "`cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host`"],
-                        stdin =subprocess.PIPE,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                        universal_newlines=True,
-                        bufsize=0)
- 
-# Send ssh commands to stdin
-ssh.stdin.write("cd `cat ~/Filmkorn-Raw-Scanner/raspi/.host_path`\n")
-ssh.stdin.write("./start_converting.sh >/dev/null 2>& &\n")
-ssh.stdin.close()
+# ssh = subprocess.Popen(["ssh", "-i ~/.ssh/id_filmkorn-scanner_ed25519", "`cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host`"],
+#                         stdin =subprocess.PIPE,
+#                         stdout=subprocess.PIPE,
+#                         stderr=subprocess.PIPE,
+#                         universal_newlines=True,
+#                         bufsize=0)
 
-# Fetch output
-for line in ssh.stdout:
-    print(line.strip())
-'''
+# ssh_subprocess = None
+# main starts here
+
+
+# Fetch the content of the files
+with open(".user_and_host", "r") as file:
+    user_and_host = file.read().strip()
+with open(".host_path", "r") as file:
+    host_path = file.read().strip()
+logging.info(f"Starting Converter Process as {user_and_host}:{host_path}")
+# print(f"using remote user@host: {user_and_host}")
+# print(f"using remote host path: {host_path}")
+
+# Define the SSH command and remote server details
+
+ssh_command_base = ['ssh', '-i', '~/.ssh/id_filmkorn-scanner_ed25519', user_and_host]
+
+ssh_command = ssh_command_base + [os.path.join(host_path, "start_converting.sh")]
+
+# Run the command
+ssh_subprocess = subprocess.Popen(ssh_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+def poll_ssh_subprocess():
+    global ssh_subprocess
+
+    if ssh_subprocess is not None and ssh_subprocess.poll():
+        # Command is done; check if the command was successful
+        if ssh_subprocess.returncode == 0:
+            print('Remote script exited successfully.')
+        else:
+            print(f'Error executing remote script. Return code: {ssh_subprocess.returncode}')
+            print('Output:', ssh_subprocess.stdout.read().decode())
+            print('Error:', ssh_subprocess.stderr.read().decode())
+
+        ssh_subprocess = None
+
 
 # Open the target folder in the Finder
-os.system('ssh -i ~/.ssh/id_filmkorn-scanner_ed25519 `cat ~/Filmkorn-Raw-Scanner/raspi/.user_and_host` "open \\"`cat ~/Filmkorn-Raw-Scanner/raspi/.scan_destination`/CinemaDNG\\""')
+subprocess.run(ssh_command_base + [f'open "`cat {host_path}/.scan_destination`/CinemaDNG"'])
 
 # Show a first screen to indicate we are running
 # print("\033c")   # Clear Screen
@@ -275,6 +305,8 @@ camera.shutter_speed = 0    # 0 enables AE, used in Preview Modes
 
 # Main control loop
 def loop():
+    poll_ssh_subprocess()
+
     received = ask_arduino() # This tells us what to do next. See Command enum.
     command = None
     if received is not None:
