@@ -245,7 +245,7 @@ class State:
         tell_arduino(Command.TELL_LOADSTATE)
 
 def datetime_to_raws_path(dt: datetime):
-    return RAW_DIRS_PATH + dt.strftime("%Y-%m-%dT%H_%M_%S")
+    return RAW_DIRS_PATH + dt.strftime("%Y-%m-%d at %H_%M_%S")
 
 def remove_empty_dirs():
     for file_name in os.listdir(RAW_DIRS_PATH):
