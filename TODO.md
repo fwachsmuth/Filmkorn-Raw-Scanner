@@ -1,40 +1,27 @@
 # To Dos
 
 ## Next
-- [ ] think about an update scenario (version info?)
 - [ ] Add a logging facility
+- [ ] Consider the switch state on GPIO17 and allow local storage
+- [ ] think about an update scenario (version info?)
+    - [ ] Let the Arduino repsond with a version 
+
 - [ ] Terminate (gracefully) and restart converter when raspi restarts
 - [ ] Add dedicated voltage source for Fan
-- [ ] create scripts to restart scanner and converter
+- [ ]  create scripts to restart scanner and converter
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
-- [ ] Consider the switch state on GPIO17 and allow local storage
 - [ ] Write Build-your-own howtos
 - [ ] list python requirements (on host computer) per https://stackoverflow.com/a/68006970, https://stackoverflow.com/questions/51308683/how-to-move-all-modules-to-new-version-of-python-from-3-6-to-3-7/59608886#59608886
 - [ ] Create a pyenv on the host computer
 - [ ] Update python on the raspi
-- [x] avoid too many fims : pgrep -x fim. Kill a running fim before creating a new one
 - [ ] fix pair.sh: Can't git:
             Host key verification failed.
             fatal: Could not read from remote repository.
 
             Please make sure you have the correct access rights
             and the repository exists.
-- [x] Add "Insert Film to Scan" gfx in addition to status LED
-- [x] fim needs up to 100% CPU during scanning?
-- [x] After low disk space ever showed, wrong png is shown after STOP
-- [x] Don't ever start scanner.py twice
-- [x] Make Ramdisk size dynamic
-- [x] Let pair.sh take a parameter for the (Mac-side) raw-intermediates
-- [x] let the pi start the converter on the Mac
-- [x] Fix scanner autostart (systemd instead of rc.local) https://learn.sparkfun.com/tutorials/how-to-run-a-raspberry-pi-program-on-startup/all#example-code
-- [x] Support reading the CONT_RUN_POT at runtime
-- [x] Exposure Adjustment via potentiometer — this would require arguemnt transmission via I2C
-- [x] Implement watermarking checks for the ramdisk
 - [ ] Update .hex in repo
-- [x] Do I need the time.sleep(0.1)? Could save 6 minutes / roll
-- [x] Make `/home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py` always running
-
-- [ ] Try out platformio
+- [ ] Try out platformio and see if it fixes the crashy USB/UART oddity
 
 
 ## Useful Links
@@ -72,16 +59,12 @@
 ## Raspi Todos:
 ### scanner.py
 - [ ] Consider using https://pypi.org/project/picamerax/
-- [ ] Consider the switch state on GPIO17 and allow local storage
 
 ### System Config
-- [ ] clear screen on boot / start my python code
 - [ ] Inflate /root on first run
 - [ ] lsync currently 2.2.3, 2.3.1 is recent
 
- 
 ## Hardware
-- [ ] Rastkugeln im Objektivgang ausbauen?
 - [ ] Staubschutzhaube bauen
 - [ ] Test higher PWM freqs
 
