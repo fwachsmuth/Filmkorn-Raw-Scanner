@@ -268,3 +268,534 @@ INFO:root:----------------------------------------------------------------------
 INFO:root:Scanner started at 2024-01-15 23:12:27
 INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
 INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-15 23:15:51
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-15 23:18:11
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-15 23:22:53
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+DEBUG:root:fim PID: 10496
+INFO:root:Asked Controller about the initial values. 
+INFO:root:Received currently set Exposure Value: 277
+INFO:root:This equals shutter speed 2231 µs
+INFO:root:Starting with Screen "No Film loaded"
+DEBUG:root:fim PID: 10509
+INFO:root:Showing Screen: Ready to Scan
+DEBUG:root:fim PID: 10526
+INFO:root:Showing Screen: Please insert film
+DEBUG:root:fim PID: 10528
+INFO:root:Showing Screen: Ready to Scan
+DEBUG:root:fim PID: 10542
+INFO:root:Showing Screen: Please insert film
+DEBUG:root:fim PID: 10556
+INFO:root:Showing Screen: Ready to Scan
+DEBUG:root:fim PID: 10558
+INFO:root:Showing Screen: Please insert film
+DEBUG:root:fim PID: 10560
+INFO:root:Showing Screen: Ready to Scan
+DEBUG:root:fim PID: 10562
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Set raws path to /mnt/ramdisk/2024-01-15 at 23_23_45
+INFO:root:Started scanning
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.58s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.41s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.52s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.41s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.58s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.58s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.58s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.57s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.58s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.48s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.41s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:Nevermind; Stopped scanning
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned off and camera preview disabled
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned on and camera preview enabled
+INFO:root:Set raws path to /mnt/ramdisk/2024-01-15 at 23_25_21
+INFO:root:Started scanning
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.56s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.57s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.45s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.49s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.56s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.50s, equalling 2.0fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.57s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.52s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.41s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.41s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.56s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.57s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.41s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.41s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.52s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.43s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.48s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.52s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.51s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.51s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.52s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.52s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.49s, equalling 2.0fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.52s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.41s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.58s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.58s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.41s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.58s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.58s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.57s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.58s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.52s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.41s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.57s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.56s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.58s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.57s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.56s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.57s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.57s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.51s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.43s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.41s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.52s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.58s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.51s, equalling 2.0fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.41s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.52s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.59s, equalling 1.7fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.51s, equalling 2.0fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.53s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.40s, equalling 2.5fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.50s, equalling 2.0fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.55s, equalling 1.8fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.54s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.42s, equalling 2.4fps
+DEBUG:root:Told Arduino we are ready for next image
+WARNING:root:Only 189353984 bytes left on the volume; waiting for more space
+DEBUG:root:fim PID: 11085
+DEBUG:root:fim PID: 11106
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.48s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.45s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.49s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.45s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.46s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.46s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.45s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.44s, equalling 2.3fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.45s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.45s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.45s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.46s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.45s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.51s, equalling 2.0fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.51s, equalling 2.0fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.51s, equalling 2.0fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.51s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.51s, equalling 2.0fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.50s, equalling 2.0fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.51s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.51s, equalling 2.0fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.46s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.45s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.46s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.46s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.46s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.46s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.52s, equalling 1.9fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.46s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.46s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.47s, equalling 2.1fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:One raw with shutter speed 2231µs taken and saved in 0.46s, equalling 2.2fps
+DEBUG:root:Told Arduino we are ready for next image
+INFO:root:Nevermind; Stopped scanning
+INFO:root:Changing Preview Zoom Level to 1:1
+INFO:root:Lamp turned off and camera preview disabled
