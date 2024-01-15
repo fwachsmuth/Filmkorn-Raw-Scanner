@@ -292,6 +292,7 @@ def say_ready():
 # Now let's go
 def setup():
     global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, last_fim_pid
+    os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     # set up logging
     logging.basicConfig(filename='scanner.log', level=logging.DEBUG)
@@ -340,7 +341,7 @@ def setup():
     sleep(1) # wait a bit here to avoid i2c IO Errors
     arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
 
-    # Fetch the content of the files
+    # Fetch the content of the files from /home/pi/Filmkorn-Raw-Scanner/raspi/
     with open(".user_and_host", "r") as file:
         user_and_host = file.read().strip()
     with open(".host_path", "r") as file:
@@ -350,6 +351,7 @@ def setup():
     # Define the SSH command and remote server details
     ssh_command_base = ['ssh', '-i', '~/.ssh/id_filmkorn-scanner_ed25519', user_and_host]
     ssh_command = ssh_command_base + [os.path.join(host_path, "start_converting.sh")]
+    logging.debug(f"ssh command to execute: {ssh_command}")
 
     # Run the command
     ssh_subprocess = subprocess.Popen(ssh_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
