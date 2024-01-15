@@ -55,6 +55,7 @@ class Command(enum.Enum):
     TELL_INITVALUES = 129 # asks for film load state and exposure pot value (both only get send when they change)
     TELL_LOADSTATE = 130
 
+def process_is_running(contents: str) -> bool:
     try:
         pid = int(contents)
     except ValueError:
@@ -125,6 +126,8 @@ def show_screen(message):
     message_path = f'controller-screens/{message}.png'
     command = ["fim", "--quiet", "-d /dev/fb0", message_path]
 
+    last_fim_pid = 0
+    
     if last_fim_pid != 0:
         subprocess.run(["kill", "-9", str(last_fim_pid)])    
     fim = subprocess.Popen(command,
@@ -307,7 +310,6 @@ def setup():
     GPIO.setup(17, GPIO.IN)
     input_state = GPIO.input(17)
     logging.info(f"GPIO pin 17 state (0 is Net, 1 is HDD): {input_state}") 
-
     # ---- Make sure we only run once, to avoid horrible crashes ¯\_(ツ)_/¯ 
     PID_FILE_PATH = "/tmp/scanner.pid"
     # log a pid
