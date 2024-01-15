@@ -2,7 +2,9 @@
 
 ## Next
 - [x] Add a logging facility
-- [ ] create a systemctl for lsyncd
+- [x] create a systemctl for lsyncd
+- [ ] try one lsyncd restart if the disk is full
+- [ ] create a launchctl for the converter
 - [ ] Detect and mount a local harddrive
 - [ ] Get the Log onto the Host PC (rsync?)
 - [ ] Consider the switch state on GPIO17 and allow local storage
@@ -25,7 +27,7 @@
 
 - [ ] Terminate (gracefully) and restart converter when raspi restarts
 - [x] Add dedicated voltage source for Fan
-- [ ]  create scripts to restart scanner and converter
+- [ ] create scripts to restart scanner and converter
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
 - [ ] Write Build-your-own howtos
 - [ ] list python requirements (on host computer) per https://stackoverflow.com/a/68006970, https://stackoverflow.com/questions/51308683/how-to-move-all-modules-to-new-version-of-python-from-3-6-to-3-7/59608886#59608886
