@@ -2,6 +2,7 @@
 
 ## Next
 - [x] Add a logging facility
+- [ ] create a systemctl for lsyncd
 - [ ] Detect and mount a local harddrive
 - [ ] Get the Log onto the Host PC (rsync?)
 - [ ] Consider the switch state on GPIO17 and allow local storage
