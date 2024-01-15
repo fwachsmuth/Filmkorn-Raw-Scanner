@@ -126,6 +126,8 @@ def show_screen(message):
     message_path = f'controller-screens/{message}.png'
     command = ["fim", "--quiet", "-d /dev/fb0", message_path]
 
+    last_fim_pid = 0
+    
     if last_fim_pid != 0:
         subprocess.run(["kill", "-9", str(last_fim_pid)])    
     fim = subprocess.Popen(command,
@@ -308,7 +310,6 @@ def setup():
     GPIO.setup(17, GPIO.IN)
     input_state = GPIO.input(17)
     logging.info(f"GPIO pin 17 state (0 is Net, 1 is HDD): {input_state}") 
-
     # ---- Make sure we only run once, to avoid horrible crashes ¯\_(ツ)_/¯ 
     PID_FILE_PATH = "/tmp/scanner.pid"
     # log a pid
