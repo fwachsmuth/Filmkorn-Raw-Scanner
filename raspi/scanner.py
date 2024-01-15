@@ -55,6 +55,7 @@ class Command(enum.Enum):
     TELL_INITVALUES = 129 # asks for film load state and exposure pot value (both only get send when they change)
     TELL_LOADSTATE = 130
 
+def process_is_running(contents: str) -> bool:
     try:
         pid = int(contents)
     except ValueError:

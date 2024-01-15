@@ -260,3 +260,11 @@ INFO:root:Changing Preview Zoom Level to 1:1
 INFO:root:Lamp turned off and camera preview disabled
 INFO:root:Showing Screen: Please insert film
 DEBUG:root:fim PID: 28069
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-15 23:11:01
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
+INFO:root:----------------------------------------------------------------------------------
+INFO:root:Scanner started at 2024-01-15 23:12:27
+INFO:root:GPIO pin 17 state (0 is Net, 1 is HDD): 1
+INFO:root:Starting Converter Process as peaceman@wachsmut-mbp-2021.local:/Users/peaceman/code/Filmkorn-Raw-Scanner/host-computer
