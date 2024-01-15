@@ -1,13 +1,29 @@
 # To Dos
 
 ## Next
-- [ ] Add a logging facility
+- [x] Add a logging facility
+- [ ] Detect and mount a local harddrive
+- [ ] Get the Log onto the Host PC (rsync?)
 - [ ] Consider the switch state on GPIO17 and allow local storage
 - [ ] think about an update scenario (version info?)
-    - [ ] Let the Arduino repsond with a version 
+    - most pragmatic:
+        - shellscript on host pc:
+            - git pull on mac
+            - git pull on raspi
+            - reads current version of controller software (via hex filename?)
+            - updates controller
+    - All three parts need to contain/emit a version number
+        - [ ] Let the Arduino respond with a version to the Pi
+    - all components should get updated separately
+        - converter.py via git
+        - scanner.py via git
+        - controller via raspi via git
+        - raspi via imaging if necessary
+    - latest version announced via static github pages link?
+        - might contain a commit id, or checkout via tag?
 
 - [ ] Terminate (gracefully) and restart converter when raspi restarts
-- [ ] Add dedicated voltage source for Fan
+- [x] Add dedicated voltage source for Fan
 - [ ]  create scripts to restart scanner and converter
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
 - [ ] Write Build-your-own howtos
