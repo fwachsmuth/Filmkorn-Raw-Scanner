@@ -127,6 +127,8 @@ void setup() {
   // Stop the engines
   analogWrite(MOTOR_A_PIN, 0);
   analogWrite(MOTOR_B_PIN, 0);
+  digitalWrite(FAN_PIN, LOW);
+  digitalWrite(LAMP_PIN, LOW);
 
   Wire.begin(SLAVE_ADDRESS);
   Wire.onReceive(i2cReceive);
