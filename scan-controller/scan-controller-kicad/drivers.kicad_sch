@@ -2879,7 +2879,7 @@
     (property "Datasheet" "~" (at 196.85 83.185 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "TP_Label" "Motor GND" (at 201.93 88.9 0)
+    (property "TP_Label" "Lamp GND" (at 201.93 88.9 0)
       (effects (font (size 1.27 1.27)))
     )
     (pin "1" (uuid 23709917-203c-4213-8b2f-0e3f118c588d))
