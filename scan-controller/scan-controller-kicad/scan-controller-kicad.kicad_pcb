@@ -4247,7 +4247,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 86711c8e-ef8f-4986-8640-6890aa55fd62)
     )
-    (fp_text user "${TP_Label}" (at -0.508 -2.286) (layer "F.SilkS" knockout)
+    (fp_text user "Lamp GND" (at -0.508 -2.286) (layer "F.SilkS" knockout)
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 9b8e971f-261b-4c5c-bb1c-0a89b4b7b93c)
     )
