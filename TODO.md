@@ -1,8 +1,9 @@
 # To Dos
 
 ## Next
-- [x] Add a logging facility
-- [x] create a systemctl for lsyncd
+- [ ] Find out why turning on the lamp after a while of idling causes a Arduino Reboot
+- [ ] Think about adjusting Exposure without Shell Access
+- [ ] Show "No connection to Controller" on display (for e.g. misaligned GPIO header)
 - [ ] try one lsyncd restart if the disk is full
 - [ ] create a launchctl for the converter
 - [ ] Detect and mount a local harddrive
