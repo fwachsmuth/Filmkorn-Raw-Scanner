@@ -3,6 +3,7 @@
 ## Next
 - [ ] Find out why turning on the lamp after a while of idling causes a Arduino Reboot
 - [ ] Think about adjusting Exposure without Shell Access
+- [ ] Add Fan Voltage TPs
 - [ ] Handle if Directory on Host PC does not exist
 - [ ] Show "No connection to Controller" on display (for e.g. misaligned GPIO header)
 - [ ] try one lsyncd restart if the disk is full
