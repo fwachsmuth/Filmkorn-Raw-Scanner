@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Converts raw data attached in the EXIF blob of Raspi HQ Cam "JPGs" to DNGs using PyDNG
 
