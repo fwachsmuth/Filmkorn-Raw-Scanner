@@ -277,12 +277,12 @@ def shoot_raw(arg_bytes=None):
 
 def set_exposure(arg_bytes):
     exposure_val = arg_bytes[1] << 8 | arg_bytes[0]
-    logging.info("Received new Exposure Value from Scan Controller:", exposure_val)
+    logging.info(f"Received new Exposure Value from Scan Controller: {exposure_val}")
 
     # calculate the pot value into meaningful new shutter speeds
     global shutter_speed
     shutter_speed = int(math.exp(exposure_val * EXPOSURE_VAL_FACTOR) * SHUTTER_SPEED_RANGE[0])
-    logging.info("This equals shutter speed (µs):", shutter_speed)
+    logging.info(f"This equals shutter speed {shutter_speed} µs")
 
 def say_ready():
     tell_arduino(Command.READY)
