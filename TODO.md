@@ -3,7 +3,11 @@
 ## Next
 - [ ] Find out why turning on the lamp after a while of idling causes a Arduino Reboot
 - [ ] Think about adjusting Exposure without Shell Access
+- [ ] MCP entfernen
+- [ ] Fues sind immer noch auf 1 MHz :-()
 - [ ] Add Fan Voltage TPs
+- [ ] Flip the speed pots
+- [ ] Decouple C for U11 (in 1u, out 1n)
 - [ ] Handle if Directory on Host PC does not exist
 - [ ] Show "No connection to Controller" on display (for e.g. misaligned GPIO header)
 - [ ] try one lsyncd restart if the disk is full
