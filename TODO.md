@@ -1,11 +1,11 @@
 # To Dos
 
 ## Next
-- [ ] Find out why turning on the lamp after a while of idling causes a Arduino Reboot
+- [ ] Find out why turning on the lamp after a while of idling causes a Arduino Reboot: Missing 1u cap on pin 4/5 of MCP1416
 - [ ] Think about adjusting Exposure without Shell Access
-- [ ] MCP entfernen
 - [ ] Fues sind immer noch auf 1 MHz :-()
 - [ ] Add Fan Voltage TPs
+- [ ] Test burning fuses with 5V? MISO is 5V tho. 47K inbetween? Reset has a 10k Pullup too. I would recommend driving the pins from 5V logic via at least 10K resistor and also connect an external Schottky diode from the pin to 3.3V to prevent the input pin's voltage rising much above the PI's supply rail.
 - [ ] Flip the speed pots
 - [ ] Decouple C for U11 (in 1u, out 1n)
 - [ ] Handle if Directory on Host PC does not exist
