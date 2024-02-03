@@ -21,11 +21,21 @@
 #     -U hfuse:w:0xDA:m \
 #     -U lfuse:w:0xFF:m 
 
-# Burn uC Code & bootloader
-sudo avrdude \
-    -C ~/Filmkorn-Raw-Scanner/scan-controller/bootstrap/avrdude_gpio.conf \
-    -v \
-	-p atmega328p \
-	-c pi_1 \
-	-U flash:w:scan-controller-v1.0.ino.hex:i
+# Burn uC Code & bootloader 
+# This is for old avrdude 6 in /usr/bin/avrdude
+# sudo avrdude \
+#   -C ~/Filmkorn-Raw-Scanner/scan-controller/bootstrap/avrdude_gpio.conf \
+#   -v \
+# 	-p atmega328p \
+# 	-c pi_1 \
+# 	-U flash:w:scan-controller-v1.0.ino.hex:i
     
+# Burn uC Code & bootloader 
+# This is for new avrdude 7 in /usr/local/bin/avrdude
+# Fuse setting still  NOT WORKING!!!! 
+# avrdude -C avrdude7.conf -v -p atmega328p -c raspberry_pi_gpio -e -U lock:w:0x3F:m -U efuse:w:0xFD:m -U hfuse:w:0xDA:m -U lfuse:w:0xFF:m
+avrdude -C avrdude7.conf \
+	-v \
+	-p atmega328p \
+	-c raspberry_pi_gpio \
+	-U flash:w:scan-controller-v1.0.ino.hex:i
