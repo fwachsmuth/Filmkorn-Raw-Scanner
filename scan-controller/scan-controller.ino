@@ -110,6 +110,7 @@ ZoomMode zoomMode = Z1_1;
 
 void setup() {
   Serial.begin(115200);
+
   pinMode(BUTTONS_A_PIN, INPUT);
   pinMode(BUTTONS_B_PIN, INPUT);
   pinMode(SINGLE_STEP_POT, INPUT);
