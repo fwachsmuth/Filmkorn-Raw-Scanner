@@ -2462,11 +2462,6 @@
     (effects (font (size 1 1)) (justify left bottom))
     (uuid 6dcbeaf2-fb34-4253-abf9-17a67cadc5fd)
   )
-  (text "Todo:\n- RV6 Label Pos\n- Backside text (Fan Power)\n- Projector background (zonefill)\n- C2/4 Zonefill\n- Name: Filmkorn-Raw-Scanner\n"
-    (at 201.93 29.845 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid dab05e15-99be-4f28-9f34-7d17eca00420)
-  )
 
   (label "GNDD" (at 64.135 42.545 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
