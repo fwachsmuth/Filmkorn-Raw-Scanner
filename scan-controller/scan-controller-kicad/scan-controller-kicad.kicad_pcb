@@ -9794,7 +9794,7 @@
         (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
       (tstamp d3ed9cb9-063f-4152-9955-d440eb628864)
     )
-    (fp_text user "${TP_Label}" (at 0.254 -4.318 90) (layer "B.SilkS" knockout)
+    (fp_text user "${TP_Label}" (at 0.254 -4.318 90) (layer "B.SilkS" knockout) hide
         (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
       (tstamp 0a2a279b-e5f4-474f-9b1d-6ce6814a58d7)
     )
@@ -9988,7 +9988,7 @@
         (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
       (tstamp 2e945a09-ef60-4b2c-b258-6d079d67fb14)
     )
-    (fp_text user "${TP_Label}" (at 0.254 4.318 90) (layer "B.SilkS" knockout)
+    (fp_text user "${TP_Label}" (at 0.254 4.318 90) (layer "B.SilkS" knockout) hide
         (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
       (tstamp 59a8cf49-b8b8-41d5-88ef-230089114897)
     )
@@ -10036,7 +10036,7 @@
         (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
       (tstamp 521f5420-3604-4704-998d-acff68b5f32b)
     )
-    (fp_text user "${TP_Label}" (at 1.778 1.27 -90) (layer "B.SilkS" knockout)
+    (fp_text user "${TP_Label}" (at 1.778 1.27 270) (layer "B.SilkS" knockout) hide
         (effects (font (size 0.9 0.9) (thickness 0.15)) (justify mirror))
       (tstamp 84bbb4d2-1609-4f6c-8bbf-e9824c040349)
     )
@@ -10497,7 +10497,7 @@
     (stroke (width 0.1) (type default)) (layer "Edge.Cuts") (tstamp f739a939-4f5c-4f5c-a421-a5eca343c434))
   (gr_arc (start 205.243965 44.704016) (mid 208.469119 46.047341) (end 209.804 49.276)
     (stroke (width 0.1) (type default)) (layer "Edge.Cuts") (tstamp f8113530-be91-418f-a679-250a29ad17d6))
-  (gr_text "For detailed instructions, see www.filmkorn.org\nThe Controller is powered by the Raspberry Pi.\nProjector Motor, Fan and Lamp/LED get powered via external\nPower: Use 12-36 VAC or VDC, e.g. from projector transformer.\nLED Contant Current Output can be adjusted from 1.5-32V/0-5A, \ndepending on external power supplied." (at 207.518 89.154) (layer "B.SilkS") (tstamp 010fd8ec-fa10-48d9-89fd-b0f6e4873926)
+  (gr_text "For detailed instructions, see www.filmkorn.org\nThe Controller is powered by the Raspberry Pi.\nProjector Motor, Fan and Lamp/LED get powered via external\nPower: Use 12-36 VAC or VDC, e.g. from projector transformer.\nLED Contant Current Output can be adjusted from 1.5-32V/0-5A, \ndepending on external power supplied." (at 207.518 89.662) (layer "B.SilkS") (tstamp 010fd8ec-fa10-48d9-89fd-b0f6e4873926)
     (effects (font (size 1.5 1.5) (thickness 0.3) bold) (justify left bottom mirror))
   )
   (gr_text "ICSP? Use other side!" (at 152.146 105.664) (layer "B.SilkS") (tstamp 441ce285-8492-41ed-ac07-e6cee19b4aec)
