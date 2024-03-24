@@ -123,22 +123,30 @@ class State:
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
     global last_fim_pid
+
+    # Kill the previous instance of fim if it's still running
+    if last_fim_pid is not None:
+        try:
+            #sleep(1)
+            logging.debug(f"killing fim with PID: {last_fim_pid.pid}")
+            last_fim_pid.terminate()  # Sends SIGTERM
+            last_fim_pid.wait()       # Waits for the process to exit
+        except OSError:
+            pass  # Ignore if the process is already terminated 
+
+    # Create a new fim instance
     message_path = f'controller-screens/{message}.png'
     command = ["fim", "--quiet", "-d /dev/fb0", message_path]
 
-    last_fim_pid = 0
-    
-    if last_fim_pid != 0:
-        subprocess.run(["kill", "-9", str(last_fim_pid)])    
-    fim = subprocess.Popen(command,
+    last_fim_pid = subprocess.Popen(command,
                         #  stdin =subprocess.PIPE,
                            stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE)
-    # stdout, stderr = fim.communicate()
     # logging.info(f"Command output:\nstdout: {stdout}\nstderr: {stderr}")
 
-    last_fim_pid = fim.pid
-    logging.debug(f"fim PID: {fim.pid}")                        
+
+    # last_fim_pid = fim.pid
+    # logging.debug(f"fim PID: {fim.pid}")                        
 
 def cleanup_terminal():
     print("Restoring terminal settings...")
@@ -233,10 +241,10 @@ def set_init_values(arg_bytes):
     logging.info(f"This equals shutter speed {shutter_speed} µs")
 
     if arg_bytes[2] == 0:
-        logging.info("Starting with Screen \"No Film loaded\"")
+        logging.info("Starting with Screen \"Insert Film\"")
         show_screen("insert-film")
     else:
-        logging.info("Starting with Screen \"Film loaded, ready to scan\"")
+        logging.info("Starting with Screen \"Ready to scan\"")
         show_screen("ready-to-scan")
 
 def set_zoom_mode_1_1(arg_bytes=None):
@@ -298,8 +306,10 @@ def setup():
     global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, last_fim_pid
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
+    last_fim_pid = None
+
     atexit.register(cleanup_terminal)
-    
+
     # set up logging
     logging.basicConfig(filename='scanner.log', level=logging.DEBUG)
     console_handler = logging.StreamHandler()  # Create a handler for stdout
