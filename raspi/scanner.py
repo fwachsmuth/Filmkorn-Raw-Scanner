@@ -137,8 +137,7 @@ def show_screen(message):
     # Kill the previous instance of fim if it's still running
     if last_fim_process is not None:
         try:
-            subprocess.run(["kill", "-9", str(last_fim_process.pid)]) # this is the only way to avoid the tty flickering through. 
-            #last_fim_process.terminate()  # Sends SIGTERM — and causes flicker
+            os.kill(last_fim_process.pid, signal.SIGKILL) # SIGKILL is the only way to avoid the tty flickering through. 
             last_fim_process.wait()       # Waits for the process to exit, leave no zombies behind
         except OSError:
             pass  # Ignore if the process is already terminated 
