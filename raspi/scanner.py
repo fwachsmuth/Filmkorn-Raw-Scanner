@@ -146,8 +146,6 @@ def show_screen(message):
 
     last_fim_process = new_fim_process  # Remember what to kill on the next screen update
 
-
-
 def cleanup_terminal():
     print("Restoring terminal settings...")
     subprocess.run(['stty', 'sane'])
