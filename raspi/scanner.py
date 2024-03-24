@@ -30,6 +30,8 @@ DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 SHUTTER_SPEED_RANGE = 300, 500_000  # 300µs to 0.5s. This defines the range of the exposure potentiometer
 EXPOSURE_VAL_FACTOR = math.log(SHUTTER_SPEED_RANGE[1] / SHUTTER_SPEED_RANGE[0]) / 1024
 
+last_fim_process = None
+
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
     # This is 
@@ -122,31 +124,29 @@ class State:
 
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
-    global last_fim_pid
-
-    # Kill the previous instance of fim if it's still running
-    if last_fim_pid is not None:
-        try:
-            #sleep(1)
-            logging.debug(f"killing fim with PID: {last_fim_pid.pid}")
-            last_fim_pid.terminate()  # Sends SIGTERM
-            last_fim_pid.wait()       # Waits for the process to exit
-        except OSError:
-            pass  # Ignore if the process is already terminated 
-
+    global last_fim_process
+    
     # Create a new fim instance
     message_path = f'controller-screens/{message}.png'
     command = ["fim", "--quiet", "-d /dev/fb0", message_path]
-
-    last_fim_pid = subprocess.Popen(command,
+    new_fim_process = subprocess.Popen(command,
                         #  stdin =subprocess.PIPE,
                            stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE)
-    # logging.info(f"Command output:\nstdout: {stdout}\nstderr: {stderr}")
+
+    # Kill the previous instance of fim if it's still running
+    if last_fim_process is not None:
+        try:
+            subprocess.run(["kill", "-9", str(last_fim_process.pid)]) # this is the only way to avoid the tty flickering through. 
+            #last_fim_process.terminate()  # Sends SIGTERM — and causes flicker
+            last_fim_process.wait()       # Waits for the process to exit, leave no zombies behind
+        except OSError:
+            pass  # Ignore if the process is already terminated 
+    logging.debug(f"Killed previous fim with PID: {last_fim_process.pid if last_fim_process else 'None'}. New PID is {new_fim_process.pid}.")    
+
+    last_fim_process = new_fim_process  # Remember what to kill on the next screen update
 
 
-    # last_fim_pid = fim.pid
-    # logging.debug(f"fim PID: {fim.pid}")                        
 
 def cleanup_terminal():
     print("Restoring terminal settings...")
@@ -306,8 +306,6 @@ def setup():
     global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, last_fim_pid
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
-    last_fim_pid = None
-
     atexit.register(cleanup_terminal)
 
     # set up logging
