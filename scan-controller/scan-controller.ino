@@ -228,7 +228,9 @@ void loop() {
     }
   } else {
     // don't readExposurePot if a button has been pressed
-    readExposurePot(); // reads with some hysteresis to avoid flickering
+    if (!isScanning) {
+      readExposurePot(); // reads with some hysteresis to avoid flickering
+    }
     readFilmEndSensor();
   }
 
