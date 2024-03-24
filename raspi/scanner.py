@@ -442,7 +442,7 @@ if __name__ == '__main__':
         while True:
             loop()
             check_available_disk_space()
-            time.sleep(0.01) # less i2c collisions
+            # time.sleep(0.01) # less i2c collisions
     except KeyboardInterrupt:
         print()
         sys.exit(1)
