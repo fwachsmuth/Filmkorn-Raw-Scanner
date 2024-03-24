@@ -160,25 +160,52 @@ def showReadyToScan(arg_bytes=None):
 # For things the Raspi tells (Ready to take next photo, give me value x).
 # In most cases, we are polling the Arduino, which owns flow control (but can't be master due to Raspi limitations)
 def tell_arduino(command: Command): 
-    while True:
+#     while True:
+#         try:
+#             arduino.write_byte(arduino_i2c_address, command.value)
+#             return
+#         except OSError as e:
+#             logging.warning("Got no I2C answer when telling the Arduino something.")
+#             if e.errno != errno.EREMOTEIO:
+#                 raise e
+#             sleep(0.1)
+    max_retries = 5  # Set a max number of retries
+    retry_delay = 0.1  # Initial delay between retries in seconds
+    for attempt in range(max_retries):
         try:
             arduino.write_byte(arduino_i2c_address, command.value)
-            return
+            return  # Success, exit the function
         except OSError as e:
-            logging.warning("Got no I2C answer when telling the Arduino something.")
             if e.errno != errno.EREMOTEIO:
-                raise e
-            sleep(0.1)
+                raise e  # Reraise if it's an unexpected error
+            logging.warning(f"Attempt {attempt + 1}: Got no I2C answer when telling the Arduino something.")
+            sleep(retry_delay)
+            retry_delay *= 2  # Increase the delay between retries, optional exponential backoff
+    logging.error("Failed to communicate with Arduino after several attempts.")
 
 # For retrieving (multi-byte) answers to explicit tells
 def ask_arduino() -> Optional["list[int]"]:
-    try:
-        return arduino.read_i2c_block_data(arduino_i2c_address, 0, 4)
-    except OSError as e:
-        logging.debug("No I2C answer when polling Arduino. Probably busy right now?")
-        if e.errno != errno.EREMOTEIO:
-            raise e
-        sleep(0.1)
+    # try:
+    #     return arduino.read_i2c_block_data(arduino_i2c_address, 0, 4)
+    # except OSError as e:
+    #     logging.debug("No I2C answer when polling Arduino. Probably busy right now?")
+    #     if e.errno != errno.EREMOTEIO:
+    #         raise e
+    #     sleep(0.1)
+    max_retries = 5
+    retry_delay = 0.1  # Start with 100ms delay
+    for attempt in range(max_retries):
+        try:
+            response = arduino.read_i2c_block_data(arduino_i2c_address, 0, 4)
+            return response  # Success, return the response
+        except OSError as e:
+            if e.errno != errno.EREMOTEIO:
+                raise e  # Reraise unexpected errors
+            logging.warning(f"Attempt {attempt + 1}: No I2C answer when polling Arduino. Probably busy right now.")
+            sleep(retry_delay)
+            retry_delay *= 2  # Exponential backoff
+    logging.error("Failed to read from Arduino after several attempts. Arduino might be rebooting?")
+    return None  # or handle this case specifically?
 
 def poll_ssh_subprocess():
     global ssh_subprocess
