@@ -140,6 +140,10 @@ def show_screen(message):
     last_fim_pid = fim.pid
     logging.debug(f"fim PID: {fim.pid}")                        
 
+def cleanup_terminal():
+    print("Restoring terminal settings...")
+    subprocess.run(['stty', 'sane'])
+
 def showInsertFilm(arg_bytes=None):
     logging.info("Showing Screen: Please insert film")
     show_screen("insert-film")
@@ -293,6 +297,8 @@ def say_ready():
 def setup():
     global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, last_fim_pid
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
+    
+    atexit.register(cleanup_terminal)
     
     # set up logging
     logging.basicConfig(filename='scanner.log', level=logging.DEBUG)
