@@ -1,16 +1,28 @@
 # To Dos
 
+## Annoyances
+- i2c collisions. can i detect hangs?
+- shell loses CR (try `reset`, or `stty sane`. Might be fim, or some other subprocess. Add error handling and reset terminal. try/finally? Maybe due to atexit?) https://chat.openai.com/c/0a58a78e-a1ee-4510-95b5-fb1d8fc66790
+- multiple fims
+- log insight (from host)
+- controller is stuck after i2c timeoutan dscanner termination
+- alternating exposure values during scanning
+- converter restart is tricky
+
+
 ## Next
+- [ ] Make clearer log message baout film end detection (to detect bad connections)
 - [ ] Think about adjusting Exposure without Shell Access
 - [ ] Fuses sind immer noch auf 1 MHz :-()
 - [ ] Test burning fuses with 5V? MISO is 5V tho. 47K inbetween? Reset has a 10k Pullup too. I would recommend driving the pins from 5V logic via at least 10K resistor and also connect an external Schottky diode from the pin to 3.3V to prevent the input pin's voltage rising much above the PI's supply rail.
 - [ ] Handle if Directory on Host PC does not exist
 - [ ] Show "No connection to Controller" on display (for e.g. misaligned GPIO header)
 - [ ] try one lsyncd restart if the disk is full
-- [ ] create a launchctl for the converter
 - [ ] Detect and mount a local harddrive
 - [ ] Get the Log onto the Host PC (rsync?)
 - [ ] Consider the switch state on GPIO17 and allow local storage
+- [ ] Average the scan speed rate
+- [ ] Auto-Stop Rewinds
 - [ ] think about an update scenario (version info?)
     - most pragmatic:
         - shellscript on host pc:
