@@ -414,8 +414,7 @@ void i2cReceive(int howMany) {
     while (Wire.available()) {
       i2cCommand = Wire.read();
     }
-    //delay(100); // doesnt se to be necessary
-
+    
     // Don't set piIsReady if we aren't scanning anymore
     if ((Command)i2cCommand == CMD_READY && isScanning) {
       piIsReady = true;

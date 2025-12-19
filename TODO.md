@@ -1,19 +1,20 @@
 # To Dos
 
 ## Annoyances
-- i2c collisions. can i detect hangs?
-- shell loses CR (try `reset`, or `stty sane`. Might be fim, or some other subprocess. Add error handling and reset terminal. try/finally? Maybe due to atexit?) https://chat.openai.com/c/0a58a78e-a1ee-4510-95b5-fb1d8fc66790
-- multiple fims
+
 - log insight (from host)
 - controller is stuck after i2c timeout and scanner termination
-- converter restart is tricky
+- converter restart is tricky (host_computer/start_converting.sh)
+- i2c collisions. can i detect hangs? Consider a Watchdog? https://chat.openai.com/c/0a58a78e-a1ee-4510-95b5-fb1d8fc66790
+- instead of fire & forget, ensure there’s proper synchronization between the command/response flow of Raspberry Pi and Arduino. Each command from the Pi should have a corresponding and expected response behavior on the Arduino.
+- 
 
 
 ## Next
-- [ ] Make clearer log message about film end detection (to detect bad connections)
+- [ ] Roll the logfile
+- [ ] Make clearer log message about film end detection (to detect bad sensor connections)
 - [ ] Think about adjusting Exposure without Shell Access
-- [ ] Fuses sind immer noch auf 1 MHz :-()
-- [ ] Test burning fuses with 5V? MISO is 5V tho. 47K inbetween? Reset has a 10k Pullup too. I would recommend driving the pins from 5V logic via at least 10K resistor and also connect an external Schottky diode from the pin to 3.3V to prevent the input pin's voltage rising much above the PI's supply rail.
+- [ ] Fuses still at 1 MHz when bootstrapping from raspi. Test burning fuses with 5 VCC. MISO is 5V tho. 47K inbetween? Reset has a 10k Pullup too. I would recommend driving the pins from 5V logic via at least 10K resistor and also connect an external Schottky diode from the pin to 3.3V to prevent the input pin's voltage rising much above the PI's supply rail.
 - [ ] Handle if Directory on Host PC does not exist
 - [ ] Show "No connection to Controller" on display (for e.g. misaligned GPIO header)
 - [ ] try one lsyncd restart if the disk is full
