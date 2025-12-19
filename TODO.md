@@ -3,14 +3,18 @@
 ## Annoyances
 
 - log insight (from host)
-- controller is stuck after i2c timeout and scanner termination
 - converter restart is tricky (host_computer/start_converting.sh)
-- i2c collisions. can i detect hangs? Consider a Watchdog? https://chat.openai.com/c/0a58a78e-a1ee-4510-95b5-fb1d8fc66790
-- instead of fire & forget, ensure there’s proper synchronization between the command/response flow of Raspberry Pi and Arduino. Each command from the Pi should have a corresponding and expected response behavior on the Arduino.
+
+## Potentially deferred
+- [can't repro?] controller is stuck after i2c timeout and scanner termination 
+- [can't repro?] i2c collisions. can i detect hangs? Consider a Watchdog? https://chat.openai.com/c/0a58a78e-a1ee-4510-95b5-fb1d8fc66790
+- [seems to wokr fine] instead of fire & forget, ensure there’s proper synchronization between the command/response flow of Raspberry Pi and Arduino. Each command from the Pi should have a corresponding and expected response behavior on the Arduino.
 - 
 
-
 ## Next
+- [x] Detect and mount a local harddrive
+- [ ] Consider the switch state on GPIO17 and allow local storage
+
 - [ ] Roll the logfile
 - [ ] Make clearer log message about film end detection (to detect bad sensor connections)
 - [ ] Think about adjusting Exposure without Shell Access
@@ -18,9 +22,7 @@
 - [ ] Handle if Directory on Host PC does not exist
 - [ ] Show "No connection to Controller" on display (for e.g. misaligned GPIO header)
 - [ ] try one lsyncd restart if the disk is full
-- [ ] Detect and mount a local harddrive
 - [ ] Get the Log onto the Host PC (rsync?)
-- [ ] Consider the switch state on GPIO17 and allow local storage
 - [ ] Average the scan speed rate
 - [ ] Auto-Stop Rewinds
 - [ ] think about an update scenario (version info?)
