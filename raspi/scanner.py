@@ -266,6 +266,7 @@ def switch_lsyncd_config(storage_location: int) -> None:
         _atomic_symlink(target_conf, LSYNCD_ACTIVE_CONF)
         logging.info(f"lsyncd: set active config -> {target_conf}")
         # Requires sudoers rule for pi to restart lsyncd without password.
+        subprocess.run(["sudo", "systemctl", "daemon-reload"], check=False)
         subprocess.run(["sudo", "systemctl", "restart", "lsyncd"], check=False)
     except Exception as e:
         logging.exception(f"lsyncd: failed to switch config to {target_conf}: {e}")
