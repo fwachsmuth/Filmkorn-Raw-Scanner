@@ -23,6 +23,13 @@ from datetime import datetime
 
 # basic configuration variables
 RAW_DIRS_PATH = "/mnt/ramdisk/" # This is where the camera saves to. Has to end with a slash
+
+# lsyncd config switching
+LSYNCD_DIR = "/home/pi/Filmkorn-Raw-Scanner/raspi"
+LSYNCD_ACTIVE_CONF = os.path.join(LSYNCD_DIR, "lsyncd.active.conf")
+LSYNCD_CONF_NET = os.path.join(LSYNCD_DIR, "lsyncd.conf")
+LSYNCD_CONF_LOCAL = os.path.join(LSYNCD_DIR, "lsyncd-local-hd.conf")
+
 AUTO_SHUTTER_SPEED = 0  # Zero enables AE, used in Preview mode
 DISK_SPACE_WAIT_THRESHOLD = 200_000_000  # 200 MB
 DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
@@ -233,6 +240,36 @@ def remove_empty_dirs():
         if os.path.isdir(file_path) and len(os.listdir(file_path)) == 0:
             os.rmdir(file_path)
 
+
+# --- lsyncd config switching helpers ---
+def _atomic_symlink(target: str, link_path: str) -> None:
+    """Atomically replace link_path with a symlink to target."""
+    tmp_path = link_path + ".tmp"
+    try:
+        if os.path.islink(tmp_path) or os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+    except FileNotFoundError:
+        pass
+    os.symlink(target, tmp_path)
+    os.replace(tmp_path, link_path)
+
+def switch_lsyncd_config(storage_location: int) -> None:
+    """
+    Switch lsyncd config via the lsyncd.active.conf symlink and restart lsyncd.
+
+    IMPORTANT: storage_location logic is reversed compared to the previous comment:
+      - 0 => HDD / local USB (exFAT) target
+      - 1 => Net / remote target
+    """
+    target_conf = LSYNCD_CONF_LOCAL if storage_location == 0 else LSYNCD_CONF_NET
+    try:
+        _atomic_symlink(target_conf, LSYNCD_ACTIVE_CONF)
+        logging.info(f"lsyncd: set active config -> {target_conf}")
+        # Requires sudoers rule for pi to restart lsyncd without password.
+        subprocess.run(["sudo", "systemctl", "restart", "lsyncd"], check=False)
+    except Exception as e:
+        logging.exception(f"lsyncd: failed to switch config to {target_conf}: {e}")
+
 def get_available_disk_space() -> int:
     info = os.statvfs(RAW_DIRS_PATH)
     return info.f_bavail * info.f_bsize
@@ -345,10 +382,16 @@ def setup():
     # Set the GPIO mode to BCM
     GPIO.setmode(GPIO.BCM)
 
-    # Set up GPIO pin 17 as an input. The "Target" Switch is connected here.
-    GPIO.setup(17, GPIO.IN)
-    input_state = GPIO.input(17)
-    logging.info(f"GPIO pin 17 state (0 is Net, 1 is HDD): {input_state}") 
+    # GPIO 17 (BCM) input. "Target" switch is connected here.
+    # IMPORTANT: Logic is reversed from the earlier note:
+    #   0 => HDD / local USB
+    #   1 => Net / remote
+    GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    storage_location = GPIO.input(17)
+    logging.info(f"GPIO 17 state (0=HDD/local, 1=Net/remote): {storage_location}")
+
+    # Switch lsyncd to the right config for the selected storage target.
+    switch_lsyncd_config(storage_location)
     # ---- Make sure we only run once, to avoid horrible crashes ¯\_(ツ)_/¯ 
     PID_FILE_PATH = "/tmp/scanner.pid"
     # log a pid
@@ -363,7 +406,7 @@ def setup():
         if len(contents) != 0:
             # file is not empty, it has a PID
             if process_is_running(contents):
-                logging.error(f"Scan Process is already running woth pid {contents}")
+                logging.error(f"Scan Process is already running with pid {contents}")
                 sys.exit(0)
 
             file.seek(0)
