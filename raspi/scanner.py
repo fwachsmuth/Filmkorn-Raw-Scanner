@@ -14,6 +14,7 @@ import time
 import os
 import os.path
 import atexit
+import threading
 import RPi.GPIO as GPIO
 import logging
 
@@ -39,6 +40,8 @@ EXPOSURE_VAL_FACTOR = math.log(SHUTTER_SPEED_RANGE[1] / SHUTTER_SPEED_RANGE[0]) 
 
 last_fim_process = None
 storage_location = None
+current_screen = None
+ready_screen_polling = False
 
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
@@ -133,6 +136,7 @@ class State:
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
     global last_fim_process
+    global current_screen
     
     # Create a new fim instance
     message_path = f'controller-screens/{message}.png'
@@ -152,6 +156,7 @@ def show_screen(message):
     logging.debug(f"Killed previous fim with PID: {last_fim_process.pid if last_fim_process else 'None'}. New PID is {new_fim_process.pid}.")    
 
     last_fim_process = new_fim_process  # Remember what to kill on the next screen update
+    current_screen = message
 
 def cleanup_terminal():
     print("Restoring terminal settings...")
@@ -165,13 +170,34 @@ def showReadyToScan(arg_bytes=None):
     logging.info("Showing Screen: Ready to Scan")
     show_ready_to_scan()
 
+def _ready_screen_poll_loop():
+    global ready_screen_polling, storage_location
+    ready_screen_polling = True
+    try:
+        while current_screen in ("ready-to-scan-local", "ready-to-scan-net"):
+            new_storage_location = GPIO.input(17)
+            if new_storage_location != storage_location:
+                storage_location = new_storage_location
+                logging.info(
+                    f"GPIO 17 changed while ready (0=HDD/local, 1=Net/remote): {storage_location}"
+                )
+                switch_lsyncd_config(storage_location)
+                screen = "ready-to-scan-local" if storage_location == 0 else "ready-to-scan-net"
+                show_screen(screen)
+            sleep(1)
+    finally:
+        ready_screen_polling = False
+
 def show_ready_to_scan():
     if storage_location == 0:
-        show_screen("ready-to-scan-local")
+        screen = "ready-to-scan-local"
     elif storage_location == 1:
-        show_screen("ready-to-scan-net")
+        screen = "ready-to-scan-net"
     else:
-        show_screen("ready-to-scan")
+        screen = "ready-to-scan"
+    show_screen(screen)
+    if screen in ("ready-to-scan-local", "ready-to-scan-net") and not ready_screen_polling:
+        threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
 # For things the Raspi tells (Ready to take next photo, give me value x).
 # In most cases, we are polling the Arduino, which owns flow control (but can't be master due to Raspi limitations)
