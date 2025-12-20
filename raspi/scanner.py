@@ -38,6 +38,7 @@ SHUTTER_SPEED_RANGE = 300, 500_000  # 300µs to 0.5s. This defines the range of 
 EXPOSURE_VAL_FACTOR = math.log(SHUTTER_SPEED_RANGE[1] / SHUTTER_SPEED_RANGE[0]) / 1024
 
 last_fim_process = None
+storage_location = None
 
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
@@ -162,7 +163,15 @@ def showInsertFilm(arg_bytes=None):
 
 def showReadyToScan(arg_bytes=None):
     logging.info("Showing Screen: Ready to Scan")
-    show_screen("ready-to-scan")
+    show_ready_to_scan()
+
+def show_ready_to_scan():
+    if storage_location == 0:
+        show_screen("ready-to-scan-local")
+    elif storage_location == 1:
+        show_screen("ready-to-scan-net")
+    else:
+        show_screen("ready-to-scan")
 
 # For things the Raspi tells (Ready to take next photo, give me value x).
 # In most cases, we are polling the Arduino, which owns flow control (but can't be master due to Raspi limitations)
@@ -289,7 +298,7 @@ def check_available_disk_space():
         while True:
             sleep(1)
             if get_available_disk_space() >= DISK_SPACE_WAIT_THRESHOLD:
-                show_screen("ready-to-scan")
+                show_ready_to_scan()
                 camera.start_preview()
                 return
     if available < DISK_SPACE_ABORT_THRESHOLD:    # 30 MB  
@@ -311,7 +320,7 @@ def set_init_values(arg_bytes):
         show_screen("insert-film")
     else:
         logging.info("Starting with Screen \"Ready to scan\"")
-        show_screen("ready-to-scan")
+        show_ready_to_scan()
 
 def set_zoom_mode_1_1(arg_bytes=None):
     state._zoom_mode = ZoomMode.Z1_1
@@ -446,7 +455,7 @@ def setup():
     subprocess.run(ssh_command_base + [f'open "`cat {host_path}/.scan_destination`/CinemaDNG"'])
 
     # Show a first screen to indicate we are running
-    show_screen("ready-to-scan")
+    show_ready_to_scan()
     tell_arduino(Command.TELL_INITVALUES)
     logging.info("Asked Controller about the initial values. ")
 
