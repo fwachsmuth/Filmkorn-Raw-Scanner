@@ -13,8 +13,20 @@
 
 ## Next
 - [x] Detect and mount a local harddrive
-- [ ] Consider the switch state on GPIO17 and allow local storage
+- [x] Consider the switch state on GPIO17 and allow local storage
+- [x] Set active lsyncd.conf via python
+- [x] catch missing harddrive
+- [ ] reflect scan target on screen
+- [ ] rename lsyncd.conf to lsyncd-to-host.conf (also in pairing script)
+- [ ] Allow comfortable conversion from a locally connected disk
 
+
+- [ ] is opme.sh working and ever called?
+
+- [ ] Irgendwie doch Buster upgraden..?
+
+- [ ] Fix the python3 foo on later macOS (start_converting.sh doesn't work anymore)
+- [ ] NTFS rw hinzunehmen
 - [ ] Roll the logfile
 - [ ] Make clearer log message about film end detection (to detect bad sensor connections)
 - [ ] Think about adjusting Exposure without Shell Access
