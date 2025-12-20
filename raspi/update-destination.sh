@@ -26,8 +26,7 @@ then
    echo "Some or all of the parameters are empty";
    helpFunction
 else
-    # Todo: Add if clause catching file writes: https://stackoverflow.com/a/73460574
-    cat << EOFCONFIGFILE > ~/Filmkorn-Raw-Scanner/raspi/lsyncd.conf
+    if ! cat << EOFCONFIGFILE > ~/Filmkorn-Raw-Scanner/raspi/lsyncd.conf
 settings {
   logfile = "/tmp/lsyncd.log",
   statusFile = "/tmp/lsyncd.status",
@@ -58,6 +57,10 @@ sync {
   }
 }
 EOFCONFIGFILE
+    then
+      echo "Failed to write lsyncd.conf" >&2
+      exit 1
+    fi
     echo "${rawpath%/}" > ~/Filmkorn-Raw-Scanner/raspi/.scan_destination
     echo "New host: ${userhost}"
     echo "New path: ${rawpath%/}"
