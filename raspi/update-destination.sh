@@ -26,7 +26,7 @@ then
    echo "Some or all of the parameters are empty";
    helpFunction
 else
-    if ! cat << EOFCONFIGFILE > ~/Filmkorn-Raw-Scanner/raspi/lsyncd.conf
+    if ! cat << EOFCONFIGFILE > ~/Filmkorn-Raw-Scanner/raspi/lsyncd-to-host.conf
 settings {
   logfile = "/tmp/lsyncd.log",
   statusFile = "/tmp/lsyncd.status",
@@ -58,7 +58,7 @@ sync {
 }
 EOFCONFIGFILE
     then
-      echo "Failed to write lsyncd.conf" >&2
+      echo "Failed to write lsyncd-to-host.conf" >&2
       exit 1
     fi
     echo "${rawpath%/}" > ~/Filmkorn-Raw-Scanner/raspi/.scan_destination

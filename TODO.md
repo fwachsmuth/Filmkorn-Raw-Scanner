@@ -16,9 +16,13 @@
 - [x] Consider the switch state on GPIO17 and allow local storage
 - [x] Set active lsyncd.conf via python
 - [x] catch missing harddrive
-- [ ] reflect scan target on screen
-- [ ] rename lsyncd.conf to lsyncd-to-host.conf (also in pairing script)
+- [x] reflect scan target on screen
+- [x] save to raw-intermediates when saving to USB drive
+- [x] rename lsyncd.conf to lsyncd-to-host.conf (also in pairing script)
 - [ ] Allow comfortable conversion from a locally connected disk
+- [ ] Handle if Directory on Host PC does not exist
+- [ ] Show "No connection to Controller" on display (for e.g. misaligned GPIO header)
+- [ ] Get the Log onto the Host PC (rsync?)
 
 
 - [ ] is opme.sh working and ever called?
@@ -29,14 +33,11 @@
 - [ ] NTFS rw hinzunehmen
 - [ ] Roll the logfile
 - [ ] Make clearer log message about film end detection (to detect bad sensor connections)
-- [ ] Think about adjusting Exposure without Shell Access
+- [x] Think about adjusting Exposure without Shell Access
 - [ ] Fuses still at 1 MHz when bootstrapping from raspi. Test burning fuses with 5 VCC. MISO is 5V tho. 47K inbetween? Reset has a 10k Pullup too. I would recommend driving the pins from 5V logic via at least 10K resistor and also connect an external Schottky diode from the pin to 3.3V to prevent the input pin's voltage rising much above the PI's supply rail.
-- [ ] Handle if Directory on Host PC does not exist
-- [ ] Show "No connection to Controller" on display (for e.g. misaligned GPIO header)
-- [ ] try one lsyncd restart if the disk is full
-- [ ] Get the Log onto the Host PC (rsync?)
+- [ ] try one lsyncd restart if the disk is full
 - [ ] Average the scan speed rate
-- [ ] Auto-Stop Rewinds
+- [ ] Auto-Stop in-channel Rewinds
 - [ ] think about an update scenario (version info?)
     - most pragmatic:
         - shellscript on host pc:

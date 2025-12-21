@@ -10,7 +10,7 @@
 │ - updates the repository   │                 ┌──────────────────────────────┐
 │   on the raspi             │                 │ update-destination.sh        │
 │ - attempts to update the   ├────────────────►│                              │
-│   destination paths        │      calls      │ - creates lsyncd.conf        │
+│   destination paths        │      calls      │ - creates lsyncd-to-host.conf|        │
 └────────────────────────────┘                 │ - creates .scan_destination  │
                                       ┌───────►│                              │
 ┌────────────────────────────┐        │        └──────────────────────────────┘

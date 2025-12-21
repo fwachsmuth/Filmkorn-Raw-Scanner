@@ -28,7 +28,7 @@ RAW_DIRS_PATH = "/mnt/ramdisk/" # This is where the camera saves to. Has to end 
 # lsyncd config switching
 LSYNCD_DIR = "/home/pi/Filmkorn-Raw-Scanner/raspi"
 LSYNCD_ACTIVE_CONF = os.path.join(LSYNCD_DIR, "lsyncd.active.conf")
-LSYNCD_CONF_NET = os.path.join(LSYNCD_DIR, "lsyncd.conf")
+LSYNCD_CONF_NET = os.path.join(LSYNCD_DIR, "lsyncd-to-host.conf")
 LSYNCD_CONF_LOCAL = os.path.join(LSYNCD_DIR, "lsyncd-local-hd.conf")
 
 AUTO_SHUTTER_SPEED = 0  # Zero enables AE, used in Preview mode
