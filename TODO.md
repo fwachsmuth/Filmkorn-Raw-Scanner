@@ -19,18 +19,22 @@
 - [x] reflect scan target on screen
 - [x] save to raw-intermediates when saving to USB drive
 - [x] rename lsyncd.conf to lsyncd-to-host.conf (also in pairing script)
+- [x] Show "syncing files" when scanning is done but lsync is still going
 - [ ] Allow comfortable conversion from a locally connected disk
 - [ ] Handle if Directory on Host PC does not exist
 - [ ] Show "No connection to Controller" on display (for e.g. misaligned GPIO header)
 - [ ] Get the Log onto the Host PC (rsync?)
+- [ ] consider moving from exfat-fuse to kernel drivers
+- [ ] move or symlink from ~ to /usr/local or /opt
 
 
 - [ ] is opme.sh working and ever called?
 
 - [ ] Irgendwie doch Buster upgraden..?
+    - [ ] dann aber mit etckeeper tracken (https://chatgpt.com/share/6947fa83-4e94-800e-b7c0-ec23a78507e2)
 
 - [ ] Fix the python3 foo on later macOS (start_converting.sh doesn't work anymore)
-- [ ] NTFS rw hinzunehmen
+- [ ] NTFS rw hinzunehmen? (Langam)
 - [ ] Roll the logfile
 - [ ] Make clearer log message about film end detection (to detect bad sensor connections)
 - [x] Think about adjusting Exposure without Shell Access
