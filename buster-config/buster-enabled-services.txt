@@ -1,0 +1,43 @@
+UNIT FILE                              STATE  
+autovt@.service                        enabled
+avahi-daemon.service                   enabled
+bluetooth.service                      enabled
+console-setup.service                  enabled
+cron.service                           enabled
+dbus-fi.w1.wpa_supplicant1.service     enabled
+dbus-org.bluez.service                 enabled
+dbus-org.freedesktop.Avahi.service     enabled
+dbus-org.freedesktop.timesync1.service enabled
+dhcpcd.service                         enabled
+dhcpcd5.service                        enabled
+dphys-swapfile.service                 enabled
+fake-hwclock.service                   enabled
+getty@.service                         enabled
+hciuart.service                        enabled
+keyboard-setup.service                 enabled
+lsyncd.service                         enabled
+networking.service                     enabled
+ramdisk.service                        enabled
+raspberrypi-net-mods.service           enabled
+rpi-display-backlight.service          enabled
+rpi-eeprom-update.service              enabled
+rsync.service                          enabled
+rsyslog.service                        enabled
+scanner.service                        enabled
+ssh.service                            enabled
+sshd.service                           enabled
+sshswitch.service                      enabled
+syslog.service                         enabled
+systemd-timesyncd.service              enabled
+triggerhappy.service                   enabled
+wpa_supplicant.service                 enabled
+avahi-daemon.socket                    enabled
+triggerhappy.socket                    enabled
+nfs-client.target                      enabled
+remote-fs.target                       enabled
+apt-daily-upgrade.timer                enabled
+apt-daily.timer                        enabled
+logrotate.timer                        enabled
+man-db.timer                           enabled
+
+40 unit files listed.
