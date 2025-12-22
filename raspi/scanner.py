@@ -224,7 +224,7 @@ def _ready_screen_poll_loop():
     global ready_screen_polling, storage_location
     ready_screen_polling = True
     try:
-        while current_screen in ("ready-to-scan-local", "ready-to-scan-net"):
+        while ready_to_scan:
             new_storage_location = GPIO.input(17)
             if new_storage_location != storage_location:
                 storage_location = new_storage_location
@@ -232,8 +232,7 @@ def _ready_screen_poll_loop():
                     f"GPIO 17 changed while ready (0=HDD/local, 1=Net/remote): {storage_location}"
                 )
                 switch_lsyncd_config(storage_location)
-                screen = "ready-to-scan-local" if storage_location == 0 else "ready-to-scan-net"
-                show_screen(screen)
+                show_ready_to_scan()
             sleep(1)
     finally:
         ready_screen_polling = False
@@ -246,7 +245,7 @@ def show_ready_to_scan():
     else:
         screen = "ready-to-scan"
     show_screen(screen)
-    if screen in ("ready-to-scan-local", "ready-to-scan-net") and not ready_screen_polling:
+    if ready_to_scan and not ready_screen_polling:
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
 def camera_start():
