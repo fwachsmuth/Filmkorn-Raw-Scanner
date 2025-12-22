@@ -33,7 +33,7 @@ SENSOR_BIT_DEPTH = 12
 
 # --- Controller MCU (ATmega328P) Power Switch ---
 UC_POWER_GPIO = 16  # GPIO16 (physical pin 36) enables µC power switch on the controller PCB
-UC_POWER_BOOT_DELAY_S = 0.15  # allow the ATmega328P to boot before first I2C transaction
+UC_POWER_BOOT_DELAY_S = 0.5  # allow the ATmega328P to boot before first I2C transaction
 
 # lsyncd config switching
 LSYNCD_DIR = "/home/pi/Filmkorn-Raw-Scanner/raspi"
@@ -251,11 +251,14 @@ def tell_arduino(command: Command):
             arduino.write_byte(arduino_i2c_address, command.value)
             return  # Success, exit the function
         except OSError as e:
-            if e.errno != errno.EREMOTEIO:
-                raise e  # Reraise if it's an unexpected error
-            logging.warning(f"Attempt {attempt + 1}: Got no I2C answer when telling the Arduino something.")
+            # Depending on kernel/driver, a NACK can surface as EREMOTEIO or EIO.
+            if e.errno not in (errno.EREMOTEIO, errno.EIO):
+                raise e  # unexpected
+            logging.warning(
+                f"Attempt {attempt + 1}: Got no I2C answer when telling the Arduino something (errno={e.errno})."
+            )
             sleep(retry_delay)
-            retry_delay *= 2  # Increase the delay between retries, optional exponential backoff
+            retry_delay *= 2  # exponential backoff
     logging.error("Failed to communicate with Arduino after several attempts.")
 
 # For retrieving (multi-byte) answers to explicit tells
@@ -274,9 +277,12 @@ def ask_arduino() -> Optional["list[int]"]:
             response = arduino.read_i2c_block_data(arduino_i2c_address, 0, 4)
             return response  # Success, return the response
         except OSError as e:
-            if e.errno != errno.EREMOTEIO:
-                raise e  # Reraise unexpected errors
-            logging.warning(f"Attempt {attempt + 1}: No I2C answer when polling Arduino. Probably busy right now.")
+            # Depending on kernel/driver, a NACK can surface as EREMOTEIO or EIO.
+            if e.errno not in (errno.EREMOTEIO, errno.EIO):
+                raise e  # unexpected
+            logging.warning(
+                f"Attempt {attempt + 1}: No I2C answer when polling Arduino. Probably busy right now (errno={e.errno})."
+            )
             sleep(retry_delay)
             retry_delay *= 2  # Exponential backoff
     logging.error("Failed to read from Arduino after several attempts. Arduino might be rebooting?")
@@ -564,13 +570,15 @@ def setup():
 def loop():
     poll_ssh_subprocess()
 
-    received = ask_arduino() # This tells us what to do next. See Command enum.
+    received = ask_arduino()  # This tells us what to do next. See Command enum.
     command = None
-    if received is not None:
-        try:
-            command = Command(received[0])
-        except ValueError:
-            logging.error(f"Received unknown command {command}")
+    if received is None:
+        return
+    try:
+        command = Command(received[0])
+    except ValueError:
+        logging.error(f"Received unknown command byte: {received[0]}")
+        return
 
     if command is not None:
         # Using a dict instead of a switch/case, mapping I2C commands to functions
