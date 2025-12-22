@@ -207,7 +207,7 @@ def camera_start():
     if camera_running:
         return
     if not preview_started:
-        camera.start_preview(Preview.DRM)
+        camera.start_preview(Preview.DRM, buffer_count=2)
         preview_started = True
     camera.start()
     camera_running = True
@@ -486,6 +486,7 @@ def setup():
         raw={"format": raw_format},
         sensor={"output_size": FULL_RESOLUTION, "bit_depth": SENSOR_BIT_DEPTH},
         display="main",
+        buffer_count=2,
         transform=Transform(rotation=180, hflip=True, vflip=False),
     )
     camera.configure(camera_config)
