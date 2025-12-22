@@ -54,6 +54,7 @@ ready_screen_polling = False
 camera_running = False
 sensor_size = None
 overlay_cache = {}
+overlay_supported = None  # None=unknown, True/False after first set_overlay attempt
 preview_started = False
 preview_size = (800, 480)
 
@@ -149,10 +150,11 @@ class State:
 
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
-    global current_screen
-    
-    message_path = f'controller-screens/{message}.png'
+    global current_screen, overlay_supported
+
+    message_path = f"controller-screens/{message}.png"
     overlay = overlay_cache.get(message_path)
+
     if overlay is None:
         image = Image.open(message_path).convert("RGBA")
         if image.size != preview_size:
@@ -167,13 +169,25 @@ def show_screen(message):
         rgba[..., 3] = 255
         overlay = rgba
         overlay_cache[message_path] = overlay
-        try:
-            camera.set_overlay(overlay)
-        except RuntimeError as e:
-            if "Overlays not supported" in str(e):
-                print(f"WARNING: overlays not supported, screen '{screen_name}' not shown")
-                return
-            raise
+
+    # Picamera2 DRM preview backends do not always support overlays.
+    # Detect once and then no-op overlays if unsupported.
+    if overlay_supported is False:
+        current_screen = message
+        return
+
+    try:
+        camera.set_overlay(overlay)
+        overlay_supported = True
+    except RuntimeError as e:
+        if "Overlays not supported" in str(e):
+            if overlay_supported is None:
+                logging.warning("Preview backend does not support overlays; UI screens will be suppressed")
+            overlay_supported = False
+            current_screen = message
+            return
+        raise
+
     current_screen = message
 
 def cleanup_terminal():
