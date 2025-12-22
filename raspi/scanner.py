@@ -238,6 +238,8 @@ def _ready_screen_poll_loop():
         ready_screen_polling = False
 
 def show_ready_to_scan():
+    global ready_to_scan
+    ready_to_scan = True
     if storage_location == 0:
         screen = "ready-to-scan-local"
     elif storage_location == 1:
