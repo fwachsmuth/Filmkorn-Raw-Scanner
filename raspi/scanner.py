@@ -233,6 +233,18 @@ def _ready_screen_poll_loop():
                 logging.info(
                     f"GPIO 17 changed while ready (0=HDD/local, 1=Net/remote): {storage_location}"
                 )
+                if storage_location == 0 and not os.path.ismount("/mnt/usb"):
+                    show_screen("no-drive-connected")
+                else:
+                    switch_lsyncd_config(storage_location)
+                    show_ready_to_scan()
+                sleep(1)
+                continue
+            if (
+                storage_location == 0
+                and current_screen == "no-drive-connected"
+                and os.path.ismount("/mnt/usb")
+            ):
                 switch_lsyncd_config(storage_location)
                 show_ready_to_scan()
             sleep(1)
@@ -241,6 +253,12 @@ def _ready_screen_poll_loop():
 
 def show_ready_to_scan():
     global ready_to_scan
+    if storage_location == 0 and not os.path.ismount("/mnt/usb"):
+        ready_to_scan = False
+        show_screen("no-drive-connected")
+        if not ready_screen_polling:
+            threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
+        return
     ready_to_scan = True
     if storage_location == 0:
         screen = "ready-to-scan-local"
