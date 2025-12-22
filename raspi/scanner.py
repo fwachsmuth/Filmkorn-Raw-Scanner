@@ -18,6 +18,8 @@ import threading
 import RPi.GPIO as GPIO
 import logging
 
+import numpy as np
+from PIL import Image
 from smbus2 import SMBus
 from picamera2 import Picamera2
 from libcamera import Transform, controls
@@ -41,12 +43,12 @@ DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 SHUTTER_SPEED_RANGE = 300, 500_000  # 300µs to 0.5s. This defines the range of the exposure potentiometer
 EXPOSURE_VAL_FACTOR = math.log(SHUTTER_SPEED_RANGE[1] / SHUTTER_SPEED_RANGE[0]) / 1024
 
-last_fim_process = None
 storage_location = None
 current_screen = None
 ready_screen_polling = False
 camera_running = False
 sensor_size = None
+overlay_cache = {}
 
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
@@ -140,27 +142,17 @@ class State:
 
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
-    global last_fim_process
     global current_screen
     
-    # Create a new fim instance
     message_path = f'controller-screens/{message}.png'
-    command = ["fim", "--quiet", "-d /dev/fb0", message_path]
-    new_fim_process = subprocess.Popen(command,
-                        #  stdin =subprocess.PIPE,
-                           stdout=subprocess.PIPE,
-                           stderr=subprocess.PIPE)
-
-    # Kill the previous instance of fim if it's still running
-    if last_fim_process is not None:
-        try:
-            os.kill(last_fim_process.pid, signal.SIGKILL) # SIGKILL is the only way to avoid the tty flickering through. 
-            last_fim_process.wait()       # Waits for the process to exit, leave no zombies behind
-        except OSError:
-            pass  # Ignore if the process is already terminated 
-    logging.debug(f"Killed previous fim with PID: {last_fim_process.pid if last_fim_process else 'None'}. New PID is {new_fim_process.pid}.")    
-
-    last_fim_process = new_fim_process  # Remember what to kill on the next screen update
+    overlay = overlay_cache.get(message_path)
+    if overlay is None:
+        image = Image.open(message_path).convert("RGBA")
+        rgba = np.array(image, dtype=np.uint8)
+        rgba[..., 3] = 255
+        overlay = rgba
+        overlay_cache[message_path] = overlay
+    camera.set_overlay(overlay)
     current_screen = message
 
 def cleanup_terminal():
@@ -212,11 +204,7 @@ def camera_start():
     camera_running = True
 
 def camera_stop():
-    global camera_running
-    if not camera_running:
-        return
-    camera.stop()
-    camera_running = False
+    return
 
 def set_auto_exposure(enabled: bool):
     camera.set_controls({"AeEnable": enabled})
@@ -354,7 +342,6 @@ def check_available_disk_space():
     available = get_available_disk_space()
     if available < DISK_SPACE_WAIT_THRESHOLD:   # 200 MB
         logging.warning(f"Only {available} bytes left on the volume; waiting for more space")
-        camera_stop()
         set_auto_exposure(True)
         show_screen("waiting-for-files-to-sync")
         while True:
@@ -406,9 +393,8 @@ def set_zoom_mode_10_1(arg_bytes=None):
 
 def set_lamp_off(arg_bytes=None):
     set_zoom_mode_1_1()
-    camera_stop()
     set_auto_exposure(True)
-    logging.info("Lamp turned off and camera preview disabled")
+    logging.info("Lamp turned off while keeping preview active")
 
 def set_lamp_on(arg_bytes=None):
     camera_start()
@@ -445,7 +431,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, last_fim_pid, storage_location, sensor_size
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -470,6 +456,37 @@ def setup():
     GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     storage_location = GPIO.input(17)
     logging.info(f"GPIO 17 state (0=HDD/local, 1=Net/remote): {storage_location}")
+
+    # Instanziate things
+    state = State()
+    camera = Picamera2()
+    raw_format = None
+    for candidate in camera.sensor_modes:
+        if candidate.get("bit_depth") == SENSOR_BIT_DEPTH:
+            raw_format = candidate.get("unpacked") or candidate.get("format")
+            break
+    if raw_format is None:
+        raw_format = "SRGGB12"
+    camera_config = camera.create_still_configuration(
+        main={"size": (507, 380)},
+        raw={"format": raw_format},
+        sensor={"output_size": FULL_RESOLUTION, "bit_depth": SENSOR_BIT_DEPTH},
+        transform=Transform(rotation=180, hflip=True, vflip=False),
+    )
+    camera.configure(camera_config)
+    sensor_size = camera.camera_configuration().get("sensor", {}).get("output_size", FULL_RESOLUTION)
+    camera.set_controls({
+        "AeEnable": True,
+        "AwbEnable": True,
+        "AwbMode": controls.AwbModeEnum.Daylight,
+        "Brightness": 0.0,
+        "Sharpness": 0.0,
+        "Contrast": 0.0,
+        "Saturation": 0.0,
+        "ExposureValue": 0.0,
+        "AnalogueGain": 1.0,
+    })
+    camera_start()
 
     # Switch lsyncd to the right config for the selected storage target.
     switch_lsyncd_config(storage_location)
@@ -525,36 +542,6 @@ def setup():
     show_ready_to_scan()
     tell_arduino(Command.TELL_INITVALUES)
     logging.info("Asked Controller about the initial values. ")
-
-    # Instanziate things
-    state = State()
-    camera = Picamera2()
-    raw_format = None
-    for candidate in camera.sensor_modes:
-        if candidate.get("bit_depth") == SENSOR_BIT_DEPTH:
-            raw_format = candidate.get("unpacked") or candidate.get("format")
-            break
-    if raw_format is None:
-        raw_format = "SRGGB12"
-    camera_config = camera.create_still_configuration(
-        main={"size": (507, 380)},
-        raw={"format": raw_format},
-        sensor={"output_size": FULL_RESOLUTION, "bit_depth": SENSOR_BIT_DEPTH},
-        transform=Transform(rotation=180, hflip=True, vflip=False),
-    )
-    camera.configure(camera_config)
-    sensor_size = camera.camera_configuration().get("sensor", {}).get("output_size", FULL_RESOLUTION)
-    camera.set_controls({
-        "AeEnable": True,
-        "AwbEnable": True,
-        "AwbMode": controls.AwbModeEnum.Daylight,
-        "Brightness": 0.0,
-        "Sharpness": 0.0,
-        "Contrast": 0.0,
-        "Saturation": 0.0,
-        "ExposureValue": 0.0,
-        "AnalogueGain": 1.0,
-    })
 
     ssh_subprocess = None
 
