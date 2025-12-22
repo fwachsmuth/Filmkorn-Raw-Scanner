@@ -497,7 +497,7 @@ def setup():
     if raw_format is None:
         raw_format = "SRGGB12"
     camera_config = camera.create_still_configuration(
-        main={"size": preview_size},
+        main={"size": preview_size, "preserve_ar": False},
         raw={"format": raw_format},
         sensor={"output_size": FULL_RESOLUTION, "bit_depth": SENSOR_BIT_DEPTH},
         display="main",
