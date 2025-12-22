@@ -57,6 +57,8 @@ overlay_cache = {}
 overlay_supported = None  # None=unknown, True/False after first set_overlay attempt
 preview_started = False
 preview_size = (800, 480)
+overlay_ready = False
+pending_overlay = None
 
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
@@ -150,7 +152,7 @@ class State:
 
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
-    global current_screen, overlay_supported
+    global current_screen, overlay_supported, pending_overlay
 
     message_path = f"controller-screens/{message}.png"
     overlay = overlay_cache.get(message_path)
@@ -170,25 +172,29 @@ def show_screen(message):
         overlay = rgba
         overlay_cache[message_path] = overlay
 
-    # Picamera2 DRM preview backends do not always support overlays.
-    # Detect once and then no-op overlays if unsupported.
-    if overlay_supported is False:
-        current_screen = message
-        return
+    current_screen = message
+    pending_overlay = overlay
+    _apply_overlay_if_ready()
 
+def _apply_overlay_if_ready():
+    global overlay_supported, pending_overlay
+    if pending_overlay is None or not overlay_ready:
+        return
+    if overlay_supported is False:
+        pending_overlay = None
+        return
     try:
-        camera.set_overlay(overlay)
+        camera.set_overlay(pending_overlay)
         overlay_supported = True
+        pending_overlay = None
     except RuntimeError as e:
         if "Overlays not supported" in str(e):
             if overlay_supported is None:
                 logging.warning("Preview backend does not support overlays; UI screens will be suppressed")
             overlay_supported = False
-            current_screen = message
+            pending_overlay = None
             return
         raise
-
-    current_screen = message
 
 def cleanup_terminal():
     print("Restoring terminal settings...")
@@ -486,7 +492,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -527,6 +533,7 @@ def setup():
             break
     if raw_format is None:
         raw_format = "SRGGB12"
+    overlay_ready = False
     camera_config = camera.create_still_configuration(
         main={"size": preview_size, "preserve_ar": False},
         raw={"format": raw_format},
@@ -550,6 +557,8 @@ def setup():
         "AnalogueGain": 1.0,
     })
     camera_start()
+    overlay_ready = True
+    _apply_overlay_if_ready()
 
     # Switch lsyncd to the right config for the selected storage target.
     switch_lsyncd_config(storage_location)
