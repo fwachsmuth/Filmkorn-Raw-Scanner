@@ -469,7 +469,9 @@ def set_zoom_mode_10_1(arg_bytes=None):
 def set_lamp_off(arg_bytes=None):
     set_zoom_mode_1_1()
     set_auto_exposure(True)
-    if last_status_screen:
+    if last_status_screen in ("ready-to-scan", "ready-to-scan-local", "ready-to-scan-net"):
+        show_ready_to_scan()
+    elif last_status_screen:
         show_screen(last_status_screen)
     elif ready_to_scan:
         show_ready_to_scan()
