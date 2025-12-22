@@ -167,7 +167,13 @@ def show_screen(message):
         rgba[..., 3] = 255
         overlay = rgba
         overlay_cache[message_path] = overlay
-    camera.set_overlay(overlay)
+        try:
+            camera.set_overlay(overlay)
+        except RuntimeError as e:
+            if "Overlays not supported" in str(e):
+                print(f"WARNING: overlays not supported, screen '{screen_name}' not shown")
+                return
+            raise
     current_screen = message
 
 def cleanup_terminal():
@@ -358,9 +364,20 @@ def switch_lsyncd_config(storage_location: int) -> None:
     except Exception as e:
         logging.exception(f"lsyncd: failed to switch config to {target_conf}: {e}")
 
-def get_available_disk_space() -> int:
-    info = os.statvfs(RAW_DIRS_PATH)
-    return info.f_bavail * info.f_bsize
+def get_available_disk_space():
+    # Ensure RAW output directory exists
+    try:
+        os.makedirs(RAW_DIRS_PATH, exist_ok=True)
+    except Exception as e:
+        print(f"WARNING: could not create RAW_DIRS_PATH '{RAW_DIRS_PATH}': {e}")
+
+    try:
+        info = os.statvfs(RAW_DIRS_PATH)
+    except FileNotFoundError:
+        # Fallback to root filesystem so the service keeps running
+        info = os.statvfs("/")
+
+    return info.f_bavail * info.f_frsize
 
 def check_available_disk_space():
     available = get_available_disk_space()
