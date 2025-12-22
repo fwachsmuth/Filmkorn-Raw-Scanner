@@ -59,6 +59,18 @@ preview_size = (800, 480)
 overlay_ready = False
 pending_overlay = None
 ready_to_scan = False
+last_status_screen = None
+STATUS_SCREENS = {
+    "insert-film",
+    "ready-to-scan",
+    "ready-to-scan-local",
+    "ready-to-scan-net",
+    "no-drive-connected",
+    "waiting-for-files-to-sync",
+    "target-dir-does-not-exist",
+    "cannot-connect-to-arduino",
+    "cannot-connect-to-paired-mac",
+}
 
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
@@ -152,7 +164,7 @@ class State:
 
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
-    global current_screen, pending_overlay
+    global current_screen, pending_overlay, last_status_screen
 
     message_path = f"controller-screens/{message}.png"
     overlay = overlay_cache.get(message_path)
@@ -173,6 +185,8 @@ def show_screen(message):
         overlay_cache[message_path] = overlay
 
     current_screen = message
+    if message in STATUS_SCREENS:
+        last_status_screen = message
     pending_overlay = overlay
     _apply_overlay_if_ready()
 
@@ -455,7 +469,9 @@ def set_zoom_mode_10_1(arg_bytes=None):
 def set_lamp_off(arg_bytes=None):
     set_zoom_mode_1_1()
     set_auto_exposure(True)
-    if ready_to_scan:
+    if last_status_screen:
+        show_screen(last_status_screen)
+    elif ready_to_scan:
         show_ready_to_scan()
     logging.info("Lamp turned off while keeping preview active")
 
