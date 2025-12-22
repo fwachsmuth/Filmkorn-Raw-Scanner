@@ -21,7 +21,7 @@ import logging
 import numpy as np
 from PIL import Image
 from smbus2 import SMBus
-from picamera2 import Picamera2
+from picamera2 import Picamera2, Preview
 from libcamera import Transform, controls
 from datetime import datetime
 
@@ -54,6 +54,7 @@ ready_screen_polling = False
 camera_running = False
 sensor_size = None
 overlay_cache = {}
+preview_started = False
 
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
@@ -202,9 +203,12 @@ def show_ready_to_scan():
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
 def camera_start():
-    global camera_running
+    global camera_running, preview_started
     if camera_running:
         return
+    if not preview_started:
+        camera.start_preview(Preview.DRM)
+        preview_started = True
     camera.start()
     camera_running = True
 
@@ -481,6 +485,7 @@ def setup():
         main={"size": (507, 380)},
         raw={"format": raw_format},
         sensor={"output_size": FULL_RESOLUTION, "bit_depth": SENSOR_BIT_DEPTH},
+        display="main",
         transform=Transform(rotation=180, hflip=True, vflip=False),
     )
     camera.configure(camera_config)
