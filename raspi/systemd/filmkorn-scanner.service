@@ -1,21 +1,29 @@
 [Unit]
-Description=Filmkorn scanner controller
+Description=Filmkorn Scanner controller
 After=network-online.target
 Wants=network-online.target
+
+# We want exclusive control of tty1 for DRM preview output.
+Conflicts=getty@tty1.service
+After=getty@tty1.service
 
 [Service]
 Type=simple
 User=pi
 WorkingDirectory=/home/pi/Filmkorn-Raw-Scanner/raspi
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/usr/bin/python3 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py
+
+# Switch to VT1 and run attached to tty1 so Picamera2 DRM preview shows on HDMI.
+ExecStartPre=/usr/bin/chvt 1
+ExecStart=/usr/bin/python3 -u /home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py
+
 Restart=on-failure
 RestartSec=1
 
-# Attach to local console so DRM preview works reliably
+# Attach stdin/stdout to tty1 (and also keep logs in journald)
 StandardInput=tty
-StandardOutput=tty
-StandardError=journal
+StandardOutput=journal+console
+StandardError=journal+console
 TTYPath=/dev/tty1
 TTYReset=yes
 TTYVHangup=yes
