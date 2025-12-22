@@ -55,6 +55,7 @@ camera_running = False
 sensor_size = None
 overlay_cache = {}
 preview_started = False
+preview_size = (800, 480)
 
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
@@ -154,6 +155,14 @@ def show_screen(message):
     overlay = overlay_cache.get(message_path)
     if overlay is None:
         image = Image.open(message_path).convert("RGBA")
+        if image.size != preview_size:
+            scale = min(preview_size[0] / image.size[0], preview_size[1] / image.size[1])
+            new_size = (int(image.size[0] * scale), int(image.size[1] * scale))
+            resized = image.resize(new_size, Image.LANCZOS)
+            canvas = Image.new("RGBA", preview_size, (0, 0, 0, 255))
+            offset = ((preview_size[0] - new_size[0]) // 2, (preview_size[1] - new_size[1]) // 2)
+            canvas.paste(resized, offset)
+            image = canvas
         rgba = np.array(image, dtype=np.uint8)
         rgba[..., 3] = 255
         overlay = rgba
@@ -446,7 +455,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -488,7 +497,7 @@ def setup():
     if raw_format is None:
         raw_format = "SRGGB12"
     camera_config = camera.create_still_configuration(
-        main={"size": (507, 380)},
+        main={"size": preview_size},
         raw={"format": raw_format},
         sensor={"output_size": FULL_RESOLUTION, "bit_depth": SENSOR_BIT_DEPTH},
         display="main",
@@ -497,6 +506,7 @@ def setup():
     )
     camera.configure(camera_config)
     sensor_size = camera.camera_configuration().get("sensor", {}).get("output_size", FULL_RESOLUTION)
+    preview_size = camera.camera_configuration().get("main", {}).get("size", preview_size)
     camera.set_controls({
         "AeEnable": True,
         "AwbEnable": True,
