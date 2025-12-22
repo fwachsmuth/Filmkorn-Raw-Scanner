@@ -182,6 +182,13 @@ def _apply_overlay_if_ready():
     camera.set_overlay(pending_overlay)
     pending_overlay = None
 
+def clear_overlay():
+    global pending_overlay, current_screen
+    pending_overlay = None
+    current_screen = None
+    if overlay_ready:
+        camera.set_overlay(None)
+
 def cleanup_terminal():
     print("Restoring terminal settings...")
     subprocess.run(['stty', 'sane'])
@@ -448,6 +455,7 @@ def set_lamp_off(arg_bytes=None):
 def set_lamp_on(arg_bytes=None):
     camera_start()
     set_auto_exposure(True)
+    clear_overlay()
     logging.info("Lamp turned on and camera preview enabled")
 
 def shoot_raw(arg_bytes=None):
