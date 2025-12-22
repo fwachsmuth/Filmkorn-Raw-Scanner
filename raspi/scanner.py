@@ -19,11 +19,14 @@ import RPi.GPIO as GPIO
 import logging
 
 from smbus2 import SMBus
-from picamera import PiCamera
+from picamera2 import Picamera2
+from libcamera import Transform, controls
 from datetime import datetime
 
 # basic configuration variables
 RAW_DIRS_PATH = "/mnt/ramdisk/" # This is where the camera saves to. Has to end with a slash
+FULL_RESOLUTION = (4056, 3840)
+SENSOR_BIT_DEPTH = 12
 
 # lsyncd config switching
 LSYNCD_DIR = "/home/pi/Filmkorn-Raw-Scanner/raspi"
@@ -42,6 +45,8 @@ last_fim_process = None
 storage_location = None
 current_screen = None
 ready_screen_polling = False
+camera_running = False
+sensor_size = None
 
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
@@ -103,7 +108,7 @@ class State:
 
     @property
     def lamp_mode(self) -> bool:
-        return camera.preview is not None
+        return camera_running
 
     @property
     def zoom_mode(self) -> ZoomMode:
@@ -113,7 +118,7 @@ class State:
         raws_path = datetime_to_raws_path(datetime.now())
         remove_empty_dirs()
         os.makedirs(raws_path)
-        self.raws_path = os.path.join(raws_path, "{:08d}.jpg")
+        self.raws_path = os.path.join(raws_path, "{:08d}.dng")
         logging.info(f"Set raws path to {raws_path}")
 
     def start_scan(self, arg_bytes=None):
@@ -198,6 +203,37 @@ def show_ready_to_scan():
     show_screen(screen)
     if screen in ("ready-to-scan-local", "ready-to-scan-net") and not ready_screen_polling:
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
+
+def camera_start():
+    global camera_running
+    if camera_running:
+        return
+    camera.start()
+    camera_running = True
+
+def camera_stop():
+    global camera_running
+    if not camera_running:
+        return
+    camera.stop()
+    camera_running = False
+
+def set_auto_exposure(enabled: bool):
+    camera.set_controls({"AeEnable": enabled})
+
+def set_zoom_crop(x_frac: float, y_frac: float, w_frac: float, h_frac: float):
+    if sensor_size is None:
+        return
+    sensor_width, sensor_height = sensor_size
+    x = int(sensor_width * x_frac)
+    y = int(sensor_height * y_frac)
+    w = max(1, int(sensor_width * w_frac))
+    h = max(1, int(sensor_height * h_frac))
+    if x + w > sensor_width:
+        w = sensor_width - x
+    if y + h > sensor_height:
+        h = sensor_height - y
+    camera.set_controls({"ScalerCrop": (x, y, w, h)})
 
 # For things the Raspi tells (Ready to take next photo, give me value x).
 # In most cases, we are polling the Arduino, which owns flow control (but can't be master due to Raspi limitations)
@@ -318,14 +354,14 @@ def check_available_disk_space():
     available = get_available_disk_space()
     if available < DISK_SPACE_WAIT_THRESHOLD:   # 200 MB
         logging.warning(f"Only {available} bytes left on the volume; waiting for more space")
-        camera.stop_preview()
-        camera.shutter_speed = AUTO_SHUTTER_SPEED
+        camera_stop()
+        set_auto_exposure(True)
         show_screen("waiting-for-files-to-sync")
         while True:
             sleep(1)
             if get_available_disk_space() >= DISK_SPACE_WAIT_THRESHOLD:
                 show_ready_to_scan()
-                camera.start_preview()
+                camera_start()
                 return
     if available < DISK_SPACE_ABORT_THRESHOLD:    # 30 MB  
         logging.error(f"Fatal: Only {available} bytes left on the volume; aborting")
@@ -350,39 +386,44 @@ def set_init_values(arg_bytes):
 
 def set_zoom_mode_1_1(arg_bytes=None):
     state._zoom_mode = ZoomMode.Z1_1
-    camera.shutter_speed = AUTO_SHUTTER_SPEED
-    camera.zoom = (0.0, 0.0, 1.0, 1.0)  # (x, y, w, h)
+    set_auto_exposure(True)
+    set_zoom_crop(0.0, 0.0, 1.0, 1.0)
     logging.info("Changing Preview Zoom Level to 1:1")
 
 def set_zoom_mode_3_1(arg_bytes=None):
     set_lamp_on()
     state._zoom_mode = ZoomMode.Z1_1
-    camera.shutter_speed = 0
-    camera.zoom = (1/3, 1/3, 1/3, 1/3)  # (x, y, w, h)
+    set_auto_exposure(True)
+    set_zoom_crop(1 / 3, 1 / 3, 1 / 3, 1 / 3)
     logging.info("Changing Preview Zoom Level to 3:1")
 
 def set_zoom_mode_10_1(arg_bytes=None):
     set_lamp_on()
     state._zoom_mode = ZoomMode.Z1_1
-    camera.shutter_speed = 0
-    camera.zoom = (0.42, 0.42, 1/6, 1/6)  # (x, y, w, h)
+    set_auto_exposure(True)
+    set_zoom_crop(0.42, 0.42, 1 / 6, 1 / 6)
     logging.info("Changing Preview Zoom Level to 6:1")
 
 def set_lamp_off(arg_bytes=None):
     set_zoom_mode_1_1()
-    camera.stop_preview()
-    camera.shutter_speed = AUTO_SHUTTER_SPEED
+    camera_stop()
+    set_auto_exposure(True)
     logging.info("Lamp turned off and camera preview disabled")
 
 def set_lamp_on(arg_bytes=None):
-    # camera.shutter_speed = 0
-    camera.start_preview()
+    camera_start()
+    set_auto_exposure(True)
     logging.info("Lamp turned on and camera preview enabled")
 
 def shoot_raw(arg_bytes=None):
-    camera.shutter_speed = shutter_speed
+    camera_start()
+    camera.set_controls({"AeEnable": False, "ExposureTime": shutter_speed})
     start_time = time.time()
-    camera.capture(state.raws_path.format(state.raw_count), format='jpeg', bayer=True)
+    request = camera.capture_request()
+    try:
+        request.save_dng("raw", state.raws_path.format(state.raw_count))
+    finally:
+        request.release()
     state.raw_count += 1
     elapsed_time = time.time() - start_time
     logging.info(f"One raw with shutter speed {shutter_speed}µs taken and saved in {elapsed_time:.2f}s, equalling {1/elapsed_time:.1f}fps")
@@ -404,7 +445,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, last_fim_pid, storage_location
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, last_fim_pid, storage_location, sensor_size
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -487,23 +528,33 @@ def setup():
 
     # Instanziate things
     state = State()
-    camera = PiCamera(resolution=(507, 380)) # keep the exact AR to avoid rounding errors casuing overflow freezes. This
-                                            # only impacts the (unused) jpeg previews, not the scanned Raws!
-
-    # Init the Camera with some base parameters for scanning
-    # Some of these parameters are totally irrelevant for our Raws, but still need to be set to let Raw capture work correctly
-    camera.rotation = 180
-    camera.hflip = True
-    camera.vflip = False
-    camera.iso = 100
-    camera.image_effect = 'none'
-    camera.brightness = 50 # (0 to 100)
-    camera.sharpness = 0   # (-100 to 100)
-    camera.contrast = 0    # (-100 to 100)
-    camera.saturation = 0  # (-100 to 100)
-    camera.exposure_compensation = 0 # (-25 to 25)
-    camera.awb_mode = 'sunlight'     # off becomes green, irrelevant anyway since we do Raws
-    camera.shutter_speed = 0    # 0 enables AE, used in Preview Modes
+    camera = Picamera2()
+    raw_format = None
+    for candidate in camera.sensor_modes:
+        if candidate.get("bit_depth") == SENSOR_BIT_DEPTH:
+            raw_format = candidate.get("unpacked") or candidate.get("format")
+            break
+    if raw_format is None:
+        raw_format = "SRGGB12"
+    camera_config = camera.create_still_configuration(
+        main={"size": (507, 380)},
+        raw={"format": raw_format},
+        sensor={"output_size": FULL_RESOLUTION, "bit_depth": SENSOR_BIT_DEPTH},
+        transform=Transform(rotation=180, hflip=True, vflip=False),
+    )
+    camera.configure(camera_config)
+    sensor_size = camera.camera_configuration().get("sensor", {}).get("output_size", FULL_RESOLUTION)
+    camera.set_controls({
+        "AeEnable": True,
+        "AwbEnable": True,
+        "AwbMode": controls.AwbModeEnum.Daylight,
+        "Brightness": 0.0,
+        "Sharpness": 0.0,
+        "Contrast": 0.0,
+        "Saturation": 0.0,
+        "ExposureValue": 0.0,
+        "AnalogueGain": 1.0,
+    })
 
     ssh_subprocess = None
 
@@ -553,10 +604,10 @@ if __name__ == '__main__':
 
     if args.continue_at != -1:
         state.raws_path = RAW_DIRS_PATH + os.path.join(
-            sorted(os.listdir(RAW_DIRS_PATH))[-1], '') + "{:08d}.jpg"
+            sorted(os.listdir(RAW_DIRS_PATH))[-1], '') + "{:08d}.dng"
         state.raw_count = args.continue_at
         state.continue_dir = True
-        camera.start_preview()
+        camera_start()
         shoot_raw()
 
     try:
