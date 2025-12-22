@@ -189,6 +189,8 @@ def show_screen(message):
         last_status_screen = message
     pending_overlay = overlay
     _apply_overlay_if_ready()
+    if message == "no-drive-connected" and not ready_screen_polling:
+        threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
 def _apply_overlay_if_ready():
     global pending_overlay
@@ -224,7 +226,7 @@ def _ready_screen_poll_loop():
     global ready_screen_polling, storage_location
     ready_screen_polling = True
     try:
-        while ready_to_scan:
+        while ready_to_scan or current_screen == "no-drive-connected":
             new_storage_location = GPIO.input(17)
             if new_storage_location != storage_location:
                 storage_location = new_storage_location
