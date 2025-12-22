@@ -58,6 +58,7 @@ preview_started = False
 preview_size = (800, 480)
 overlay_ready = False
 pending_overlay = None
+ready_to_scan = False
 
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
@@ -195,10 +196,14 @@ def cleanup_terminal():
 
 def showInsertFilm(arg_bytes=None):
     logging.info("Showing Screen: Please insert film")
+    global ready_to_scan
+    ready_to_scan = False
     show_screen("insert-film")
 
 def showReadyToScan(arg_bytes=None):
     logging.info("Showing Screen: Ready to Scan")
+    global ready_to_scan
+    ready_to_scan = True
     show_ready_to_scan()
 
 def _ready_screen_poll_loop():
@@ -450,6 +455,8 @@ def set_zoom_mode_10_1(arg_bytes=None):
 def set_lamp_off(arg_bytes=None):
     set_zoom_mode_1_1()
     set_auto_exposure(True)
+    if ready_to_scan:
+        show_ready_to_scan()
     logging.info("Lamp turned off while keeping preview active")
 
 def set_lamp_on(arg_bytes=None):
