@@ -1,0 +1,28 @@
+[Unit]
+Description=Filmkorn scanner controller
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Filmkorn-Raw-Scanner/raspi
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py
+Restart=on-failure
+RestartSec=1
+
+# Attach to local console so DRM preview works reliably
+StandardInput=tty
+StandardOutput=tty
+StandardError=journal
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+
+# Access to GPIO/I2C/DRM
+SupplementaryGroups=gpio i2c video render
+
+[Install]
+WantedBy=multi-user.target
