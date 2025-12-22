@@ -28,7 +28,12 @@ from datetime import datetime
 # basic configuration variables
 RAW_DIRS_PATH = "/mnt/ramdisk/" # This is where the camera saves to. Has to end with a slash
 FULL_RESOLUTION = (4056, 3840)
+
 SENSOR_BIT_DEPTH = 12
+
+# --- Controller MCU (ATmega328P) Power Switch ---
+UC_POWER_GPIO = 16  # GPIO16 (physical pin 36) enables µC power switch on the controller PCB
+UC_POWER_BOOT_DELAY_S = 0.15  # allow the ATmega328P to boot before first I2C transaction
 
 # lsyncd config switching
 LSYNCD_DIR = "/home/pi/Filmkorn-Raw-Scanner/raspi"
@@ -449,6 +454,11 @@ def setup():
     # Set the GPIO mode to BCM
     GPIO.setmode(GPIO.BCM)
 
+    # --- Power up the Arduino/Controller MCU (required for I2C to respond) ---
+    # The controller PCB gates 3.3V to the ATmega via GPIO16 (physical pin 36).
+    GPIO.setup(UC_POWER_GPIO, GPIO.OUT, initial=GPIO.HIGH)
+    sleep(UC_POWER_BOOT_DELAY_S)
+
     # GPIO 17 (BCM) input. "Target" switch is connected here.
     # IMPORTANT: Logic is reversed from the earlier note:
     #   0 => HDD / local USB
@@ -605,3 +615,9 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print()
         sys.exit(1)
+    finally:
+        # Best-effort: turn off the controller MCU power on exit.
+        try:
+            GPIO.output(UC_POWER_GPIO, GPIO.LOW)
+        except Exception:
+            pass
