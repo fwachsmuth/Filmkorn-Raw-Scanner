@@ -23,7 +23,7 @@ EOT
   # To do: Use sesame key for ssh-copy and delete it afterwards
   bold=$(tput bold)
   normal=$(tput sgr0)
-  echo "Please enter the temporary Raspi password ${bold}'filmkorn-rocks'${normal} to allow pairing."
+  echo "Please enter the temporary Raspi password ${bold}'filmkornscanner'${normal} to allow pairing."
   ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub pi@filmkorn-scanner.local > /dev/null 2> /dev/null
 
   # On the Raspi, generate and deploy a keypair to send files to this computer
