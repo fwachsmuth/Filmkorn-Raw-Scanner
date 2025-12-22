@@ -54,7 +54,6 @@ ready_screen_polling = False
 camera_running = False
 sensor_size = None
 overlay_cache = {}
-overlay_supported = None  # None=unknown, True/False after first set_overlay attempt
 preview_started = False
 preview_size = (800, 480)
 overlay_ready = False
@@ -152,7 +151,7 @@ class State:
 
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
-    global current_screen, overlay_supported, pending_overlay
+    global current_screen, pending_overlay
 
     message_path = f"controller-screens/{message}.png"
     overlay = overlay_cache.get(message_path)
@@ -177,24 +176,11 @@ def show_screen(message):
     _apply_overlay_if_ready()
 
 def _apply_overlay_if_ready():
-    global overlay_supported, pending_overlay
+    global pending_overlay
     if pending_overlay is None or not overlay_ready:
         return
-    if overlay_supported is False:
-        pending_overlay = None
-        return
-    try:
-        camera.set_overlay(pending_overlay)
-        overlay_supported = True
-        pending_overlay = None
-    except RuntimeError as e:
-        if "Overlays not supported" in str(e):
-            if overlay_supported is None:
-                logging.warning("Preview backend does not support overlays; UI screens will be suppressed")
-            overlay_supported = False
-            pending_overlay = None
-            return
-        raise
+    camera.set_overlay(pending_overlay)
+    pending_overlay = None
 
 def cleanup_terminal():
     print("Restoring terminal settings...")
