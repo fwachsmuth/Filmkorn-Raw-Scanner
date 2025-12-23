@@ -275,6 +275,7 @@ def camera_start():
     if camera_running:
         return
     if not preview_started:
+        camera.start_preview(Preview.DRM, x=80, y=0, width=640, height=480)
         camera.start(show_preview=True)
         preview_started = True
         camera_running = True
