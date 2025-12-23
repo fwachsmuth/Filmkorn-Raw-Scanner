@@ -500,6 +500,7 @@ def set_lamp_off(arg_bytes=None):
     logging.info("Lamp turned off while keeping preview active")
 
 def set_lamp_on(arg_bytes=None):
+    set_zoom_crop(0.0, 0.0, 1.0, 1.0)
     camera_start()
     set_auto_exposure(True)
     clear_overlay()
@@ -578,7 +579,7 @@ def setup():
         raw_format = "SRGGB12"
     overlay_ready = False
     camera_config = camera.create_preview_configuration(
-        main={"size": (preview_size)},
+        main={"size": (preview_size), "format": "XBGR8888"},
         # raw={"format": raw_format},
         # sensor={"output_size": preview_size},
         # display="main",
@@ -586,6 +587,8 @@ def setup():
         transform=Transform(rotation=180, hflip=True, vflip=False),
     )
     camera.configure(camera_config)
+    
+
     sensor_size = camera.camera_configuration().get("sensor", {}).get("output_size", FULL_RESOLUTION)
     preview_size = camera.camera_configuration().get("main", {}).get("size", preview_size)
     camera.set_controls({
