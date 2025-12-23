@@ -62,6 +62,7 @@ ready_to_scan = False
 last_status_screen = None
 shutting_down = False
 default_scaler_crop = None
+shutdown_timer = None
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -391,10 +392,23 @@ def clear_pid_file(*_args):
     global shutting_down
     shutting_down = True
     logging.info("Shutdown requested")
+    _start_shutdown_timer()
     try:
         os.remove(PID_FILE_PATH)
     except FileNotFoundError:
         pass
+
+def _force_exit():
+    logging.error("Shutdown timed out; forcing exit")
+    os._exit(0)
+
+def _start_shutdown_timer(timeout_s: float = 5.0):
+    global shutdown_timer
+    if shutdown_timer is not None:
+        return
+    shutdown_timer = threading.Timer(timeout_s, _force_exit)
+    shutdown_timer.daemon = True
+    shutdown_timer.start()
 
 def datetime_to_raws_path(dt: datetime):
     return RAW_DIRS_PATH + dt.strftime("%Y-%m-%d at %H_%M_%S")
@@ -749,6 +763,7 @@ if __name__ == '__main__':
         sys.exit(1)
     finally:
         shutting_down = True
+        _start_shutdown_timer()
         try:
             if camera_running:
                 camera.stop()
