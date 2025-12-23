@@ -276,7 +276,7 @@ def camera_start():
         return
     if not preview_started:
         camera.start_preview(Preview.DRM, x=80, y=0, width=640, height=480)
-        camera.start(show_preview=True)
+        camera.start()
         preview_started = True
         camera_running = True
         return
@@ -578,11 +578,11 @@ def setup():
         raw_format = "SRGGB12"
     overlay_ready = False
     camera_config = camera.create_preview_configuration(
-        main={"size": preview_size, "format": "XBGR8888", "preserve_ar": False},
-        raw={"format": raw_format},
-        sensor={"output_size": FULL_RESOLUTION, "bit_depth": SENSOR_BIT_DEPTH},
-        display="main",
-        buffer_count=2,
+        main={"size": (preview_size)},
+        # raw={"format": raw_format},
+        # sensor={"output_size": preview_size},
+        # display="main",
+        # buffer_count=2,
         transform=Transform(rotation=180, hflip=True, vflip=False),
     )
     camera.configure(camera_config)
@@ -593,9 +593,9 @@ def setup():
         "AwbEnable": True,
         "AwbMode": controls.AwbModeEnum.Daylight,
         "Brightness": 0.0,
-        "Sharpness": 0.0,
-        "Contrast": 0.0,
-        "Saturation": 0.0,
+        "Sharpness": 1.0,
+        "Contrast": 1.0,
+        "Saturation": 1.0,
         "ExposureValue": 0.0,
         "AnalogueGain": 1.0,
     })
