@@ -98,17 +98,19 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
 - "Start" the Projector by pushing its "Fwd" Key. This gives power on the transformer. 
 - Enable Internet Sharing since the Raspi needs Internet (Time, Updates, Packages etc.)
 - Mac: **Enable** Settings -> General -> Sharing -> Remote Login, then click (i) and enable "Allow full disk access for remote users" 
-- Set Aperture to 8. Smaller apertures will cause severe diffraction blurring and is not recommended.
-- Check `camera.shutter_speed` in scanner.py (on the Raspi)
+- Close Aperture two stops (e.g. to 5.6 or 8). Smaller apertures will cause severe diffraction blurring and is not recommended.
+- ~~Check `camera.shutter_speed` in scanner.py (on the Raspi)~~ (This is reading the pot now)
+- **Below section is outdated. We have auto-pairing now.**
 - `ssh pi@filmkorn-scanner.local`
 - Raspi: `cd /home/pi/Filmkorn-Raw-Scanner/raspi`
-- Raspi: Adjust Target Path in `lsyncd.conf` if needed
-- Raspi: `lsyncd lsyncd.conf &`. (Using a separate shell here might make sense to let lsync not bleed into the scanner's log output)
+- Raspi: Adjust Target Path in `lsyncd-to-host.conf` if needed
+- Raspi: `lsyncd lsyncd-to-host.conf &`. (Using a separate shell here might make sense to let lsync not bleed into the scanner's log output)
 - Raspi: `python3 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py`
 - Mac: `python3 cineDNG_creator.py -i /Volumes/Filme\ 4TB/raw-intermediates/ -o /Volumes/Filme\ 4TB/CinemaDNG/. --cinema-dng --keep-running`
 
 ## Using CinemaDNG
 *(incomplete)*
+** outdated **
 - Create a new Project
 - Go to File -> Project Settings
 - Set the Timeline Resolution to `4096 x 3112 Full Aperture`
