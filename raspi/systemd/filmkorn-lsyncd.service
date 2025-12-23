@@ -1,5 +1,5 @@
 [Unit]
-Description=lsyncd (Filmkorn Scanner)
+Description=Filmkorn lsyncd (repo config)
 After=network-online.target
 Wants=network-online.target
 
@@ -11,9 +11,6 @@ WorkingDirectory=/home/pi/Filmkorn-Raw-Scanner/raspi
 ExecStart=/usr/bin/lsyncd -nodaemon -log all /home/pi/Filmkorn-Raw-Scanner/raspi/lsyncd.active.conf
 Restart=on-failure
 RestartSec=1
-Nice=5
-
-# optional, aber praktisch
 StandardOutput=journal
 StandardError=journal
 
