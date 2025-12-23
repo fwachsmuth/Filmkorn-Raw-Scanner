@@ -380,6 +380,7 @@ def poll_ssh_subprocess():
 def clear_pid_file(*_args):
     global shutting_down
     shutting_down = True
+    logging.info("Shutdown requested")
     try:
         os.remove(PID_FILE_PATH)
     except FileNotFoundError:
@@ -730,6 +731,8 @@ if __name__ == '__main__':
         while True:
             loop()
             check_available_disk_space()
+            if shutting_down:
+                break
             time.sleep(0.01) # less i2c collisions
     except KeyboardInterrupt:
         print()
