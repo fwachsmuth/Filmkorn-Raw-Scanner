@@ -542,6 +542,10 @@ def set_lamp_on(arg_bytes=None):
 
 def shoot_raw(arg_bytes=None):
     camera_start()
+    if state.raws_path is None or not os.path.isdir(os.path.dirname(state.raws_path)):
+        logging.error("RAWs path missing; stopping scan")
+        state.stop_scan()
+        return
     camera.set_controls({"AeEnable": False, "ExposureTime": shutter_speed})
     start_time = time.time()
     request = camera.capture_request()
