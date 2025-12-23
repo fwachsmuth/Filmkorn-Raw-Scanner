@@ -556,7 +556,7 @@ def shoot_raw(arg_bytes=None):
     start_time = time.time()
     request = camera.capture_request()
     try:
-        request.save_dng("raw", state.raws_path.format(state.raw_count))
+        request.save_dng(state.raws_path.format(state.raw_count), name="raw")
     finally:
         request.release()
     state.raw_count += 1
