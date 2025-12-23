@@ -61,6 +61,7 @@ pending_overlay = None
 ready_to_scan = False
 last_status_screen = None
 shutting_down = False
+default_scaler_crop = None
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -275,12 +276,17 @@ def show_ready_to_scan():
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
 def camera_start():
-    global camera_running, preview_started
+    global camera_running, preview_started, default_scaler_crop
     if camera_running:
         return
     if not preview_started:
         camera.start_preview(Preview.DRM, x=80, y=0, width=640, height=480)
         camera.start()
+        if default_scaler_crop is None:
+            try:
+                default_scaler_crop = camera.capture_metadata().get("ScalerCrop")
+            except Exception:
+                default_scaler_crop = None
         preview_started = True
         camera_running = True
         return
@@ -297,14 +303,18 @@ def set_zoom_crop(x_frac: float, y_frac: float, w_frac: float, h_frac: float):
     if sensor_size is None:
         return
     sensor_width, sensor_height = sensor_size
-    x = int(sensor_width * x_frac)
-    y = int(sensor_height * y_frac)
-    w = max(1, int(sensor_width * w_frac))
-    h = max(1, int(sensor_height * h_frac))
-    if x + w > sensor_width:
-        w = sensor_width - x
-    if y + h > sensor_height:
-        h = sensor_height - y
+    if default_scaler_crop:
+        base_x, base_y, base_w, base_h = default_scaler_crop
+    else:
+        base_x, base_y, base_w, base_h = 0, 0, sensor_width, sensor_height
+    w = max(1, int(base_w * w_frac))
+    h = max(1, int(base_h * h_frac))
+    x = int(base_x + (base_w - w) * x_frac)
+    y = int(base_y + (base_h - h) * y_frac)
+    if x + w > base_x + base_w:
+        w = (base_x + base_w) - x
+    if y + h > base_y + base_h:
+        h = (base_y + base_h) - y
     camera.set_controls({"ScalerCrop": (x, y, w, h)})
 
 # For things the Raspi tells (Ready to take next photo, give me value x).
