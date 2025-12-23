@@ -1,0 +1,10 @@
+[Unit]
+Description=Mount largest exfat/ext* partition of USB disk %I at /mnt/usb
+After=dev-%i.device
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/mount-largest-usb.sh %I
+StandardOutput=journal
+StandardError=journal

@@ -1,0 +1,10 @@
+[Unit]
+Description=Unmount /mnt/usb on removal of USB disk %I
+DefaultDependencies=no
+Before=umount.target shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/umount -l /mnt/usb
+StandardOutput=journal
+StandardError=journal

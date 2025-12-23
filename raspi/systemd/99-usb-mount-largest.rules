@@ -1,0 +1,7 @@
+# Mount on disk add
+ACTION=="add", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk", KERNEL=="sd[a-z]", \
+  TAG+="systemd", ENV{SYSTEMD_WANTS}+="usb-mount-largest@%k.service"
+
+# Unmount on disk remove
+ACTION=="remove", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk", KERNEL=="sd[a-z]", \
+  TAG+="systemd", ENV{SYSTEMD_WANTS}+="usb-umount@%k.service"
