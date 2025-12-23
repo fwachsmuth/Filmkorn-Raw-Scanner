@@ -8,6 +8,7 @@ nohup.out
 raspi/lsyncd.conf
 raspi/lsyncd-to-host.conf
 raspi/scanner.log
+raspi/lsyncd.active.conf
 
 # Kicad Temporary files
 *.000
