@@ -624,6 +624,7 @@ def setup():
     overlay_ready = False
     camera_config = camera.create_preview_configuration(
         main={"size": (preview_size), "format": "XBGR8888"},
+        raw={"size": (4056, 3040), "format": "SBGGR12_CSI2P"},
         # raw={"format": raw_format},
         # sensor={"output_size": preview_size},
         # display="main",
