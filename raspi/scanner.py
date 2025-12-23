@@ -60,6 +60,7 @@ overlay_ready = False
 pending_overlay = None
 ready_to_scan = False
 last_status_screen = None
+shutting_down = False
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -194,7 +195,7 @@ def show_screen(message):
 
 def _apply_overlay_if_ready():
     global pending_overlay
-    if pending_overlay is None or not overlay_ready:
+    if pending_overlay is None or not overlay_ready or shutting_down or not preview_started:
         return
     camera.set_overlay(pending_overlay)
     pending_overlay = None
@@ -226,7 +227,7 @@ def _ready_screen_poll_loop():
     global ready_screen_polling, storage_location
     ready_screen_polling = True
     try:
-        while ready_to_scan or current_screen == "no-drive-connected":
+        while (ready_to_scan or current_screen == "no-drive-connected") and not shutting_down:
             new_storage_location = GPIO.input(17)
             if new_storage_location != storage_location:
                 storage_location = new_storage_location
@@ -234,10 +235,12 @@ def _ready_screen_poll_loop():
                     f"GPIO 17 changed while ready (0=HDD/local, 1=Net/remote): {storage_location}"
                 )
                 if storage_location == 0 and not os.path.ismount("/mnt/usb"):
-                    show_screen("no-drive-connected")
+                    if not shutting_down:
+                        show_screen("no-drive-connected")
                 else:
                     switch_lsyncd_config(storage_location)
-                    show_ready_to_scan()
+                    if not shutting_down:
+                        show_ready_to_scan()
                 sleep(1)
                 continue
             if (
@@ -246,7 +249,8 @@ def _ready_screen_poll_loop():
                 and os.path.ismount("/mnt/usb")
             ):
                 switch_lsyncd_config(storage_location)
-                show_ready_to_scan()
+                if not shutting_down:
+                    show_ready_to_scan()
             sleep(1)
     finally:
         ready_screen_polling = False
@@ -373,8 +377,13 @@ def poll_ssh_subprocess():
 
         ssh_subprocess = None
 
-def clear_pid_file():
-    os.remove(PID_FILE_PATH)
+def clear_pid_file(*_args):
+    global shutting_down
+    shutting_down = True
+    try:
+        os.remove(PID_FILE_PATH)
+    except FileNotFoundError:
+        pass
 
 def datetime_to_raws_path(dt: datetime):
     return RAW_DIRS_PATH + dt.strftime("%Y-%m-%d at %H_%M_%S")
@@ -726,6 +735,14 @@ if __name__ == '__main__':
         print()
         sys.exit(1)
     finally:
+        shutting_down = True
+        try:
+            if camera_running:
+                camera.stop()
+            camera.close()
+            logging.info("Camera stopped and closed on shutdown")
+        except Exception:
+            pass
         # Best-effort: turn off the controller MCU power on exit.
         try:
             GPIO.output(UC_POWER_GPIO, GPIO.LOW)
