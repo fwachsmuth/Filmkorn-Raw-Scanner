@@ -145,7 +145,13 @@ class State:
     def set_raws_path(self):
         raws_path = datetime_to_raws_path(datetime.now())
         remove_empty_dirs()
-        os.makedirs(raws_path)
+        try:
+            os.makedirs(raws_path)
+        except OSError as exc:
+            logging.error("Failed to create RAWs path %s: %s", raws_path, exc)
+            show_screen("target-dir-does-not-exist")
+            self.stop_scan()
+            return
         self.raws_path = os.path.join(raws_path, "{:08d}.dng")
         logging.info(f"Set raws path to {raws_path}")
 
@@ -543,7 +549,7 @@ def set_lamp_on(arg_bytes=None):
 def shoot_raw(arg_bytes=None):
     camera_start()
     if state.raws_path is None or not os.path.isdir(os.path.dirname(state.raws_path)):
-        logging.error("RAWs path missing; stopping scan")
+        logging.error("RAWs path inaccessible; stopping scan")
         state.stop_scan()
         return
     camera.set_controls({"AeEnable": False, "ExposureTime": shutter_speed})
