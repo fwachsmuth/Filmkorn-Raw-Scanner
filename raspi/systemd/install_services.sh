@@ -42,3 +42,17 @@ sudo systemctl daemon-reload
 
 echo "Enabling filmkorn-lsyncd.service"
 sudo systemctl enable --now filmkorn-lsyncd.service
+
+# automount largest partition service installation
+echo "Installing USB auto-mount (largest exfat/ext*)"
+
+sudo install -D -m 0755 "$(dirname "$0")/../mount-largest-usb.sh" /usr/local/sbin/mount-largest-usb.sh
+sudo install -D -m 0644 "$(dirname "$0")/usb-mount-largest@.service" /etc/systemd/system/usb-mount-largest@.service
+sudo install -D -m 0644 "$(dirname "$0")/99-usb-mount-largest.rules" /etc/udev/rules.d/99-usb-mount-largest.rules
+
+sudo systemctl daemon-reload
+sudo udevadm control --reload-rules
+
+systemctl daemon-reload
+udevadm control --reload-rules
+udevadm trigger --subsystem-match=block
