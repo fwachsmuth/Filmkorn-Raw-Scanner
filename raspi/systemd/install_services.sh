@@ -28,3 +28,17 @@ echo "  sudo systemctl start ${SERVICE_NAME}"
 echo
 echo "Logs:"
 echo "  sudo journalctl -u ${SERVICE_NAME} -f"
+
+# lsyncd service
+echo "Disabling existing lsyncd.service if any"
+sudo systemctl disable --now lsyncd.service || true   # das SysV-generated Ding aus
+
+echo "Installing lsyncd.service"
+sudo cp -f "$(dirname "$0")/lsyncd.service" /etc/systemd/system/lsyncd.service
+
+echo "Reloading systemd daemon"
+sudo systemctl daemon-reload
+
+echo "Enabling lsyncd.service"
+sudo systemctl enable --now lsyncd.service
+echo "Done."
