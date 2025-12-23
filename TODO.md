@@ -12,35 +12,25 @@
 - 
 
 ## Next
-- [x] Detect and mount a local harddrive
-- [x] Consider the switch state on GPIO17 and allow local storage
-- [x] Set active lsyncd.conf via python
-- [x] catch missing harddrive
-- [x] reflect scan target on screen
-- [x] save to raw-intermediates when saving to USB drive
-- [x] rename lsyncd.conf to lsyncd-to-host.conf (also in pairing script)
-- [x] Show "syncing files" when scanning is done but lsync is still going
-- [ ] Allow comfortable conversion from a locally connected disk
+- [ ] Detect and mount a local harddrives with exfs (kernel, not FUSE)
+- [ ] Add raspi/systemd/install_services.sh to README
+- [ ] Test if host is reachable before Scanning to Host
 - [ ] Handle if Directory on Host PC does not exist
-- [ ] Show "No connection to Controller" on display (for e.g. misaligned GPIO header)
-- [ ] Get the Log onto the Host PC (rsync?)
-- [ ] consider moving from exfat-fuse to kernel drivers
-- [ ] move or symlink from ~ to /usr/local or /opt
+- [ ] Show "syncing files" when scanning is done but lsync is still going
+- [ ] Re-enable df watermarking
+- [ ] Cleanup logging (and consider syncing it)
+- [ ] 
 
+- [ ] Allow comfortable conversion from a locally connected disk
 
 - [ ] is opme.sh working and ever called?
 
-- [ ] Irgendwie doch Buster upgraden..?
-    - [ ] dann aber mit etckeeper tracken (https://chatgpt.com/share/6947fa83-4e94-800e-b7c0-ec23a78507e2)
-
 - [ ] Fix the python3 foo on later macOS (start_converting.sh doesn't work anymore)
-- [ ] NTFS rw hinzunehmen? (Langam)
-- [ ] Roll the logfile
 - [ ] Make clearer log message about film end detection (to detect bad sensor connections)
 - [x] Think about adjusting Exposure without Shell Access
 - [ ] Fuses still at 1 MHz when bootstrapping from raspi. Test burning fuses with 5 VCC. MISO is 5V tho. 47K inbetween? Reset has a 10k Pullup too. I would recommend driving the pins from 5V logic via at least 10K resistor and also connect an external Schottky diode from the pin to 3.3V to prevent the input pin's voltage rising much above the PI's supply rail.
 - [ ] try one lsyncd restart if the disk is full
-- [ ] Average the scan speed rate
+- [ ] Average and display the scan speed rate
 - [ ] Auto-Stop in-channel Rewinds
 - [ ] think about an update scenario (version info?)
     - most pragmatic:
@@ -59,13 +49,9 @@
     - latest version announced via static github pages link?
         - might contain a commit id, or checkout via tag?
 
-- [ ] Terminate (gracefully) and restart converter when raspi restarts
-- [ ] create scripts to restart scanner and converter
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
 - [ ] Write Build-your-own howtos
 - [ ] list python requirements (on host computer) per https://stackoverflow.com/a/68006970, https://stackoverflow.com/questions/51308683/how-to-move-all-modules-to-new-version-of-python-from-3-6-to-3-7/59608886#59608886
-- [ ] Create a pyenv on the host computer
-- [ ] Update python on the raspi
 - [ ] fix pair.sh: Can't git:
             Host key verification failed.
             fatal: Could not read from remote repository.
@@ -89,9 +75,6 @@
 - [ ] remove dash from password to better support non-german keyboard layouts on console
 - [ ] Disable password-ssh after pairing
 
-## For Client 
-- [ ] prune empty dirs after conversion 
-
 ## For SD-Image Generation 
 ### For `imaging-preflight.sh`
 - [ ] Add development key removal 
@@ -100,9 +83,8 @@
 
 ### General
 - [ ] Inflate Filesystem once, `raspi-config --expand-rootfs`
-- [x] add `dtoverlay=disable-wifi` and `dtoverlay=disable-bt` to `/boot/config.txt`
+- [ ] add `dtoverlay=disable-wifi` and `dtoverlay=disable-bt` to `/boot/config.txt`
 - [ ] remove dash from password to better support non-german keyboard layouts on console
-- [ ] Determine which is the latest working "buster" kernel setting `gain_r` and `gain_b` to > `1.000` in the jpeg+raw file created. `5.4.79` is safe, `5.10.103` fails. More kernels: https://github.com/Hexxeh/rpi-firmware/commits/master
 
 ## Housekeeping:
 - [ ] Document bootstrapping/installation on Raspi & Mac
@@ -110,11 +92,9 @@
 
 ## Raspi Todos:
 ### scanner.py
-- [ ] Consider using https://pypi.org/project/picamerax/
 
 ### System Config
 - [ ] Inflate /root on first run
-- [ ] lsync currently 2.2.3, 2.3.1 is recent
 
 ## Hardware
 - [ ] Staubschutzhaube bauen
