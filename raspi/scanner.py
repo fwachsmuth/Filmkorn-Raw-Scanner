@@ -63,6 +63,7 @@ last_status_screen = None
 shutting_down = False
 default_scaler_crop = None
 shutdown_timer = None
+shutdown_requested_at = None
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -388,11 +389,10 @@ def poll_ssh_subprocess():
 
         ssh_subprocess = None
 
-def clear_pid_file(*_args):
-    global shutting_down
+def clear_pid_file(_signum=None, _frame=None):
+    global shutting_down, shutdown_requested_at
     shutting_down = True
-    logging.info("Shutdown requested")
-    _start_shutdown_timer()
+    shutdown_requested_at = time.monotonic()
     try:
         os.remove(PID_FILE_PATH)
     except FileNotFoundError:
@@ -756,6 +756,7 @@ if __name__ == '__main__':
             loop()
             check_available_disk_space()
             if shutting_down:
+                _start_shutdown_timer()
                 break
             time.sleep(0.01) # less i2c collisions
     except KeyboardInterrupt:
@@ -764,6 +765,8 @@ if __name__ == '__main__':
     finally:
         shutting_down = True
         _start_shutdown_timer()
+        if shutdown_requested_at is not None:
+            logging.info("Shutdown requested; elapsed %.2fs", time.monotonic() - shutdown_requested_at)
         try:
             if camera_running:
                 camera.stop()
