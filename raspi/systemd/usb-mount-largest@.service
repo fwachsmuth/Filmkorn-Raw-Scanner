@@ -1,10 +1,16 @@
 [Unit]
 Description=Mount largest exfat/ext* partition of USB disk %I at /mnt/usb
+BindsTo=dev-%i.device
 After=dev-%i.device
+StopWhenUnneeded=yes
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=/usr/local/sbin/mount-largest-usb.sh %I
+# Unmount when the device disappears (unit stops because of BindsTo)
+ExecStop=/usr/bin/sh -lc 'if /usr/bin/findmnt -rn /mnt/usb >/dev/null 2>&1; then /usr/bin/sync; /usr/bin/umount /mnt/usb || /usr/bin/umount -l /mnt/usb; fi'
+TimeoutStartSec=30
+TimeoutStopSec=10
 StandardOutput=journal
 StandardError=journal

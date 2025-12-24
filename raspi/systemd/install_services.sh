@@ -51,14 +51,14 @@ sudo install -m 0755 "${SCRIPT_DIR}/../mount-largest-usb.sh" \
 sudo install -m 0644 "${SCRIPT_DIR}/usb-mount-largest@.service" \
   /etc/systemd/system/usb-mount-largest@.service
 
-sudo install -m 0644 "${SCRIPT_DIR}/usb-umount@.service" \
-  /etc/systemd/system/usb-umount@.service
+# sudo install -m 0644 "${SCRIPT_DIR}/usb-umount@.service" \
+#  /etc/systemd/system/usb-umount@.service
 
 sudo install -m 0644 "${SCRIPT_DIR}/99-usb-mount-largest.rules" \
   /etc/udev/rules.d/99-usb-mount-largest.rules
 
 sudo systemctl daemon-reload
 sudo udevadm control --reload-rules
-sudo udevadm trigger --subsystem-match=block --action=change
+sudo udevadm trigger --subsystem-match=block --action=add
 
 echo "USB auto-mount installed."
