@@ -14,6 +14,14 @@ if [[ -z "$DISK" ]]; then
 fi
 
 DEV="/dev/$DISK"
+# Accept either disk (sda) or partition (sda2). If partition, derive parent disk.
+if [[ -b "$DEV" ]]; then
+  pk="$(lsblk -nr -o PKNAME "$DEV" 2>/dev/null | head -n1 || true)"
+  if [[ -n "$pk" ]]; then
+    DISK="$pk"
+    DEV="/dev/$DISK"
+  fi
+fi
 
 # If disk node isn't there yet, make this a transient failure so systemd can retry
 [[ -b "$DEV" ]] || { echo "Disk device $DEV not present (yet)" >&2; exit 1; }
@@ -44,7 +52,8 @@ if [[ -z "${best_part:-}" ]]; then
 fi
 
 PART="/dev/$best_part"
-FSTYPE="$(blkid -o value -s TYPE "$PART" 2>/dev/null || true)"
+#FSTYPE="$(blkid -o value -s TYPE "$PART" 2>/dev/null || true)"
+FSTYPE="$(lsblk -no FSTYPE "$PART")"
 
 if mountpoint -q "$MNT"; then
   cur_src="$(findmnt -n -o SOURCE --target "$MNT" || true)"
