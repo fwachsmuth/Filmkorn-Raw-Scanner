@@ -1,0 +1,10 @@
+[Unit]
+Description=Unmount /mnt/usb on removal of %I
+# Do NOT bind to dev-%i.device: at ACTION=remove the device may already be gone.
+After=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/usr/bin/sh -lc 'if /usr/bin/findmnt -rn /mnt/usb >/dev/null 2>&1; then /usr/bin/umount /mnt/usb || /usr/bin/umount -l /mnt/usb; fi'
+TimeoutStartSec=10
