@@ -1,0 +1,14 @@
+[Unit]
+Description=Filmkorn RAM disk at /mnt/ramdisk
+After=local-fs.target
+Before=filmkorn-scanner.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/filmkorn-create-ramdisk.sh
+ExecStop=/usr/bin/umount /mnt/ramdisk
+TimeoutStartSec=30
+
+[Install]
+WantedBy=multi-user.target
