@@ -2,6 +2,8 @@
 Description=Filmkorn Scanner controller
 After=network-online.target
 Wants=network-online.target
+Requires=filmkorn-ramdisk.service
+After=filmkorn-ramdisk.service
 
 # We want exclusive control of tty1 for DRM preview output.
 Conflicts=getty@tty1.service
