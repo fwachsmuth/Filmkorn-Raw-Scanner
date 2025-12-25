@@ -12,7 +12,8 @@
 - 
 
 ## Next
-- [ ] Detect and mount a local harddrives with exfs (kernel, not FUSE)
+- [x] Detect and mount a local harddrives with exfs (kernel, not FUSE)
+- [ ] Change WB to 5500K
 - [ ] Add raspi/systemd/install_services.sh to README
 - [ ] Test if host is reachable before Scanning to Host
 - [ ] Handle if Directory on Host PC does not exist
