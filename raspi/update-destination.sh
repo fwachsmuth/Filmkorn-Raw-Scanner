@@ -39,7 +39,7 @@ sync {
   default.rsyncssh,
   source = "/mnt/ramdisk/",
   host = "${userhost}",
-  targetdir = "${rawpath}/raw-intermediates",
+  targetdir = "${rawpath}/",
   delete = false,
   rsync = {
     archive = true,
