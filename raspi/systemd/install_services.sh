@@ -62,3 +62,17 @@ sudo udevadm control --reload-rules
 sudo udevadm trigger --subsystem-match=block --action=add
 
 echo "USB auto-mount installed."
+
+###
+### RAM disk (/mnt/ramdisk)
+###
+echo "Installing RAM disk service (/mnt/ramdisk)"
+
+sudo install -m 0755 "${SCRIPT_DIR}/../create_ramdisk.sh" \
+  /usr/local/sbin/filmkorn-create-ramdisk.sh
+
+sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-ramdisk.service" \
+  /etc/systemd/system/filmkorn-ramdisk.service
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now filmkorn-ramdisk.service
