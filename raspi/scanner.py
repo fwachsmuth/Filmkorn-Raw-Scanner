@@ -456,7 +456,7 @@ def switch_lsyncd_config(storage_location: int) -> None:
         logging.info(f"lsyncd: set active config -> {target_conf}")
         # Requires sudoers rule for pi to restart lsyncd without password.
         # subprocess.run(["sudo", "systemctl", "daemon-reload"], check=False)
-        subprocess.run(["sudo", "systemctl", "reload", "filmkorn-lsyncd.service"], check=False)
+        subprocess.run(["sudo", "systemctl", "restart", "filmkorn-lsyncd.service"], check=False) # TODO: try reload instead
     except Exception as e:
         logging.exception(f"lsyncd: failed to switch config to {target_conf}: {e}")
 
