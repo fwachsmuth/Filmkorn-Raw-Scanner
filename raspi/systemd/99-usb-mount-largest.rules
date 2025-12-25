@@ -1,0 +1,6 @@
+# Filmkorn: auto-mount the largest partition of newly attached USB storage to /mnt/usb
+#
+# NOTE: USB-to-SATA bridges may report ID_BUS=ata. We match /dev/sdX instead.
+
+ACTION=="add|change", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk", KERNEL=="sd[a-z]", \
+  TAG+="systemd", ENV{SYSTEMD_WANTS}+="usb-mount-largest@%k.service"
