@@ -21,8 +21,7 @@ IOSchedulingClass=idle
 IOSchedulingPriority=7
 CPUWeight=5
 IOWeight=5
-ExecStartPre=/usr/bin/pkill -x lsyncd || true
-
+ExecStartPre=-/usr/bin/pkill -x lsyncd
 
 [Install]
 WantedBy=multi-user.target
