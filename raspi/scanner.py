@@ -195,7 +195,7 @@ def show_screen(message):
         overlay_cache[message_path] = overlay
 
     current_screen = message
-    if message in STATUS_SCREENS:
+    if message in STATUS_SCREENS and message != "waiting-for-files-to-sync":
         last_status_screen = message
     pending_overlay = overlay
     _apply_overlay_if_ready()
