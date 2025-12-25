@@ -484,8 +484,7 @@ def check_available_disk_space():
         while True:
             sleep(1)
             if get_available_disk_space() >= DISK_SPACE_WAIT_THRESHOLD:
-                show_ready_to_scan()
-                camera_start()
+                clear_overlay()
                 return
     if available < DISK_SPACE_ABORT_THRESHOLD:    # 30 MB  
         logging.error(f"Fatal: Only {available} bytes left on the volume; aborting")
