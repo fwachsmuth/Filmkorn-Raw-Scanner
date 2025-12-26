@@ -21,9 +21,11 @@ sudo install -m 0644 "${SERVICE_SRC}" "${SERVICE_DST}"
 sudo systemctl daemon-reload
 sudo systemctl enable "${SERVICE_NAME}"
 
+# Restart if already running
+sudo systemctl try-restart "${SERVICE_NAME}" || true
+
 echo
-echo "You can now start it with:"
-echo "  sudo systemctl start ${SERVICE_NAME}"
+echo "${SERVICE_NAME} installed and restarted (if it was running)"
 echo
 
 ###
@@ -38,7 +40,8 @@ sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-lsyncd.service" \
   /etc/systemd/system/filmkorn-lsyncd.service
 
 sudo systemctl daemon-reload
-sudo systemctl enable --now filmkorn-lsyncd.service
+sudo systemctl enable filmkorn-lsyncd.service
+sudo systemctl restart filmkorn-lsyncd.service
 
 ###
 ### USB auto-mount (largest exfat/ext*)
@@ -51,17 +54,16 @@ sudo install -m 0755 "${SCRIPT_DIR}/../mount-largest-usb.sh" \
 sudo install -m 0644 "${SCRIPT_DIR}/usb-mount-largest@.service" \
   /etc/systemd/system/usb-mount-largest@.service
 
-# sudo install -m 0644 "${SCRIPT_DIR}/usb-umount@.service" \
-#  /etc/systemd/system/usb-umount@.service
-
 sudo install -m 0644 "${SCRIPT_DIR}/99-usb-mount-largest.rules" \
   /etc/udev/rules.d/99-usb-mount-largest.rules
 
 sudo systemctl daemon-reload
 sudo udevadm control --reload-rules
+
+# retrigger add events so mounts happen immediately
 sudo udevadm trigger --subsystem-match=block --action=add
 
-echo "USB auto-mount installed."
+echo "USB auto-mount installed and retriggered."
 
 ###
 ### RAM disk (/mnt/ramdisk)
@@ -75,4 +77,8 @@ sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-ramdisk.service" \
   /etc/systemd/system/filmkorn-ramdisk.service
 
 sudo systemctl daemon-reload
-sudo systemctl enable --now filmkorn-ramdisk.service
+sudo systemctl enable filmkorn-ramdisk.service
+sudo systemctl restart filmkorn-ramdisk.service
+
+echo
+echo "All services installed and restarted where applicable."
