@@ -769,7 +769,7 @@ if __name__ == '__main__':
         while True:
             loop()
             now = time.monotonic()
-            if now - last_disk_check >= (0.1 if state.scanning else 0.5):
+            if now - last_disk_check >= (1.0 if state.scanning else 3.0):
                 check_available_disk_space()
                 last_disk_check = now
             if shutting_down:
