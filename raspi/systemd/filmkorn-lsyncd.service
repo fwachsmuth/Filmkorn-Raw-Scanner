@@ -16,11 +16,11 @@ Restart=on-failure
 RestartSec=1
 StandardOutput=journal
 StandardError=journal
-Nice=19
-IOSchedulingClass=idle
-IOSchedulingPriority=7
-CPUWeight=5
-IOWeight=5
+# Nice=19
+# IOSchedulingClass=idle
+# IOSchedulingPriority=7
+# CPUWeight=5
+# IOWeight=5
 ExecStartPre=-/usr/bin/pkill -x lsyncd
 
 [Install]
