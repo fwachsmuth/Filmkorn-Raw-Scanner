@@ -486,7 +486,7 @@ def check_available_disk_space():
         show_screen("waiting-for-files-to-sync")
         while True:
             sleep(1)
-            if get_available_disk_space() >= DISK_SPACE_WAIT_THRESHOLD:
+            if get_available_disk_space() >= DISK_SPACE_WAIT_THRESHOLD * 2:
                 clear_overlay()
                 return
     if available < DISK_SPACE_ABORT_THRESHOLD:    # 30 MB  
