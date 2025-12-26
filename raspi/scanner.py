@@ -133,6 +133,7 @@ class State:
         self.raws_path: Optional[str] = None
         self.raw_count = 0
         self.continue_dir = False
+        self.scanning = False
 
     @property
     def lamp_mode(self) -> bool:
@@ -160,6 +161,7 @@ class State:
             return
 
         self.raw_count = 0
+        self.scanning = True
         set_zoom_mode_1_1()
         set_lamp_on()
         self.set_raws_path()
@@ -168,6 +170,7 @@ class State:
 
     def stop_scan(self, arg_bytes=None):
         self.continue_dir = False
+        self.scanning = False
         logging.info("Nevermind; Stopped scanning")
         set_lamp_off()
         tell_arduino(Command.TELL_LOADSTATE)
@@ -762,13 +765,17 @@ if __name__ == '__main__':
         shoot_raw()
 
     try:
+        last_disk_check = 0.0
         while True:
             loop()
-            check_available_disk_space()
+            now = time.monotonic()
+            if now - last_disk_check >= (0.1 if state.scanning else 0.5):
+                check_available_disk_space()
+                last_disk_check = now
             if shutting_down:
                 _start_shutdown_timer()
                 break
-            time.sleep(0.01) # less i2c collisions
+            time.sleep(0.01 if state.scanning else 0.1) # less i2c collisions
     except KeyboardInterrupt:
         print()
         sys.exit(1)
