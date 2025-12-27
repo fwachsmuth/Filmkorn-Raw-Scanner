@@ -10,6 +10,25 @@ if command -v vcgencmd >/dev/null 2>&1; then
   vcgencmd display_power 1 || true
 fi
 
+for backlight in /sys/class/backlight/*; do
+  [ -d "$backlight" ] || continue
+  name="$(basename "$backlight")"
+  if [ -w "$backlight/bl_power" ]; then
+    echo 0 > "$backlight/bl_power" || true
+  fi
+  if [ -w "$backlight/brightness" ]; then
+    saved="/tmp/filmkorn-backlight-${name}.brightness"
+    if [ -r "$saved" ]; then
+      log "Restoring backlight: ${name}"
+      cat "$saved" > "$backlight/brightness" || true
+      rm -f "$saved" || true
+    elif [ -r "$backlight/max_brightness" ]; then
+      log "Setting backlight to max: ${name}"
+      cat "$backlight/max_brightness" > "$backlight/brightness" || true
+    fi
+  fi
+done
+
 if command -v mount-largest-usb.sh >/dev/null 2>&1; then
   log "Mounting largest USB volume"
   mount-largest-usb.sh || true
