@@ -13,16 +13,20 @@
 
 ## Next
 - [x] Detect and mount a local harddrives with exfs (kernel, not FUSE)
-- [ ] Change WB to 5500K
+- [x] Fix scanning apparently being slower during network lsync
+- [x] De-Nice the lsync again, it just postpones the slowness
+- [x] After switching to local scan, there are three rsync in `pgrep -a -f '(^|/)(lsyncd|rsync)( |$)'`
+- [x] Average and display the scan speed rate
+- [x] Clear Screen behind preview
+- [ ] Show "syncing files" when scanning is done but lsync is still going
+- [ ] Try writing to /mn/usb directly instead of ramdisk
+- [ ] Do we still need to call /opt/homebrew/bin/rsync in lsyncd-to-host.conf?
+- [ ] Remove Splash Screen on boot
 - [ ] Add raspi/systemd/install_services.sh to README
 - [ ] Test if host is reachable before Scanning to Host
 - [ ] Handle if Directory on Host PC does not exist
-- [ ] Show "syncing files" when scanning is done but lsync is still going
-- [ ] Re-enable df watermarking
 - [ ] Cleanup logging (and consider syncing it)
-- [ ] 
-
-- [ ] Allow comfortable conversion from a locally connected disk
+- [ ] Sleep Mode (for camera)
 
 - [ ] is opme.sh working and ever called?
 
@@ -31,7 +35,6 @@
 - [x] Think about adjusting Exposure without Shell Access
 - [ ] Fuses still at 1 MHz when bootstrapping from raspi. Test burning fuses with 5 VCC. MISO is 5V tho. 47K inbetween? Reset has a 10k Pullup too. I would recommend driving the pins from 5V logic via at least 10K resistor and also connect an external Schottky diode from the pin to 3.3V to prevent the input pin's voltage rising much above the PI's supply rail.
 - [ ] try one lsyncd restart if the disk is full
-- [ ] Average and display the scan speed rate
 - [ ] Auto-Stop in-channel Rewinds
 - [ ] think about an update scenario (version info?)
     - most pragmatic:
