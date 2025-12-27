@@ -5,7 +5,7 @@ import time
 import RPi.GPIO as GPIO
 
 GPIO.setmode(GPIO.BCM)
-BUTTON_PIN = 3
+BUTTON_PIN = 26
 GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 last_press = 0.0

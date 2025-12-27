@@ -70,8 +70,6 @@ last_fps_value = None
 last_shutter_value = None
 current_resolution_switch = None
 last_resolution_label = None
-sleep_toggle_pending = False
-last_sleep_toggle = 0.0
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -341,9 +339,6 @@ def cleanup_terminal():
     print("Restoring terminal settings...")
     subprocess.run(['stty', 'sane'])
 
-def _sleep_button_callback(_channel):
-    global sleep_toggle_pending
-    sleep_toggle_pending = True
 
 def _apply_camera_controls():
     camera.set_controls({
@@ -788,7 +783,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, current_resolution_switch, last_resolution_label, sleep_toggle_pending, last_sleep_toggle
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, current_resolution_switch, last_resolution_label
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -983,16 +978,6 @@ if __name__ == '__main__':
                     )
                     _reconfigure_camera(raw_size)
                 last_resolution_check = now
-            if sleep_toggle_pending:
-                sleep_toggle_pending = False
-                if not state.scanning and not shutting_down:
-                    if now - last_sleep_toggle >= 1.0:
-                        last_sleep_toggle = now
-                        logging.info("Sleep button pressed; entering sleep mode")
-                        subprocess.run(
-                            ["sudo", "systemctl", "start", "filmkorn-sleep.service"],
-                            check=False,
-                        )
             if shutting_down:
                 _start_shutdown_timer()
                 break
