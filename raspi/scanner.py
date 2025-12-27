@@ -405,9 +405,9 @@ def _ready_screen_poll_loop():
             if new_storage_location != storage_location:
                 storage_location = new_storage_location
                 logging.info(
-                    f"GPIO 5 changed while ready (0=HDD/local, 1=Net/remote): {storage_location}"
+                    f"GPIO 5 changed while ready (1=HDD/local, 0=Net/remote): {storage_location}"
                 )
-                if storage_location == 0 and not os.path.ismount("/mnt/usb"):
+                if storage_location == 1 and not os.path.ismount("/mnt/usb"):
                     if not shutting_down:
                         show_screen("no-drive-connected")
                 else:
@@ -417,7 +417,7 @@ def _ready_screen_poll_loop():
                 sleep(1)
                 continue
             if (
-                storage_location == 0
+                storage_location == 1
                 and current_screen == "no-drive-connected"
                 and os.path.ismount("/mnt/usb")
             ):
@@ -455,16 +455,16 @@ def _ramdisk_empty_poll_loop():
 
 def show_ready_to_scan():
     global ready_to_scan
-    if storage_location == 0 and not os.path.ismount("/mnt/usb"):
+    if storage_location == 1 and not os.path.ismount("/mnt/usb"):
         ready_to_scan = False
         show_screen("no-drive-connected")
         if not ready_screen_polling:
             threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
         return
     ready_to_scan = True
-    if storage_location == 0:
+    if storage_location == 1:
         screen = "ready-to-scan-local"
-    elif storage_location == 1:
+    elif storage_location == 0:
         screen = "ready-to-scan-net"
     else:
         screen = "ready-to-scan"
@@ -633,11 +633,10 @@ def switch_lsyncd_config(storage_location: int) -> None:
     """
     Switch lsyncd config via the lsyncd.active.conf symlink and restart lsyncd.
 
-    IMPORTANT: storage_location logic is reversed compared to the previous comment:
-      - 0 => HDD / local USB (exFAT) target
-      - 1 => Net / remote target
+      - 1 => HDD / local USB (exFAT) target
+      - 0 => Net / remote target
     """
-    target_conf = LSYNCD_CONF_LOCAL if storage_location == 0 else LSYNCD_CONF_NET
+    target_conf = LSYNCD_CONF_LOCAL if storage_location == 1 else LSYNCD_CONF_NET
     try:
         if target_conf == LSYNCD_CONF_LOCAL and not os.path.ismount("/mnt/usb"):
             show_screen("no-drive-connected")
@@ -816,12 +815,11 @@ def setup():
     logging.info(f"GPIO 17 state (0=Full-res, 1=Half-res): {resolution_switch}")
 
     # GPIO 5 (BCM) input. "Target" switch is connected here.
-    # IMPORTANT: Logic is reversed from the earlier note:
-    #   0 => HDD / local USB
-    #   1 => Net / remote
-    GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    #   1 => HDD / local USB
+    #   0 => Net / remote
+    GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     storage_location = GPIO.input(5)
-    logging.info(f"GPIO 5 state (0=HDD/local, 1=Net/remote): {storage_location}")
+    logging.info(f"GPIO 5 state (1=HDD/local, 0=Net/remote): {storage_location}")
 
     # Instanziate things
     state = State()
