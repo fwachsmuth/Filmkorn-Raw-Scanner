@@ -20,7 +20,7 @@ import logging
 from collections import deque
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from smbus2 import SMBus
 from picamera2 import Picamera2, Preview
 from libcamera import Transform, controls
@@ -221,6 +221,48 @@ def clear_overlay():
     current_screen = None
     if overlay_ready:
         camera.set_overlay(None)
+
+def _build_fps_overlay(text: str):
+    if preview_size is None:
+        return None
+    if current_screen:
+        message_path = f"controller-screens/{current_screen}.png"
+        base_overlay = overlay_cache.get(message_path)
+    else:
+        base_overlay = None
+    if base_overlay is not None:
+        base_img = Image.fromarray(base_overlay.copy(), "RGBA")
+    else:
+        base_img = Image.new("RGBA", preview_size, (0, 0, 0, 0))
+
+    draw = ImageDraw.Draw(base_img)
+    font = ImageFont.load_default()
+    if hasattr(draw, "textbbox"):
+        bbox = draw.textbbox((0, 0), text, font=font)
+        text_w, text_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    else:
+        text_w, text_h = draw.textsize(text, font=font)
+    pad = 4
+    x = 8
+    y = max(0, preview_size[1] - text_h - 8)
+    draw.rectangle(
+        (x - pad, y - pad, x + text_w + pad, y + text_h + pad),
+        fill=(0, 0, 0, 160),
+    )
+    draw.text((x, y), text, font=font, fill=(255, 255, 255, 255))
+    return np.array(base_img, dtype=np.uint8)
+
+def update_fps_overlay(avg_fps: float):
+    global pending_overlay
+    if not state.scanning:
+        return
+    if current_screen == "waiting-for-files-to-sync":
+        return
+    overlay = _build_fps_overlay(f"{avg_fps:.1f} fps")
+    if overlay is None:
+        return
+    pending_overlay = overlay
+    _apply_overlay_if_ready()
 
 def cleanup_terminal():
     print("Restoring terminal settings...")
@@ -576,6 +618,7 @@ def shoot_raw(arg_bytes=None):
         avg_fps,
         len(state.fps_history),
     )
+    update_fps_overlay(avg_fps)
     say_ready()
 
 def set_exposure(arg_bytes):
