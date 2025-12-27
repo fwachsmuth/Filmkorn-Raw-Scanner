@@ -82,3 +82,22 @@ sudo systemctl restart filmkorn-ramdisk.service
 
 echo
 echo "All services installed and restarted where applicable."
+
+###
+### Idle (soft-sleep) helper (triggered on-demand)
+###
+echo "Installing idle helper (soft-sleep)"
+
+sudo install -m 0755 "${SCRIPT_DIR}/../filmkorn-idle.sh" \
+  /usr/local/sbin/filmkorn-idle.sh
+
+sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-idle@.service" \
+  /etc/systemd/system/filmkorn-idle@.service
+
+sudo systemctl daemon-reload
+
+echo
+echo "Idle helper installed. Trigger with:"
+echo "  sudo systemctl start filmkorn-idle@sleep"
+echo "  sudo systemctl start filmkorn-idle@wake"
+echo
