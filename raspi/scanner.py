@@ -563,7 +563,7 @@ def ask_arduino() -> Optional["list[int]"]:
             return response  # Success, return the response
         except OSError as e:
             # Depending on kernel/driver, a NACK can surface as EREMOTEIO or EIO.
-            if e.errno not in (errno.EREMOTEIO, errno.EIO):
+            if e.errno not in (errno.EREMOTEIO, errno.EIO, errno.ETIMEDOUT):
                 raise e  # unexpected
             logging.warning(
                 f"Attempt {attempt + 1}: No I2C answer when polling Arduino. Probably busy right now (errno={e.errno})."
