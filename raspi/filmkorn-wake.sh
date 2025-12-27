@@ -34,7 +34,8 @@ for backlight in /sys/class/backlight/*; do
   fi
 done
 
-log "Triggering udev for block devices"
+log "Triggering udev remove/add for block devices"
+udevadm trigger --subsystem-match=block --action=remove || true
 udevadm trigger --subsystem-match=block --action=add || true
 udevadm settle || true
 
