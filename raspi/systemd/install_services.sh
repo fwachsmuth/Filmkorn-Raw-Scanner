@@ -96,7 +96,7 @@ sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-wake.service" \
   /etc/systemd/system/filmkorn-wake.service
 
 sudo install -m 0755 "${SCRIPT_DIR}/../filmkorn-gpio-toggle.py" \
-  /home/pi/Filmkorn-Raw-Scanner/raspi/filmkorn-gpio-toggle.py
+  /usr/local/sbin/filmkorn-gpio-toggle.py
 sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-gpio-toggle.service" \
   /etc/systemd/system/filmkorn-gpio-toggle.service
 
