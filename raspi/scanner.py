@@ -328,9 +328,15 @@ def _ramdisk_empty_poll_loop():
     global ramdisk_empty_polling
     ramdisk_empty_polling = True
     try:
+        def _ramdisk_has_files() -> bool:
+            for root, _dirs, files in os.walk(RAW_DIRS_PATH):
+                if files:
+                    return True
+            return False
+
         while not shutting_down:
             try:
-                if not os.listdir(RAW_DIRS_PATH):
+                if not _ramdisk_has_files():
                     break
             except FileNotFoundError:
                 break
