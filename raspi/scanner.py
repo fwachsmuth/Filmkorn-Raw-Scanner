@@ -361,6 +361,7 @@ def _create_camera_config(raw_size):
 
 def _reconfigure_camera(raw_size):
     global overlay_ready, preview_started, camera_running, sensor_size, preview_size, default_scaler_crop
+    overlay_snapshot = pending_overlay
     overlay_ready = False
     try:
         if preview_started:
@@ -378,6 +379,8 @@ def _reconfigure_camera(raw_size):
     default_scaler_crop = None
     camera_start()
     overlay_ready = True
+    if overlay_snapshot is not None:
+        camera.set_overlay(overlay_snapshot)
     if current_screen:
         show_screen(current_screen)
 
