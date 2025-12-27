@@ -32,7 +32,8 @@ settings {
   statusFile = "/tmp/lsyncd.status",
   nodaemon = false,
   pidfile = "/tmp/lsyncd.pid",
-  insist = true
+  insist = true,
+  maxProcesses = 1
 }
 
 sync {
