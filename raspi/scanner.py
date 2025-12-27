@@ -278,9 +278,7 @@ def _build_fps_overlay(text: str):
 
 def _render_scan_overlay():
     global pending_overlay
-    if not state.scanning:
-        return
-    if current_screen == "waiting-for-files-to-sync":
+    if current_screen == "waiting-for-files-to-sync" and not state.scanning:
         return
     if preview_size is None:
         return
@@ -293,7 +291,7 @@ def _render_scan_overlay():
         base_img = Image.fromarray(base_overlay.copy(), "RGBA")
     else:
         base_img = Image.new("RGBA", preview_size, (0, 0, 0, 0))
-    if last_fps_value is not None:
+    if last_fps_value is not None and state.scanning:
         _draw_text_badge(base_img, f"{last_fps_value:.1f} fps", "bottom-left")
     if last_shutter_value is not None:
         _draw_text_badge(base_img, _format_shutter_speed(last_shutter_value), "bottom-right")
@@ -633,6 +631,7 @@ def set_init_values(arg_bytes):
     global shutter_speed
     shutter_speed = int(math.exp(exposure_val * EXPOSURE_VAL_FACTOR) * SHUTTER_SPEED_RANGE[0])
     logging.info(f"This equals shutter speed {shutter_speed} µs")
+    update_shutter_overlay(shutter_speed)
 
     if arg_bytes[2] == 0:
         logging.info("Starting with Screen \"Insert Film\"")
@@ -715,6 +714,7 @@ def set_exposure(arg_bytes):
     # calculate the pot value into meaningful new shutter speeds
     global shutter_speed
     shutter_speed = int(math.exp(exposure_val * EXPOSURE_VAL_FACTOR) * SHUTTER_SPEED_RANGE[0])
+    update_shutter_overlay(shutter_speed)
     logging.info(f"This equals shutter speed {shutter_speed} µs")
 
 def say_ready():
