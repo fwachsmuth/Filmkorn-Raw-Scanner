@@ -66,6 +66,8 @@ default_scaler_crop = None
 shutdown_timer = None
 shutdown_requested_at = None
 ramdisk_empty_polling = False
+last_fps_value = None
+last_shutter_value = None
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -166,6 +168,9 @@ class State:
         self.raw_count = 0
         self.scanning = True
         self.fps_history.clear()
+        global last_fps_value, last_shutter_value
+        last_fps_value = None
+        last_shutter_value = None
         set_zoom_mode_1_1()
         set_lamp_on()
         self.set_raws_path()
@@ -271,17 +276,34 @@ def _build_fps_overlay(text: str):
     _draw_text_badge(base_img, text, "bottom-left")
     return np.array(base_img, dtype=np.uint8)
 
-def update_fps_overlay(avg_fps: float):
+def _render_scan_overlay():
     global pending_overlay
     if not state.scanning:
         return
     if current_screen == "waiting-for-files-to-sync":
         return
-    overlay = _build_fps_overlay(f"{avg_fps:.1f} fps")
-    if overlay is None:
+    if preview_size is None:
         return
-    pending_overlay = overlay
+    if current_screen:
+        message_path = f"controller-screens/{current_screen}.png"
+        base_overlay = overlay_cache.get(message_path)
+    else:
+        base_overlay = None
+    if base_overlay is not None:
+        base_img = Image.fromarray(base_overlay.copy(), "RGBA")
+    else:
+        base_img = Image.new("RGBA", preview_size, (0, 0, 0, 0))
+    if last_fps_value is not None:
+        _draw_text_badge(base_img, f"{last_fps_value:.1f} fps", "bottom-left")
+    if last_shutter_value is not None:
+        _draw_text_badge(base_img, _format_shutter_speed(last_shutter_value), "bottom-right")
+    pending_overlay = np.array(base_img, dtype=np.uint8)
     _apply_overlay_if_ready()
+
+def update_fps_overlay(avg_fps: float):
+    global last_fps_value
+    last_fps_value = avg_fps
+    _render_scan_overlay()
 
 def _format_shutter_speed(speed_us: int) -> str:
     if speed_us <= 0:
@@ -299,26 +321,9 @@ def _format_shutter_speed(speed_us: int) -> str:
     return f"1/{nearest}"
 
 def update_shutter_overlay(speed_us: int):
-    global pending_overlay
-    if not state.scanning:
-        return
-    if current_screen == "waiting-for-files-to-sync":
-        return
-    text = _format_shutter_speed(speed_us)
-    if preview_size is None:
-        return
-    if current_screen:
-        message_path = f"controller-screens/{current_screen}.png"
-        base_overlay = overlay_cache.get(message_path)
-    else:
-        base_overlay = None
-    if base_overlay is not None:
-        base_img = Image.fromarray(base_overlay.copy(), "RGBA")
-    else:
-        base_img = Image.new("RGBA", preview_size, (0, 0, 0, 0))
-    _draw_text_badge(base_img, text, "bottom-right")
-    pending_overlay = np.array(base_img, dtype=np.uint8)
-    _apply_overlay_if_ready()
+    global last_shutter_value
+    last_shutter_value = speed_us
+    _render_scan_overlay()
 
 def cleanup_terminal():
     print("Restoring terminal settings...")
