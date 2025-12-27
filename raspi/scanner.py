@@ -278,6 +278,11 @@ def _build_fps_overlay(text: str):
 
 def _render_scan_overlay():
     global pending_overlay
+    show_shutter = state.scanning or current_screen in {
+        "ready-to-scan",
+        "ready-to-scan-local",
+        "ready-to-scan-net",
+    }
     if current_screen == "waiting-for-files-to-sync" and not state.scanning:
         return
     if preview_size is None:
@@ -293,7 +298,7 @@ def _render_scan_overlay():
         base_img = Image.new("RGBA", preview_size, (0, 0, 0, 0))
     if last_fps_value is not None and state.scanning:
         _draw_text_badge(base_img, f"{last_fps_value:.1f} fps", "bottom-left")
-    if last_shutter_value is not None:
+    if last_shutter_value is not None and show_shutter:
         _draw_text_badge(base_img, _format_shutter_speed(last_shutter_value), "bottom-right")
     pending_overlay = np.array(base_img, dtype=np.uint8)
     _apply_overlay_if_ready()
