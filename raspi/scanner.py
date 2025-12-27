@@ -239,7 +239,7 @@ def _draw_text_badge(base_img, text: str, position: str):
     draw = ImageDraw.Draw(base_img)
     font = None
     try:
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30)
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 20)
     except OSError:
         font = ImageFont.load_default()
     if hasattr(draw, "textbbox"):
