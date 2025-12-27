@@ -17,6 +17,7 @@ import atexit
 import threading
 import RPi.GPIO as GPIO
 import logging
+from collections import deque
 
 import numpy as np
 from PIL import Image
@@ -134,6 +135,7 @@ class State:
         self.raw_count = 0
         self.continue_dir = False
         self.scanning = False
+        self.fps_history = deque(maxlen=36)
 
     @property
     def lamp_mode(self) -> bool:
@@ -162,6 +164,7 @@ class State:
 
         self.raw_count = 0
         self.scanning = True
+        self.fps_history.clear()
         set_zoom_mode_1_1()
         set_lamp_on()
         self.set_raws_path()
@@ -563,7 +566,16 @@ def shoot_raw(arg_bytes=None):
         request.release()
     state.raw_count += 1
     elapsed_time = time.time() - start_time
-    logging.info(f"One raw with shutter speed {shutter_speed}µs taken and saved in {elapsed_time:.2f}s, equalling {1/elapsed_time:.1f}fps")
+    fps = 1 / elapsed_time if elapsed_time > 0 else 0.0
+    state.fps_history.append(fps)
+    avg_fps = sum(state.fps_history) / len(state.fps_history)
+    logging.info(
+        "One raw with shutter speed %dµs taken and saved in %.2fs, avg %.1ffps (last %d)",
+        shutter_speed,
+        elapsed_time,
+        avg_fps,
+        len(state.fps_history),
+    )
     say_ready()
 
 def set_exposure(arg_bytes):
