@@ -236,15 +236,19 @@ def _build_fps_overlay(text: str):
         base_img = Image.new("RGBA", preview_size, (0, 0, 0, 0))
 
     draw = ImageDraw.Draw(base_img)
-    font = ImageFont.load_default()
+    font = None
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30)
+    except OSError:
+        font = ImageFont.load_default()
     if hasattr(draw, "textbbox"):
         bbox = draw.textbbox((0, 0), text, font=font)
         text_w, text_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
     else:
         text_w, text_h = draw.textsize(text, font=font)
-    pad = 4
-    x = 8
-    y = max(0, preview_size[1] - text_h - 8)
+    pad = 12
+    x = 12
+    y = max(0, preview_size[1] - text_h - 12)
     draw.rectangle(
         (x - pad, y - pad, x + text_w + pad, y + text_h + pad),
         fill=(0, 0, 0, 160),
