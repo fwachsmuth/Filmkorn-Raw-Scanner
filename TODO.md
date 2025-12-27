@@ -12,12 +12,6 @@
 - 
 
 ## Next
-- [x] Detect and mount a local harddrives with exfs (kernel, not FUSE)
-- [x] Fix scanning apparently being slower during network lsync
-- [x] De-Nice the lsync again, it just postpones the slowness
-- [x] After switching to local scan, there are three rsync in `pgrep -a -f '(^|/)(lsyncd|rsync)( |$)'`
-- [x] Average and display the scan speed rate
-- [x] Clear Screen behind preview
 - [ ] Show "syncing files" when scanning is done but lsync is still going
 - [ ] Try writing to /mn/usb directly instead of ramdisk
 - [ ] Do we still need to call /opt/homebrew/bin/rsync in lsyncd-to-host.conf?
@@ -27,6 +21,7 @@
 - [ ] Handle if Directory on Host PC does not exist
 - [ ] Cleanup logging (and consider syncing it)
 - [ ] Sleep Mode (for camera)
+- [ ] Try 2K scanning
 
 - [ ] is opme.sh working and ever called?
 
