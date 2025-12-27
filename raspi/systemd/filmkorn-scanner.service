@@ -24,8 +24,8 @@ RestartSec=1
 
 # Attach stdin/stdout to tty1 (and also keep logs in journald)
 StandardInput=tty
-StandardOutput=journal+console
-StandardError=journal+console
+StandardOutput=journal
+StandardError=journal
 TTYPath=/dev/tty1
 TTYReset=yes
 TTYVHangup=yes
