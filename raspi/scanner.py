@@ -68,6 +68,8 @@ shutdown_requested_at = None
 ramdisk_empty_polling = False
 last_fps_value = None
 last_shutter_value = None
+current_resolution_switch = None
+last_resolution_label = None
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -218,6 +220,7 @@ def show_screen(message):
         last_status_screen = message
     pending_overlay = overlay
     _apply_overlay_if_ready()
+    _render_scan_overlay()
     if message == "no-drive-connected" and not ready_screen_polling:
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
@@ -251,6 +254,8 @@ def _draw_text_badge(base_img, text: str, position: str):
     margin = 12
     if position == "bottom-right":
         x = max(0, preview_size[0] - text_w - margin)
+    elif position == "bottom-center":
+        x = max(0, (preview_size[0] - text_w) // 2)
     else:
         x = margin
     y = max(0, preview_size[1] - text_h - margin)
@@ -300,6 +305,8 @@ def _render_scan_overlay():
         _draw_text_badge(base_img, f"{last_fps_value:.1f} fps", "bottom-left")
     if last_shutter_value is not None and show_shutter:
         _draw_text_badge(base_img, _format_shutter_speed(last_shutter_value), "bottom-right")
+    if current_screen in STATUS_SCREENS and last_resolution_label:
+        _draw_text_badge(base_img, last_resolution_label, "bottom-center")
     pending_overlay = np.array(base_img, dtype=np.uint8)
     _apply_overlay_if_ready()
 
@@ -332,6 +339,46 @@ def cleanup_terminal():
     print("Restoring terminal settings...")
     subprocess.run(['stty', 'sane'])
 
+def _apply_camera_controls():
+    camera.set_controls({
+        "AeEnable": True,
+        "AwbEnable": True,
+        "AwbMode": controls.AwbModeEnum.Daylight,
+        "Brightness": 0.0,
+        "Sharpness": 1.0,
+        "Contrast": 1.0,
+        "Saturation": 1.0,
+        "ExposureValue": 0.0,
+        "AnalogueGain": 1.0,
+    })
+
+def _create_camera_config(raw_size):
+    return camera.create_preview_configuration(
+        main={"size": (preview_size), "format": "XBGR8888"},
+        raw={"size": raw_size, "format": "SBGGR12_CSI2P"},
+        transform=Transform(rotation=180, hflip=True, vflip=False),
+    )
+
+def _reconfigure_camera(raw_size):
+    global overlay_ready, preview_started, camera_running, sensor_size, preview_size, default_scaler_crop
+    overlay_ready = False
+    try:
+        if camera_running:
+            camera.stop()
+    except Exception:
+        pass
+    preview_started = False
+    camera_running = False
+    camera.configure(_create_camera_config(raw_size))
+    sensor_size = camera.camera_configuration().get("sensor", {}).get("output_size", FULL_RESOLUTION)
+    preview_size = camera.camera_configuration().get("main", {}).get("size", preview_size)
+    _apply_camera_controls()
+    default_scaler_crop = None
+    camera_start()
+    overlay_ready = True
+    if current_screen:
+        show_screen(current_screen)
+
 def showInsertFilm(arg_bytes=None):
     logging.info("Showing Screen: Please insert film")
     global ready_to_scan
@@ -349,11 +396,11 @@ def _ready_screen_poll_loop():
     ready_screen_polling = True
     try:
         while (ready_to_scan or current_screen == "no-drive-connected") and not shutting_down:
-            new_storage_location = GPIO.input(17)
+            new_storage_location = GPIO.input(5)
             if new_storage_location != storage_location:
                 storage_location = new_storage_location
                 logging.info(
-                    f"GPIO 17 changed while ready (0=HDD/local, 1=Net/remote): {storage_location}"
+                    f"GPIO 5 changed while ready (0=HDD/local, 1=Net/remote): {storage_location}"
                 )
                 if storage_location == 0 and not os.path.ismount("/mnt/usb"):
                     if not shutting_down:
@@ -731,7 +778,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, current_resolution_switch, last_resolution_label
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -754,13 +801,22 @@ def setup():
     GPIO.setup(UC_POWER_GPIO, GPIO.OUT, initial=GPIO.HIGH)
     sleep(UC_POWER_BOOT_DELAY_S)
 
-    # GPIO 17 (BCM) input. "Target" switch is connected here.
+    # GPIO 17 (BCM) input. "Resolution" switch is connected here.
+    #   0 => Full-res RAW
+    #   1 => Half-res RAW
+    GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    resolution_switch = GPIO.input(17)
+    current_resolution_switch = resolution_switch
+    last_resolution_label = "4K Raw" if resolution_switch == 0 else "2K Raw"
+    logging.info(f"GPIO 17 state (0=Full-res, 1=Half-res): {resolution_switch}")
+
+    # GPIO 5 (BCM) input. "Target" switch is connected here.
     # IMPORTANT: Logic is reversed from the earlier note:
     #   0 => HDD / local USB
     #   1 => Net / remote
-    GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    storage_location = GPIO.input(17)
-    logging.info(f"GPIO 17 state (0=HDD/local, 1=Net/remote): {storage_location}")
+    GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    storage_location = GPIO.input(5)
+    logging.info(f"GPIO 5 state (0=HDD/local, 1=Net/remote): {storage_location}")
 
     # Instanziate things
     state = State()
@@ -773,31 +829,14 @@ def setup():
     if raw_format is None:
         raw_format = "SRGGB12"
     overlay_ready = False
-    camera_config = camera.create_preview_configuration(
-        main={"size": (preview_size), "format": "XBGR8888"},
-        raw={"size": (4056, 3040), "format": "SBGGR12_CSI2P"},
-        # raw={"format": raw_format},
-        # sensor={"output_size": preview_size},
-        # display="main",
-        # buffer_count=2,
-        transform=Transform(rotation=180, hflip=True, vflip=False),
-    )
+    raw_size = (4056, 3040) if resolution_switch == 0 else (2028, 1520)
+    camera_config = _create_camera_config(raw_size)
     camera.configure(camera_config)
     
 
     sensor_size = camera.camera_configuration().get("sensor", {}).get("output_size", FULL_RESOLUTION)
     preview_size = camera.camera_configuration().get("main", {}).get("size", preview_size)
-    camera.set_controls({
-        "AeEnable": True,
-        "AwbEnable": True,
-        "AwbMode": controls.AwbModeEnum.Daylight,
-        "Brightness": 0.0,
-        "Sharpness": 1.0,
-        "Contrast": 1.0,
-        "Saturation": 1.0,
-        "ExposureValue": 0.0,
-        "AnalogueGain": 1.0,
-    })
+    _apply_camera_controls()
     camera_start()
     overlay_ready = True
     _apply_overlay_if_ready()
@@ -915,12 +954,25 @@ if __name__ == '__main__':
 
     try:
         last_disk_check = 0.0
+        last_resolution_check = 0.0
         while True:
             loop()
             now = time.monotonic()
             if now - last_disk_check >= (1.0 if state.scanning else 3.0):
                 check_available_disk_space()
                 last_disk_check = now
+            if not state.scanning and now - last_resolution_check >= 0.5:
+                new_resolution = GPIO.input(17)
+                if new_resolution != current_resolution_switch:
+                    current_resolution_switch = new_resolution
+                    raw_size = (4056, 3040) if new_resolution == 0 else (2028, 1520)
+                    last_resolution_label = "4K Raw" if new_resolution == 0 else "2K Raw"
+                    logging.info(
+                        "GPIO 17 changed (0=Full-res, 1=Half-res): %s",
+                        current_resolution_switch,
+                    )
+                    _reconfigure_camera(raw_size)
+                last_resolution_check = now
             if shutting_down:
                 _start_shutdown_timer()
                 break
