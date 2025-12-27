@@ -336,7 +336,10 @@ def _ramdisk_empty_poll_loop():
                 break
             sleep(1)
         if not shutting_down:
-            show_ready_to_scan()
+            if last_status_screen:
+                show_screen(last_status_screen)
+            else:
+                show_ready_to_scan()
     finally:
         ramdisk_empty_polling = False
 
