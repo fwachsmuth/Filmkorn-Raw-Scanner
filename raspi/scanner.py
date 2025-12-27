@@ -537,7 +537,7 @@ def tell_arduino(command: Command):
             return  # Success, exit the function
         except OSError as e:
             # Depending on kernel/driver, a NACK can surface as EREMOTEIO or EIO.
-            if e.errno not in (errno.EREMOTEIO, errno.EIO):
+            if e.errno not in (errno.EREMOTEIO, errno.EIO, errno.ETIMEDOUT):
                 raise e  # unexpected
             logging.warning(
                 f"Attempt {attempt + 1}: Got no I2C answer when telling the Arduino something (errno={e.errno})."
