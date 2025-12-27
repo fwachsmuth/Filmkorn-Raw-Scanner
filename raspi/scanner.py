@@ -230,6 +230,31 @@ def clear_overlay():
     if overlay_ready:
         camera.set_overlay(None)
 
+def _draw_text_badge(base_img, text: str, position: str):
+    draw = ImageDraw.Draw(base_img)
+    font = None
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30)
+    except OSError:
+        font = ImageFont.load_default()
+    if hasattr(draw, "textbbox"):
+        bbox = draw.textbbox((0, 0), text, font=font)
+        text_w, text_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    else:
+        text_w, text_h = draw.textsize(text, font=font)
+    pad = 12
+    margin = 12
+    if position == "bottom-right":
+        x = max(0, preview_size[0] - text_w - margin)
+    else:
+        x = margin
+    y = max(0, preview_size[1] - text_h - margin)
+    draw.rectangle(
+        (x - pad, y - pad, x + text_w + pad, y + text_h + pad),
+        fill=(0, 0, 0, 160),
+    )
+    draw.text((x, y), text, font=font, fill=(255, 255, 255, 255))
+
 def _build_fps_overlay(text: str):
     if preview_size is None:
         return None
@@ -243,25 +268,7 @@ def _build_fps_overlay(text: str):
     else:
         base_img = Image.new("RGBA", preview_size, (0, 0, 0, 0))
 
-    draw = ImageDraw.Draw(base_img)
-    font = None
-    try:
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30)
-    except OSError:
-        font = ImageFont.load_default()
-    if hasattr(draw, "textbbox"):
-        bbox = draw.textbbox((0, 0), text, font=font)
-        text_w, text_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    else:
-        text_w, text_h = draw.textsize(text, font=font)
-    pad = 12
-    x = 12
-    y = max(0, preview_size[1] - text_h - 12)
-    draw.rectangle(
-        (x - pad, y - pad, x + text_w + pad, y + text_h + pad),
-        fill=(0, 0, 0, 160),
-    )
-    draw.text((x, y), text, font=font, fill=(255, 255, 255, 255))
+    _draw_text_badge(base_img, text, "bottom-left")
     return np.array(base_img, dtype=np.uint8)
 
 def update_fps_overlay(avg_fps: float):
@@ -274,6 +281,43 @@ def update_fps_overlay(avg_fps: float):
     if overlay is None:
         return
     pending_overlay = overlay
+    _apply_overlay_if_ready()
+
+def _format_shutter_speed(speed_us: int) -> str:
+    if speed_us <= 0:
+        return "0"
+    denom = max(1, int(round(1_000_000 / speed_us)))
+    standard = [
+        30, 25, 20, 15, 13, 10, 8, 6, 5, 4, 3, 2,
+        1,
+        2, 3, 4, 5, 6, 8, 10, 13, 15, 20, 25, 30,
+        40, 50, 60, 80, 100, 125, 160, 200, 250,
+        320, 400, 500, 640, 800, 1000, 1250, 1600,
+        2000, 2500, 3200, 4000, 5000, 6400, 8000,
+    ]
+    nearest = min(standard, key=lambda s: abs(s - denom))
+    return f"1/{nearest}"
+
+def update_shutter_overlay(speed_us: int):
+    global pending_overlay
+    if not state.scanning:
+        return
+    if current_screen == "waiting-for-files-to-sync":
+        return
+    text = _format_shutter_speed(speed_us)
+    if preview_size is None:
+        return
+    if current_screen:
+        message_path = f"controller-screens/{current_screen}.png"
+        base_overlay = overlay_cache.get(message_path)
+    else:
+        base_overlay = None
+    if base_overlay is not None:
+        base_img = Image.fromarray(base_overlay.copy(), "RGBA")
+    else:
+        base_img = Image.new("RGBA", preview_size, (0, 0, 0, 0))
+    _draw_text_badge(base_img, text, "bottom-right")
+    pending_overlay = np.array(base_img, dtype=np.uint8)
     _apply_overlay_if_ready()
 
 def cleanup_terminal():
@@ -649,13 +693,14 @@ def shoot_raw(arg_bytes=None):
     state.fps_history.append(fps)
     avg_fps = sum(state.fps_history) / len(state.fps_history)
     logging.info(
-        "One raw with shutter speed %dµs taken and saved in %.2fs, avg %.1ffps (last %d)",
-        shutter_speed,
+        "One raw with shutter speed %s taken and saved in %.2fs, avg %.1ffps (last %d)",
+        _format_shutter_speed(shutter_speed),
         elapsed_time,
         avg_fps,
         len(state.fps_history),
     )
     update_fps_overlay(avg_fps)
+    update_shutter_overlay(shutter_speed)
     say_ready()
 
 def set_exposure(arg_bytes):
