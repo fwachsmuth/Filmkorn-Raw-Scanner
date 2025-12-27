@@ -80,5 +80,23 @@ sudo systemctl daemon-reload
 sudo systemctl enable filmkorn-ramdisk.service
 sudo systemctl restart filmkorn-ramdisk.service
 
+###
+### Sleep/Wake helper services
+###
+echo "Installing sleep/wake helper services"
+
+sudo install -m 0755 "${SCRIPT_DIR}/../filmkorn-sleep.sh" \
+  /usr/local/sbin/filmkorn-sleep.sh
+sudo install -m 0755 "${SCRIPT_DIR}/../filmkorn-wake.sh" \
+  /usr/local/sbin/filmkorn-wake.sh
+
+sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-sleep.service" \
+  /etc/systemd/system/filmkorn-sleep.service
+sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-wake.service" \
+  /etc/systemd/system/filmkorn-wake.service
+
+sudo systemctl daemon-reload
+sudo systemctl enable filmkorn-sleep.service filmkorn-wake.service
+
 echo
 echo "All services installed and restarted where applicable."

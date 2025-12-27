@@ -1,0 +1,10 @@
+[Unit]
+Description=Filmkorn Scanner Sleep
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/filmkorn-sleep.sh
+
+[Install]
+WantedBy=multi-user.target
