@@ -819,7 +819,7 @@ def setup():
     # IMPORTANT: Logic is reversed from the earlier note:
     #   0 => HDD / local USB
     #   1 => Net / remote
-    GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     storage_location = GPIO.input(5)
     logging.info(f"GPIO 5 state (0=HDD/local, 1=Net/remote): {storage_location}")
 
