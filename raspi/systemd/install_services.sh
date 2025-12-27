@@ -95,14 +95,8 @@ sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-sleep.service" \
 sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-wake.service" \
   /etc/systemd/system/filmkorn-wake.service
 
-sudo install -m 0755 "${SCRIPT_DIR}/../filmkorn-gpio-toggle.py" \
-  /usr/local/sbin/filmkorn-gpio-toggle.py
-sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-gpio-toggle.service" \
-  /etc/systemd/system/filmkorn-gpio-toggle.service
-
 sudo systemctl daemon-reload
-sudo systemctl enable filmkorn-sleep.service filmkorn-wake.service filmkorn-gpio-toggle.service
-sudo systemctl restart filmkorn-gpio-toggle.service
+sudo systemctl enable filmkorn-sleep.service filmkorn-wake.service
 
 echo
 echo "All services installed and restarted where applicable."
