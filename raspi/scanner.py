@@ -318,7 +318,7 @@ def _format_shutter_speed(speed_us: int) -> str:
         2000, 2500, 3200, 4000, 5000, 6400, 8000,
     ]
     nearest = min(standard, key=lambda s: abs(s - denom))
-    return f"1/{nearest}"
+    return f"1/{nearest}s"
 
 def update_shutter_overlay(speed_us: int):
     global last_shutter_value
