@@ -5,15 +5,8 @@ log() {
   echo "[filmkorn-sleep] $*"
 }
 
-log "Stopping scanner and lsyncd services"
-systemctl stop filmkorn-scanner.service filmkorn-lsyncd.service || true
-
-for _ in $(seq 1 30); do
-  if ! systemctl is-active --quiet filmkorn-scanner.service; then
-    break
-  fi
-  sleep 0.1
-done
+log "Stopping lsyncd service"
+systemctl stop filmkorn-lsyncd.service || true
 
 if mountpoint -q /mnt/usb; then
   log "Unmounting /mnt/usb"

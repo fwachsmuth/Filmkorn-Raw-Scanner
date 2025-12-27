@@ -70,6 +70,9 @@ last_fps_value = None
 last_shutter_value = None
 current_resolution_switch = None
 last_resolution_label = None
+sleep_toggle_pending = False
+last_sleep_toggle = 0.0
+sleep_mode = False
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -173,6 +176,8 @@ class State:
         global last_fps_value, last_shutter_value
         last_fps_value = None
         last_shutter_value = None
+        global sleep_mode
+        sleep_mode = False
         set_zoom_mode_1_1()
         set_lamp_on()
         self.set_raws_path()
@@ -338,6 +343,10 @@ def update_shutter_overlay(speed_us: int):
 def cleanup_terminal():
     print("Restoring terminal settings...")
     subprocess.run(['stty', 'sane'])
+
+def _sleep_button_callback(_channel):
+    global sleep_toggle_pending
+    sleep_toggle_pending = True
 
 
 def _apply_camera_controls():
@@ -783,7 +792,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, current_resolution_switch, last_resolution_label
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, current_resolution_switch, last_resolution_label, sleep_toggle_pending, last_sleep_toggle, sleep_mode
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -821,6 +830,10 @@ def setup():
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     storage_location = GPIO.input(5)
     logging.info(f"GPIO 5 state (1=HDD/local, 0=Net/remote): {storage_location}")
+
+    # GPIO 26 (BCM) input. Sleep/wake button (momentary, active low).
+    GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_OFF)
+    GPIO.add_event_detect(26, GPIO.FALLING, callback=_sleep_button_callback, bouncetime=250)
 
 
     # Instanziate things
@@ -978,6 +991,25 @@ if __name__ == '__main__':
                     )
                     _reconfigure_camera(raw_size)
                 last_resolution_check = now
+            if sleep_toggle_pending:
+                sleep_toggle_pending = False
+                if not state.scanning and not shutting_down:
+                    if now - last_sleep_toggle >= 1.0:
+                        last_sleep_toggle = now
+                        if sleep_mode:
+                            logging.info("Sleep button pressed; waking up")
+                            subprocess.run(
+                                ["sudo", "systemctl", "start", "filmkorn-wake.service"],
+                                check=False,
+                            )
+                            sleep_mode = False
+                        else:
+                            logging.info("Sleep button pressed; entering sleep mode")
+                            subprocess.run(
+                                ["sudo", "systemctl", "start", "filmkorn-sleep.service"],
+                                check=False,
+                            )
+                            sleep_mode = True
             if shutting_down:
                 _start_shutdown_timer()
                 break
