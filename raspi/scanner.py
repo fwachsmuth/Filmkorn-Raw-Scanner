@@ -363,6 +363,8 @@ def _reconfigure_camera(raw_size):
     global overlay_ready, preview_started, camera_running, sensor_size, preview_size, default_scaler_crop
     overlay_ready = False
     try:
+        if preview_started:
+            camera.stop_preview()
         if camera_running:
             camera.stop()
     except Exception:
