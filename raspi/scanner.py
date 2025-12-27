@@ -827,9 +827,6 @@ def setup():
     storage_location = GPIO.input(5)
     logging.info(f"GPIO 5 state (1=HDD/local, 0=Net/remote): {storage_location}")
 
-    # GPIO 3 (BCM) input. Sleep/wake button (momentary, active low).
-    GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.add_event_detect(3, GPIO.FALLING, callback=_sleep_button_callback, bouncetime=250)
 
     # Instanziate things
     state = State()
