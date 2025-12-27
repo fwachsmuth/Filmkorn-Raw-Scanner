@@ -65,6 +65,7 @@ shutting_down = False
 default_scaler_crop = None
 shutdown_timer = None
 shutdown_requested_at = None
+ramdisk_empty_polling = False
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -177,6 +178,13 @@ class State:
         logging.info("Nevermind; Stopped scanning")
         set_lamp_off()
         tell_arduino(Command.TELL_LOADSTATE)
+        try:
+            if os.listdir(RAW_DIRS_PATH):
+                show_screen("waiting-for-files-to-sync")
+                if not ramdisk_empty_polling:
+                    threading.Thread(target=_ramdisk_empty_poll_loop, daemon=True).start()
+        except FileNotFoundError:
+            pass
 
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
@@ -315,6 +323,22 @@ def _ready_screen_poll_loop():
             sleep(1)
     finally:
         ready_screen_polling = False
+
+def _ramdisk_empty_poll_loop():
+    global ramdisk_empty_polling
+    ramdisk_empty_polling = True
+    try:
+        while not shutting_down:
+            try:
+                if not os.listdir(RAW_DIRS_PATH):
+                    break
+            except FileNotFoundError:
+                break
+            sleep(1)
+        if not shutting_down:
+            show_ready_to_scan()
+    finally:
+        ramdisk_empty_polling = False
 
 def show_ready_to_scan():
     global ready_to_scan
