@@ -417,6 +417,8 @@ def show_ready_to_scan():
     else:
         screen = "ready-to-scan"
     show_screen(screen)
+    if last_shutter_value is not None:
+        update_shutter_overlay(last_shutter_value)
     if ready_to_scan and not ready_screen_polling:
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
