@@ -18,6 +18,11 @@ if command -v vcgencmd >/dev/null 2>&1; then
   vcgencmd display_power 0 || true
 fi
 
+if [ -w /sys/class/graphics/fb0/blank ]; then
+  log "Blanking framebuffer"
+  echo 1 > /sys/class/graphics/fb0/blank || true
+fi
+
 for backlight in /sys/class/backlight/*; do
   [ -d "$backlight" ] || continue
   if [ -w "$backlight/brightness" ]; then

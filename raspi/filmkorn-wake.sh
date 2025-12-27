@@ -10,6 +10,11 @@ if command -v vcgencmd >/dev/null 2>&1; then
   vcgencmd display_power 1 || true
 fi
 
+if [ -w /sys/class/graphics/fb0/blank ]; then
+  log "Unblanking framebuffer"
+  echo 0 > /sys/class/graphics/fb0/blank || true
+fi
+
 for backlight in /sys/class/backlight/*; do
   [ -d "$backlight" ] || continue
   name="$(basename "$backlight")"
