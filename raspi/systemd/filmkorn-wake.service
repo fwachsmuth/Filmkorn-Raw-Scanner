@@ -1,0 +1,10 @@
+[Unit]
+Description=Filmkorn Scanner Wake
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/filmkorn-wake.sh
+
+[Install]
+WantedBy=multi-user.target
