@@ -974,6 +974,7 @@ if __name__ == '__main__':
     try:
         last_disk_check = 0.0
         last_resolution_check = 0.0
+        last_button_log = 0.0
         while True:
             loop()
             now = time.monotonic()
@@ -994,6 +995,9 @@ if __name__ == '__main__':
                 last_resolution_check = now
             if not state.scanning and not shutting_down:
                 button_state = GPIO.input(26)
+                if now - last_button_log >= 1.0:
+                    logging.info("GPIO26 button state: %s", button_state)
+                    last_button_log = now
                 if button_state != last_sleep_button_state:
                     last_sleep_button_state = button_state
                     last_sleep_button_change = now
