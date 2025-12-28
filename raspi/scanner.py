@@ -349,7 +349,7 @@ def cleanup_terminal():
 
 def _poll_sleep_button(now: float) -> bool:
     global last_sleep_button_state, last_sleep_button_change, last_sleep_toggle
-    global sleep_button_armed, sleep_mode, preview_started
+    global sleep_button_armed, sleep_mode, preview_started, camera_running
     button_state = GPIO.input(26)
     if button_state != last_sleep_button_state:
         last_sleep_button_state = button_state
@@ -376,6 +376,8 @@ def _poll_sleep_button(now: float) -> bool:
                 except Exception:
                     pass
             camera_start()
+            if current_screen:
+                show_screen(current_screen)
             sleep_mode = False
         else:
             logging.info("Sleep button pressed; entering sleep mode")
@@ -387,6 +389,12 @@ def _poll_sleep_button(now: float) -> bool:
                 camera.stop_preview()
             except Exception:
                 pass
+            if camera_running:
+                try:
+                    camera.stop()
+                except Exception:
+                    pass
+                camera_running = False
             preview_started = False
             sleep_mode = True
         return True
