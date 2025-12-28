@@ -886,9 +886,24 @@ def check_available_disk_space():
         logging.warning(f"Only {available} bytes left on the volume; waiting for more space")
         set_auto_exposure(True)
         show_screen("waiting-for-files-to-sync")
+        last_available = available
+        last_increase_at = time.time()
+        restarted_lsyncd = False
         while True:
             sleep(1)
-            if get_available_disk_space() >= DISK_SPACE_WAIT_THRESHOLD * 2:
+            available = get_available_disk_space()
+            if available > last_available:
+                last_available = available
+                last_increase_at = time.time()
+            if not restarted_lsyncd and time.time() - last_increase_at >= 30:
+                logging.warning("No disk space increase detected; restarting filmkorn-lsyncd.service")
+                subprocess.run(
+                    ["sudo", "systemctl", "restart", "filmkorn-lsyncd.service"],
+                    check=False,
+                )
+                last_increase_at = time.time()
+                restarted_lsyncd = True
+            if available >= DISK_SPACE_WAIT_THRESHOLD * 2:
                 clear_overlay()
                 return
     if available < DISK_SPACE_ABORT_THRESHOLD:    # 30 MB  
