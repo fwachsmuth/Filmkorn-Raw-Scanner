@@ -194,5 +194,16 @@ else
 fi
 sudo dseditgroup -o edit -d "$current_user" -t user com.apple.access_ssh-disabled >/dev/null 2>&1 || true
 
+if [[ ! -f ".paired" ]]; then
+  warn "Pairing not detected (.paired missing)."
+  warn "Run ./pair.sh when you're ready to connect this Mac to the scanner."
+  read -r -p "Run ./pair.sh now? [y/N] " run_pair
+  if [[ "${run_pair:-}" =~ ^[Yy]$ ]]; then
+    ./pair.sh || warn "pair.sh exited with an error."
+  fi
+else
+  log "Pairing detected."
+fi
+
 log "Done."
 exit 0
