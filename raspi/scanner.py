@@ -1077,7 +1077,10 @@ if __name__ == '__main__':
         last_resolution_check = 0.0
         while True:
             now = time.monotonic()
-            if not state.scanning and not shutting_down:
+            if not state.scanning and not shutting_down and (
+                current_screen in {"insert-film", "ready-to-scan", "ready-to-scan-local", "ready-to-scan-net"}
+                or sleep_mode
+            ):
                 if _poll_sleep_button(now):
                     time.sleep(0.05)
                     continue
