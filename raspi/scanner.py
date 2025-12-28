@@ -400,6 +400,10 @@ def _poll_sleep_button(now: float) -> bool:
             except Exception:
                 pass
             subprocess.run(["/usr/bin/vcgencmd", "display_power", "1"], check=False)
+            try:
+                GPIO.output(UC_POWER_GPIO, GPIO.HIGH)
+            except Exception:
+                pass
             if preview_started:
                 try:
                     camera.stop_preview()
@@ -416,6 +420,10 @@ def _poll_sleep_button(now: float) -> bool:
             sleep_mode = False
         else:
             logging.info("Sleep button pressed; entering sleep mode")
+            try:
+                GPIO.output(UC_POWER_GPIO, GPIO.LOW)
+            except Exception:
+                pass
             try:
                 camera.stop_preview()
             except Exception:
