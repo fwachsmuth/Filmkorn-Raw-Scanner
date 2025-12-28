@@ -1102,7 +1102,7 @@ if __name__ == '__main__':
                 not state.scanning
                 and not shutting_down
                 and (
-                current_screen in {"insert-film", "ready-to-scan", "ready-to-scan-local", "ready-to-scan-net"}
+                current_screen in {"insert-film", "ready-to-scan", "ready-to-scan-local", "ready-to-scan-net", "no-drive-connected"}
                 or sleep_mode
                 )
             ):
