@@ -399,6 +399,8 @@ def _poll_sleep_button(now: float) -> bool:
             overlay_ready = True
             if current_screen:
                 show_screen(current_screen)
+            elif last_status_screen:
+                show_screen(last_status_screen)
             sleep_mode = False
         else:
             logging.info("Sleep button pressed; entering sleep mode")
