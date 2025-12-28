@@ -77,6 +77,7 @@ last_sleep_button_change = 0.0
 sleep_button_armed = True
 idle_since = None
 shutter_speed = AUTO_SHUTTER_SPEED
+last_shoot_time = 0.0
 overlay_supported = True
 overlay_retry_count = 0
 overlay_retry_timer = None
@@ -876,6 +877,7 @@ def set_lamp_on(arg_bytes=None):
     logging.info("Lamp turned on and camera preview enabled")
 
 def shoot_raw(arg_bytes=None):
+    global last_shoot_time
     camera_start()
     if state.raws_path is None or not os.path.isdir(os.path.dirname(state.raws_path)):
         logging.error("RAWs path inaccessible; stopping scan")
@@ -917,6 +919,7 @@ def shoot_raw(arg_bytes=None):
     finally:
         if request is not None:
             request.release()
+    last_shoot_time = time.monotonic()
     state.raw_count += 1
     elapsed_time = time.time() - start_time
     fps = 1 / elapsed_time if elapsed_time > 0 else 0.0
@@ -1111,6 +1114,9 @@ def loop():
         }.get(command, None)
 
         if func is not None:
+            if command == Command.SHOOT_RAW:
+                if time.monotonic() - last_shoot_time < 0.1:
+                    return
             func(received[1:])
 # end main control loop
 
