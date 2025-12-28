@@ -349,7 +349,11 @@ def _render_scan_overlay():
         _draw_text_badge(base_img, f"{last_fps_value:.1f} fps", "bottom-left")
     if last_shutter_value is not None and show_shutter:
         _draw_text_badge(base_img, _format_shutter_speed(last_shutter_value), "bottom-right")
-    if current_screen in STATUS_SCREENS and last_resolution_label:
+    if (
+        current_screen in STATUS_SCREENS
+        and current_screen != "target-dir-does-not-exist"
+        and last_resolution_label
+    ):
         _draw_text_badge(base_img, last_resolution_label, "bottom-center")
     pending_overlay = np.array(base_img, dtype=np.uint8)
     _apply_overlay_if_ready()
