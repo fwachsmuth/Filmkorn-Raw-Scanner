@@ -160,7 +160,7 @@ class State:
         return self._zoom_mode
 
     def set_raws_path(self):
-        raws_path = datetime_to_raws_path(datetime.now())
+        raws_path = datetime_to_raws_path(datetime.now()) + _resolution_suffix()
         remove_empty_dirs()
         try:
             os.makedirs(raws_path)
@@ -731,6 +731,11 @@ def _start_shutdown_timer(timeout_s: float = 5.0):
 
 def datetime_to_raws_path(dt: datetime):
     return RAW_DIRS_PATH + dt.strftime("%Y-%m-%d at %H_%M_%S")
+
+def _resolution_suffix() -> str:
+    if current_resolution_switch == 1:
+        return " @2K"
+    return " @4K"
 
 def remove_empty_dirs():
     for file_name in os.listdir(RAW_DIRS_PATH):
