@@ -66,6 +66,7 @@ EOFCONFIGFILE
     echo "New host: ${userhost}"
     echo "New path: ${rawpath%/}"
     sudo systemctl restart filmkorn-lsyncd.service
+    sudo systemctl restart filmkorn-scanner.service
     sudo systemctl status --no-pager -n 20 filmkorn-lsyncd.service
     echo "Configuration updated."
 fi
