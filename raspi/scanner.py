@@ -76,6 +76,7 @@ sleep_mode = False
 last_sleep_button_state = 1
 last_sleep_button_change = 0.0
 sleep_button_armed = True
+overlay_supported = True
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -233,14 +234,20 @@ def show_screen(message):
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
 def _apply_overlay_if_ready():
-    global pending_overlay, overlay_ready
-    if pending_overlay is None or not overlay_ready or shutting_down or not preview_started:
+    global pending_overlay, overlay_ready, overlay_supported
+    if (
+        pending_overlay is None
+        or not overlay_ready
+        or not overlay_supported
+        or shutting_down
+        or not preview_started
+    ):
         return
     try:
         camera.set_overlay(pending_overlay)
     except RuntimeError as exc:
         if "Overlays not supported" in str(exc):
-            overlay_ready = False
+            overlay_supported = False
         else:
             raise
     pending_overlay = None
@@ -355,7 +362,7 @@ def cleanup_terminal():
 
 def _poll_sleep_button(now: float) -> bool:
     global last_sleep_button_state, last_sleep_button_change, last_sleep_toggle
-    global sleep_button_armed, sleep_mode, preview_started, camera_running
+    global sleep_button_armed, sleep_mode, preview_started, camera_running, overlay_ready, overlay_supported
     button_state = GPIO.input(26)
     if button_state != last_sleep_button_state:
         last_sleep_button_state = button_state
@@ -372,25 +379,23 @@ def _poll_sleep_button(now: float) -> bool:
         last_sleep_toggle = now
         if sleep_mode:
             logging.info("Sleep button pressed; waking up")
-            subprocess.run(
-                ["sudo", "systemctl", "start", "filmkorn-wake.service"],
-                check=False,
-            )
             if preview_started:
                 try:
                     camera.stop_preview()
                 except Exception:
                     pass
             camera_start()
+            overlay_supported = True
+            overlay_ready = True
             if current_screen:
                 show_screen(current_screen)
+            subprocess.run(
+                ["sudo", "systemctl", "start", "filmkorn-wake.service"],
+                check=False,
+            )
             sleep_mode = False
         else:
             logging.info("Sleep button pressed; entering sleep mode")
-            subprocess.run(
-                ["sudo", "systemctl", "start", "filmkorn-sleep.service"],
-                check=False,
-            )
             try:
                 camera.stop_preview()
             except Exception:
@@ -403,6 +408,10 @@ def _poll_sleep_button(now: float) -> bool:
                 camera_running = False
             preview_started = False
             sleep_mode = True
+            subprocess.run(
+                ["sudo", "systemctl", "start", "filmkorn-sleep.service"],
+                check=False,
+            )
         return True
     return button_state == 0
 
@@ -427,9 +436,10 @@ def _create_camera_config(raw_size):
     )
 
 def _reconfigure_camera(raw_size):
-    global overlay_ready, preview_started, camera_running, sensor_size, preview_size, default_scaler_crop
+    global overlay_ready, preview_started, camera_running, sensor_size, preview_size, default_scaler_crop, overlay_supported
     overlay_snapshot = pending_overlay
     overlay_ready = False
+    overlay_supported = True
     try:
         if preview_started:
             camera.stop_preview()
@@ -446,6 +456,7 @@ def _reconfigure_camera(raw_size):
     default_scaler_crop = None
     camera_start()
     overlay_ready = True
+    overlay_supported = True
     if overlay_snapshot is not None:
         camera.set_overlay(overlay_snapshot)
     if current_screen:
@@ -849,7 +860,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, current_resolution_switch, last_resolution_label, sleep_toggle_pending, last_sleep_toggle, sleep_mode, last_sleep_button_state, last_sleep_button_change, sleep_button_armed
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, current_resolution_switch, last_resolution_label, sleep_toggle_pending, last_sleep_toggle, sleep_mode, last_sleep_button_state, last_sleep_button_change, sleep_button_armed
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -906,6 +917,7 @@ def setup():
     if raw_format is None:
         raw_format = "SRGGB12"
     overlay_ready = False
+    overlay_supported = True
     raw_size = (4056, 3040) if resolution_switch == 0 else (2028, 1520)
     camera_config = _create_camera_config(raw_size)
     camera.configure(camera_config)
