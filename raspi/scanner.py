@@ -791,7 +791,6 @@ def switch_lsyncd_config(storage_location: int) -> None:
             except Exception:
                 host = None
             if host:
-                pending_warning = time.monotonic() + 1.0
                 warned = False
                 while True:
                     result = subprocess.run(
@@ -801,7 +800,8 @@ def switch_lsyncd_config(storage_location: int) -> None:
                     )
                     if result.returncode == 0:
                         break
-                    if not warned and time.monotonic() >= pending_warning:
+                    if not warned:
+                        sleep(1)
                         show_screen("cannot-connect-to-paired-mac")
                         warned = True
                     sleep(1)
