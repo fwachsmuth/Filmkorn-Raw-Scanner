@@ -397,10 +397,9 @@ def _poll_sleep_button(now: float) -> bool:
             camera_start()
             overlay_supported = True
             overlay_ready = True
-            if current_screen:
-                show_screen(current_screen)
-            elif last_status_screen:
-                show_screen(last_status_screen)
+            if current_screen or last_status_screen:
+                screen_to_show = current_screen or last_status_screen
+                threading.Timer(0.5, show_screen, args=(screen_to_show,)).start()
             sleep_mode = False
         else:
             logging.info("Sleep button pressed; entering sleep mode")
