@@ -12,26 +12,18 @@
 - 
 
 ## Next
-- [x] Show "syncing files" when scanning is done but lsync is still going
-- [x] Cleanup logging (and consider syncing it)
-- [x] Try 2K scanning
-- [ ] Postfix destination dirs with 2K/4K
-- [ ] re-enable simple power-off
-- [ ] Try writing to /mn/usb directly instead of ramdisk
+- [ ] Try one lsyncd restart if the disk is full or if writing files for too long
+- [ ] Gauge writing to /mn/usb directly instead of ramdisk
 - [ ] Do we still need to call /opt/homebrew/bin/rsync in lsyncd-to-host.conf?
 - [ ] Remove Splash Screen on boot
 - [ ] Add raspi/systemd/install_services.sh to README
 - [ ] Test if host is reachable before Scanning to Host
 - [ ] Handle if Directory on Host PC does not exist
-- [ ] Sleep Mode (for camera)
 
 - [ ] is opme.sh working and ever called?
 
-- [ ] Fix the python3 foo on later macOS (start_converting.sh doesn't work anymore)
 - [ ] Make clearer log message about film end detection (to detect bad sensor connections)
-- [x] Think about adjusting Exposure without Shell Access
-- [ ] Fuses still at 1 MHz when bootstrapping from raspi. Test burning fuses with 5 VCC. MISO is 5V tho. 47K inbetween? Reset has a 10k Pullup too. I would recommend driving the pins from 5V logic via at least 10K resistor and also connect an external Schottky diode from the pin to 3.3V to prevent the input pin's voltage rising much above the PI's supply rail.
-- [ ] try one lsyncd restart if the disk is full
+- [ ] Fuses are still at 1 MHz when bootstrapping from raspi. Test burning fuses with 5 VCC. MISO is 5V tho. 47K inbetween? Reset has a 10k Pullup too. I would recommend driving the pins from 5V logic via at least 10K resistor and also connect an external Schottky diode from the pin to 3.3V to prevent the input pin's voltage rising much above the PI's supply rail.
 - [ ] Auto-Stop in-channel Rewinds
 - [ ] think about an update scenario (version info?)
     - most pragmatic:
@@ -101,6 +93,7 @@
 - [ ] Staubschutzhaube bauen
 - [ ] Test higher PWM freqs
 - [ ] Add a pull-down switch to GPIO5 (for remote mode)
+- [ ] Disconnect GPIO3 and GPIIO 26 since we no longer an do proper power-down/up and need ugly i2c hacks rn
 
 ## Snippets
 /root inflation how-to: https://raspberrypi.stackexchange.com/questions/499/how-can-i-resize-my-root-partition (seems raspi-cofig does the same). 
