@@ -881,11 +881,12 @@ def shoot_raw(arg_bytes=None):
         return
     camera.set_controls({"AeEnable": False, "ExposureTime": shutter_speed})
     start_time = time.time()
-    warmup = camera.capture_request()
-    try:
-        pass
-    finally:
-        warmup.release()
+    for _ in range(5):
+        warmup = camera.capture_request()
+        try:
+            pass
+        finally:
+            warmup.release()
     request = camera.capture_request()
     try:
         request.save_dng(state.raws_path.format(state.raw_count), name="raw")
