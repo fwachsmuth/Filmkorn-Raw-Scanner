@@ -189,6 +189,7 @@ class State:
         set_lamp_on()
         self.set_raws_path()
         logging.info("Started scanning")
+        sleep(0.5)
         shoot_raw()
 
     def stop_scan(self, arg_bytes=None):
