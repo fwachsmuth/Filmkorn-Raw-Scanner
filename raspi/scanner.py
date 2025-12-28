@@ -75,6 +75,7 @@ sleep_mode = False
 last_sleep_button_state = 1
 last_sleep_button_change = 0.0
 sleep_button_armed = True
+idle_since = None
 overlay_supported = True
 overlay_retry_count = 0
 overlay_retry_timer = None
@@ -205,7 +206,7 @@ class State:
 
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
-    global current_screen, pending_overlay, last_status_screen
+    global current_screen, pending_overlay, last_status_screen, idle_since
 
     message_path = f"controller-screens/{message}.png"
     overlay = overlay_cache.get(message_path)
@@ -226,6 +227,10 @@ def show_screen(message):
         overlay_cache[message_path] = overlay
 
     current_screen = message
+    if message in {"insert-film", "ready-to-scan", "ready-to-scan-local", "ready-to-scan-net"}:
+        idle_since = time.monotonic()
+    else:
+        idle_since = None
     if message in STATUS_SCREENS and message != "waiting-for-files-to-sync":
         last_status_screen = message
     pending_overlay = overlay
@@ -371,9 +376,65 @@ def cleanup_terminal():
     print("Restoring terminal settings...")
     subprocess.run(['stty', 'sane'])
 
+def _enter_sleep_mode():
+    global sleep_mode, preview_started, camera_running
+    logging.info("Entering sleep mode")
+    try:
+        GPIO.output(UC_POWER_GPIO, GPIO.LOW)
+    except Exception:
+        pass
+    try:
+        camera.stop_preview()
+    except Exception:
+        pass
+    if camera_running:
+        try:
+            camera.stop()
+        except Exception:
+            pass
+        camera_running = False
+    preview_started = False
+    sleep_mode = True
+    subprocess.run(
+        ["sudo", "systemctl", "start", "filmkorn-sleep.service"],
+        check=False,
+    )
+
+def _exit_sleep_mode():
+    global sleep_mode, preview_started, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer
+    logging.info("Waking up")
+    subprocess.run(
+        ["sudo", "systemctl", "start", "filmkorn-wake.service"],
+        check=False,
+    )
+    try:
+        with open("/sys/class/graphics/fb0/blank", "w") as blank:
+            blank.write("0")
+    except Exception:
+        pass
+    subprocess.run(["/usr/bin/vcgencmd", "display_power", "1"], check=False)
+    try:
+        GPIO.output(UC_POWER_GPIO, GPIO.HIGH)
+    except Exception:
+        pass
+    if preview_started:
+        try:
+            camera.stop_preview()
+        except Exception:
+            pass
+    camera_start()
+    overlay_supported = True
+    overlay_ready = True
+    overlay_retry_count = 0
+    overlay_retry_timer = None
+    if current_screen or last_status_screen:
+        screen_to_show = current_screen or last_status_screen
+        threading.Timer(0.5, show_screen, args=(screen_to_show,)).start()
+    sleep_mode = False
+
 def _poll_sleep_button(now: float) -> bool:
     global last_sleep_button_state, last_sleep_button_change, last_sleep_toggle
-    global sleep_button_armed, sleep_mode, preview_started, camera_running, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer
+    global sleep_button_armed, sleep_mode
     button_state = GPIO.input(26)
     if button_state != last_sleep_button_state:
         last_sleep_button_state = button_state
@@ -390,56 +451,10 @@ def _poll_sleep_button(now: float) -> bool:
         last_sleep_toggle = now
         if sleep_mode:
             logging.info("Sleep button pressed; waking up")
-            subprocess.run(
-                ["sudo", "systemctl", "start", "filmkorn-wake.service"],
-                check=False,
-            )
-            try:
-                with open("/sys/class/graphics/fb0/blank", "w") as blank:
-                    blank.write("0")
-            except Exception:
-                pass
-            subprocess.run(["/usr/bin/vcgencmd", "display_power", "1"], check=False)
-            try:
-                GPIO.output(UC_POWER_GPIO, GPIO.HIGH)
-            except Exception:
-                pass
-            if preview_started:
-                try:
-                    camera.stop_preview()
-                except Exception:
-                    pass
-            camera_start()
-            overlay_supported = True
-            overlay_ready = True
-            overlay_retry_count = 0
-            overlay_retry_timer = None
-            if current_screen or last_status_screen:
-                screen_to_show = current_screen or last_status_screen
-                threading.Timer(0.5, show_screen, args=(screen_to_show,)).start()
-            sleep_mode = False
+            _exit_sleep_mode()
         else:
             logging.info("Sleep button pressed; entering sleep mode")
-            try:
-                GPIO.output(UC_POWER_GPIO, GPIO.LOW)
-            except Exception:
-                pass
-            try:
-                camera.stop_preview()
-            except Exception:
-                pass
-            if camera_running:
-                try:
-                    camera.stop()
-                except Exception:
-                    pass
-                camera_running = False
-            preview_started = False
-            sleep_mode = True
-            subprocess.run(
-                ["sudo", "systemctl", "start", "filmkorn-sleep.service"],
-                check=False,
-            )
+            _enter_sleep_mode()
         return True
     return button_state == 0
 
@@ -889,7 +904,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, last_sleep_toggle, sleep_mode, last_sleep_button_state, last_sleep_button_change, sleep_button_armed
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, last_sleep_toggle, sleep_mode, last_sleep_button_state, last_sleep_button_change, sleep_button_armed, idle_since
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -1077,14 +1092,23 @@ if __name__ == '__main__':
         last_resolution_check = 0.0
         while True:
             now = time.monotonic()
-            if not state.scanning and not shutting_down and (
+            if (
+                not state.scanning
+                and not shutting_down
+                and (
                 current_screen in {"insert-film", "ready-to-scan", "ready-to-scan-local", "ready-to-scan-net"}
                 or sleep_mode
+                )
             ):
                 if _poll_sleep_button(now):
                     time.sleep(0.05)
                     continue
                 if sleep_mode:
+                    time.sleep(0.1)
+                    continue
+                if idle_since is not None and (now - idle_since) >= 300.0:
+                    _enter_sleep_mode()
+                    idle_since = None
                     time.sleep(0.1)
                     continue
             loop()
