@@ -16,6 +16,7 @@
 - [ ] Gauge writing to /mn/usb directly instead of ramdisk
 - [ ] Do we still need to call /opt/homebrew/bin/rsync in lsyncd-to-host.conf?
 - [ ] Remove Splash Screen on boot
+
 - [ ] Add raspi/systemd/install_services.sh to README
 - [ ] Test if host is reachable before Scanning to Host
 - [ ] Handle if Directory on Host PC does not exist
