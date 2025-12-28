@@ -65,7 +65,7 @@ EOFCONFIGFILE
     echo "${rawpath%/}" > ~/Filmkorn-Raw-Scanner/raspi/.scan_destination
     echo "New host: ${userhost}"
     echo "New path: ${rawpath%/}"
-    sudo systemctl restart lsyncd
-    sudo systemctl status --no-pager -n 20 lsyncd
+    sudo systemctl restart filmkorn-lsyncd.service
+    sudo systemctl status --no-pager -n 20 filmkorn-lsyncd.service
     echo "Configuration updated."
 fi
