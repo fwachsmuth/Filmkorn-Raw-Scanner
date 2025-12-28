@@ -76,6 +76,7 @@ last_sleep_button_state = 1
 last_sleep_button_change = 0.0
 sleep_button_armed = True
 idle_since = None
+shutter_speed = AUTO_SHUTTER_SPEED
 overlay_supported = True
 overlay_retry_count = 0
 overlay_retry_timer = None
