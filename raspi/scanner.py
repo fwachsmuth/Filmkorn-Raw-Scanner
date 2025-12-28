@@ -13,6 +13,7 @@ import signal
 import time
 import os
 import os.path
+import shlex
 import atexit
 import threading
 import RPi.GPIO as GPIO
@@ -770,6 +771,39 @@ def _atomic_symlink(target: str, link_path: str) -> None:
     os.symlink(target, tmp_path)
     os.replace(tmp_path, link_path)
 
+def _read_user_and_host() -> Optional[str]:
+    try:
+        with open(".user_and_host", "r") as file:
+            return file.read().strip()
+    except Exception:
+        return None
+
+def _read_scan_destination() -> Optional[str]:
+    try:
+        with open(".scan_destination", "r") as file:
+            return file.read().strip()
+    except Exception:
+        return None
+
+def _can_write_remote_path(user_and_host: str, scan_destination: str) -> bool:
+    probe_path = f"{scan_destination}/.filmkorn_write_test"
+    quoted_probe = shlex.quote(probe_path)
+    remote_cmd = f"touch {quoted_probe} && rm -f {quoted_probe}"
+    result = subprocess.run(
+        [
+            "ssh",
+            "-i",
+            "/home/pi/.ssh/id_filmkorn-scanner_ed25519",
+            user_and_host,
+            "sh",
+            "-c",
+            remote_cmd,
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return result.returncode == 0
+
 def switch_lsyncd_config(storage_location: int) -> None:
     """
     Switch lsyncd config via the lsyncd.active.conf symlink and restart lsyncd.
@@ -784,23 +818,27 @@ def switch_lsyncd_config(storage_location: int) -> None:
             while not os.path.ismount("/mnt/usb"):
                 sleep(1)
         if target_conf == LSYNCD_CONF_NET:
-            try:
-                with open(".user_and_host", "r") as file:
-                    user_and_host = file.read().strip()
-                host = user_and_host.split("@", 1)[-1]
-            except Exception:
-                host = None
+            user_and_host = _read_user_and_host()
+            host = user_and_host.split("@", 1)[-1] if user_and_host else None
+            scan_destination = _read_scan_destination()
             if host:
-                show_screen("cannot-connect-to-paired-mac")
                 while True:
                     result = subprocess.run(
                         ["ping", "-c", "1", "-W", "1", host],
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.DEVNULL,
                     )
-                    if result.returncode == 0:
-                        break
-                    sleep(1)
+                    if result.returncode != 0:
+                        show_screen("cannot-connect-to-paired-mac")
+                        sleep(1)
+                        continue
+                    if user_and_host and scan_destination:
+                        if _can_write_remote_path(user_and_host, scan_destination):
+                            break
+                        show_screen("target-dir-does-not-exist")
+                        sleep(1)
+                        continue
+                    break
         _atomic_symlink(target_conf, LSYNCD_ACTIVE_CONF)
         logging.info(f"lsyncd: set active config -> {target_conf}")
         # Requires sudoers rule for pi to restart lsyncd without password.
