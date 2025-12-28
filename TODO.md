@@ -12,16 +12,18 @@
 - 
 
 ## Next
-- [ ] Show "syncing files" when scanning is done but lsync is still going
+- [x] Show "syncing files" when scanning is done but lsync is still going
+- [x] Cleanup logging (and consider syncing it)
+- [x] Try 2K scanning
+- [ ] Postfix destination dirs with 2K/4K
+- [ ] re-enable simple power-off
 - [ ] Try writing to /mn/usb directly instead of ramdisk
 - [ ] Do we still need to call /opt/homebrew/bin/rsync in lsyncd-to-host.conf?
 - [ ] Remove Splash Screen on boot
 - [ ] Add raspi/systemd/install_services.sh to README
 - [ ] Test if host is reachable before Scanning to Host
 - [ ] Handle if Directory on Host PC does not exist
-- [ ] Cleanup logging (and consider syncing it)
 - [ ] Sleep Mode (for camera)
-- [ ] Try 2K scanning
 
 - [ ] is opme.sh working and ever called?
 
@@ -98,6 +100,7 @@
 ## Hardware
 - [ ] Staubschutzhaube bauen
 - [ ] Test higher PWM freqs
+- [ ] Add a pull-down switch to GPIO5 (for remote mode)
 
 ## Snippets
 /root inflation how-to: https://raspberrypi.stackexchange.com/questions/499/how-can-i-resize-my-root-partition (seems raspi-cofig does the same). 
