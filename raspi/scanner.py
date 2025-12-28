@@ -379,6 +379,16 @@ def _poll_sleep_button(now: float) -> bool:
         last_sleep_toggle = now
         if sleep_mode:
             logging.info("Sleep button pressed; waking up")
+            subprocess.run(
+                ["sudo", "systemctl", "start", "filmkorn-wake.service"],
+                check=False,
+            )
+            try:
+                with open("/sys/class/graphics/fb0/blank", "w") as blank:
+                    blank.write("0")
+            except Exception:
+                pass
+            subprocess.run(["/usr/bin/vcgencmd", "display_power", "1"], check=False)
             if preview_started:
                 try:
                     camera.stop_preview()
@@ -389,10 +399,6 @@ def _poll_sleep_button(now: float) -> bool:
             overlay_ready = True
             if current_screen:
                 show_screen(current_screen)
-            subprocess.run(
-                ["sudo", "systemctl", "start", "filmkorn-wake.service"],
-                check=False,
-            )
             sleep_mode = False
         else:
             logging.info("Sleep button pressed; entering sleep mode")
