@@ -881,6 +881,8 @@ def shoot_raw(arg_bytes=None):
         logging.error("RAWs path inaccessible; stopping scan")
         state.stop_scan()
         return
+    if state.raw_count < 2:
+        sleep(0.2)  # allow film advance to complete on initial frames
     camera.set_controls({"AeEnable": False, "ExposureTime": shutter_speed})
     start_time = time.time()
     request = None
