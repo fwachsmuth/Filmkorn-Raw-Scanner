@@ -883,19 +883,38 @@ def shoot_raw(arg_bytes=None):
         return
     camera.set_controls({"AeEnable": False, "ExposureTime": shutter_speed})
     start_time = time.time()
-    if state.warmup_needed:
-        for _ in range(5):
-            warmup = camera.capture_request()
-            try:
-                pass
-            finally:
-                warmup.release()
-        state.warmup_needed = False
-    request = camera.capture_request()
+    request = None
     try:
+        if state.warmup_needed:
+            for _ in range(5):
+                warmup = camera.capture_request()
+                try:
+                    pass
+                finally:
+                    warmup.release()
+            state.warmup_needed = False
+
+            attempts = 5
+            for i in range(attempts):
+                candidate = camera.capture_request()
+                try:
+                    meta = candidate.get_metadata()
+                    exposure = meta.get("ExposureTime")
+                    tolerance = max(200, int(shutter_speed * 0.05))
+                    if exposure is not None and abs(exposure - shutter_speed) <= tolerance:
+                        request = candidate
+                        break
+                finally:
+                    if request is not candidate:
+                        candidate.release()
+
+        if request is None:
+            request = camera.capture_request()
+
         request.save_dng(state.raws_path.format(state.raw_count), name="raw")
     finally:
-        request.release()
+        if request is not None:
+            request.release()
     state.raw_count += 1
     elapsed_time = time.time() - start_time
     fps = 1 / elapsed_time if elapsed_time > 0 else 0.0
