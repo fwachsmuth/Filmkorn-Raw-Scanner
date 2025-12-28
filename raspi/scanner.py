@@ -151,6 +151,7 @@ class State:
         self.continue_dir = False
         self.scanning = False
         self.fps_history = deque(maxlen=36)
+        self.warmup_needed = False
 
     @property
     def lamp_mode(self) -> bool:
@@ -185,6 +186,7 @@ class State:
         last_shutter_value = None
         global sleep_mode
         sleep_mode = False
+        self.warmup_needed = True
         set_zoom_mode_1_1()
         set_lamp_on()
         self.set_raws_path()
@@ -881,12 +883,14 @@ def shoot_raw(arg_bytes=None):
         return
     camera.set_controls({"AeEnable": False, "ExposureTime": shutter_speed})
     start_time = time.time()
-    for _ in range(5):
-        warmup = camera.capture_request()
-        try:
-            pass
-        finally:
-            warmup.release()
+    if state.warmup_needed:
+        for _ in range(5):
+            warmup = camera.capture_request()
+            try:
+                pass
+            finally:
+                warmup.release()
+        state.warmup_needed = False
     request = camera.capture_request()
     try:
         request.save_dng(state.raws_path.format(state.raw_count), name="raw")
