@@ -923,6 +923,7 @@ def shoot_raw(arg_bytes=None):
         except FileNotFoundError:
             pass
         state.drop_first_frame = False
+        say_ready()
         return
     state.raw_count += 1
     elapsed_time = time.time() - start_time
