@@ -189,7 +189,7 @@ class State:
         set_lamp_on()
         self.set_raws_path()
         logging.info("Started scanning")
-        sleep(1.5)  # allow lamp to reach full brightness
+        sleep(1.0)  # allow lamp to reach full brightness
         shoot_raw()
 
     def stop_scan(self, arg_bytes=None):
