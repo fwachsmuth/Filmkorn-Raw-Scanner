@@ -347,6 +347,39 @@ def cleanup_terminal():
     print("Restoring terminal settings...")
     subprocess.run(['stty', 'sane'])
 
+def _poll_sleep_button(now: float) -> bool:
+    global last_sleep_button_state, last_sleep_button_change, last_sleep_toggle
+    global sleep_button_armed, sleep_mode
+    button_state = GPIO.input(26)
+    if button_state != last_sleep_button_state:
+        last_sleep_button_state = button_state
+        last_sleep_button_change = now
+    if last_sleep_button_state == 1:
+        sleep_button_armed = True
+    if (
+        sleep_button_armed
+        and last_sleep_button_state == 0
+        and (now - last_sleep_button_change) >= 0.05
+        and (now - last_sleep_toggle) >= 1.0
+    ):
+        sleep_button_armed = False
+        last_sleep_toggle = now
+        if sleep_mode:
+            logging.info("Sleep button pressed; waking up")
+            subprocess.run(
+                ["sudo", "systemctl", "start", "filmkorn-wake.service"],
+                check=False,
+            )
+            sleep_mode = False
+        else:
+            logging.info("Sleep button pressed; entering sleep mode")
+            subprocess.run(
+                ["sudo", "systemctl", "start", "filmkorn-sleep.service"],
+                check=False,
+            )
+            sleep_mode = True
+        return True
+    return button_state == 0
 
 def _apply_camera_controls():
     camera.set_controls({
@@ -974,10 +1007,16 @@ if __name__ == '__main__':
     try:
         last_disk_check = 0.0
         last_resolution_check = 0.0
-        last_button_log = 0.0
         while True:
-            loop()
             now = time.monotonic()
+            if not state.scanning and not shutting_down:
+                if _poll_sleep_button(now):
+                    time.sleep(0.05)
+                    continue
+                if sleep_mode:
+                    time.sleep(0.1)
+                    continue
+            loop()
             if now - last_disk_check >= (1.0 if state.scanning else 3.0):
                 check_available_disk_space()
                 last_disk_check = now
@@ -993,38 +1032,6 @@ if __name__ == '__main__':
                     )
                     _reconfigure_camera(raw_size)
                 last_resolution_check = now
-            if not state.scanning and not shutting_down:
-                button_state = GPIO.input(26)
-                if now - last_button_log >= 1.0:
-                    logging.info("GPIO26 button state: %s", button_state)
-                    last_button_log = now
-                if button_state != last_sleep_button_state:
-                    last_sleep_button_state = button_state
-                    last_sleep_button_change = now
-                if last_sleep_button_state == 1:
-                    sleep_button_armed = True
-                if (
-                    sleep_button_armed
-                    and last_sleep_button_state == 0
-                    and (now - last_sleep_button_change) >= 0.05
-                    and (now - last_sleep_toggle) >= 1.0
-                ):
-                    sleep_button_armed = False
-                    last_sleep_toggle = now
-                    if sleep_mode:
-                        logging.info("Sleep button pressed; waking up")
-                        subprocess.run(
-                            ["sudo", "systemctl", "start", "filmkorn-wake.service"],
-                            check=False,
-                        )
-                        sleep_mode = False
-                    else:
-                        logging.info("Sleep button pressed; entering sleep mode")
-                        subprocess.run(
-                            ["sudo", "systemctl", "start", "filmkorn-sleep.service"],
-                            check=False,
-                        )
-                        sleep_mode = True
             if shutting_down:
                 _start_shutdown_timer()
                 break
