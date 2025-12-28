@@ -70,7 +70,6 @@ last_fps_value = None
 last_shutter_value = None
 current_resolution_switch = None
 last_resolution_label = None
-sleep_toggle_pending = False
 last_sleep_toggle = 0.0
 sleep_mode = False
 last_sleep_button_state = 1
@@ -882,7 +881,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, sleep_toggle_pending, last_sleep_toggle, sleep_mode, last_sleep_button_state, last_sleep_button_change, sleep_button_armed
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, last_sleep_toggle, sleep_mode, last_sleep_button_state, last_sleep_button_change, sleep_button_armed
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
