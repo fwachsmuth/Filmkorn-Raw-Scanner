@@ -75,6 +75,7 @@ last_sleep_toggle = 0.0
 sleep_mode = False
 last_sleep_button_state = 1
 last_sleep_button_change = 0.0
+sleep_button_armed = True
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -790,7 +791,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, current_resolution_switch, last_resolution_label, sleep_toggle_pending, last_sleep_toggle, sleep_mode, last_sleep_button_state, last_sleep_button_change
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, current_resolution_switch, last_resolution_label, sleep_toggle_pending, last_sleep_toggle, sleep_mode, last_sleep_button_state, last_sleep_button_change, sleep_button_armed
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -833,6 +834,7 @@ def setup():
     GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_OFF)
     last_sleep_button_state = GPIO.input(26)
     last_sleep_button_change = time.monotonic()
+    sleep_button_armed = (last_sleep_button_state == 1)
 
 
     # Instanziate things
@@ -995,11 +997,15 @@ if __name__ == '__main__':
                 if button_state != last_sleep_button_state:
                     last_sleep_button_state = button_state
                     last_sleep_button_change = now
+                if last_sleep_button_state == 1:
+                    sleep_button_armed = True
                 if (
-                    last_sleep_button_state == 0
+                    sleep_button_armed
+                    and last_sleep_button_state == 0
                     and (now - last_sleep_button_change) >= 0.05
                     and (now - last_sleep_toggle) >= 1.0
                 ):
+                    sleep_button_armed = False
                     last_sleep_toggle = now
                     if sleep_mode:
                         logging.info("Sleep button pressed; waking up")
