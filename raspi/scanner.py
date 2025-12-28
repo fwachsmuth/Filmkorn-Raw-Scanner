@@ -240,7 +240,7 @@ def show_screen(message):
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
 def _apply_overlay_if_ready():
-    global pending_overlay, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer
+    global pending_overlay, overlay_supported, overlay_retry_count, overlay_retry_timer
     if (
         pending_overlay is None
         or not overlay_ready
@@ -401,7 +401,7 @@ def _enter_sleep_mode():
     )
 
 def _exit_sleep_mode():
-    global sleep_mode, preview_started, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer
+    global overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, sleep_mode
     logging.info("Waking up")
     subprocess.run(
         ["sudo", "systemctl", "start", "filmkorn-wake.service"],
@@ -434,7 +434,7 @@ def _exit_sleep_mode():
 
 def _poll_sleep_button(now: float) -> bool:
     global last_sleep_button_state, last_sleep_button_change, last_sleep_toggle
-    global sleep_button_armed, sleep_mode
+    global sleep_button_armed
     button_state = GPIO.input(26)
     if button_state != last_sleep_button_state:
         last_sleep_button_state = button_state
@@ -909,7 +909,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, last_sleep_toggle, sleep_mode, last_sleep_button_state, last_sleep_button_change, sleep_button_armed, idle_since
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, last_sleep_button_state, last_sleep_button_change, sleep_button_armed
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -920,8 +920,8 @@ def setup():
     console_handler.setLevel(logging.DEBUG)    # Set the logging level for the handler
     logging.getLogger('').addHandler(console_handler)  # Add the handler to the root logger
 
-    logging.info(f"----------------------------------------------------------------------------------") 
-    logging.info(f"Scanner started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}") 
+    logging.info("----------------------------------------------------------------------------------")
+    logging.info("Scanner started at %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
 
     # Set the GPIO mode to BCM
