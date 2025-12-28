@@ -158,5 +158,41 @@ else
   log "Great: 'rsync' in this shell points to Homebrew rsync."
 fi
 
+log "Checking macOS Remote Login (SSH)…"
+current_user="$(whoami)"
+log "Requesting admin rights for Remote Login configuration…"
+if ! sudo -v; then
+  warn "Could not obtain sudo privileges. Skipping Remote Login configuration."
+  log "Done."
+  exit 0
+fi
+remote_login_status="$(sudo systemsetup -getremotelogin 2>/dev/null || true)"
+if [[ -z "$remote_login_status" ]]; then
+  warn "Could not query Remote Login state (systemsetup failed)."
+else
+  log "Remote Login status: ${remote_login_status}"
+fi
+
+if [[ "$remote_login_status" != *"On"* ]]; then
+  if sudo systemsetup -setremotelogin on >/dev/null 2>&1; then
+    log "Enabled Remote Login."
+  else
+    warn "Failed to enable Remote Login. You may need admin rights."
+  fi
+else
+  log "Remote Login already enabled."
+fi
+
+if dseditgroup -o checkmember -m "$current_user" com.apple.access_ssh >/dev/null 2>&1; then
+  log "Remote Login already allowed for user: ${current_user}"
+else
+  if sudo dseditgroup -o edit -a "$current_user" -t user com.apple.access_ssh >/dev/null 2>&1; then
+    log "Allowed Remote Login for user: ${current_user}"
+  else
+    warn "Failed to allow Remote Login for user: ${current_user}"
+  fi
+fi
+sudo dseditgroup -o edit -d "$current_user" -t user com.apple.access_ssh-disabled >/dev/null 2>&1 || true
+
 log "Done."
 exit 0
