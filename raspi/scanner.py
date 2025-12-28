@@ -13,6 +13,7 @@ import signal
 import time
 import os
 import os.path
+import shlex
 import atexit
 import threading
 import RPi.GPIO as GPIO
@@ -786,17 +787,15 @@ def _read_scan_destination() -> Optional[str]:
 
 def _can_write_remote_path(user_and_host: str, scan_destination: str) -> bool:
     probe_path = os.path.join(scan_destination, ".filmkorn_write_test")
+    quoted_probe = shlex.quote(probe_path)
+    remote_cmd = f"touch {quoted_probe} && rm -f {quoted_probe}"
     result = subprocess.run(
         [
             "ssh",
             "-i",
             "/home/pi/.ssh/id_filmkorn-scanner_ed25519",
             user_and_host,
-            "sh",
-            "-c",
-            'touch "$1" && rm -f "$1"',
-            "--",
-            probe_path,
+            remote_cmd,
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
