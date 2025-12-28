@@ -791,7 +791,7 @@ def switch_lsyncd_config(storage_location: int) -> None:
             except Exception:
                 host = None
             if host:
-                warned = False
+                show_screen("cannot-connect-to-paired-mac")
                 while True:
                     result = subprocess.run(
                         ["ping", "-c", "1", "-W", "1", host],
@@ -800,10 +800,6 @@ def switch_lsyncd_config(storage_location: int) -> None:
                     )
                     if result.returncode == 0:
                         break
-                    if not warned:
-                        sleep(1)
-                        show_screen("cannot-connect-to-paired-mac")
-                        warned = True
                     sleep(1)
         _atomic_symlink(target_conf, LSYNCD_ACTIVE_CONF)
         logging.info(f"lsyncd: set active config -> {target_conf}")
