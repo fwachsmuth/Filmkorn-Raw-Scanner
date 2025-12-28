@@ -578,6 +578,10 @@ def _ramdisk_empty_poll_loop():
                 if files:
                     return True
             return False
+        last_available = get_available_disk_space()
+        last_increase_at = time.time()
+        restarted_lsyncd = False
+        no_progress_timeout_s = 15
 
         while not shutting_down:
             try:
@@ -585,6 +589,18 @@ def _ramdisk_empty_poll_loop():
                     break
             except FileNotFoundError:
                 break
+            available = get_available_disk_space()
+            if available > last_available:
+                last_available = available
+                last_increase_at = time.time()
+            if not restarted_lsyncd and time.time() - last_increase_at >= no_progress_timeout_s:
+                logging.warning("No disk space increase detected; restarting filmkorn-lsyncd.service")
+                subprocess.run(
+                    ["sudo", "systemctl", "restart", "filmkorn-lsyncd.service"],
+                    check=False,
+                )
+                last_increase_at = time.time()
+                restarted_lsyncd = True
             sleep(1)
         if not shutting_down:
             if last_status_screen:
@@ -889,13 +905,14 @@ def check_available_disk_space():
         last_available = available
         last_increase_at = time.time()
         restarted_lsyncd = False
+        no_progress_timeout_s = 15
         while True:
             sleep(1)
             available = get_available_disk_space()
             if available > last_available:
                 last_available = available
                 last_increase_at = time.time()
-            if not restarted_lsyncd and time.time() - last_increase_at >= 30:
+            if not restarted_lsyncd and time.time() - last_increase_at >= no_progress_timeout_s:
                 logging.warning("No disk space increase detected; restarting filmkorn-lsyncd.service")
                 subprocess.run(
                     ["sudo", "systemctl", "restart", "filmkorn-lsyncd.service"],
@@ -1250,7 +1267,7 @@ if __name__ == '__main__':
                 if sleep_mode:
                     time.sleep(0.1)
                     continue
-                if idle_since is not None and (now - idle_since) >= 300.0:
+                if idle_since is not None and (now - idle_since) >= 600.0:
                     _enter_sleep_mode()
                     idle_since = None
                     time.sleep(0.1)
