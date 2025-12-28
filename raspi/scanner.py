@@ -799,8 +799,9 @@ def _can_write_remote_path(user_and_host: str, scan_destination: str) -> bool:
             "-c",
             remote_cmd,
         ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
     )
     logging.info(
         "lsyncd: remote write probe to %s:%s -> %s",
@@ -808,6 +809,8 @@ def _can_write_remote_path(user_and_host: str, scan_destination: str) -> bool:
         scan_destination,
         result.returncode,
     )
+    if result.stderr:
+        logging.info("lsyncd: remote write probe stderr: %s", result.stderr.strip())
     return result.returncode == 0
 
 def switch_lsyncd_config(storage_location: int) -> None:
