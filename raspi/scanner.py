@@ -791,23 +791,20 @@ def switch_lsyncd_config(storage_location: int) -> None:
             except Exception:
                 host = None
             if host:
-                result = subprocess.run(
-                    ["ping", "-c", "1", "-W", "1", host],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
-                if result.returncode != 0:
+                pending_warning = time.monotonic() + 1.0
+                warned = False
+                while True:
+                    result = subprocess.run(
+                        ["ping", "-c", "1", "-W", "1", host],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    if result.returncode == 0:
+                        break
+                    if not warned and time.monotonic() >= pending_warning:
+                        show_screen("cannot-connect-to-paired-mac")
+                        warned = True
                     sleep(1)
-                    show_screen("cannot-connect-to-paired-mac")
-                    while True:
-                        result = subprocess.run(
-                            ["ping", "-c", "1", "-W", "1", host],
-                            stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL,
-                        )
-                        if result.returncode == 0:
-                            break
-                        sleep(1)
         _atomic_symlink(target_conf, LSYNCD_ACTIVE_CONF)
         logging.info(f"lsyncd: set active config -> {target_conf}")
         # Requires sudoers rule for pi to restart lsyncd without password.
