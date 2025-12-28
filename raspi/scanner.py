@@ -802,6 +802,12 @@ def _can_write_remote_path(user_and_host: str, scan_destination: str) -> bool:
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
+    logging.info(
+        "lsyncd: remote write probe to %s:%s -> %s",
+        user_and_host,
+        scan_destination,
+        result.returncode,
+    )
     return result.returncode == 0
 
 def switch_lsyncd_config(storage_location: int) -> None:
@@ -822,12 +828,19 @@ def switch_lsyncd_config(storage_location: int) -> None:
             host = user_and_host.split("@", 1)[-1] if user_and_host else None
             scan_destination = _read_scan_destination()
             if host:
+                logging.info(
+                    "lsyncd: checking host=%s user_and_host=%s scan_destination=%s",
+                    host,
+                    user_and_host,
+                    scan_destination,
+                )
                 while True:
                     result = subprocess.run(
                         ["ping", "-c", "1", "-W", "1", host],
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.DEVNULL,
                     )
+                    logging.info("lsyncd: ping %s -> %s", host, result.returncode)
                     if result.returncode != 0:
                         show_screen("cannot-connect-to-paired-mac")
                         sleep(1)
