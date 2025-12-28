@@ -349,7 +349,7 @@ def cleanup_terminal():
 
 def _poll_sleep_button(now: float) -> bool:
     global last_sleep_button_state, last_sleep_button_change, last_sleep_toggle
-    global sleep_button_armed, sleep_mode
+    global sleep_button_armed, sleep_mode, preview_started
     button_state = GPIO.input(26)
     if button_state != last_sleep_button_state:
         last_sleep_button_state = button_state
@@ -370,6 +370,12 @@ def _poll_sleep_button(now: float) -> bool:
                 ["sudo", "systemctl", "start", "filmkorn-wake.service"],
                 check=False,
             )
+            if preview_started:
+                try:
+                    camera.stop_preview()
+                except Exception:
+                    pass
+            camera_start()
             sleep_mode = False
         else:
             logging.info("Sleep button pressed; entering sleep mode")
@@ -377,6 +383,11 @@ def _poll_sleep_button(now: float) -> bool:
                 ["sudo", "systemctl", "start", "filmkorn-sleep.service"],
                 check=False,
             )
+            try:
+                camera.stop_preview()
+            except Exception:
+                pass
+            preview_started = False
             sleep_mode = True
         return True
     return button_state == 0
