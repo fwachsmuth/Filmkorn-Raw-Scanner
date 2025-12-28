@@ -192,7 +192,7 @@ class State:
         self.set_raws_path()
         logging.info("Started scanning")
         sleep(1.0)  # allow lamp to reach full brightness
-        shoot_raw()
+        say_ready()
 
     def stop_scan(self, arg_bytes=None):
         self.continue_dir = False
