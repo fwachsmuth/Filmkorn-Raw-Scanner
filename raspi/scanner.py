@@ -236,7 +236,13 @@ def _apply_overlay_if_ready():
     global pending_overlay
     if pending_overlay is None or not overlay_ready or shutting_down or not preview_started:
         return
-    camera.set_overlay(pending_overlay)
+    try:
+        camera.set_overlay(pending_overlay)
+    except RuntimeError as exc:
+        if "Overlays not supported" in str(exc):
+            overlay_ready = False
+        else:
+            raise
     pending_overlay = None
 
 def clear_overlay():
