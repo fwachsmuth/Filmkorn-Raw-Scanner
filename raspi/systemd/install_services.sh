@@ -96,7 +96,7 @@ sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-wake.service" \
   /etc/systemd/system/filmkorn-wake.service
 
 sudo systemctl daemon-reload
-sudo systemctl enable filmkorn-sleep.service filmkorn-wake.service
+sudo systemctl disable --now filmkorn-sleep.service filmkorn-wake.service || true
 
 echo
 echo "All services installed and restarted where applicable."
