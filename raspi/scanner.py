@@ -233,7 +233,7 @@ def show_screen(message):
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
 def _apply_overlay_if_ready():
-    global pending_overlay
+    global pending_overlay, overlay_ready
     if pending_overlay is None or not overlay_ready or shutting_down or not preview_started:
         return
     try:
