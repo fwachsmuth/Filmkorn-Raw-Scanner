@@ -15,7 +15,7 @@ This is what I bought from my budget to build this scanner.
 - M39 to M42 adapter ring: 10€
 - M42 to C-Mount Adapter (Wittner): 30€
 - YUJILEDS Full Spectrum CRI 98 COB LED [BC 135L (5600K, 9W)](https://www.yujiintl.com/bc-135l/): €20 ([potential alternative for 4€ ?](https://www.leds.de/nichia-ntcws024b-v2-cob-led-5000k-r95-32105.html))
-- [Display](https://www.amazon.de/gp/product/B07YCBWRQP/) for focusing and framing (and watching the scan going on)
+- [5" HDMI Display](https://www.amazon.de/dp/B0BWJ8YP7S) for focusing and framing (and watching the scan going on)
 - MDF wood, screws and hardware store stuff to mount it all
 
 - Aluminium Heatsink 40x40x20: 5€
@@ -25,7 +25,7 @@ This is what I bought from my budget to build this scanner.
 You can definitely use other lenses, another LED and other ways than spacer rings to mount the Raspi Cam in front of the projector's gate. Get creative as needed. Note though that 50mm are pretty much perfect, shorter focal lengthes could be mechanically challenging, and longer focal lengths will be mechanically unstable and have plenty of air between the film and the sensor.
 Also, if you want to scan color film, make sure to get a decent high CRI LED. This is particularly important for scanning color neg film.
 
-The above totals to €240, so you have ~100€ left to get the electronics and an old Noris projector. (The Mac can't be part of the 350€ budget)
+The above totals to €240, so you have ~100€ left to get the electronics and an old Noris projector. You'll also need an external USB3 Drive, ideally a fast SSD — thsi scanner creates a ton of data (about 35 MB/s)
 
 #### The electronics
 Ebay and/or AliExpress are good sources here, depending on how long you can wait and/or risk counterfeits...
@@ -34,82 +34,65 @@ Ebay and/or AliExpress are good sources here, depending on how long you can wait
 - Constant Current Board for the LED
 - DRV8871 BoB to drive the projector DC motor
 - 74HC14 Schmitt Trigger
-- QRE1113 BoB (Sparkfun or Synkino)
+- QRE1113 BoBs (Sparkfun or Synkino)
 - 2 small Rectifiers and some passives 
 - Some 40x40mm Heatsink and Chipset Fan
 
-*(Schematics subject to be documented)*
+or, get the ready-to-go controller PCB from me.
 
 # Code!
 Anyway, this repository is for the software part of the project, consisting of four parts:
 
-1. The actual Scan Software that turns your Rasberry Pi with its HQ Cam into a digital camera, shooting one 4K 12-Bit Raw photo approximately every 0.6 seconds and transferring it to your main computer for further processing
-2. The Converter Software for your Mac that converts the incoming Raw files from their proprietary format into 4K CinmaDNG format, which can directly be imported into e.g. Davinci Resolve. Note that this is a lossless format with 12 Bit per color channel, so really really good (and big)
+1. The actual Scan Software that turns your Rasberry Pi with its HQ Cam into a digital camera, shooting 12-Bit Raw photos of ach film frame, either in 4K or 2K (much faster)
 3. The Arduino Software that controls your sacrificed projector and acts as the "glue" between the Raspberry Pi, the Camera, the Projector, and all controls.
-
-In addition to the software coming with this repo, you will need a couple of other libraries and tools, as mentioned in this Readme. 
-
-**Note that my main computer is a Mac, and that's what I am describing here, but nothing Mac-specific is actually needed. It should be totally possible (and rather easy) to use Windows or even Linux instead, too — if you do so, please share your Notes or create a PR to this Readme.**
 
 ## Installation
 To get ready, you need to install software on all three parts of the system. In fact, this sscanner is actually using three reaal computers. :)
 
 ### For the Arduino
-- Arduino IDE, arduino-cli or the Arduino Extension for VSCode — or whatever you like to use to get your compiled AVR binaries onto the AtMega328P. It doesn't matter, the IDE is probably the easiest way: Open the `scan-controller.ino` file from the repo, hit "Upload" and you are done.
+- Arduino IDE, arduino-cli or the Arduino Extension for VSCode — or whatever you like to use to get your compiled AVR binaries onto the AtMega328P. It doesn't matter, the IDE is probably the easiest way: Open the `scan-controller.ino` file from the repo, hit "Upload" and you are done. Alternatively, the Raspi can directly flash the ready-to-go controller PCB from me, if needed (it is already flashed, though)
 
-### On your Mac
-You should use the same Mac that also runs Davinci Resolve, so you don't have to move tons of data around. The conversion process isn't crazy expensive, but not free either. On my intel iMac late 2015 with 4 GHz and 32 GB of RAM, the conversion was about as fast as the scanner delivered files, so it made a lot of sense to convert during scanning. On my current Apple Silicon MacBook Pro, conversion is so crazy fast that I don't mind converting after scanning has finished. :) 
+### On your Computer
+A computer is only required to process the scan into a video. This includes any of cutting editing color grading, audio dubbing, compression and delivery / sharing.
 
-- First of all, you will need [Homebrew](https://brew.sh/) to install the below things easily. If you don't have it yet, install it as described on the Homebrew website. If you have it but it is no longer working, use `brew doctor` until it works again.
-- `rsync 3.x` since the `rsync 2.9.6` that Apple ships (even in macOS Ventura 13.0.1) is not comaptible with `lsync`. Install it via `brew install rsync` and note down where it gets installed (should be `/opt/homebrew/bin/rsync`, but brew likes to change its base paths)
-- `python3` (latest should be fine, I'm using 3.10.9 right now). Install via `brew install python3` if you don't have it yet. If you are unsure, `` `which python3` --version `` or `` `which python` --version `` should tell you what version(s) you have already installed, and how they are called. Once Python 3 is installed, add the following two packages (they will bring quite some dependencies):
-  - `PiDNG` in version 3.4.7, which is ancient and yanked, but works. Newer versions broke support for the HQ Cam and are not working at this point. Just type `pip3 install pidng==3.4.7` and you should be all set.
-  - `watchdog`. `pip3 install -U watchdog` does the trick.
+Instead of scanning to a hard-drive, you can optionally also scan directly to your computer via an Ethernet Connection. I have only tested this on a Mac, but it should work flawlessly with Linux too, and with a bit of poking definitely on Windows, too. I don't use Windows, though. For the beginning, just scan to an external drive.
+
+Just in case you want to scan directly to your computer:
+- You will need rsync 3.x installed. MacOS comes with rsync, but for licensing reasons, it's version 2.9.6 and that's too old for our purposes. 
+- You will need to "pair" your Scanner with your computer, and allow the scanner to login to cour computer ("enable ssh").
+Both can easily be enabled by running host-computer/install_remote_scanning.sh from Terminal, once. 
+- Note that you cannot scan via Wifi. Wifi is too slow for this, especially on the Raspi. You will need to use an Ethernet cable. If you don't have Ethernet infrastructure in your house, you can also connect the Raspi directly with your computer with an Ethernet cable. (TBC)
+
+There are other helper scripts that you'll only need when scanning "in host mode" (to your computer):
+- pair.sh starts the parining process. It exchanges a ssh key pair with your raspi and sets the path for where you want your scans to go.
+- unpair.sh eliminates an existing pairing. Only needed if your computer or scanner changes or you run into other connectivity probelms.
+- set_scan_destination.sh changes the path where you want your incoming scans to go. 
+
+To enable host mode, you will need to pull GPIO xx to GND. Thsi can easily be achieved with a jumper like this: [image]
 
 ### On the Raspberry Pi:
-(to be done)
 
-Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or more GB of RAM. More never hurts, less is untested and not a good idea. We are cretaing and handling a ton of data here.
-*Note: The guide below might not be a 100% step-by-step guide that you can always follow blindly. Some steps might differ a bit for you. If you get stuck, don't give up, but try again, google your probelm, poke around, or ask otehr people. This is all basic boot-strapping stuff in the linux world.*
+Note that you need a Raspberry Pi 4 B to use this software — ideally with 4 or more GB of RAM. 4 GB is totally sufficient, 8 GB won't bring you more speed or quality. 2 GB might work, but I haven't tested it yet. A Raspberry 5 shoudl work too, but I don't have one and hence could not test it.
 
-
+For the Raspi, download the image file and flash it onto a good uSD-card using Belena Etcher or a similar tool. I recommend the golden Samsung cards for great performance and reliability.
 
 ## Connections
 - Connect I<sup>2</sup>C from Arduino with SMBus Pins on Raspi
 - Connect GND to have a common ground
-
+- ..
+- Ethernet (for updates, time, etc)
 
 ## Configuration
-### Installation Steps (incomplete)
-- Enable ssh from raspi to Mac: `ssh-copy-id -i .ssh/id_piscan_ed25519.pub peaceman@192.168.2.1`
-- Enable key auth via `.ssh/config`: 
-  ```
-  Host *
-  AddKeysToAgent yes
-  IdentityFile ~/.ssh/id_rsa_piscan
-  ```
-- Enable ssh from Mac to Raspi
-- ...
-- Profit
+...
 
 ## System Setup: Get ready to scan!
 - Connect Ethernet Cable to Hub or Mac
 - Powerup Raspi
-- "Start" the Projector by pushing its "Fwd" Key. This gives power on the transformer. 
 - Enable Internet Sharing since the Raspi needs Internet (Time, Updates, Packages etc.)
-- Mac: **Enable** Settings -> General -> Sharing -> Remote Login, then click (i) and enable "Allow full disk access for remote users" 
 - Close Aperture two stops (e.g. to 5.6 or 8). Smaller apertures will cause severe diffraction blurring and is not recommended.
-- ~~Check `camera.shutter_speed` in scanner.py (on the Raspi)~~ (This is reading the pot now)
-- **Below section is outdated. We have auto-pairing now.**
-- `ssh pi@filmkorn-scanner.local`
-- Raspi: `cd /home/pi/Filmkorn-Raw-Scanner/raspi`
-- Raspi: Adjust Target Path in `lsyncd-to-host.conf` if needed
-- Raspi: `lsyncd lsyncd-to-host.conf &`. (Using a separate shell here might make sense to let lsync not bleed into the scanner's log output)
-- Raspi: `python3 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py`
-- Mac: `python3 cineDNG_creator.py -i /Volumes/Filme\ 4TB/raw-intermediates/ -o /Volumes/Filme\ 4TB/CinemaDNG/. --cinema-dng --keep-running`
+- TBC
 
 ## Using CinemaDNG
-*(incomplete)*
 ** outdated **
 - Create a new Project
 - Go to File -> Project Settings
@@ -126,11 +109,10 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
   - Optional: Sharpness & Midtone Detail up
 
 
-- Open the "Media" tab, open CinemaDNG folder in the file browser pane on the left
-- Drag and Drop the Project Folder (e.g. `2022-12-19T13_18_44`) onto the Mediapool at the bottom
+- Open the "Media" tab, open your scan folder in the file browser pane on the left
+- Drag and Drop the Project Folder (e.g. `2022-12-19T13_18_44 @4K`) onto the Mediapool at the bottom
 - Go to the "Cut" Tab and drag the clip onto your timeline. Happy editing!
-- Note the "Camera Raw" tool in the Color Tab (Lift, Gain)
-- Enjoy 12 bit Raws
+- Enjoy grading 12 bit Raws! (TBC)
 
 - For negatives, use my convert plugin
 - Go to the "Color" Tab
@@ -139,20 +121,12 @@ Note that you need a Raspberry Pi 4 to use this software — ideally with 4 or 
 
 The three sliders “Mask color” define the RGB values of the color that is substracted. To start with, one can put the three sliders to the maximum value and then bring them back one by one towards the left. For each channel, when you go towards the left, there is a point where the image stops being modified : stop there. Once the three channels approximately tuned, refine by moving each one slowly from right to left and left to right : one can sense the moment when the image goes from red to cyan, from green to magenta and from blue to yellow.
 
-
 - When Grading Reversal film, check the "Camera Raw" tool on the very left. If you chose "Decode Using: Clip", you can adjust DNG parameters simliar to Lightroom (but not exactly equal to). This is useful for a first base correction. Especially te "Lift" and "Gain" sliders are useful. (For negative film, the slider woudl all wrok inverted — it's better to use Davincis own grading here.)
 - You usually want to tick the "Highlight Recovery" Checkbox in the "Camera Raw" tool. watch any frame with blown-out highlights to see its doing its magic.
-
-
 
 - Use WHite Balance = Daylight
 - Use Color Space Rec.709
 - Use Gamma = Gamma 2.4
-
-
-
-ssh pi@filmkorn-scanner.local
-python3 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner.py
 
 ## Make the Raspi a AVR Porgrammer
 `sudo apt-get install avrdude`
@@ -174,3 +148,15 @@ programmer
 ```
 at the very bottom.
 test with `sudo avrdude -p atmega328p -C ~/avrdude_gpio.conf -c pi_1 -v`
+
+## Raspi Architecture
+The scanner comes with a couple of systemd services and helper scripts and services:
+- raspi/systemd/install_services.sh installs all the services properly. Do not forget to run this script if you hack any changes into the services residing in the repository.
+- filmkorn-lsyncd.service takes care of getting scanned results written onto your hard drive or your host computer
+- filmkorn-ramdisk.service creates a ramdisk that we scan to. This avoids wear on the uSD card ans is clearly the fastest way to write a way the huge DNG files.
+- filmkorn-scanner.service is the scanner app itself. It coordinates all the things, kinda the "run loop" of this contraption
+- filmkorn-sleep.service saves power and turns the camera and display off when not in use
+- filmkorn-wake.service does the opposite
+- usb-mount-largest@.service identifies the biggest partition on a connected drive and mounts it. extFS and ext4 are supported — NTFS is just too slow.
+
+The other scripts you'll find are helpers that are called directly by the services, if needed. 'scanner.py' is where the brains are. 

@@ -32,15 +32,3 @@
 │                            │                 │   unknown                    │
 └────────────────────────────┘                 │                              │
                                                └──────────────────────────────┘
-
-
-┌────────────────────────────┐                 ┌──────────────────────────────┐
-│ start_converting.sh        │                 │ scanner.py                   │
-│                            │      calls      │                              │
-│ - launches the watchdog    │◄────────────────┤ - controls the digital       │
-│   and DNG converter if     │                 │   camera                     │
-│   not running already      │                 │ - interfaces with controller │
-│                            │                 │   board                      │
-└────────────────────────────┘                 │ - emits the scans            │
-                                               │                              │
-                                               └──────────────────────────────┘

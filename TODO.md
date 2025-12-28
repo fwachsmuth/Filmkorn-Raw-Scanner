@@ -12,18 +12,12 @@
 - 
 
 ## Next
-- [ ] Try one lsyncd restart if the disk is full or if writing files for too long
 - [ ] Gauge writing to /mn/usb directly instead of ramdisk
-- [ ] Do we still need to call /opt/homebrew/bin/rsync in lsyncd-to-host.conf?
-- [ ] Remove Splash Screen on boot
-
-- [ ] Add raspi/systemd/install_services.sh to README
-- [ ] Test if host is reachable before Scanning to Host
-- [ ] Handle if Directory on Host PC does not exist
 
 - [ ] is opme.sh working and ever called?
+- [ ] consider enabling wifi for time and updates
+- [ ] "Allow full disk access for remote users" in installer script
 
-- [ ] Make clearer log message about film end detection (to detect bad sensor connections)
 - [ ] Fuses are still at 1 MHz when bootstrapping from raspi. Test burning fuses with 5 VCC. MISO is 5V tho. 47K inbetween? Reset has a 10k Pullup too. I would recommend driving the pins from 5V logic via at least 10K resistor and also connect an external Schottky diode from the pin to 3.3V to prevent the input pin's voltage rising much above the PI's supply rail.
 - [ ] Auto-Stop in-channel Rewinds
 - [ ] think about an update scenario (version info?)
