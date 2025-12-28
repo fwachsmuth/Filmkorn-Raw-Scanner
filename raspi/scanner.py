@@ -377,6 +377,14 @@ def cleanup_terminal():
     print("Restoring terminal settings...")
     subprocess.run(['stty', 'sane'])
 
+def clear_tty1():
+    try:
+        with open("/dev/tty1", "w") as tty:
+            tty.write("\033[2J\033[H")
+            tty.flush()
+    except Exception:
+        pass
+
 def _enter_sleep_mode():
     global sleep_mode, preview_started, camera_running
     logging.info("Entering sleep mode")
@@ -914,6 +922,7 @@ def setup():
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
+    clear_tty1()
 
     # set up logging
     logging.basicConfig(filename='scanner.log', level=logging.DEBUG)
