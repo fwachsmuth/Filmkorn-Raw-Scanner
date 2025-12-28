@@ -13,7 +13,6 @@ import signal
 import time
 import os
 import os.path
-import shlex
 import atexit
 import threading
 import RPi.GPIO as GPIO
@@ -786,32 +785,53 @@ def _read_scan_destination() -> Optional[str]:
         return None
 
 def _can_write_remote_path(user_and_host: str, scan_destination: str) -> bool:
-    probe_path = f"{scan_destination}/.filmkorn_write_test"
-    quoted_probe = shlex.quote(probe_path)
-    remote_cmd = f"touch {quoted_probe} && rm -f {quoted_probe}"
-    result = subprocess.run(
+    probe_path = os.path.join(scan_destination, ".filmkorn_write_test")
+    touch_result = subprocess.run(
         [
             "ssh",
             "-i",
             "/home/pi/.ssh/id_filmkorn-scanner_ed25519",
             user_and_host,
-            "sh",
-            "-c",
-            remote_cmd,
+            "touch",
+            probe_path,
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
     )
     logging.info(
-        "lsyncd: remote write probe to %s:%s -> %s",
+        "lsyncd: remote write probe (touch) to %s:%s -> %s",
         user_and_host,
-        scan_destination,
-        result.returncode,
+        probe_path,
+        touch_result.returncode,
     )
-    if result.stderr:
-        logging.info("lsyncd: remote write probe stderr: %s", result.stderr.strip())
-    return result.returncode == 0
+    if touch_result.stderr:
+        logging.info("lsyncd: remote write probe touch stderr: %s", touch_result.stderr.strip())
+    if touch_result.returncode != 0:
+        return False
+    rm_result = subprocess.run(
+        [
+            "ssh",
+            "-i",
+            "/home/pi/.ssh/id_filmkorn-scanner_ed25519",
+            user_and_host,
+            "rm",
+            "-f",
+            probe_path,
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    logging.info(
+        "lsyncd: remote write probe (rm) to %s:%s -> %s",
+        user_and_host,
+        probe_path,
+        rm_result.returncode,
+    )
+    if rm_result.stderr:
+        logging.info("lsyncd: remote write probe rm stderr: %s", rm_result.stderr.strip())
+    return rm_result.returncode == 0
 
 def switch_lsyncd_config(storage_location: int) -> None:
     """
