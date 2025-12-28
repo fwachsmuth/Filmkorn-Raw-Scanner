@@ -783,6 +783,24 @@ def switch_lsyncd_config(storage_location: int) -> None:
             show_screen("no-drive-connected")
             while not os.path.ismount("/mnt/usb"):
                 sleep(1)
+        if target_conf == LSYNCD_CONF_NET:
+            try:
+                with open(".user_and_host", "r") as file:
+                    user_and_host = file.read().strip()
+                host = user_and_host.split("@", 1)[-1]
+            except Exception:
+                host = None
+            if host:
+                show_screen("cannot-connect-to-paired-mac")
+                while True:
+                    result = subprocess.run(
+                        ["ping", "-c", "1", "-W", "1", host],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    if result.returncode == 0:
+                        break
+                    sleep(1)
         _atomic_symlink(target_conf, LSYNCD_ACTIVE_CONF)
         logging.info(f"lsyncd: set active config -> {target_conf}")
         # Requires sudoers rule for pi to restart lsyncd without password.
