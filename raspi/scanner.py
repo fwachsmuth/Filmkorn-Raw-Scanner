@@ -1238,6 +1238,8 @@ def setup():
     console_handler = logging.StreamHandler()  # Create a handler for stdout
     console_handler.setLevel(logging.DEBUG)    # Set the logging level for the handler
     logging.getLogger('').addHandler(console_handler)  # Add the handler to the root logger
+    logging.getLogger("picamera2").setLevel(logging.WARNING)
+    logging.getLogger("libcamera").setLevel(logging.WARNING)
 
     logging.info("----------------------------------------------------------------------------------")
     start_time = datetime.now()
