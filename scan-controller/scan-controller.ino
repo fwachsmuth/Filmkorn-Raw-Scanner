@@ -225,7 +225,7 @@ void loop() {
           // ... (don't forget to detach ISR)
           break;
       }
-    }
+    } 
   } else {
     // don't readExposurePot if a button has been pressed
     if (!isScanning) {
