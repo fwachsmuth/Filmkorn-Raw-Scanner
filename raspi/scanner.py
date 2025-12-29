@@ -17,6 +17,7 @@ import shlex
 import atexit
 import threading
 from collections import deque
+import re
 import RPi.GPIO as GPIO
 import logging
 
@@ -47,6 +48,7 @@ AUTO_SHUTTER_SPEED = 0  # Zero enables AE, used in Preview mode
 DISK_SPACE_WAIT_THRESHOLD = 200_000_000  # 200 MB
 DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 FPS_AVG_WINDOW = 0  # 0 = all frames in scan, >0 = rolling window size
+USB_HEALTH_CHECK_INTERVAL_S = 30.0
 
 SHUTTER_SPEED_RANGE = 300, 500_000  # 300µs to 0.5s. This defines the range of the exposure potentiometer
 EXPOSURE_VAL_FACTOR = math.log(SHUTTER_SPEED_RANGE[1] / SHUTTER_SPEED_RANGE[0]) / 1024
@@ -82,6 +84,13 @@ shutter_speed = AUTO_SHUTTER_SPEED
 overlay_supported = True
 overlay_retry_count = 0
 overlay_retry_timer = None
+last_usb_health_check = 0.0
+usb_speed_warning_logged = False
+usb_power_warning_logged = False
+last_usb_power_check = 0.0
+last_usb_speed_check = 0.0
+power_warning_active = False
+usb3_warning_active = False
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -220,6 +229,10 @@ class State:
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
     global current_screen, pending_overlay, last_status_screen, idle_since
+    if power_warning_active and not sleep_mode and message != "too-much-power":
+        return
+    if usb3_warning_active and not sleep_mode and message not in {"no-usb3-drive", "too-much-power"}:
+        return
 
     message_path = f"controller-screens/{message}.png"
     overlay = overlay_cache.get(message_path)
@@ -427,6 +440,8 @@ def _enter_sleep_mode():
 
 def _exit_sleep_mode():
     global overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, sleep_mode
+    global power_warning_active, usb3_warning_active, usb_speed_warning_logged, usb_power_warning_logged
+    global last_usb_power_check, last_usb_speed_check
     logging.info("Waking up")
     subprocess.run(
         ["sudo", "systemctl", "start", "filmkorn-wake.service"],
@@ -456,6 +471,12 @@ def _exit_sleep_mode():
         screen_to_show = current_screen or last_status_screen
         threading.Timer(0.5, show_screen, args=(screen_to_show,)).start()
     sleep_mode = False
+    power_warning_active = False
+    usb3_warning_active = False
+    usb_speed_warning_logged = False
+    usb_power_warning_logged = False
+    last_usb_power_check = 0.0
+    last_usb_speed_check = 0.0
 
 def _poll_sleep_button(now: float) -> bool:
     global last_sleep_button_state, last_sleep_button_change, last_sleep_toggle
@@ -796,6 +817,115 @@ def _atomic_symlink(target: str, link_path: str) -> None:
         pass
     os.symlink(target, tmp_path)
     os.replace(tmp_path, link_path)
+
+def _get_mount_device(mount_point: str) -> Optional[str]:
+    try:
+        with open("/proc/mounts", "r") as file:
+            for line in file:
+                parts = line.split()
+                if len(parts) >= 2 and parts[1] == mount_point:
+                    return parts[0]
+    except Exception:
+        return None
+    return None
+
+def _get_block_device_name(device_path: str) -> Optional[str]:
+    if not device_path.startswith("/dev/"):
+        return None
+    name = os.path.basename(device_path)
+    if name.startswith("nvme") or name.startswith("mmcblk"):
+        return re.sub(r"p\d+$", "", name)
+    return re.sub(r"\d+$", "", name)
+
+def _find_usb_speed(block_device: str) -> Optional[float]:
+    sys_path = os.path.realpath(os.path.join("/sys/class/block", block_device))
+    current = sys_path
+    while True:
+        speed_path = os.path.join(current, "speed")
+        if os.path.isfile(speed_path):
+            try:
+                with open(speed_path, "r") as file:
+                    return float(file.read().strip())
+            except Exception:
+                return None
+        parent = os.path.dirname(current)
+        if parent == current:
+            break
+        current = parent
+    return None
+
+def _dmesg_has_power_warnings() -> bool:
+    result = subprocess.run(
+        ["dmesg"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+    )
+    if result.returncode != 0:
+        return False
+    for line in result.stdout.splitlines():
+        lower = line.lower()
+        if (
+            "over-current" in lower
+            or "undervoltage" in lower
+            or "under-voltage" in lower
+            or "insufficient power" in lower
+        ):
+            return True
+    return False
+
+def _check_usb_power_warning() -> None:
+    global last_usb_power_check, usb_power_warning_logged, power_warning_active
+    now = time.monotonic()
+    if now - last_usb_power_check < USB_HEALTH_CHECK_INTERVAL_S:
+        return
+    last_usb_power_check = now
+    if not usb_power_warning_logged and _dmesg_has_power_warnings():
+        logging.warning("Detected USB power warnings in dmesg.")
+        usb_power_warning_logged = True
+        power_warning_active = True
+    if power_warning_active and not sleep_mode:
+        if state.scanning:
+            state.stop_scan()
+        if current_screen != "too-much-power":
+            show_screen("too-much-power")
+
+def _check_usb3_speed_warning() -> None:
+    global last_usb_speed_check, usb_speed_warning_logged, usb3_warning_active
+    now = time.monotonic()
+    if now - last_usb_speed_check < USB_HEALTH_CHECK_INTERVAL_S:
+        return
+    last_usb_speed_check = now
+    if not os.path.ismount("/mnt/usb"):
+        return
+    mount_device = _get_mount_device("/mnt/usb")
+    if not mount_device:
+        return
+    block_device = _get_block_device_name(mount_device)
+    if not block_device:
+        return
+    speed = _find_usb_speed(block_device)
+    if speed is None:
+        return
+    if speed >= 1000.0:
+        usb_speed_warning_logged = False
+        if usb3_warning_active:
+            usb3_warning_active = False
+            if current_screen == "no-usb3-drive":
+                if last_status_screen:
+                    show_screen(last_status_screen)
+                else:
+                    show_ready_to_scan()
+        return
+    if not usb_speed_warning_logged:
+        logging.warning(
+            "USB drive at /mnt/usb is running at %.0fMbit/s (USB3 is 5000M).",
+            speed,
+        )
+        usb_speed_warning_logged = True
+    usb3_warning_active = True
+    if not sleep_mode and not power_warning_active:
+        show_screen("no-usb3-drive")
 
 def _read_user_and_host() -> Optional[str]:
     try:
@@ -1278,6 +1408,13 @@ if __name__ == '__main__':
             if now - last_disk_check >= (1.0 if state.scanning else 3.0):
                 check_available_disk_space()
                 last_disk_check = now
+            _check_usb_power_warning()
+            if (
+                not state.scanning
+                and storage_location == 1
+                and current_screen in {"ready-to-scan-local", "insert-film"}
+            ):
+                _check_usb3_speed_warning()
             if not state.scanning and now - last_resolution_check >= 0.5:
                 new_resolution = GPIO.input(17)
                 if new_resolution != current_resolution_switch:
