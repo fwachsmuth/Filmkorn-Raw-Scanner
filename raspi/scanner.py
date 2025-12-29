@@ -16,9 +16,9 @@ import os.path
 import shlex
 import atexit
 import threading
+from collections import deque
 import RPi.GPIO as GPIO
 import logging
-from collections import deque
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -46,6 +46,7 @@ LSYNCD_CONF_LOCAL = os.path.join(LSYNCD_DIR, "lsyncd-local-hd.conf")
 AUTO_SHUTTER_SPEED = 0  # Zero enables AE, used in Preview mode
 DISK_SPACE_WAIT_THRESHOLD = 200_000_000  # 200 MB
 DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
+FPS_AVG_WINDOW = 0  # 0 = all frames in scan, >0 = rolling window size
 
 SHUTTER_SPEED_RANGE = 300, 500_000  # 300µs to 0.5s. This defines the range of the exposure potentiometer
 EXPOSURE_VAL_FACTOR = math.log(SHUTTER_SPEED_RANGE[1] / SHUTTER_SPEED_RANGE[0]) / 1024
@@ -151,7 +152,9 @@ class State:
         self.raw_count = 0
         self.continue_dir = False
         self.scanning = False
-        self.fps_history = deque(maxlen=36)
+        self.fps_history = deque(maxlen=FPS_AVG_WINDOW) if FPS_AVG_WINDOW > 0 else None
+        self.fps_sum = 0.0
+        self.fps_count = 0
         self.warmup_needed = False
         self.drop_first_frame = False
 
@@ -182,7 +185,10 @@ class State:
 
         self.raw_count = 0
         self.scanning = True
-        self.fps_history.clear()
+        if self.fps_history is not None:
+            self.fps_history.clear()
+        self.fps_sum = 0.0
+        self.fps_count = 0
         global last_fps_value, last_shutter_value
         last_fps_value = None
         last_shutter_value = None
@@ -1034,14 +1040,21 @@ def shoot_raw(arg_bytes=None):
     state.raw_count += 1
     elapsed_time = time.time() - start_time
     fps = 1 / elapsed_time if elapsed_time > 0 else 0.0
-    state.fps_history.append(fps)
-    avg_fps = sum(state.fps_history) / len(state.fps_history)
+    if state.fps_history is not None:
+        state.fps_history.append(fps)
+        avg_fps = sum(state.fps_history) / len(state.fps_history)
+        avg_count = len(state.fps_history)
+    else:
+        state.fps_sum += fps
+        state.fps_count += 1
+        avg_fps = state.fps_sum / state.fps_count
+        avg_count = state.fps_count
     logging.info(
-        "One raw with shutter speed %s taken and saved in %.2fs, avg %.1ffps (last %d)",
+        "One raw with shutter speed %s taken and saved in %.2fs, avg %.1ffps (count %d)",
         _format_shutter_speed(shutter_speed),
         elapsed_time,
         avg_fps,
-        len(state.fps_history),
+        avg_count,
     )
     update_fps_overlay(avg_fps)
     update_shutter_overlay(shutter_speed)
