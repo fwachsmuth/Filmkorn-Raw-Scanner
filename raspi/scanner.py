@@ -1433,7 +1433,7 @@ if __name__ == '__main__':
                     continue
                 if (
                     idle_since is not None
-                    and (now - idle_since) >= 600.0
+                    and (now - idle_since) >= 900.0
                     and current_screen != "too-much-power"
                 ):
                     _enter_sleep_mode()
