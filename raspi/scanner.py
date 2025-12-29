@@ -854,7 +854,7 @@ def _find_usb_speed(block_device: str) -> Optional[float]:
         current = parent
     return None
 
-def _dmesg_has_power_warnings() -> bool:
+def _dmesg_power_warning() -> Optional[str]:
     result = subprocess.run(
         ["dmesg"],
         stdout=subprocess.PIPE,
@@ -862,17 +862,16 @@ def _dmesg_has_power_warnings() -> bool:
         text=True,
     )
     if result.returncode != 0:
-        return False
+        return None
     for line in result.stdout.splitlines():
         lower = line.lower()
-        if (
-            "over-current" in lower
-            or "undervoltage" in lower
-            or "under-voltage" in lower
-            or "insufficient power" in lower
-        ):
-            return True
-    return False
+        if "over-current" in lower:
+            return line.strip()
+        if "undervoltage" in lower or "under-voltage" in lower:
+            return line.strip()
+        if "insufficient power" in lower:
+            return line.strip()
+    return None
 
 def _check_usb_power_warning() -> None:
     global last_usb_power_check, usb_power_warning_logged, power_warning_active
@@ -880,8 +879,9 @@ def _check_usb_power_warning() -> None:
     if now - last_usb_power_check < USB_HEALTH_CHECK_INTERVAL_S:
         return
     last_usb_power_check = now
-    if not usb_power_warning_logged and _dmesg_has_power_warnings():
-        logging.warning("Detected USB power warnings in dmesg.")
+    warning_line = _dmesg_power_warning()
+    if not usb_power_warning_logged and warning_line:
+        logging.warning("Detected USB power warning in dmesg: %s", warning_line)
         usb_power_warning_logged = True
         power_warning_active = True
     if power_warning_active and not sleep_mode:
