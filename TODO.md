@@ -3,16 +3,11 @@
 ## Annoyances
 
 - log insight (from host)
-- converter restart is tricky (host_computer/start_converting.sh)
-
-## Potentially deferred
-- [can't repro?] controller is stuck after i2c timeout and scanner termination 
-- [can't repro?] i2c collisions. can i detect hangs? Consider a Watchdog? https://chat.openai.com/c/0a58a78e-a1ee-4510-95b5-fb1d8fc66790
-- [seems to wokr fine] instead of fire & forget, ensure there’s proper synchronization between the command/response flow of Raspberry Pi and Arduino. Each command from the Pi should have a corresponding and expected response behavior on the Arduino.
-- 
 
 ## Next
 - [ ] Gauge writing to /mn/usb directly instead of ramdisk
+
+- [ ] Let the Arduino respond with a version number via i2c
 
 - [ ] is opme.sh working and ever called?
 - [ ] consider enabling wifi for time and updates
@@ -20,6 +15,7 @@
 
 - [ ] Fuses are still at 1 MHz when bootstrapping from raspi. Test burning fuses with 5 VCC. MISO is 5V tho. 47K inbetween? Reset has a 10k Pullup too. I would recommend driving the pins from 5V logic via at least 10K resistor and also connect an external Schottky diode from the pin to 3.3V to prevent the input pin's voltage rising much above the PI's supply rail.
 - [ ] Auto-Stop in-channel Rewinds
+
 - [ ] think about an update scenario (version info?)
     - most pragmatic:
         - shellscript on host pc:
@@ -30,7 +26,6 @@
     - All three parts need to contain/emit a version number
         - [ ] Let the Arduino respond with a version to the Pi
     - all components should get updated separately
-        - converter.py via git
         - scanner.py via git
         - controller via raspi via git
         - raspi via imaging if necessary
@@ -55,8 +50,6 @@
     https://pcbchecklist.com/
     https://arduino.stackexchange.com/a/9858
     https://forums.raspberrypi.com//viewtopic.php?f=91&t=217442 // Shutodwn pin: dtoverlay=gpio-shutdown,gpio_pin=26,active_low=1,gpio_pull=up
-
-## For Install scripts
 
 ## Pairing/Unpairing
 - [ ] Determine if pair/unpair scripts are running on Mac or Raspi
@@ -89,6 +82,12 @@
 - [ ] Test higher PWM freqs
 - [ ] Add a pull-down switch to GPIO5 (for remote mode)
 - [ ] Disconnect GPIO3 and GPIIO 26 since we no longer an do proper power-down/up and need ugly i2c hacks rn
+- [ ] Consider flipping the Raspi GPIO 180° (all wires out on one side)
+- [ ] Relabel "Target" Switch with "Resolution"
+- For avrdude, use linuxspi instead of linuxgpio. linuxgpio bit-bangt über sysfs; das ist auf neuen Kernels zunehmend hakelig.
+	•	SPI über /dev/spidev* (Programmer linuxspi)
+	•	plus ein frei gewählter Reset-GPIO
+
 
 ## Snippets
 /root inflation how-to: https://raspberrypi.stackexchange.com/questions/499/how-can-i-resize-my-root-partition (seems raspi-cofig does the same). 
