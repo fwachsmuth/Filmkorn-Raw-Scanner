@@ -25,7 +25,8 @@ This is what I bought from my budget to build this scanner.
 You can definitely use other lenses, another LED and other ways than spacer rings to mount the Raspi Cam in front of the projector's gate. Get creative as needed. Note though that 50mm are pretty much perfect, shorter focal lengthes could be mechanically challenging, and longer focal lengths will be mechanically unstable and have plenty of air between the film and the sensor.
 Also, if you want to scan color film, make sure to get a decent high CRI LED. This is particularly important for scanning color neg film.
 
-The above totals to €240, so you have ~100€ left to get the electronics and an old Noris projector. You'll also need an external USB3 Drive, ideally a fast SSD — thsi scanner creates a ton of data (about 35 MB/s)
+The above totals to €240, so you have ~100€ left to get the electronics and an old Noris projector. 
+You'll also need an external USB3 Drive, ideally a fast SSD — this scanner creates a ton of data (about 35 MB/s). IMPORTANT: External SSD (and HDD) can cause power shortages (and glitches) on the Raspi, since the continuous writing of large files is uncommon stress for the Raspi (whcih also drives a camera and is busy processing image data). It is highly recommended to connect an external drive via an active USB3 Hub. This eliminates all power problems.
 
 #### The electronics
 Ebay and/or AliExpress are good sources here, depending on how long you can wait and/or risk counterfeits...
@@ -152,9 +153,19 @@ programmer # raspberry_pi_gpio
 ;
 ````
 - sudo avrdude -C ~/avrdude_gpio.conf -p atmega328p  -c raspberry_pi_gpio -P gpiochip0  -vvvv
-- flashen: sudo avrdude -C ~/avrdude_gpio.conf -p atmega328p -c raspberry_pi_gpio -P gpiochip0 \
-  -U flash:w:scan-controller.hex:i
 
+Build locally:
+arduino-cli compile \
+  --fqbn arduino:avr:pro:cpu=8MHzatmega328 \
+  --output-dir build \
+  path/zum/sketch
+
+Flash:
+sudo avrdude \
+  -C ~/avrdude_gpio.conf \
+  -p atmega328p \
+  -c raspberry_pi_inv \
+  -U flash:w:build/*.hex:i
 
 ## Raspi Architecture
 The scanner comes with a couple of systemd services and helper scripts and services:
