@@ -15,7 +15,7 @@ This is what I bought from my budget to build this scanner.
 - M39 to M42 adapter ring: 10€
 - M42 to C-Mount Adapter (Wittner): 30€
 - YUJILEDS Full Spectrum CRI 98 COB LED [BC 135L (5600K, 9W)](https://www.yujiintl.com/bc-135l/): €20 ([potential alternative for 4€ ?](https://www.leds.de/nichia-ntcws024b-v2-cob-led-5000k-r95-32105.html))
-- [5" HDMI Display](https://www.amazon.de/dp/B0BWJ8YP7S) for focusing and framing (and watching the scan going on)
+- [5" HDMI Display](https://www.amazon.de/dp/B0BWJ8YP7S) or https://www.amazon.de/dp/B0CMCSCYPD/ for focusing and framing (and watching the scan going on) – any other monitor shoudl work, too. 640x480 is all we need.
 - MDF wood, screws and hardware store stuff to mount it all
 
 - Aluminium Heatsink 40x40x20: 5€
@@ -68,7 +68,7 @@ There are other helper scripts that you'll only need when scanning "in host mode
 - unpair.sh eliminates an existing pairing. Only needed if your computer or scanner changes or you run into other connectivity probelms.
 - set_scan_destination.sh changes the path where you want your incoming scans to go. 
 
-To enable host mode, you will need to pull GPIO xx to GND. Thsi can easily be achieved with a jumper like this: [image]
+To enable host mode, you will need to pull GPIO05 to GND. This can easily be achieved with a jumper like this: [image]
 
 ### On the Raspberry Pi:
 
@@ -129,22 +129,60 @@ The three sliders “Mask color” define the RGB values of the color that is su
 - Use Gamma = Gamma 2.4
 
 ## Make the Raspi a AVR Porgrammer
-`sudo apt-get install avrdude`
-`cp /etc/avrdude.conf ~/avrdude_gpio.conf`
-`nano ~/avrdude_gpio.conf`
-Add
-```
-# Linux GPIO configuration for avrdude.
-# Change the lines below to the GPIO pins connected to the AVR.
+- `sudo apt-get install avrdude` does not work – 7.1 does not support gpiod.
+- clone avrdude main from git and run ./build.sh after having libgpiod-dev installed.
+- copy the global config to ~.
+- make sure the Arduino currently has power!
+- edit existing raspi config like this:
+````
+#------------------------------------------------------------
+# Program from a Raspberry Pi GPIO port using linuxgpio
+#------------------------------------------------------------
+
+programmer # raspberry_pi_gpio
+    id                     = "raspberry_pi_gpio";
+    desc                   = "Raspberry Pi GPIO via sysfs/libgpiod";
+    type                   = "linuxgpio";
+    prog_modes             = PM_ISP;
+    connection_type        = linuxgpio;
+    reset                  = 12;
+    sck                    = 24;
+    sdo                    = 23;
+    sdi                    = 18;
+;
+````
+- sudo avrdude -C ~/avrdude_gpio.conf -p atmega328p  -c raspberry_pi_gpio -P gpiochip0  -vvvv
+- flashen: sudo avrdude -C ~/avrdude_gpio.conf -p atmega328p -c raspberry_pi_gpio -P gpiochip0 \
+  -U flash:w:scan-controller.hex:i
+
+
+
+
+# Linux GPIO configuration for avrdude (Raspberry Pi).
 programmer
   id    = "pi_1";
-  desc  = "Use the Linux sysfs interface to bitbang GPIO lines";
+  desc  = "Raspberry Pi GPIO bitbang (linuxgpio)";
   type  = "linuxgpio";
-  reset = 12;
-  sck   = 24;
-  mosi  = 23;
-  miso  = 18;
-;
+  reset = 524; # 12
+  sck   = 536; # 24
+  mosi  = 535; # 23 sdo
+  miso  = 530; # 18 sdi
+
+sudo avrdude -p atmega328p -C ~/avrdude_gpio.conf -c pi_1 -vvvv
+
+avrdude: Version 7.1
+         Copyright the AVRDUDE authors;
+         see https://github.com/avrdudes/avrdude/blob/main/AUTHORS
+
+         System wide configuration file is /home/pi/avrdude_gpio.conf
+         User configuration file is /root/.avrduderc
+         User configuration file does not exist or is not a regular file, skipping
+
+         Using Port                    : unknown
+         Using Programmer              : pi_1
+avrdude linuxgpio_open() [linuxgpio.c:247] OS error: cannot export GPIO 12, already exported/busy?: Invalid argumentavrdude main() [main.c:1125] error: unable to open programmer pi_1 on port unknown
+
+avrdude done.  Thank you.
 ```
 at the very bottom.
 test with `sudo avrdude -p atmega328p -C ~/avrdude_gpio.conf -c pi_1 -v`
