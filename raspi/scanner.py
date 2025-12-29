@@ -468,9 +468,15 @@ def _exit_sleep_mode():
     overlay_ready = True
     overlay_retry_count = 0
     overlay_retry_timer = None
-    if current_screen or last_status_screen:
-        screen_to_show = current_screen or last_status_screen
+    screen_to_show = current_screen
+    if screen_to_show in {"too-much-power", "no-usb3-drive"}:
+        screen_to_show = last_status_screen
+    if screen_to_show or last_status_screen:
+        screen_to_show = screen_to_show or last_status_screen
         threading.Timer(0.5, show_screen, args=(screen_to_show,)).start()
+    else:
+        threading.Timer(0.5, show_ready_to_scan).start()
+    threading.Timer(1.0, _post_wake_checks).start()
     sleep_mode = False
     power_warning_active = False
     usb3_warning_active = False
@@ -478,6 +484,15 @@ def _exit_sleep_mode():
     usb_power_warning_logged = False
     last_usb_power_check = 0.0
     last_usb_speed_check = 0.0
+
+def _post_wake_checks():
+    _check_usb_power_warning()
+    if (
+        storage_location == 1
+        and current_screen in {"ready-to-scan-local", "insert-film", "no-usb3-drive"}
+        and not state.scanning
+    ):
+        _check_usb3_speed_warning()
 
 def _poll_sleep_button(now: float) -> bool:
     global last_sleep_button_state, last_sleep_button_change, last_sleep_toggle
@@ -1430,7 +1445,7 @@ if __name__ == '__main__':
             if (
                 not state.scanning
                 and storage_location == 1
-                and current_screen in {"ready-to-scan-local", "insert-film"}
+                and current_screen in {"ready-to-scan-local", "insert-film", "no-usb3-drive"}
             ):
                 _check_usb3_speed_warning()
             if not state.scanning and now - last_resolution_check >= 0.5:
