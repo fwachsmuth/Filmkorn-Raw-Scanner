@@ -9,6 +9,7 @@ Well, it is, but this bet was won in 2020. Prices for many thing have gone up si
 ### Shopping list
 This is what I bought from my budget to build this scanner.
 - Raspi 4 w/4GB of RAM: 50€
+- A 5V/27W Power supply: 12€ (the usually bundled power supply only delivers 15W, which isn't sufficient if scanning to a USB drive)
 - Raspberry Pi HQ Camera w/o lens: 50€
 - C-Mount Spacer Rings (Ebay or Aliexpress): 30€
 - M39 Enlarger lens EL-Nikkor 2.8/50mm: 50€
@@ -26,7 +27,9 @@ You can definitely use other lenses, another LED and other ways than spacer ring
 Also, if you want to scan color film, make sure to get a decent high CRI LED. This is particularly important for scanning color neg film.
 
 The above totals to €240, so you have ~100€ left to get the electronics and an old Noris projector. 
-You'll also need an external USB3 Drive, ideally a fast SSD — this scanner creates a ton of data (about 35 MB/s). IMPORTANT: External SSD (and HDD) can cause power shortages (and glitches) on the Raspi, since the continuous writing of large files is uncommon stress for the Raspi (whcih also drives a camera and is busy processing image data). It is highly recommended to connect an external drive via an active USB3 Hub. This eliminates all power problems.
+You'll also need an external USB3 Drive, ideally a fast SSD — this scanner creates a ton of data (about 35 MB/s). 
+
+IMPORTANT: External SSD (and HDD) can cause power shortages (and glitches) on the Raspi, since the continuous writing of large files is uncommon stress for the Raspi (which also drives a camera and is busily processing image data). You really need a 5V/27W Power Supply for the Raspi (not the standard 15W one), or you'll need to connect your external drive via an active USB3 Hub. This also eliminates power problems.
 
 #### The electronics
 Ebay and/or AliExpress are good sources here, depending on how long you can wait and/or risk counterfeits...
