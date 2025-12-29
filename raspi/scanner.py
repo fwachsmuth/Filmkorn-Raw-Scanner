@@ -254,7 +254,7 @@ def show_screen(message):
         overlay_cache[message_path] = overlay
 
     current_screen = message
-    if message in {"insert-film", "ready-to-scan", "ready-to-scan-local", "ready-to-scan-net"}:
+    if message in {"insert-film", "ready-to-scan", "ready-to-scan-local", "ready-to-scan-net", "no-usb3-drive"}:
         idle_since = time.monotonic()
     else:
         idle_since = None
@@ -1395,7 +1395,15 @@ if __name__ == '__main__':
                 not state.scanning
                 and not shutting_down
                 and (
-                current_screen in {"insert-film", "ready-to-scan", "ready-to-scan-local", "ready-to-scan-net", "no-drive-connected"}
+                current_screen in {
+                    "insert-film",
+                    "ready-to-scan",
+                    "ready-to-scan-local",
+                    "ready-to-scan-net",
+                    "no-drive-connected",
+                    "too-much-power",
+                    "no-usb3-drive",
+                }
                 or sleep_mode
                 )
             ):
@@ -1405,7 +1413,11 @@ if __name__ == '__main__':
                 if sleep_mode:
                     time.sleep(0.1)
                     continue
-                if idle_since is not None and (now - idle_since) >= 600.0:
+                if (
+                    idle_since is not None
+                    and (now - idle_since) >= 600.0
+                    and current_screen != "too-much-power"
+                ):
                     _enter_sleep_mode()
                     idle_since = None
                     time.sleep(0.1)
