@@ -156,37 +156,6 @@ programmer # raspberry_pi_gpio
   -U flash:w:scan-controller.hex:i
 
 
-
-
-# Linux GPIO configuration for avrdude (Raspberry Pi).
-programmer
-  id    = "pi_1";
-  desc  = "Raspberry Pi GPIO bitbang (linuxgpio)";
-  type  = "linuxgpio";
-  reset = 524; # 12
-  sck   = 536; # 24
-  mosi  = 535; # 23 sdo
-  miso  = 530; # 18 sdi
-
-sudo avrdude -p atmega328p -C ~/avrdude_gpio.conf -c pi_1 -vvvv
-
-avrdude: Version 7.1
-         Copyright the AVRDUDE authors;
-         see https://github.com/avrdudes/avrdude/blob/main/AUTHORS
-
-         System wide configuration file is /home/pi/avrdude_gpio.conf
-         User configuration file is /root/.avrduderc
-         User configuration file does not exist or is not a regular file, skipping
-
-         Using Port                    : unknown
-         Using Programmer              : pi_1
-avrdude linuxgpio_open() [linuxgpio.c:247] OS error: cannot export GPIO 12, already exported/busy?: Invalid argumentavrdude main() [main.c:1125] error: unable to open programmer pi_1 on port unknown
-
-avrdude done.  Thank you.
-```
-at the very bottom.
-test with `sudo avrdude -p atmega328p -C ~/avrdude_gpio.conf -c pi_1 -v`
-
 ## Raspi Architecture
 The scanner comes with a couple of systemd services and helper scripts and services:
 - raspi/systemd/install_services.sh installs all the services properly. Do not forget to run this script if you hack any changes into the services residing in the repository.
