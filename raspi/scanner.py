@@ -48,7 +48,8 @@ AUTO_SHUTTER_SPEED = 0  # Zero enables AE, used in Preview mode
 DISK_SPACE_WAIT_THRESHOLD = 200_000_000  # 200 MB
 DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 FPS_AVG_WINDOW = 0  # 0 = all frames in scan, >0 = rolling window size
-USB_HEALTH_CHECK_INTERVAL_S = 30.0
+USB_POWER_CHECK_INTERVAL_S = 30.0
+USB3_CHECK_INTERVAL_S = 5.0
 
 SHUTTER_SPEED_RANGE = 300, 500_000  # 300µs to 0.5s. This defines the range of the exposure potentiometer
 EXPOSURE_VAL_FACTOR = math.log(SHUTTER_SPEED_RANGE[1] / SHUTTER_SPEED_RANGE[0]) / 1024
@@ -895,7 +896,7 @@ def _dmesg_power_warning() -> Optional[str]:
 def _check_usb_power_warning() -> None:
     global last_usb_power_check, usb_power_warning_logged, power_warning_active
     now = time.monotonic()
-    if now - last_usb_power_check < USB_HEALTH_CHECK_INTERVAL_S:
+    if now - last_usb_power_check < USB_POWER_CHECK_INTERVAL_S:
         return
     last_usb_power_check = now
     warning_line = _dmesg_power_warning()
@@ -912,7 +913,7 @@ def _check_usb_power_warning() -> None:
 def _check_usb3_speed_warning() -> None:
     global last_usb_speed_check, usb_speed_warning_logged, usb3_warning_active
     now = time.monotonic()
-    if now - last_usb_speed_check < USB_HEALTH_CHECK_INTERVAL_S:
+    if now - last_usb_speed_check < USB3_CHECK_INTERVAL_S:
         return
     last_usb_speed_check = now
     if not os.path.ismount("/mnt/usb"):
