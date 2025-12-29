@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
-# install-rsync-with-brew.sh
 #
-# Installs Homebrew (if missing), then installs rsync (if missing),
+# Installs Homebrew (if missing), then installs rsync 3.x (if missing),
 # and ensures the current shell can find brew/rsync.
 #
 # Usage:
-#   curl -fsSL <your-url>/install-rsync-with-brew.sh | bash
-# or:
 #   bash install-rsync-with-brew.sh
 #
 # Notes:

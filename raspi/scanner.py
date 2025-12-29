@@ -200,7 +200,7 @@ class State:
     def stop_scan(self, arg_bytes=None):
         self.continue_dir = False
         self.scanning = False
-        logging.info("Nevermind; Stopped scanning")
+        logging.info("Scanning stopped")
         set_lamp_off()
         tell_arduino(Command.TELL_LOADSTATE)
         try:
@@ -1175,17 +1175,6 @@ def setup():
     with open(".host_path", "r") as file:
         host_path = file.read().strip()
     logging.info(f"Starting Converter Process as {user_and_host}:{host_path}")
-
-    # Define the SSH command and remote server details
-    # ssh_command_base = ['ssh', '-i', '~/.ssh/id_filmkorn-scanner_ed25519', user_and_host]
-    # ssh_command = ssh_command_base + [os.path.join(host_path, "start_converting.sh")]
-    # logging.debug(f"ssh command to execute: {ssh_command}")
-
-    # # Run the command
-    # ssh_subprocess = subprocess.Popen(ssh_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    # # Open the target folder in the Finder
-    # subprocess.run(ssh_command_base + [f'open "`cat {host_path}/.scan_destination`/CinemaDNG"'])
 
     # Show a first screen to indicate we are running
     show_ready_to_scan()
