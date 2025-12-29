@@ -91,6 +91,7 @@ last_usb_power_check = 0.0
 last_usb_speed_check = 0.0
 power_warning_active = False
 usb3_warning_active = False
+dmesg_since = None
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -855,8 +856,11 @@ def _find_usb_speed(block_device: str) -> Optional[float]:
     return None
 
 def _dmesg_power_warning() -> Optional[str]:
+    args = ["dmesg"]
+    if dmesg_since:
+        args.extend(["--since", dmesg_since])
     result = subprocess.run(
-        ["dmesg"],
+        args,
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
         text=True,
@@ -1207,7 +1211,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, last_sleep_button_state, last_sleep_button_change, sleep_button_armed
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, last_sleep_button_state, last_sleep_button_change, sleep_button_armed, dmesg_since
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -1220,7 +1224,9 @@ def setup():
     logging.getLogger('').addHandler(console_handler)  # Add the handler to the root logger
 
     logging.info("----------------------------------------------------------------------------------")
-    logging.info("Scanner started at %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    start_time = datetime.now()
+    dmesg_since = start_time.strftime('%Y-%m-%d %H:%M:%S')
+    logging.info("Scanner started at %s", start_time.strftime('%Y-%m-%d %H:%M:%S'))
 
 
     # Set the GPIO mode to BCM
