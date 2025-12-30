@@ -167,8 +167,15 @@ Flash:
 sudo avrdude \
   -C ~/avrdude_gpio.conf \
   -p atmega328p \
-  -c raspberry_pi_inv \
-  -U flash:w:build/*.hex:i
+  -c raspberry_pi_gpio \
+  -P gpiochip0 \
+  -U flash:w:scan-controller/scan-controller.ino.with_bootloader.hex:i
+
+Build:
+arduino-cli compile --fqbn arduino:avr:pro:cpu=8MHzatmega328 --export-binaries scan-controller
+
+add --build-path /path as needed.
+
 
 ## Raspi Architecture
 The scanner comes with a couple of systemd services and helper scripts and services:

@@ -84,8 +84,8 @@
 - [ ] Disconnect GPIO3 and GPIIO 26 since we no longer an do proper power-down/up and need ugly i2c hacks rn
 - [ ] Consider flipping the Raspi GPIO 180° (all wires out on one side)
 - [ ] Relabel "Target" Switch with "Resolution"
-- For avrdude, use linuxspi instead of linuxgpio. linuxgpio bit-bangt über sysfs; das ist auf neuen Kernels zunehmend hakelig.
-	•	SPI über /dev/spidev* (Programmer linuxspi)
+- For avrdude, use linuxspi instead of linuxgpio. linuxgpio bit-bangt über sysfs; das ist auf neuen Kernels zunehmend hakelig. GPIO12 ist von PM/audio belegt...
+	•	SPI über /dev/spidev* (Programmer linuxspi) 19-21-23
 	•	plus ein frei gewählter Reset-GPIO
 
 
