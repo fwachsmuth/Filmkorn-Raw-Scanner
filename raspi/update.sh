@@ -17,24 +17,6 @@ log() {
 
 export HOME="${HOME:-/root}"
 
-PREV_REF="$(git rev-parse HEAD 2>/dev/null || true)"
-PREV_DESC="$(git describe --tags --always 2>/dev/null || true)"
-
-on_exit() {
-  local status=$?
-  if [ "$status" -ne 0 ]; then
-    log "update: failed code=$status"
-    if [ -n "$PREV_REF" ]; then
-      log "update: restoring $PREV_DESC ($PREV_REF)"
-      run_and_log "git-restore" git checkout "$PREV_REF"
-    fi
-  fi
-  log "update: starting $SERVICE_NAME"
-  sudo systemctl start "$SERVICE_NAME" || true
-}
-
-trap on_exit EXIT
-
 run_and_log() {
   local label="$1"
   shift
@@ -56,6 +38,24 @@ run_and_log() {
 cd "$REPO_DIR"
 log "update: marking repo safe for git"
 git config --system --add safe.directory "$REPO_DIR" || true
+PREV_REF="$(git rev-parse HEAD 2>/dev/null || true)"
+PREV_DESC="$(git describe --tags --always 2>/dev/null || true)"
+log "update: current ref $PREV_DESC ($PREV_REF)"
+
+on_exit() {
+  local status=$?
+  if [ "$status" -ne 0 ]; then
+    log "update: failed code=$status"
+    if [ -n "$PREV_REF" ]; then
+      log "update: restoring $PREV_DESC ($PREV_REF)"
+      run_and_log "git-restore" git checkout -f "$PREV_REF"
+    fi
+  fi
+  log "update: starting $SERVICE_NAME"
+  sudo systemctl start "$SERVICE_NAME" || true
+}
+
+trap on_exit EXIT
 log "update: stopping $SERVICE_NAME"
 sudo systemctl stop "$SERVICE_NAME" || true
 log "update: fetching tags"
@@ -71,7 +71,12 @@ run_and_log "git-checkout" git checkout "$TAG"
 
 if [ -f scan-controller/scan-controller.ino.with_bootloader.hex ]; then
   log "update: flashing controller (avrdude)"
-  run_and_log "flash" env SKIP_SERVICE_RESTART=1 bash scan-controller/bootstrap/flash-atmega328.sh
+  run_and_log "flash" /usr/local/bin/avrdude \
+    -C /home/pi/avrdude_gpio.conf \
+    -p atmega328p \
+    -c raspberry_pi_gpio \
+    -P gpiochip0 \
+    -U flash:w:scan-controller/scan-controller.ino.with_bootloader.hex:i
 fi
 
 log "update: reloading systemd"
