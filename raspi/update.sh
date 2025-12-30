@@ -28,6 +28,12 @@ cleanup() {
 }
 trap cleanup EXIT
 log "update: fetching tags"
+REMOTE_URL="$(git config --get remote.origin.url || true)"
+if [[ "$REMOTE_URL" == git@github.com:* ]]; then
+  HTTPS_URL="https://github.com/${REMOTE_URL#git@github.com:}"
+  log "update: switching origin to HTTPS ($HTTPS_URL)"
+  git remote set-url origin "$HTTPS_URL"
+fi
 git fetch --tags --prune
 log "update: checking out $TAG"
 git checkout "$TAG"
