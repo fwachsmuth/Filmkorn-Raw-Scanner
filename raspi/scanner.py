@@ -384,7 +384,7 @@ def _git(*args):
     )
 
 def _fetch_tags() -> bool:
-    result = _git("fetch", "--tags", "--prune")
+    result = _git("fetch", "--tags", "--prune", "--force")
     if result.returncode != 0:
         logging.error(
             "update: git fetch failed (code=%s) stderr=%s",
