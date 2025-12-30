@@ -58,7 +58,7 @@ run_and_log "git-checkout" git checkout "$TAG"
 
 if [ -f scan-controller/scan-controller.ino.with_bootloader.hex ]; then
   log "update: flashing controller (avrdude)"
-  run_and_log "flash" SKIP_SERVICE_RESTART=1 bash scan-controller/bootstrap/flash-atmega328.sh
+  run_and_log "flash" env SKIP_SERVICE_RESTART=1 bash scan-controller/bootstrap/flash-atmega328.sh
 fi
 
 log "update: reloading systemd"
