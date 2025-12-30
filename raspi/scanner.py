@@ -411,10 +411,11 @@ def _show_update_selection():
         show_update_screen(["No update available", "No tags found"])
         return
     selected = update_tags[update_selected]
+    version_label = "New Version" if update_selected == len(update_tags) - 1 else "Older Version"
     lines = [
         "Update available",
         "",
-        f"New Version: {selected}",
+        f"{version_label}: {selected}",
         "",
         "",
         "Use \u23ea/\u23e9 to select older versions.",
