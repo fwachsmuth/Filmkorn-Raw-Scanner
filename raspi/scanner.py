@@ -554,6 +554,18 @@ def _start_update(tag: str):
         logging.exception("update: failed to launch update script: %s", exc)
         show_update_screen(["Update failed", "Could not start updater"])
 
+def _confirm_update_after_delay(tag: str):
+    show_update_screen(
+        [
+            "Updating can take a few minutes.",
+            "Please wait and do not remove power.",
+        ]
+    )
+    def _start():
+        clear_overlay()
+        _start_update(tag)
+    threading.Timer(5.0, _start).start()
+
 def _update_confirm(_args=None):
     if not update_mode:
         return
@@ -562,7 +574,7 @@ def _update_confirm(_args=None):
         return
     selected = update_tags[update_selected]
     logging.info("update: confirm selected tag %s", selected)
-    _start_update(selected)
+    _confirm_update_after_delay(selected)
 
 def _update_cancel(_args=None):
     global update_mode
