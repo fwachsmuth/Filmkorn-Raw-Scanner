@@ -10,6 +10,8 @@ fi
 REPO_DIR="/home/pi/Filmkorn-Raw-Scanner"
 SERVICE_NAME="filmkorn-scanner.service"
 LOG_TAG="filmkorn-update"
+PREFLIGHT_SCRIPT="/home/pi/Filmkorn-Raw-Scanner/raspi/preflight.sh"
+POSTFLIGHT_SCRIPT="/home/pi/Filmkorn-Raw-Scanner/raspi/postflight.sh"
 
 log() {
   logger -t "$LOG_TAG" "$*"
@@ -33,6 +35,16 @@ run_and_log() {
     log "update: ${label} ok"
   fi
   return "$status"
+}
+
+run_hook() {
+  local label="$1"
+  local script="$2"
+  if [ -f "$script" ]; then
+    run_and_log "$label" bash "$script"
+  else
+    log "update: ${label} skipped (missing $script)"
+  fi
 }
 
 cd "$REPO_DIR"
@@ -68,9 +80,11 @@ fi
 run_and_log "git-fetch" git fetch --tags --prune
 log "update: checking out $TAG"
 run_and_log "git-checkout" git checkout "$TAG"
+run_hook "postflight" "$POSTFLIGHT_SCRIPT"
 
 if [ -f scan-controller/scan-controller.ino.with_bootloader.hex ]; then
   log "update: flashing controller (avrdude)"
+  run_hook "preflight" "$PREFLIGHT_SCRIPT"
   log "update: enabling MCU power (GPIO16)"
   run_and_log "uc-power" python3 - <<'PY'
 import RPi.GPIO as GPIO
@@ -84,10 +98,12 @@ PY
     -c raspberry_pi_gpio \
     -P gpiochip0 \
     -U flash:w:scan-controller/build/arduino.avr.pro/scan-controller.ino.hex:i
+  run_hook "postflight" "$POSTFLIGHT_SCRIPT"
 fi
 
 log "update: reloading systemd"
 run_and_log "systemd-reload" sudo systemctl daemon-reload
-log "update: rebooting"
+log "update: installing systemd services"
+run_and_log "systemd-install" sudo bash /home/pi/Filmkorn-Raw-Scanner/raspi/systemd/install_services.sh
 trap - EXIT
-sudo reboot
+log "update: completed (no reboot requested)"
