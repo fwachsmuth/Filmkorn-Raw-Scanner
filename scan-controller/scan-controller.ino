@@ -105,6 +105,8 @@ int dummyread; // for throw-away ADC reads (avoids multiplex-carryover of S&H ca
 bool lampMode = false;
 bool isScanning = false;
 bool updateMode = false;
+uint32_t bootIgnoreUntil = 0;
+uint8_t updateHoldCount = 0;
 
 volatile bool piIsReady = false;
 
@@ -132,25 +134,7 @@ void setup() {
   pinMode(EYE_PIN, INPUT);
   pinMode(FILM_END_PIN, INPUT);
 
-  delay(80);
-  int bootButtonsA = 0;
-  int bootButtonsB = 0;
-  for (uint8_t i = 0; i < 3; i++) {
-    dummyread = analogRead(BUTTONS_A_PIN);
-    bootButtonsA = analogRead(BUTTONS_A_PIN);
-    dummyread = analogRead(BUTTONS_B_PIN);
-    bootButtonsB = analogRead(BUTTONS_B_PIN);
-    if (bootButtonsA <= 900 || bootButtonsB <= 900) {
-      bootButtonsA = 0;
-      bootButtonsB = 0;
-      break;
-    }
-    delay(10);
-  }
-  if (bootButtonsA > 900 && bootButtonsB > 900) {
-    updateMode = true;
-    nextPiCmd = CMD_UPDATE_ENTER;
-  }
+  bootIgnoreUntil = millis() + 800;
 
   // Stop the engines
   analogWrite(MOTOR_A_PIN, 0);
@@ -164,8 +148,27 @@ void setup() {
 }
 
 void loop() {
+  currentButton = pollButtons();
+  if (currentButton == UPDATE) {
+    if (updateHoldCount < 3) {
+      updateHoldCount++;
+    }
+  } else {
+    updateHoldCount = 0;
+  }
+  if (!updateMode && updateHoldCount >= 3) {
+    updateMode = true;
+    nextPiCmd = CMD_UPDATE_ENTER;
+    Serial.println("Update mode: enter");
+    prevButton = UPDATE;
+    return;
+  }
+  if (!updateMode && millis() < bootIgnoreUntil) {
+    prevButton = currentButton;
+    return;
+  }
+
   if (updateMode) {
-    currentButton = pollButtons();
     if (currentButton != prevButton) {
       prevButton = currentButton;
       switch (currentButton) {
@@ -209,8 +212,6 @@ void loop() {
   dummyread = analogRead(SINGLE_STEP_POT);
   singleStepMotorPower = map(analogRead(SINGLE_STEP_POT), 0, 1023, 255, 100);
 
-  currentButton = pollButtons();
-
   if (currentButton != prevButton) {
     prevButton = currentButton;
 
@@ -218,10 +219,6 @@ void loop() {
       switch (currentButton) {
         case NONE:
         default:
-          break;
-        case UPDATE:
-          updateMode = true;
-          nextPiCmd = CMD_UPDATE_ENTER;
           break;
         case ZOOM:
           setZoomMode((zoomMode == Z10_1) ? Z1_1 : (ZoomMode)((uint8_t)zoomMode + 1));
