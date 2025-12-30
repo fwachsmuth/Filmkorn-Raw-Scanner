@@ -296,7 +296,7 @@ def _build_update_overlay(lines):
         text_font = ImageFont.load_default()
     metrics = []
     for line in lines:
-        font = symbol_font if any(ch in line for ch in {"\u23ee", "\u23ed", "\u23fa", "\u23f9"}) else text_font
+        font = symbol_font if any(ch in line for ch in {"\u23ea", "\u23e9", "\u23fa", "\u23f9"}) else text_font
         if hasattr(draw, "textbbox"):
             bbox = draw.textbbox((0, 0), line, font=font)
             w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
@@ -376,7 +376,8 @@ def _show_update_selection():
     lines = ["Update available", f"Selected: {selected}"]
     if update_current_tag:
         lines.append(f"Current: {update_current_tag}")
-    lines.append("\u23ee/\u23ed choose, \u23fa install, \u23f9 cancel")
+    lines.append("\u23ea / \u23e9")
+    lines.append("choose, \u23fa install, \u23f9 cancel")
     show_update_screen(lines)
 
 def _enter_update_mode():
