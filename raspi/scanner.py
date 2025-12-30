@@ -1163,8 +1163,17 @@ def _read_scan_destination() -> Optional[str]:
 def _ensure_usb_mount() -> bool:
     if os.path.ismount("/mnt/usb"):
         return True
+    disk = None
+    for _ in range(10):
+        disk = _find_usb_disk_name()
+        if disk:
+            break
+        sleep(0.2)
+    if not disk:
+        logging.info("USB mount: no removable/USB disk found")
+        return False
     result = subprocess.run(
-        ["sudo", "/usr/local/sbin/mount-largest-usb.sh"],
+        ["sudo", "/usr/local/sbin/mount-largest-usb.sh", disk],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -1176,8 +1185,28 @@ def _ensure_usb_mount() -> bool:
             result.returncode,
             result.stdout.strip(),
             result.stderr.strip(),
-        )
+    )
     return os.path.ismount("/mnt/usb")
+
+def _find_usb_disk_name() -> Optional[str]:
+    result = subprocess.run(
+        ["lsblk", "-nr", "-o", "NAME,TYPE,RM,TRAN"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        logging.info("lsblk failed: %s", result.stderr.strip())
+        return None
+    for line in result.stdout.splitlines():
+        parts = line.split()
+        if len(parts) < 4:
+            continue
+        name, dev_type, rm, tran = parts[:4]
+        if dev_type == "disk" and (rm == "1" or tran == "usb"):
+            return name
+    return None
 
 def _can_write_remote_path(user_and_host: str, scan_destination: str) -> bool:
     probe_path = os.path.join(scan_destination, ".filmkorn_write_test")
@@ -1659,6 +1688,8 @@ if __name__ == '__main__':
                 or sleep_mode
                 )
             ):
+                if current_screen == "no-drive-connected" and idle_since is None:
+                    idle_since = now
                 if _poll_sleep_button(now):
                     time.sleep(0.05)
                     continue
