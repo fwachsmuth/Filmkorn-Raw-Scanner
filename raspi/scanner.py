@@ -310,7 +310,7 @@ def _build_update_overlay(lines):
             w, h = draw.textsize(line, font=font)
         metrics.append((line, w, h, font))
     spacing = 10
-    total_height = sum(h for _, _, h in metrics) + spacing * (len(metrics) - 1)
+    total_height = sum(h for _, _, h, _ in metrics) + spacing * (len(metrics) - 1)
     y = max(0, (preview_size[1] - total_height) // 2)
     for line, w, h, font in metrics:
         x = max(0, (preview_size[0] - w) // 2)
