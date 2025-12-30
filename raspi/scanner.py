@@ -286,25 +286,33 @@ def _build_update_overlay(lines):
         return None
     base = Image.new("RGBA", preview_size, (0, 0, 0, 255))
     draw = ImageDraw.Draw(base)
-    try:
-        font = ImageFont.truetype("/usr/share/fonts/truetype/noto/NotoSansSymbols2-Regular.ttf", 28)
-    except OSError:
-        try:
-            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28)
-        except OSError:
-            font = ImageFont.load_default()
+    symbol_font = _load_font(
+        [
+            "/usr/share/fonts/truetype/noto/NotoSansSymbols2-Regular.ttf",
+            "/usr/share/fonts/truetype/noto/NotoSansSymbols2.ttf",
+            "/usr/share/fonts/opentype/noto/NotoSansSymbols2-Regular.otf",
+            "/usr/share/fonts/opentype/noto/NotoSansSymbols2.otf",
+        ],
+        28,
+    )
+    text_font = _load_font(
+        ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"],
+        28,
+    )
+    symbol_chars = {"\u23f4", "\u23f5", "\u23f9", "\u23fa"}
     metrics = []
     for line in lines:
+        font = symbol_font if any(ch in line for ch in symbol_chars) else text_font
         if hasattr(draw, "textbbox"):
             bbox = draw.textbbox((0, 0), line, font=font)
             w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
         else:
             w, h = draw.textsize(line, font=font)
-        metrics.append((line, w, h))
+        metrics.append((line, w, h, font))
     spacing = 10
     total_height = sum(h for _, _, h in metrics) + spacing * (len(metrics) - 1)
     y = max(0, (preview_size[1] - total_height) // 2)
-    for line, w, h in metrics:
+    for line, w, h, font in metrics:
         x = max(0, (preview_size[0] - w) // 2)
         draw.text((x, y), line, font=font, fill=(255, 255, 255, 255))
         y += h + spacing
@@ -332,6 +340,14 @@ def show_update_screen(lines):
     _apply_overlay_if_ready()
     if pending_overlay is not None:
         threading.Timer(0.2, _apply_overlay_if_ready).start()
+
+def _load_font(paths, size):
+    for path in paths:
+        try:
+            return ImageFont.truetype(path, size)
+        except OSError:
+            continue
+    return ImageFont.load_default()
 
 def _git(*args):
     return subprocess.run(
