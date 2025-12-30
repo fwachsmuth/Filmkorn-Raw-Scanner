@@ -281,7 +281,7 @@ def show_screen(message):
     if message == "no-drive-connected" and not ready_screen_polling:
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
-def _build_update_overlay(lines):
+def _build_update_overlay(lines, footer_left=None, footer_right=None):
     if preview_size is None:
         return None
     base = Image.new("RGBA", preview_size, (0, 0, 0, 255))
@@ -295,26 +295,23 @@ def _build_update_overlay(lines):
     except OSError:
         text_font = ImageFont.load_default()
     symbol_chars = {"\u23ea", "\u23e9", "\u23fa", "\u23f9"}
-    metrics = []
-    for line in lines:
-        line_w = 0
-        line_h = 0
-        for ch in line:
+
+    def _measure_mixed(text: str):
+        width = 0
+        height = 0
+        for ch in text:
             font = symbol_font if ch in symbol_chars else text_font
             if hasattr(draw, "textbbox"):
                 bbox = draw.textbbox((0, 0), ch, font=font)
                 w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
             else:
                 w, h = draw.textsize(ch, font=font)
-            line_w += w
-            line_h = max(line_h, h)
-        metrics.append((line, line_w, line_h))
-    spacing = 10
-    total_height = sum(h for _, _, h in metrics) + spacing * (len(metrics) - 1)
-    y = max(0, (preview_size[1] - total_height) // 2)
-    for line, w, h in metrics:
-        x = max(0, (preview_size[0] - w) // 2)
-        for ch in line:
+            width += w
+            height = max(height, h)
+        return width, height
+
+    def _draw_mixed(text: str, x: int, y: int):
+        for ch in text:
             font = symbol_font if ch in symbol_chars else text_font
             draw.text((x, y), ch, font=font, fill=(255, 255, 255, 255))
             if hasattr(draw, "textbbox"):
@@ -322,17 +319,45 @@ def _build_update_overlay(lines):
                 x += bbox[2] - bbox[0]
             else:
                 x += draw.textsize(ch, font=font)[0]
+
+    metrics = []
+    for line in lines:
+        line_w, line_h = _measure_mixed(line)
+        metrics.append((line, line_w, line_h))
+    spacing = 10
+    total_height = sum(h for _, _, h in metrics) + spacing * (len(metrics) - 1)
+    y = max(0, (preview_size[1] - total_height) // 2)
+    for line, w, h in metrics:
+        x = max(0, (preview_size[0] - w) // 2)
+        _draw_mixed(line, x, y)
         y += h + spacing
+    if footer_left or footer_right:
+        margin = 16
+        footer_h = 0
+        if footer_left:
+            _, h = _measure_mixed(footer_left)
+            footer_h = max(footer_h, h)
+        if footer_right:
+            _, h = _measure_mixed(footer_right)
+            footer_h = max(footer_h, h)
+        footer_y = max(0, preview_size[1] - footer_h - margin)
+        if footer_left:
+            footer_left_x = int(preview_size[0] * 5 / 8)
+            _draw_mixed(footer_left, footer_left_x, footer_y)
+        if footer_right:
+            footer_right_w, _ = _measure_mixed(footer_right)
+            footer_right_x = max(0, preview_size[0] - footer_right_w - margin)
+            _draw_mixed(footer_right, footer_right_x, footer_y)
     rgba = np.array(base, dtype=np.uint8)
     rgba[..., 3] = 255
     return rgba
 
-def show_update_screen(lines):
+def show_update_screen(lines, footer_left=None, footer_right=None):
     global current_screen, pending_overlay, idle_since, overlay_ready
-    overlay_key = "update:" + "|".join(lines)
+    overlay_key = "update:" + "|".join(lines) + f"|{footer_left}|{footer_right}"
     overlay = overlay_cache.get(overlay_key)
     if overlay is None:
-        overlay = _build_update_overlay(lines)
+        overlay = _build_update_overlay(lines, footer_left=footer_left, footer_right=footer_right)
         overlay_cache[overlay_key] = overlay
     current_screen = "update"
     idle_since = None
@@ -386,14 +411,14 @@ def _show_update_selection():
         show_update_screen(["No update available", "No tags found"])
         return
     selected = update_tags[update_selected]
-    lines = ["Update available", f"Selected: {selected}"]
+    lines = ["Update available", "", f"Select: << {selected} >>", ""]
     if update_current_tag:
         lines.append(f"Current: {update_current_tag}")
-    lines.append("\u23ea / \u23e9")
-    lines.append("choose")
-    lines.append("\u23fa / \u23f9")
-    lines.append("install / cancel")
-    show_update_screen(lines)
+    show_update_screen(
+        lines,
+        footer_left="\u23f9: Cancel",
+        footer_right="\u23fa: Install",
+    )
 
 def _enter_update_mode():
     global update_mode, update_tags, update_selected, update_current_tag, update_error
@@ -409,9 +434,7 @@ def _enter_update_mode():
         return
     update_tags = _list_tags()
     update_current_tag = _get_current_tag()
-    if update_current_tag in update_tags:
-        update_selected = update_tags.index(update_current_tag)
-    elif update_tags:
+    if update_tags:
         update_selected = len(update_tags) - 1
     else:
         update_selected = 0
