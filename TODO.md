@@ -5,10 +5,6 @@
 - log insight (from host)
 
 ## Next
-- [ ] Gauge writing to /mn/usb directly instead of ramdisk
-
-- [ ] Let the Arduino respond with a version number via i2c
-
 - [ ] is opme.sh working and ever called?
 - [ ] consider enabling wifi for time and updates
 - [ ] "Allow full disk access for remote users" in installer script
@@ -33,15 +29,14 @@
         - might contain a commit id, or checkout via tag?
 
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
+- [ ] Test with a Raspi 5
 - [ ] Write Build-your-own howtos
-- [ ] list python requirements (on host computer) per https://stackoverflow.com/a/68006970, https://stackoverflow.com/questions/51308683/how-to-move-all-modules-to-new-version-of-python-from-3-6-to-3-7/59608886#59608886
 - [ ] fix pair.sh: Can't git:
             Host key verification failed.
             fatal: Could not read from remote repository.
 
             Please make sure you have the correct access rights
             and the repository exists.
-- [ ] Update .hex in repo
 - [ ] Try out platformio and see if it fixes the crashy USB/UART oddity
 
 
@@ -49,7 +44,6 @@
     Useful Links:
     https://pcbchecklist.com/
     https://arduino.stackexchange.com/a/9858
-    https://forums.raspberrypi.com//viewtopic.php?f=91&t=217442 // Shutodwn pin: dtoverlay=gpio-shutdown,gpio_pin=26,active_low=1,gpio_pull=up
 
 ## Pairing/Unpairing
 - [ ] Determine if pair/unpair scripts are running on Mac or Raspi
@@ -72,7 +66,6 @@
 - [ ] Update ReadMes
 
 ## Raspi Todos:
-### scanner.py
 
 ### System Config
 - [ ] Inflate /root on first run
@@ -87,6 +80,8 @@
 - For avrdude, use linuxspi instead of linuxgpio. linuxgpio bit-bangt über sysfs; das ist auf neuen Kernels zunehmend hakelig. GPIO12 ist von PM/audio belegt...
 	•	SPI über /dev/spidev* (Programmer linuxspi) 19-21-23
 	•	plus ein frei gewählter Reset-GPIO
+- [ ] Change Exposure Pot to a knobbed Alps type
+- [ ] Use a longer power switch
 
 
 ## Snippets
