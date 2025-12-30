@@ -15,9 +15,11 @@ log() {
   logger -t "$LOG_TAG" "$*"
 }
 
+export HOME="${HOME:-/root}"
+
 cd "$REPO_DIR"
 log "update: marking repo safe for git"
-git config --global --add safe.directory "$REPO_DIR" || true
+git config --system --add safe.directory "$REPO_DIR" || true
 log "update: stopping $SERVICE_NAME"
 sudo systemctl stop "$SERVICE_NAME" || true
 cleanup() {
