@@ -418,7 +418,7 @@ def _show_update_selection():
         f"{version_label}: {selected}",
         "",
         "",
-        "Use \u23ea/\u23e9 to select older versions.",
+        "Use \u23ea/\u23e9 to select other versions.",
     ]
     if update_current_tag:
         lines.append(f"Current: {update_current_tag}")
