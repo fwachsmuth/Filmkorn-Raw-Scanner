@@ -342,7 +342,7 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None):
             footer_h = max(footer_h, h)
         footer_y = max(0, preview_size[1] - footer_h - margin)
         if footer_left:
-            footer_left_x = int(preview_size[0] * 5 / 8)
+            footer_left_x = int(preview_size[0] * 9 / 16)
             _draw_mixed(footer_left, footer_left_x, footer_y)
         if footer_right:
             footer_right_w, _ = _measure_mixed(footer_right)
@@ -423,8 +423,8 @@ def _show_update_selection():
         lines.append(f"Current: {update_current_tag}")
     show_update_screen(
         lines,
-        footer_left="\u23f9: Cancel",
-        footer_right="\u23fa: Install",
+        footer_left="\u23f9 Cancel",
+        footer_right="\u23fa Install",
     )
 
 def _enter_update_mode():
