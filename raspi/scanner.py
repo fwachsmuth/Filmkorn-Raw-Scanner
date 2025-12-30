@@ -269,7 +269,7 @@ def show_screen(message):
         overlay_cache[message_path] = overlay
 
     current_screen = message
-    if message in {"insert-film", "ready-to-scan", "ready-to-scan-local", "ready-to-scan-net", "no-usb3-drive"}:
+    if message in {"insert-film", "ready-to-scan", "ready-to-scan-local", "ready-to-scan-net", "no-usb3-drive", "no-drive-connected"}:
         idle_since = time.monotonic()
     else:
         idle_since = None
@@ -772,6 +772,8 @@ def _ready_screen_poll_loop():
     ready_screen_polling = True
     try:
         while (ready_to_scan or current_screen == "no-drive-connected") and not shutting_down:
+            if storage_location == 1 and not os.path.ismount("/mnt/usb"):
+                _ensure_usb_mount()
             new_storage_location = GPIO.input(5)
             if new_storage_location != storage_location:
                 storage_location = new_storage_location
@@ -850,6 +852,7 @@ def show_ready_to_scan():
         return
     ready_to_scan = True
     if storage_location == 1:
+        _ensure_usb_mount()
         screen = "ready-to-scan-local"
     elif storage_location == 0:
         screen = "ready-to-scan-net"
@@ -1146,6 +1149,19 @@ def _read_scan_destination() -> Optional[str]:
             return file.read().strip()
     except Exception:
         return None
+
+def _ensure_usb_mount() -> bool:
+    if os.path.ismount("/mnt/usb"):
+        return True
+    result = subprocess.run(
+        ["sudo", "/usr/local/sbin/mount-largest-usb.sh"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    if result.returncode != 0:
+        logging.info("USB mount script returned %s", result.returncode)
+    return os.path.ismount("/mnt/usb")
 
 def _can_write_remote_path(user_and_host: str, scan_destination: str) -> bool:
     probe_path = os.path.join(scan_destination, ".filmkorn_write_test")
@@ -1456,6 +1472,8 @@ def setup():
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     storage_location = GPIO.input(5)
     logging.info(f"GPIO 5 state (1=HDD/local, 0=Net/remote): {storage_location}")
+    if storage_location == 1:
+        _ensure_usb_mount()
 
     # GPIO 26 (BCM) input. Sleep/wake button (momentary, active low).
     GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_OFF)
