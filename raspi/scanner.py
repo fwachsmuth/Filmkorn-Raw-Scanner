@@ -243,6 +243,8 @@ class State:
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
     global current_screen, pending_overlay, last_status_screen, idle_since
+    if update_mode:
+        return
     if power_warning_active and not sleep_mode and message != "too-much-power":
         return
     if usb3_warning_active and not sleep_mode and message not in {"no-usb3-drive", "too-much-power"}:
