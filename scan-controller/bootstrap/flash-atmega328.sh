@@ -4,8 +4,16 @@
 # Make sure to run this on the Raspi, which will directly flash the AtMega328 on the connected controller board.
 # !!!!!!!
 
-# writing Fuses
+# Let's stop the scanner service while we flash the microcontroller to free up the GPIOs and avoid interference
+SERVICE_NAME="filmkorn-scanner.service"
+sudo systemctl stop "$SERVICE_NAME"
+cleanup() {
+  sudo systemctl start "$SERVICE_NAME"
+}
+trap cleanup EXIT
 
+
+# writing Fuses
 # The below doesn't seem to work when run from a raspi, probably due to programming voltage being too low (~3.2V)
 # It might also be a problem with the older Version 6.3-20171130 running on the raspi. IDE uses 6.3-20190619!
 # Meanwhile, we need to burn the fuses using an external programmer.
