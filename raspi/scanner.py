@@ -395,7 +395,8 @@ def _list_tags() -> list:
         logging.error("git tag failed: %s", result.stderr.strip())
         return []
     tags = [line.strip() for line in result.stdout.splitlines() if line.strip()]
-    return tags
+    tag_pattern = re.compile(r"^v?\d+\.\d+\.\d+(?:-[A-Za-z0-9._-]+)?$")
+    return [tag for tag in tags if tag_pattern.match(tag)]
 
 def _get_current_tag() -> Optional[str]:
     result = _git("describe", "--tags", "--exact-match")
