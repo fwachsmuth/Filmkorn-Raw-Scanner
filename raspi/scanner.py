@@ -293,7 +293,7 @@ def _build_update_overlay(lines):
             "/usr/share/fonts/opentype/noto/NotoSansSymbols2-Regular.otf",
             "/usr/share/fonts/opentype/noto/NotoSansSymbols2.otf",
         ],
-        28,
+        34,
     )
     text_font = _load_font(
         ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"],
@@ -302,7 +302,16 @@ def _build_update_overlay(lines):
     symbol_chars = {"\u23f4", "\u23f5", "\u23f9", "\u23fa"}
     metrics = []
     for line in lines:
-        font = symbol_font if any(ch in line for ch in symbol_chars) else text_font
+        if any(ch in line for ch in symbol_chars) and all(_glyph_supported(symbol_font, ch) for ch in symbol_chars):
+            font = symbol_font
+        else:
+            font = text_font
+            line = (
+                line.replace("\u23f4", "<")
+                .replace("\u23f5", ">")
+                .replace("\u23fa", "SCAN")
+                .replace("\u23f9", "STOP")
+            )
         if hasattr(draw, "textbbox"):
             bbox = draw.textbbox((0, 0), line, font=font)
             w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
@@ -348,6 +357,14 @@ def _load_font(paths, size):
         except OSError:
             continue
     return ImageFont.load_default()
+
+def _glyph_supported(font, glyph: str) -> bool:
+    try:
+        if hasattr(font, "getbbox"):
+            return font.getbbox(glyph) is not None
+        return font.getmask(glyph).getbbox() is not None
+    except Exception:
+        return False
 
 def _git(*args):
     return subprocess.run(
