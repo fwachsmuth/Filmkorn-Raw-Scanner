@@ -168,10 +168,10 @@ void loop() {
     if (currentButton != prevButton) {
       prevButton = currentButton;
       switch (currentButton) {
-        case REV1:
+        case RUNREV:
           nextPiCmd = CMD_UPDATE_PREV;
           break;
-        case FWD1:
+        case RUNFWD:
           nextPiCmd = CMD_UPDATE_NEXT;
           break;
         case SCAN:
