@@ -385,11 +385,14 @@ def _git(*args):
     )
 
 def _get_version_label() -> Optional[str]:
-    result = _git("describe", "--tags", "--always")
-    if result.returncode != 0:
-        logging.info("version: git describe failed: %s", result.stderr.strip())
+    result = _git("describe", "--tags", "--exact-match")
+    if result.returncode == 0:
+        return result.stdout.strip() or None
+    sha_result = _git("rev-parse", "--short", "HEAD")
+    if sha_result.returncode != 0:
+        logging.info("version: git rev-parse failed: %s", sha_result.stderr.strip())
         return None
-    return result.stdout.strip() or None
+    return sha_result.stdout.strip() or None
 
 def _fetch_tags() -> bool:
     result = _git("fetch", "--tags", "--prune", "--force")
