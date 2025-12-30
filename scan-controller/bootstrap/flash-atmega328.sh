@@ -43,7 +43,7 @@ PY
 # This is for the new, self-built avrdude 8.1 with libgpiod support.
 # Fuse setting still needs to be tested!!!! 
 sudo avrdude \
-  -C ~/avrdude_gpio.conf \
+  -C /home/pi/avrdude_gpio.conf \
   -p atmega328p \
   -c raspberry_pi_gpio \
   -P gpiochip0 \
