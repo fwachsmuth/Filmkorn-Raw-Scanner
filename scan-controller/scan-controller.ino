@@ -137,13 +137,9 @@ void setup() {
   int bootButtonsA = analogRead(BUTTONS_A_PIN);
   dummyread = analogRead(BUTTONS_B_PIN);
   int bootButtonsB = analogRead(BUTTONS_B_PIN);
-  Serial.print("Boot A0 ADC: ");
-  Serial.println(bootButtonsA);
-  Serial.print("Boot A1 ADC: ");
-  Serial.println(bootButtonsB);
   bool bootStop = bootButtonsB > 900;
-  bool bootRev1Fwd1 = (bootButtonsA > 30 && bootButtonsA < 70) && (bootButtonsB > 290 && bootButtonsB < 330);
-  if (bootStop || bootRev1Fwd1) {
+  bool bootRunRevRunFwd = (bootButtonsA > 120 && bootButtonsA < 160) && (bootButtonsB > 120 && bootButtonsB < 160);
+  if (bootStop || bootRunRevRunFwd) {
     updateMode = true;
     nextPiCmd = CMD_UPDATE_ENTER;
     Serial.println("Update mode: enter");
