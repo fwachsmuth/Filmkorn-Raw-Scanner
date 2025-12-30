@@ -157,11 +157,10 @@ programmer # raspberry_pi_gpio
 ````
 - sudo avrdude -C ~/avrdude_gpio.conf -p atmega328p  -c raspberry_pi_gpio -P gpiochip0  -vvvv
 
-Build locally:
-arduino-cli compile \
-  --fqbn arduino:avr:pro:cpu=8MHzatmega328 \
-  --output-dir build \
-  path/zum/sketch
+
+Build:
+cd ~/Filmkorn-Raw-Scanner
+arduino-cli compile --fqbn arduino:avr:pro:cpu=8MHzatmega328 --export-binaries scan-controller
 
 Flash:
 sudo avrdude \
@@ -171,10 +170,8 @@ sudo avrdude \
   -P gpiochip0 \
   -U flash:w:scan-controller/scan-controller.ino.with_bootloader.hex:i
 
-Build:
-arduino-cli compile --fqbn arduino:avr:pro:cpu=8MHzatmega328 --export-binaries scan-controller
-
-add --build-path /path as needed.
+Or, what we just built:
+-U flash:w:scan-controller/build/arduino.avr.pro/scan-controller.ino.with_bootloader.hex:i
 
 
 ## Raspi Architecture

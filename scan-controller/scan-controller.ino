@@ -24,7 +24,8 @@ enum ControlButton {
   STOP,   // Radio
   FWD1,   // Push
   RUNFWD, // Radio
-  SCAN    // Radio
+  SCAN,   // Radio
+  UPDATE  // Both A0/A1 high
 };
 
 // Define the motor states
@@ -131,10 +132,21 @@ void setup() {
   pinMode(EYE_PIN, INPUT);
   pinMode(FILM_END_PIN, INPUT);
 
-  dummyread = analogRead(BUTTONS_A_PIN);
-  int bootButtonsA = analogRead(BUTTONS_A_PIN);
-  dummyread = analogRead(BUTTONS_B_PIN);
-  int bootButtonsB = analogRead(BUTTONS_B_PIN);
+  delay(80);
+  int bootButtonsA = 0;
+  int bootButtonsB = 0;
+  for (uint8_t i = 0; i < 3; i++) {
+    dummyread = analogRead(BUTTONS_A_PIN);
+    bootButtonsA = analogRead(BUTTONS_A_PIN);
+    dummyread = analogRead(BUTTONS_B_PIN);
+    bootButtonsB = analogRead(BUTTONS_B_PIN);
+    if (bootButtonsA <= 900 || bootButtonsB <= 900) {
+      bootButtonsA = 0;
+      bootButtonsB = 0;
+      break;
+    }
+    delay(10);
+  }
   if (bootButtonsA > 900 && bootButtonsB > 900) {
     updateMode = true;
     nextPiCmd = CMD_UPDATE_ENTER;
@@ -206,6 +218,10 @@ void loop() {
       switch (currentButton) {
         case NONE:
         default:
+          break;
+        case UPDATE:
+          updateMode = true;
+          nextPiCmd = CMD_UPDATE_ENTER;
           break;
         case ZOOM:
           setZoomMode((zoomMode == Z10_1) ? Z1_1 : (ZoomMode)((uint8_t)zoomMode + 1));
@@ -418,6 +434,8 @@ ControlButton pollButtons() {
       buttonChoice = NONE;
 
     // Button bank A
+    } else if (buttonBankA > 900 && buttonBankB > 900) {
+      buttonChoice = UPDATE;
     } else if (buttonBankA > 30 && buttonBankA < 70) {
       buttonChoice = REV1;    // on Vero Board: ZOOM
     } else if (buttonBankA > 120 && buttonBankA < 160) {
