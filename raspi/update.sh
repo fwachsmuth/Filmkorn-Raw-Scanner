@@ -83,7 +83,7 @@ PY
     -p atmega328p \
     -c raspberry_pi_gpio \
     -P gpiochip0 \
-    -U flash:w:scan-controller/scan-controller.ino.with_bootloader.hex:i
+    -U flash:w:scan-controller/scan-controller/build/arduino.avr.pro/scan-controller.ino.hex:i
 fi
 
 log "update: reloading systemd"
