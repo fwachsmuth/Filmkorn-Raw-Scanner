@@ -17,6 +17,24 @@ log() {
 
 export HOME="${HOME:-/root}"
 
+run_and_log() {
+  local label="$1"
+  shift
+  log "update: ${label} start"
+  set +e
+  "$@" 2>&1 | while IFS= read -r line; do
+    log "${label}: ${line}"
+  done
+  local status=${PIPESTATUS[0]}
+  set -e
+  if [ "$status" -ne 0 ]; then
+    log "update: ${label} failed code=${status}"
+  else
+    log "update: ${label} ok"
+  fi
+  return "$status"
+}
+
 cd "$REPO_DIR"
 log "update: marking repo safe for git"
 git config --system --add safe.directory "$REPO_DIR" || true
@@ -34,19 +52,17 @@ if [[ "$REMOTE_URL" == git@github.com:* ]]; then
   log "update: switching origin to HTTPS ($HTTPS_URL)"
   git remote set-url origin "$HTTPS_URL"
 fi
-git fetch --tags --prune
+run_and_log "git-fetch" git fetch --tags --prune
 log "update: checking out $TAG"
-git checkout "$TAG"
+run_and_log "git-checkout" git checkout "$TAG"
 
 if [ -f scan-controller/scan-controller.ino.with_bootloader.hex ]; then
   log "update: flashing controller (avrdude)"
-  SKIP_SERVICE_RESTART=1 bash scan-controller/bootstrap/flash-atmega328.sh 2>&1 \
-    | while IFS= read -r line; do log "avrdude: $line"; done
-  log "update: flashing complete"
+  run_and_log "flash" SKIP_SERVICE_RESTART=1 bash scan-controller/bootstrap/flash-atmega328.sh
 fi
 
 log "update: reloading systemd"
-sudo systemctl daemon-reload || true
+run_and_log "systemd-reload" sudo systemctl daemon-reload
 trap - EXIT
 log "update: rebooting"
 sudo reboot
