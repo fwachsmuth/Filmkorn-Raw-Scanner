@@ -374,6 +374,7 @@ def show_update_screen(lines, footer_left=None, footer_right=None):
         threading.Timer(0.2, _apply_overlay_if_ready).start()
 
 def _git(*args):
+    logging.info("update: git %s", " ".join(args))
     return subprocess.run(
         ["git", *args],
         cwd=repo_root,
@@ -385,30 +386,48 @@ def _git(*args):
 def _fetch_tags() -> bool:
     result = _git("fetch", "--tags", "--prune")
     if result.returncode != 0:
-        logging.error("git fetch failed: %s", result.stderr.strip())
+        logging.error(
+            "update: git fetch failed (code=%s) stderr=%s",
+            result.returncode,
+            result.stderr.strip(),
+        )
         return False
+    if result.stdout.strip():
+        logging.info("update: git fetch stdout=%s", result.stdout.strip())
     return True
 
 def _list_tags() -> list:
     result = _git("tag", "--list", "--sort=v:refname")
     if result.returncode != 0:
-        logging.error("git tag failed: %s", result.stderr.strip())
+        logging.error(
+            "update: git tag failed (code=%s) stderr=%s",
+            result.returncode,
+            result.stderr.strip(),
+        )
         return []
     tags = [line.strip() for line in result.stdout.splitlines() if line.strip()]
     tag_pattern = re.compile(r"^v?\d+\.\d+\.\d+(?:-[A-Za-z0-9._-]+)?$")
-    return [tag for tag in tags if tag_pattern.match(tag)]
+    filtered = [tag for tag in tags if tag_pattern.match(tag)]
+    logging.info("update: found %d tags, %d installable", len(tags), len(filtered))
+    if filtered:
+        logging.info("update: installable tags: %s", ", ".join(filtered))
+    return filtered
 
 def _get_current_tag() -> Optional[str]:
     result = _git("describe", "--tags", "--exact-match")
     if result.returncode != 0:
+        logging.info("update: no exact tag for current commit")
         return None
+    logging.info("update: current tag is %s", result.stdout.strip())
     return result.stdout.strip() or None
 
 def _show_update_selection():
     if update_error:
+        logging.error("update: error=%s", update_error)
         show_update_screen(["Update error", update_error, "Check connection"])
         return
     if not update_tags:
+        logging.info("update: no installable tags")
         show_update_screen(["No update available", "No tags found"])
         return
     selected = update_tags[update_selected]
@@ -431,23 +450,31 @@ def _show_update_selection():
 
 def _enter_update_mode():
     global update_mode, update_tags, update_selected, update_current_tag, update_error
-    logging.info("Entering update mode")
+    logging.info("update: entering update mode")
     update_mode = True
     update_error = None
-    if not _fetch_tags():
-        update_error = "Fetch failed"
+    try:
+        if not _fetch_tags():
+            update_error = "Fetch failed"
+            update_tags = []
+            update_selected = 0
+            update_current_tag = None
+            _show_update_selection()
+            return
+        update_tags = _list_tags()
+        update_current_tag = _get_current_tag()
+        if update_tags:
+            update_selected = len(update_tags) - 1
+        else:
+            update_selected = 0
+        _show_update_selection()
+    except Exception as exc:
+        logging.exception("update: enter failed: %s", exc)
+        update_error = "Unexpected error"
         update_tags = []
         update_selected = 0
         update_current_tag = None
         _show_update_selection()
-        return
-    update_tags = _list_tags()
-    update_current_tag = _get_current_tag()
-    if update_tags:
-        update_selected = len(update_tags) - 1
-    else:
-        update_selected = 0
-    _show_update_selection()
 
 def _update_prev(_args=None):
     global update_selected
@@ -455,6 +482,7 @@ def _update_prev(_args=None):
         _show_update_selection()
         return
     update_selected = (update_selected - 1) % len(update_tags)
+    logging.info("update: selected tag %s", update_tags[update_selected])
     _show_update_selection()
 
 def _update_next(_args=None):
@@ -463,17 +491,19 @@ def _update_next(_args=None):
         _show_update_selection()
         return
     update_selected = (update_selected + 1) % len(update_tags)
+    logging.info("update: selected tag %s", update_tags[update_selected])
     _show_update_selection()
 
 def _start_update(tag: str):
     global update_in_progress
     update_in_progress = True
+    logging.info("update: starting update to %s", tag)
     show_update_screen([f"Updating {tag}", "Please wait"])
     update_script = os.path.join(os.path.dirname(__file__), "update.sh")
     try:
         subprocess.Popen(["sudo", "bash", update_script, tag], cwd=repo_root)
     except Exception as exc:
-        logging.error("Failed to launch update script: %s", exc)
+        logging.exception("update: failed to launch update script: %s", exc)
         show_update_screen(["Update failed", "Could not start updater"])
 
 def _update_confirm(_args=None):
@@ -483,12 +513,14 @@ def _update_confirm(_args=None):
         _show_update_selection()
         return
     selected = update_tags[update_selected]
+    logging.info("update: confirm selected tag %s", selected)
     _start_update(selected)
 
 def _update_cancel(_args=None):
     global update_mode
     if not update_mode:
         return
+    logging.info("update: canceled by user")
     update_mode = False
     show_ready_to_scan()
 
