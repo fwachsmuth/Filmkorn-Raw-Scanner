@@ -366,6 +366,7 @@ def _show_update_selection():
 
 def _enter_update_mode():
     global update_mode, update_tags, update_selected, update_current_tag, update_error
+    logging.info("Entering update mode")
     update_mode = True
     update_error = None
     if not _fetch_tags():
