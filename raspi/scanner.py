@@ -501,7 +501,23 @@ def _start_update(tag: str):
     show_update_screen([f"Updating {tag}", "Please wait"])
     update_script = os.path.join(os.path.dirname(__file__), "update.sh")
     try:
-        subprocess.Popen(["sudo", "bash", update_script, tag], cwd=repo_root)
+        subprocess.run(
+            ["sudo", "systemctl", "reset-failed", "filmkorn-update.service"],
+            check=False,
+        )
+        subprocess.Popen(
+            [
+                "sudo",
+                "systemd-run",
+                "--unit=filmkorn-update",
+                "--collect",
+                "--no-ask-password",
+                "/bin/bash",
+                update_script,
+                tag,
+            ],
+            cwd=repo_root,
+        )
     except Exception as exc:
         logging.exception("update: failed to launch update script: %s", exc)
         show_update_screen(["Update failed", "Could not start updater"])
