@@ -294,25 +294,34 @@ def _build_update_overlay(lines):
         text_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28)
     except OSError:
         text_font = ImageFont.load_default()
-    symbol_only_chars = {"\u23ea", "\u23e9", "\u23fa", "\u23f9", "/", " "}
+    symbol_chars = {"\u23ea", "\u23e9", "\u23fa", "\u23f9"}
     metrics = []
     for line in lines:
-        if line and all(ch in symbol_only_chars for ch in line):
-            font = symbol_font
-        else:
-            font = text_font
-        if hasattr(draw, "textbbox"):
-            bbox = draw.textbbox((0, 0), line, font=font)
-            w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
-        else:
-            w, h = draw.textsize(line, font=font)
-        metrics.append((line, w, h, font))
+        line_w = 0
+        line_h = 0
+        for ch in line:
+            font = symbol_font if ch in symbol_chars else text_font
+            if hasattr(draw, "textbbox"):
+                bbox = draw.textbbox((0, 0), ch, font=font)
+                w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+            else:
+                w, h = draw.textsize(ch, font=font)
+            line_w += w
+            line_h = max(line_h, h)
+        metrics.append((line, line_w, line_h))
     spacing = 10
-    total_height = sum(h for _, _, h, _ in metrics) + spacing * (len(metrics) - 1)
+    total_height = sum(h for _, _, h in metrics) + spacing * (len(metrics) - 1)
     y = max(0, (preview_size[1] - total_height) // 2)
-    for line, w, h, font in metrics:
+    for line, w, h in metrics:
         x = max(0, (preview_size[0] - w) // 2)
-        draw.text((x, y), line, font=font, fill=(255, 255, 255, 255))
+        for ch in line:
+            font = symbol_font if ch in symbol_chars else text_font
+            draw.text((x, y), ch, font=font, fill=(255, 255, 255, 255))
+            if hasattr(draw, "textbbox"):
+                bbox = draw.textbbox((0, 0), ch, font=font)
+                x += bbox[2] - bbox[0]
+            else:
+                x += draw.textsize(ch, font=font)[0]
         y += h + spacing
     rgba = np.array(base, dtype=np.uint8)
     rgba[..., 3] = 255
@@ -782,7 +791,8 @@ def _ready_screen_poll_loop():
                 )
                 if storage_location == 1 and not os.path.ismount("/mnt/usb"):
                     if not shutting_down:
-                        show_screen("no-drive-connected")
+                        if current_screen != "no-drive-connected":
+                            show_screen("no-drive-connected")
                 else:
                     switch_lsyncd_config(storage_location)
                     if not shutting_down:
@@ -1155,12 +1165,18 @@ def _ensure_usb_mount() -> bool:
         return True
     result = subprocess.run(
         ["sudo", "/usr/local/sbin/mount-largest-usb.sh"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
         check=False,
     )
     if result.returncode != 0:
-        logging.info("USB mount script returned %s", result.returncode)
+        logging.info(
+            "USB mount script returned %s stdout=%s stderr=%s",
+            result.returncode,
+            result.stdout.strip(),
+            result.stderr.strip(),
+        )
     return os.path.ismount("/mnt/usb")
 
 def _can_write_remote_path(user_and_host: str, scan_destination: str) -> bool:
@@ -1199,7 +1215,8 @@ def switch_lsyncd_config(storage_location: int) -> None:
     target_conf = LSYNCD_CONF_LOCAL if storage_location == 1 else LSYNCD_CONF_NET
     try:
         if target_conf == LSYNCD_CONF_LOCAL and not os.path.ismount("/mnt/usb"):
-            show_screen("no-drive-connected")
+            if current_screen != "no-drive-connected":
+                show_screen("no-drive-connected")
             while not os.path.ismount("/mnt/usb"):
                 sleep(1)
         if target_conf == LSYNCD_CONF_NET:
