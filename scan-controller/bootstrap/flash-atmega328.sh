@@ -47,6 +47,6 @@ sudo /usr/local/bin/avrdude \
   -p atmega328p \
   -c raspberry_pi_gpio \
   -P gpiochip0 \
-  -U flash:w:scan-controller/scan-controller/build/arduino.avr.pro/scan-controller.ino.hex:i
+  -U flash:w:scan-controller/build/arduino.avr.pro/scan-controller.ino.hex:i
 
 # use scan-controller.ino.hex for a faster start without bootloader, but no serial programming possible.
