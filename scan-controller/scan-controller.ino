@@ -68,6 +68,11 @@ enum Command
   CMD_SHOW_INSERT_FILM,
   CMD_SHOW_READY_TO_SCAN,
   CMD_SET_INITVALUES, // get load state and exposure pot value (both only get send when they change)
+  CMD_UPDATE_ENTER,
+  CMD_UPDATE_PREV,
+  CMD_UPDATE_NEXT,
+  CMD_UPDATE_CONFIRM,
+  CMD_UPDATE_CANCEL,
 
   // Raspi to Arduino
   CMD_READY = 128,
@@ -98,6 +103,7 @@ int dummyread; // for throw-away ADC reads (avoids multiplex-carryover of S&H ca
 
 bool lampMode = false;
 bool isScanning = false;
+bool updateMode = false;
 
 volatile bool piIsReady = false;
 
@@ -125,6 +131,15 @@ void setup() {
   pinMode(EYE_PIN, INPUT);
   pinMode(FILM_END_PIN, INPUT);
 
+  dummyread = analogRead(BUTTONS_A_PIN);
+  int bootButtonsA = analogRead(BUTTONS_A_PIN);
+  dummyread = analogRead(BUTTONS_B_PIN);
+  int bootButtonsB = analogRead(BUTTONS_B_PIN);
+  if (bootButtonsA > 900 && bootButtonsB > 900) {
+    updateMode = true;
+    nextPiCmd = CMD_UPDATE_ENTER;
+  }
+
   // Stop the engines
   analogWrite(MOTOR_A_PIN, 0);
   analogWrite(MOTOR_B_PIN, 0);
@@ -137,6 +152,30 @@ void setup() {
 }
 
 void loop() {
+  if (updateMode) {
+    currentButton = pollButtons();
+    if (currentButton != prevButton) {
+      prevButton = currentButton;
+      switch (currentButton) {
+        case REV1:
+          nextPiCmd = CMD_UPDATE_PREV;
+          break;
+        case FWD1:
+          nextPiCmd = CMD_UPDATE_NEXT;
+          break;
+        case SCAN:
+          nextPiCmd = CMD_UPDATE_CONFIRM;
+          break;
+        case STOP:
+          nextPiCmd = CMD_UPDATE_CANCEL;
+          break;
+        default:
+          break;
+      }
+    }
+    return;
+  }
+
   if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
   {
     piIsReady = false;
