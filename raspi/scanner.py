@@ -346,7 +346,7 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None):
             _draw_mixed(footer_left, footer_left_x, footer_y)
         if footer_right:
             footer_right_w, _ = _measure_mixed(footer_right)
-            footer_right_x = max(0, preview_size[0] - footer_right_w - margin)
+            footer_right_x = max(0, preview_size[0] - footer_right_w)
             _draw_mixed(footer_right, footer_right_x, footer_y)
     rgba = np.array(base, dtype=np.uint8)
     rgba[..., 3] = 255
@@ -411,15 +411,13 @@ def _show_update_selection():
         show_update_screen(["No update available", "No tags found"])
         return
     selected = update_tags[update_selected]
-    left_arrow = "\u23ea" if update_selected > 0 else ""
-    right_arrow = "\u23e9" if update_selected < len(update_tags) - 1 else ""
-    arrow_pad = " " if left_arrow else ""
-    trailing_pad = " " if right_arrow else ""
     lines = [
         "Update available",
         "",
-        f"Select: {left_arrow}{arrow_pad}{selected}{trailing_pad}{right_arrow}",
+        f"New Version: {selected}",
         "",
+        "",
+        "Use \u23ea/\u23e9 to select older versions.",
     ]
     if update_current_tag:
         lines.append(f"Current: {update_current_tag}")
@@ -454,8 +452,7 @@ def _update_prev(_args=None):
     if not update_mode or not update_tags:
         _show_update_selection()
         return
-    if update_selected > 0:
-        update_selected -= 1
+    update_selected = (update_selected - 1) % len(update_tags)
     _show_update_selection()
 
 def _update_next(_args=None):
@@ -463,8 +460,7 @@ def _update_next(_args=None):
     if not update_mode or not update_tags:
         _show_update_selection()
         return
-    if update_selected < len(update_tags) - 1:
-        update_selected += 1
+    update_selected = (update_selected + 1) % len(update_tags)
     _show_update_selection()
 
 def _start_update(tag: str):
