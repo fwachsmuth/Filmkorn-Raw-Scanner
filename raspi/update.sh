@@ -80,26 +80,28 @@ fi
 run_and_log "git-fetch" git fetch --tags --prune
 log "update: checking out $TAG"
 run_and_log "git-checkout" git checkout "$TAG"
-run_hook "postflight" "$POSTFLIGHT_SCRIPT"
+HEX_PATH="scan-controller/build/arduino.avr.pro/scan-controller.ino.with_bootloader.hex"
+if [ ! -f "$HEX_PATH" ]; then
+  log "update: missing hex file $HEX_PATH; aborting update"
+  exit 1
+fi
 
-if [ -f scan-controller/scan-controller.ino.with_bootloader.hex ]; then
-  log "update: flashing controller (avrdude)"
-  run_hook "preflight" "$PREFLIGHT_SCRIPT"
-  log "update: enabling MCU power (GPIO16)"
-  run_and_log "uc-power" python3 - <<'PY'
+log "update: flashing controller (avrdude)"
+run_hook "preflight" "$PREFLIGHT_SCRIPT"
+log "update: enabling MCU power (GPIO16)"
+run_and_log "uc-power" python3 - <<'PY'
 import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(16, GPIO.OUT, initial=GPIO.HIGH)
 PY
-  sleep 0.5
-  run_and_log "flash" /usr/local/bin/avrdude \
-    -C /home/pi/avrdude_gpio.conf \
-    -p atmega328p \
-    -c raspberry_pi_gpio \
-    -P gpiochip0 \
-    -U flash:w:scan-controller/build/arduino.avr.pro/scan-controller.ino.hex:i
-  run_hook "postflight" "$POSTFLIGHT_SCRIPT"
-fi
+sleep 0.5
+run_and_log "flash" /usr/local/bin/avrdude \
+  -C /home/pi/avrdude_gpio.conf \
+  -p atmega328p \
+  -c raspberry_pi_gpio \
+  -P gpiochip0 \
+  -U flash:w:${HEX_PATH}:i
+run_hook "postflight" "$POSTFLIGHT_SCRIPT"
 
 log "update: reloading systemd"
 run_and_log "systemd-reload" sudo systemctl daemon-reload
