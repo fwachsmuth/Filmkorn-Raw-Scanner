@@ -319,9 +319,16 @@ def show_update_screen(lines):
     current_screen = "update"
     idle_since = None
     pending_overlay = overlay
+    if not preview_started:
+        logging.info("Update screen: starting preview for overlay")
+        try:
+            camera_start()
+        except Exception as exc:
+            logging.error("Update screen: failed to start preview: %s", exc)
     overlay_ready = True
     _apply_overlay_if_ready()
-    _render_scan_overlay()
+    if pending_overlay is not None:
+        threading.Timer(0.2, _apply_overlay_if_ready).start()
 
 def _git(*args):
     return subprocess.run(
@@ -513,6 +520,8 @@ def _build_fps_overlay(text: str):
 
 def _render_scan_overlay():
     global pending_overlay
+    if update_mode:
+        return
     show_shutter = state.scanning or current_screen in {
         "ready-to-scan",
         "ready-to-scan-local",
