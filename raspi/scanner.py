@@ -287,9 +287,12 @@ def _build_update_overlay(lines):
     base = Image.new("RGBA", preview_size, (0, 0, 0, 255))
     draw = ImageDraw.Draw(base)
     try:
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28)
+        font = ImageFont.truetype("/usr/share/fonts/truetype/noto/NotoSansSymbols2-Regular.ttf", 28)
     except OSError:
-        font = ImageFont.load_default()
+        try:
+            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28)
+        except OSError:
+            font = ImageFont.load_default()
     metrics = []
     for line in lines:
         if hasattr(draw, "textbbox"):
@@ -371,7 +374,7 @@ def _show_update_selection():
     lines = ["Update available", f"Selected: {selected}"]
     if update_current_tag:
         lines.append(f"Current: {update_current_tag}")
-    lines.append("REV/FWD choose, SCAN install")
+    lines.append("\u23f4/\u23f5 choose, \u23fa install, \u23f9 cancel")
     show_update_screen(lines)
 
 def _enter_update_mode():
