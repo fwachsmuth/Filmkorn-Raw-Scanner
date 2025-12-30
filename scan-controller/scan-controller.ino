@@ -24,8 +24,7 @@ enum ControlButton {
   STOP,   // Radio
   FWD1,   // Push
   RUNFWD, // Radio
-  SCAN,   // Radio
-  UPDATE  // Both A0/A1 high
+  SCAN    // Radio
 };
 
 // Define the motor states
@@ -106,8 +105,6 @@ bool lampMode = false;
 bool isScanning = false;
 bool updateMode = false;
 uint32_t bootIgnoreUntil = 0;
-uint8_t updateHoldCount = 0;
-bool updateProbePrinted = false;
 
 volatile bool piIsReady = false;
 
@@ -136,6 +133,15 @@ void setup() {
   pinMode(FILM_END_PIN, INPUT);
 
   bootIgnoreUntil = millis() + 800;
+  dummyread = analogRead(BUTTONS_B_PIN);
+  int bootButtonsB = analogRead(BUTTONS_B_PIN);
+  Serial.print("Boot A1 ADC: ");
+  Serial.println(bootButtonsB);
+  if (bootButtonsB > 900) {
+    updateMode = true;
+    nextPiCmd = CMD_UPDATE_ENTER;
+    Serial.println("Update mode: enter");
+  }
 
   // Stop the engines
   analogWrite(MOTOR_A_PIN, 0);
@@ -149,26 +155,6 @@ void setup() {
 }
 
 void loop() {
-  bool updateCombo = updateComboActive();
-  if (updateCombo) {
-    if (updateHoldCount < 3) {
-      updateHoldCount++;
-      if (!updateProbePrinted) {
-        Serial.println("Update mode: combo detected");
-        updateProbePrinted = true;
-      }
-    }
-  } else {
-    updateHoldCount = 0;
-    updateProbePrinted = false;
-  }
-  if (!updateMode && updateHoldCount >= 3) {
-    updateMode = true;
-    nextPiCmd = CMD_UPDATE_ENTER;
-    Serial.println("Update mode: enter");
-    prevButton = UPDATE;
-    return;
-  }
   if (!updateMode && millis() < bootIgnoreUntil) {
     currentButton = pollButtons();
     prevButton = currentButton;
@@ -440,8 +426,6 @@ ControlButton pollButtons() {
       buttonChoice = NONE;
 
     // Button bank A
-    } else if (buttonBankA > 900 && buttonBankB > 900) {
-      buttonChoice = UPDATE;
     } else if (buttonBankA > 30 && buttonBankA < 70) {
       buttonChoice = REV1;    // on Vero Board: ZOOM
     } else if (buttonBankA > 120 && buttonBankA < 160) {
@@ -467,14 +451,6 @@ ControlButton pollButtons() {
   noButtonPressed = buttonBankA < 2 && buttonBankB < 2;
 
   return buttonChoice;
-}
-
-bool updateComboActive() {
-  dummyread = analogRead(BUTTONS_A_PIN);
-  int buttonBankA = analogRead(BUTTONS_A_PIN);
-  dummyread = analogRead(BUTTONS_B_PIN);
-  int buttonBankB = analogRead(BUTTONS_B_PIN);
-  return buttonBankA > 900 && buttonBankB > 900;
 }
 
 void i2cReceive(int howMany) {
