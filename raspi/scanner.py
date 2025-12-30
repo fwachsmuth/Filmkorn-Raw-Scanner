@@ -392,6 +392,27 @@ def _fetch_tags() -> bool:
             result.stderr.strip(),
         )
         return False
+    remote_tags = set()
+    remote_result = _git("ls-remote", "--tags", "origin")
+    if remote_result.returncode == 0:
+        for line in remote_result.stdout.splitlines():
+            parts = line.split()
+            if len(parts) < 2:
+                continue
+            ref = parts[1]
+            if ref.endswith("^{}"):
+                ref = ref[:-3]
+            if ref.startswith("refs/tags/"):
+                remote_tags.add(ref[len("refs/tags/"):])
+        local_result = _git("tag", "--list")
+        if local_result.returncode == 0:
+            local_tags = {line.strip() for line in local_result.stdout.splitlines() if line.strip()}
+            stale_tags = sorted(local_tags - remote_tags)
+            for tag in stale_tags:
+                logging.info("update: deleting stale local tag %s", tag)
+                _git("tag", "-d", tag)
+    else:
+        logging.info("update: ls-remote --tags failed: %s", remote_result.stderr.strip())
     if result.stdout.strip():
         logging.info("update: git fetch stdout=%s", result.stdout.strip())
     return True
