@@ -100,6 +100,7 @@ update_current_tag = None
 update_in_progress = False
 update_error = None
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+current_version_label = None
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -383,6 +384,13 @@ def _git(*args):
         check=False,
     )
 
+def _get_version_label() -> Optional[str]:
+    result = _git("describe", "--tags", "--always")
+    if result.returncode != 0:
+        logging.info("version: git describe failed: %s", result.stderr.strip())
+        return None
+    return result.stdout.strip() or None
+
 def _fetch_tags() -> bool:
     result = _git("fetch", "--tags", "--prune", "--force")
     if result.returncode != 0:
@@ -615,9 +623,14 @@ def _draw_text_badge(base_img, text: str, position: str):
         x = max(0, preview_size[0] - text_w - margin)
     elif position == "bottom-center":
         x = max(0, (preview_size[0] - text_w) // 2)
+    elif position == "top-right":
+        x = max(0, preview_size[0] - text_w - margin)
     else:
         x = margin
-    y = max(0, preview_size[1] - text_h - margin)
+    if position == "top-right":
+        y = margin
+    else:
+        y = max(0, preview_size[1] - text_h - margin)
     draw.rectangle(
         (x - pad, y - pad, x + text_w + pad, y + text_h + pad),
         fill=(0, 0, 0, 160),
@@ -672,6 +685,8 @@ def _render_scan_overlay():
         and last_resolution_label
     ):
         _draw_text_badge(base_img, last_resolution_label, "bottom-center")
+    if current_screen in STATUS_SCREENS and current_version_label:
+        _draw_text_badge(base_img, current_version_label, "top-right")
     pending_overlay = np.array(base_img, dtype=np.uint8)
     _apply_overlay_if_ready()
 
@@ -1586,7 +1601,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, last_sleep_button_state, last_sleep_button_change, sleep_button_armed, dmesg_since
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, last_sleep_button_state, last_sleep_button_change, sleep_button_armed, dmesg_since, current_version_label
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -1604,6 +1619,9 @@ def setup():
     start_time = datetime.now()
     dmesg_since = start_time.strftime('%Y-%m-%d %H:%M:%S')
     logging.info("Scanner started at %s", start_time.strftime('%Y-%m-%d %H:%M:%S'))
+    current_version_label = _get_version_label()
+    if current_version_label:
+        logging.info("Version: %s", current_version_label)
 
 
     # Set the GPIO mode to BCM
