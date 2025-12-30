@@ -93,6 +93,13 @@ last_usb_speed_check = 0.0
 power_warning_active = False
 usb3_warning_active = False
 dmesg_since = None
+update_mode = False
+update_tags = []
+update_selected = 0
+update_current_tag = None
+update_in_progress = False
+update_error = None
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -124,6 +131,11 @@ class Command(enum.Enum):
     SHOW_INSERT_FILM = 12
     SHOW_READY_TO_SCAN = 13
     SET_INITVALUES = 14
+    UPDATE_ENTER = 15
+    UPDATE_PREV = 16
+    UPDATE_NEXT = 17
+    UPDATE_CONFIRM = 18
+    UPDATE_CANCEL = 19
 
     # Raspi to Arduino. Ths is handled by i2cReceive() on the Controller side.
     READY = 128
@@ -266,6 +278,155 @@ def show_screen(message):
     _render_scan_overlay()
     if message == "no-drive-connected" and not ready_screen_polling:
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
+
+def _build_update_overlay(lines):
+    if preview_size is None:
+        return None
+    base = Image.new("RGBA", preview_size, (0, 0, 0, 255))
+    draw = ImageDraw.Draw(base)
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28)
+    except OSError:
+        font = ImageFont.load_default()
+    metrics = []
+    for line in lines:
+        if hasattr(draw, "textbbox"):
+            bbox = draw.textbbox((0, 0), line, font=font)
+            w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+        else:
+            w, h = draw.textsize(line, font=font)
+        metrics.append((line, w, h))
+    spacing = 10
+    total_height = sum(h for _, _, h in metrics) + spacing * (len(metrics) - 1)
+    y = max(0, (preview_size[1] - total_height) // 2)
+    for line, w, h in metrics:
+        x = max(0, (preview_size[0] - w) // 2)
+        draw.text((x, y), line, font=font, fill=(255, 255, 255, 255))
+        y += h + spacing
+    rgba = np.array(base, dtype=np.uint8)
+    rgba[..., 3] = 255
+    return rgba
+
+def show_update_screen(lines):
+    global current_screen, pending_overlay, idle_since
+    overlay_key = "update:" + "|".join(lines)
+    overlay = overlay_cache.get(overlay_key)
+    if overlay is None:
+        overlay = _build_update_overlay(lines)
+        overlay_cache[overlay_key] = overlay
+    current_screen = "update"
+    idle_since = None
+    pending_overlay = overlay
+    _apply_overlay_if_ready()
+    _render_scan_overlay()
+
+def _git(*args):
+    return subprocess.run(
+        ["git", *args],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+def _fetch_tags() -> bool:
+    result = _git("fetch", "--tags", "--prune")
+    if result.returncode != 0:
+        logging.error("git fetch failed: %s", result.stderr.strip())
+        return False
+    return True
+
+def _list_tags() -> list:
+    result = _git("tag", "--list", "--sort=v:refname")
+    if result.returncode != 0:
+        logging.error("git tag failed: %s", result.stderr.strip())
+        return []
+    tags = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    return tags
+
+def _get_current_tag() -> Optional[str]:
+    result = _git("describe", "--tags", "--exact-match")
+    if result.returncode != 0:
+        return None
+    return result.stdout.strip() or None
+
+def _show_update_selection():
+    if update_error:
+        show_update_screen(["Update error", update_error, "Check connection"])
+        return
+    if not update_tags:
+        show_update_screen(["No update available", "No tags found"])
+        return
+    selected = update_tags[update_selected]
+    lines = ["Update available", f"Selected: {selected}"]
+    if update_current_tag:
+        lines.append(f"Current: {update_current_tag}")
+    lines.append("REV/FWD choose, SCAN install")
+    show_update_screen(lines)
+
+def _enter_update_mode():
+    global update_mode, update_tags, update_selected, update_current_tag, update_error
+    update_mode = True
+    update_error = None
+    if not _fetch_tags():
+        update_error = "Fetch failed"
+        update_tags = []
+        update_selected = 0
+        update_current_tag = None
+        _show_update_selection()
+        return
+    update_tags = _list_tags()
+    update_current_tag = _get_current_tag()
+    if update_current_tag in update_tags:
+        update_selected = update_tags.index(update_current_tag)
+    elif update_tags:
+        update_selected = len(update_tags) - 1
+    else:
+        update_selected = 0
+    _show_update_selection()
+
+def _update_prev(_args=None):
+    global update_selected
+    if not update_mode or not update_tags:
+        _show_update_selection()
+        return
+    update_selected = (update_selected - 1) % len(update_tags)
+    _show_update_selection()
+
+def _update_next(_args=None):
+    global update_selected
+    if not update_mode or not update_tags:
+        _show_update_selection()
+        return
+    update_selected = (update_selected + 1) % len(update_tags)
+    _show_update_selection()
+
+def _start_update(tag: str):
+    global update_in_progress
+    update_in_progress = True
+    show_update_screen([f"Updating {tag}", "Please wait"])
+    update_script = os.path.join(os.path.dirname(__file__), "update.sh")
+    try:
+        subprocess.Popen(["sudo", "bash", update_script, tag], cwd=repo_root)
+    except Exception as exc:
+        logging.error("Failed to launch update script: %s", exc)
+        show_update_screen(["Update failed", "Could not start updater"])
+
+def _update_confirm(_args=None):
+    if not update_mode:
+        return
+    if not update_tags:
+        _show_update_selection()
+        return
+    selected = update_tags[update_selected]
+    _start_update(selected)
+
+def _update_cancel(_args=None):
+    global update_mode
+    if not update_mode:
+        return
+    update_mode = False
+    show_ready_to_scan()
 
 def _apply_overlay_if_ready():
     global pending_overlay, overlay_supported, overlay_retry_count, overlay_retry_timer
@@ -1364,6 +1525,19 @@ def loop():
         return
 
     if command is not None:
+        if command == Command.UPDATE_ENTER:
+            _enter_update_mode()
+            return
+        if update_mode:
+            func = {
+                Command.UPDATE_PREV: _update_prev,
+                Command.UPDATE_NEXT: _update_next,
+                Command.UPDATE_CONFIRM: _update_confirm,
+                Command.UPDATE_CANCEL: _update_cancel,
+            }.get(command, None)
+            if func is not None:
+                func(received[1:])
+            return
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {
             Command.Z1_1: set_zoom_mode_1_1,

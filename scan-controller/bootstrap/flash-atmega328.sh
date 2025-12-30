@@ -5,12 +5,14 @@
 # !!!!!!!
 
 # Let's stop the scanner service while we flash the microcontroller to free up the GPIOs and avoid interference
-SERVICE_NAME="filmkorn-scanner.service"
-sudo systemctl stop "$SERVICE_NAME"
-cleanup() {
-  sudo systemctl start "$SERVICE_NAME"
-}
-trap cleanup EXIT
+if [ -z "${SKIP_SERVICE_RESTART:-}" ]; then
+  SERVICE_NAME="filmkorn-scanner.service"
+  sudo systemctl stop "$SERVICE_NAME"
+  cleanup() {
+    sudo systemctl start "$SERVICE_NAME"
+  }
+  trap cleanup EXIT
+fi
 
 
 # writing Fuses
