@@ -17,6 +17,24 @@ log() {
 
 export HOME="${HOME:-/root}"
 
+PREV_REF="$(git rev-parse HEAD 2>/dev/null || true)"
+PREV_DESC="$(git describe --tags --always 2>/dev/null || true)"
+
+on_exit() {
+  local status=$?
+  if [ "$status" -ne 0 ]; then
+    log "update: failed code=$status"
+    if [ -n "$PREV_REF" ]; then
+      log "update: restoring $PREV_DESC ($PREV_REF)"
+      run_and_log "git-restore" git checkout "$PREV_REF"
+    fi
+  fi
+  log "update: starting $SERVICE_NAME"
+  sudo systemctl start "$SERVICE_NAME" || true
+}
+
+trap on_exit EXIT
+
 run_and_log() {
   local label="$1"
   shift
@@ -40,11 +58,6 @@ log "update: marking repo safe for git"
 git config --system --add safe.directory "$REPO_DIR" || true
 log "update: stopping $SERVICE_NAME"
 sudo systemctl stop "$SERVICE_NAME" || true
-cleanup() {
-  log "update: starting $SERVICE_NAME"
-  sudo systemctl start "$SERVICE_NAME" || true
-}
-trap cleanup EXIT
 log "update: fetching tags"
 REMOTE_URL="$(git config --get remote.origin.url || true)"
 if [[ "$REMOTE_URL" == git@github.com:* ]]; then
@@ -63,6 +76,6 @@ fi
 
 log "update: reloading systemd"
 run_and_log "systemd-reload" sudo systemctl daemon-reload
-trap - EXIT
 log "update: rebooting"
+trap - EXIT
 sudo reboot
