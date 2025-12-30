@@ -21,21 +21,22 @@
 #     -U hfuse:w:0xDA:m \
 #     -U lfuse:w:0xFF:m 
 
-# Burn uC Code & bootloader 
-# This is for old avrdude 6 in /usr/bin/avrdude
-# sudo avrdude \
-#   -C ~/Filmkorn-Raw-Scanner/scan-controller/bootstrap/avrdude_gpio.conf \
-#   -v \
-# 	-p atmega328p \
-# 	-c pi_1 \
-# 	-U flash:w:scan-controller-v1.0.ino.hex:i
+python3 - <<'PY'
+import RPi.GPIO as GPIO
+
+UC_POWER_GPIO = 16  # GPIO16 (physical pin 36) enables µC power switch on the controller PCB
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(UC_POWER_GPIO, GPIO.OUT, initial=GPIO.HIGH)
+PY
     
 # Burn uC Code & bootloader 
-# This is for new avrdude 7 in /usr/local/bin/avrdude
-# Fuse setting still  NOT WORKING!!!! 
-# avrdude -C avrdude7.conf -v -p atmega328p -c raspberry_pi_gpio -e -U lock:w:0x3F:m -U efuse:w:0xFD:m -U hfuse:w:0xDA:m -U lfuse:w:0xFF:m
-avrdude -C avrdude7.conf \
-	-v \
-	-p atmega328p \
-	-c raspberry_pi_gpio \
-	-U flash:w:scan-controller-v1.0.ino.hex:i
+# This is for the new, self-built avrdude 8.1 with libgpiod support.
+# Fuse setting still needs to be tested!!!! 
+sudo avrdude \
+  -C ~/avrdude_gpio.conf \
+  -p atmega328p \
+  -c raspberry_pi_gpio \
+  -P gpiochip0 \
+  -U flash:w:scan-controller/scan-controller.ino.with_bootloader.hex:i
+
+# use scan-controller.ino.hex for a faster start without bootloader, but no serial programming possible.
