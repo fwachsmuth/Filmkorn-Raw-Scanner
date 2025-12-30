@@ -47,3 +47,6 @@ _autosave*
 *-save.pro
 *-save.kicad_pcb
 *.kicad_prl
+scan-controller/build/arduino.avr.pro/scan-controller.ino.eep
+scan-controller/build/arduino.avr.pro/scan-controller.ino.elf
+scan-controller/build/arduino.avr.pro/scan-controller.ino.with_bootloader.bin
