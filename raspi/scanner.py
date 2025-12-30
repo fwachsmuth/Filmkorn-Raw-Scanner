@@ -286,42 +286,22 @@ def _build_update_overlay(lines):
         return None
     base = Image.new("RGBA", preview_size, (0, 0, 0, 255))
     draw = ImageDraw.Draw(base)
-    symbol_font = _load_font(
-        [
-            "/usr/share/fonts/truetype/noto/NotoSansSymbols2-Regular.ttf",
-            "/usr/share/fonts/truetype/noto/NotoSansSymbols2.ttf",
-            "/usr/share/fonts/opentype/noto/NotoSansSymbols2-Regular.otf",
-            "/usr/share/fonts/opentype/noto/NotoSansSymbols2.otf",
-        ],
-        34,
-    )
-    text_font = _load_font(
-        ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"],
-        28,
-    )
-    symbol_chars = {"\u23f4", "\u23f5", "\u23f9", "\u23fa"}
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28)
+    except OSError:
+        font = ImageFont.load_default()
     metrics = []
     for line in lines:
-        if any(ch in line for ch in symbol_chars) and all(_glyph_supported(symbol_font, ch) for ch in symbol_chars):
-            font = symbol_font
-        else:
-            font = text_font
-            line = (
-                line.replace("\u23f4", "<")
-                .replace("\u23f5", ">")
-                .replace("\u23fa", "SCAN")
-                .replace("\u23f9", "STOP")
-            )
         if hasattr(draw, "textbbox"):
             bbox = draw.textbbox((0, 0), line, font=font)
             w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
         else:
             w, h = draw.textsize(line, font=font)
-        metrics.append((line, w, h, font))
+        metrics.append((line, w, h))
     spacing = 10
-    total_height = sum(h for _, _, h, _ in metrics) + spacing * (len(metrics) - 1)
+    total_height = sum(h for _, _, h in metrics) + spacing * (len(metrics) - 1)
     y = max(0, (preview_size[1] - total_height) // 2)
-    for line, w, h, font in metrics:
+    for line, w, h in metrics:
         x = max(0, (preview_size[0] - w) // 2)
         draw.text((x, y), line, font=font, fill=(255, 255, 255, 255))
         y += h + spacing
@@ -349,22 +329,6 @@ def show_update_screen(lines):
     _apply_overlay_if_ready()
     if pending_overlay is not None:
         threading.Timer(0.2, _apply_overlay_if_ready).start()
-
-def _load_font(paths, size):
-    for path in paths:
-        try:
-            return ImageFont.truetype(path, size)
-        except OSError:
-            continue
-    return ImageFont.load_default()
-
-def _glyph_supported(font, glyph: str) -> bool:
-    try:
-        if hasattr(font, "getbbox"):
-            return font.getbbox(glyph) is not None
-        return font.getmask(glyph).getbbox() is not None
-    except Exception:
-        return False
 
 def _git(*args):
     return subprocess.run(
@@ -407,7 +371,7 @@ def _show_update_selection():
     lines = ["Update available", f"Selected: {selected}"]
     if update_current_tag:
         lines.append(f"Current: {update_current_tag}")
-    lines.append("\u23f4/\u23f5 choose, \u23fa install, \u23f9 cancel")
+    lines.append("<< / >> choose, SCAN install, STOP cancel")
     show_update_screen(lines)
 
 def _enter_update_mode():
