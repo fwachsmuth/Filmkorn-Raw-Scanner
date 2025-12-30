@@ -310,7 +310,7 @@ def _build_update_overlay(lines):
     return rgba
 
 def show_update_screen(lines):
-    global current_screen, pending_overlay, idle_since
+    global current_screen, pending_overlay, idle_since, overlay_ready
     overlay_key = "update:" + "|".join(lines)
     overlay = overlay_cache.get(overlay_key)
     if overlay is None:
@@ -319,6 +319,7 @@ def show_update_screen(lines):
     current_screen = "update"
     idle_since = None
     pending_overlay = overlay
+    overlay_ready = True
     _apply_overlay_if_ready()
     _render_scan_overlay()
 
