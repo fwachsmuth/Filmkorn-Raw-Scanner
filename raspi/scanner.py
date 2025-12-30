@@ -781,6 +781,9 @@ def _ready_screen_poll_loop():
     ready_screen_polling = True
     try:
         while (ready_to_scan or current_screen == "no-drive-connected") and not shutting_down:
+            if sleep_mode:
+                sleep(1)
+                continue
             if storage_location == 1 and not os.path.ismount("/mnt/usb"):
                 _ensure_usb_mount()
             new_storage_location = GPIO.input(5)
@@ -1163,15 +1166,22 @@ def _read_scan_destination() -> Optional[str]:
 def _ensure_usb_mount() -> bool:
     if os.path.ismount("/mnt/usb"):
         return True
+    if sleep_mode:
+        return False
     disk = None
     for _ in range(10):
         disk = _find_usb_disk_name()
         if disk:
             break
         sleep(0.2)
-    if not disk:
+    if not disk or not disk.strip():
         logging.info("USB mount: no removable/USB disk found")
         return False
+    disk = disk.strip()
+    if not disk.startswith(("sd", "mmcblk", "nvme")):
+        logging.info("USB mount: unsupported disk name '%s'", disk)
+        return False
+    logging.info("USB mount: attempting %s", disk)
     result = subprocess.run(
         ["sudo", "/usr/local/sbin/mount-largest-usb.sh", disk],
         stdout=subprocess.PIPE,
@@ -1185,7 +1195,7 @@ def _ensure_usb_mount() -> bool:
             result.returncode,
             result.stdout.strip(),
             result.stderr.strip(),
-    )
+        )
     return os.path.ismount("/mnt/usb")
 
 def _find_usb_disk_name() -> Optional[str]:
