@@ -71,6 +71,13 @@ run_and_log "git-checkout" git checkout "$TAG"
 
 if [ -f scan-controller/scan-controller.ino.with_bootloader.hex ]; then
   log "update: flashing controller (avrdude)"
+  log "update: enabling MCU power (GPIO16)"
+  run_and_log "uc-power" python3 - <<'PY'
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(16, GPIO.OUT, initial=GPIO.HIGH)
+PY
+  sleep 0.5
   run_and_log "flash" /usr/local/bin/avrdude \
     -C /home/pi/avrdude_gpio.conf \
     -p atmega328p \
