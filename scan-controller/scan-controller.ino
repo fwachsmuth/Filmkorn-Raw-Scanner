@@ -107,6 +107,7 @@ bool isScanning = false;
 bool updateMode = false;
 uint32_t bootIgnoreUntil = 0;
 uint8_t updateHoldCount = 0;
+bool updateProbePrinted = false;
 
 volatile bool piIsReady = false;
 
@@ -148,13 +149,18 @@ void setup() {
 }
 
 void loop() {
-  currentButton = pollButtons();
-  if (currentButton == UPDATE) {
+  bool updateCombo = updateComboActive();
+  if (updateCombo) {
     if (updateHoldCount < 3) {
       updateHoldCount++;
+      if (!updateProbePrinted) {
+        Serial.println("Update mode: combo detected");
+        updateProbePrinted = true;
+      }
     }
   } else {
     updateHoldCount = 0;
+    updateProbePrinted = false;
   }
   if (!updateMode && updateHoldCount >= 3) {
     updateMode = true;
@@ -164,11 +170,13 @@ void loop() {
     return;
   }
   if (!updateMode && millis() < bootIgnoreUntil) {
+    currentButton = pollButtons();
     prevButton = currentButton;
     return;
   }
 
   if (updateMode) {
+    currentButton = pollButtons();
     if (currentButton != prevButton) {
       prevButton = currentButton;
       switch (currentButton) {
@@ -191,6 +199,7 @@ void loop() {
     return;
   }
 
+  currentButton = pollButtons();
   if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
   {
     piIsReady = false;
@@ -458,6 +467,14 @@ ControlButton pollButtons() {
   noButtonPressed = buttonBankA < 2 && buttonBankB < 2;
 
   return buttonChoice;
+}
+
+bool updateComboActive() {
+  dummyread = analogRead(BUTTONS_A_PIN);
+  int buttonBankA = analogRead(BUTTONS_A_PIN);
+  dummyread = analogRead(BUTTONS_B_PIN);
+  int buttonBankB = analogRead(BUTTONS_B_PIN);
+  return buttonBankA > 900 && buttonBankB > 900;
 }
 
 void i2cReceive(int howMany) {
