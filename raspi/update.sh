@@ -105,5 +105,4 @@ log "update: reloading systemd"
 run_and_log "systemd-reload" sudo systemctl daemon-reload
 log "update: installing systemd services"
 run_and_log "systemd-install" sudo bash /home/pi/Filmkorn-Raw-Scanner/raspi/systemd/install_services.sh
-trap - EXIT
 log "update: completed (no reboot requested)"
