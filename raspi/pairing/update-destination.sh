@@ -59,7 +59,7 @@ rawpath="${rawpath%/}"
 
 info "Validating host and path..."
 if ! ping -c 1 -W 1 "${userhost#*@}" >/dev/null 2>&1; then
-  warn "Host ${userhost#*@} not reachable (ping failed)"
+  warn "Host ${userhost#*@} not reachable (ping failed). Did you enable Remote Login yet?"
   exit 1
 fi
 if ! ssh -i /home/pi/.ssh/id_filmkorn-scanner_ed25519 \
@@ -130,7 +130,7 @@ echo "${rawpath}" > "$dest_path"
 info "New host: ${userhost}"
 info "New path: ${rawpath}"
 echo ""
-info "Restarting services to apply changes..."
+info "🐧Restarting services to apply changes..."
 sudo systemctl restart filmkorn-lsyncd.service
 sudo systemctl restart filmkorn-scanner.service
 echo ""

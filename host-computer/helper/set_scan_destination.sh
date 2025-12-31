@@ -59,10 +59,11 @@ if [ -z "${rawpath:-}" ]; then
   echo ""
   read -r -p "Drag the destination folder here and press Enter: " rawpath
   rawpath="${rawpath%/}"
-  if [[ "$rawpath" == "\""*\""\" ]]; then
-    rawpath="${rawpath%\"}"
+  if [[ "$rawpath" == \"*\" && "$rawpath" == *\" ]]; then
     rawpath="${rawpath#\"}"
+    rawpath="${rawpath%\"}"
   fi
+  rawpath="${rawpath//\\ / }"
   if [ -z "${rawpath:-}" ]; then
     warn "No new path has been defined."
     helpFunction
