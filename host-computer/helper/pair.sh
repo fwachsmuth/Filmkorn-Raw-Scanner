@@ -29,7 +29,11 @@ if [ -f /proc/device-tree/model ] && grep -qi "raspberry pi" /proc/device-tree/m
   exit 1
 fi
 
+paired_exists=false
 if [ -f ".paired" ]; then
+  paired_exists=true
+fi
+if $paired_exists && [ -f ".scan_destination" ]; then
   warn "Systems already paired. Use ./helper/unpair.sh first if you want to initiate pairing again."
   exit 0
 fi
@@ -44,8 +48,10 @@ if ! command -v ssh-keygen >/dev/null 2>&1; then
 fi
 
 # Generate and deploy a keypair to control the scanning Raspi
-info "Generating local SSH keypair for the scanner..."
-ssh-keygen -t ed25519 -q -f ~/.ssh/id_filmkorn-scanner_ed25519 -C "scanning-$(whoami)@$(hostname -s)" -N ''
+if ! $paired_exists; then
+  info "Generating local SSH keypair for the scanner..."
+  ssh-keygen -t ed25519 -q -f ~/.ssh/id_filmkorn-scanner_ed25519 -C "scanning-$(whoami)@$(hostname -s)" -N ''
+fi
 
 # Configure this computer for easy & secure ssh to the Raspi, if it isn't yet
 if ! grep -q filmkorn-scanner.local ~/.ssh/config; then
@@ -60,16 +66,20 @@ Host filmkorn-scanner.local
 EOT
 fi
 
-# To do: Use sesame key for ssh-copy and delete it afterwards
-echo "Please enter the temporary Raspi password ${BOLD}'filmkornscanner'${RESET} to allow pairing."
-ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub pi@filmkorn-scanner.local > /dev/null 2> /dev/null
+if ! $paired_exists; then
+  # To do: Use sesame key for ssh-copy and delete it afterwards
+  echo "Please enter the temporary Raspi password ${BOLD}'filmkornscanner'${RESET} to allow pairing."
+  ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub pi@filmkorn-scanner.local > /dev/null 2> /dev/null
+fi
 
-# On the Raspi, generate and deploy a keypair to send files to this computer
-info "Generating SSH keypair on the Raspi..."
-ssh pi@filmkorn-scanner.local "ssh-keygen -t ed25519 -q -f ~/.ssh/id_filmkorn-scanner_ed25519 -C pi@filmkorn-scanner -N ''"
-echo ""
-echo "When prompted, please enter the password ${BOLD}of this Mac${RESET} to allow receiving scanned film frames going forward."
-ssh pi@filmkorn-scanner.local -t "ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub $(whoami)@$(hostname -s).local > /dev/null 2> /dev/null"
+if ! $paired_exists; then
+  # On the Raspi, generate and deploy a keypair to send files to this computer
+  info "Generating SSH keypair on the Raspi..."
+  ssh pi@filmkorn-scanner.local "ssh-keygen -t ed25519 -q -f ~/.ssh/id_filmkorn-scanner_ed25519 -C pi@filmkorn-scanner -N ''"
+  echo ""
+  echo "When prompted, please enter the password ${BOLD}of this Mac${RESET} to allow receiving scanned film frames going forward."
+  ssh pi@filmkorn-scanner.local -t "ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub $(whoami)@$(hostname -s).local > /dev/null 2> /dev/null"
+fi
 
 if [ -f ".scan_destination" ]; then
   info "Configuring where on the Mac the scans should be stored..."
