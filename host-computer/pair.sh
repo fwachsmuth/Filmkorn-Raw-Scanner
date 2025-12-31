@@ -32,19 +32,13 @@ EOT
   echo "When prompted, please enter the password ${bold}of this Mac${normal} to allow receiving scanned film frames going forward."
   ssh pi@filmkorn-scanner.local -t "ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub `whoami`@`hostname -s`.local > /dev/null 2> /dev/null"
 
-  echo "Downloading latest Scanner Code..."
-  ssh pi@filmkorn-scanner.local "test -d ~/Filmkorn-Raw-Scanner || git clone https://github.com/fwachsmuth/Filmkorn-Raw-Scanner.git"
-  ssh pi@filmkorn-scanner.local "cd ~/Filmkorn-Raw-Scanner; git pull"
-
-  if [ -f ".scan_destination" ]; then
+   if [ -f ".scan_destination" ]; then
     echo "Configuring where on the Mac the scans should be stored..."
     ssh pi@filmkorn-scanner.local "./Filmkorn-Raw-Scanner/raspi/update-destination.sh -h `whoami`@`hostname -s`.local -p \"`cat .scan_destination`\""
   else
     echo "${bold}Warning:${normal} No Scanning Destination defined yet. Run ${bold}set_scan_destination.sh${normal} to do so."
   fi
 
-  echo ""
-  echo "Latest Code installed."
   echo ""
   echo "Pairing complete!"
   echo ""
