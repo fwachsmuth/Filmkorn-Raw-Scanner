@@ -11,7 +11,7 @@ helpFunction() {
   exit 1 # Exit script after printing help
 }
 
-if [ -t 1 ]; then
+if [ -t 1 ] || [ "${FORCE_COLOR:-}" = "1" ]; then
   BOLD="$(printf '\033[1m')"
   GREEN="$(printf '\033[32m')"
   YELLOW="$(printf '\033[33m')"
