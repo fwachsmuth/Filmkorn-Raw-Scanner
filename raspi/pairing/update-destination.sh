@@ -59,7 +59,7 @@ rawpath="${rawpath%/}"
 
 info "Validating host and path..."
 if ! ping -c 1 -W 1 "${userhost#*@}" >/dev/null 2>&1; then
-  warn "Host ${userhost#*@} not reachable (ping failed). Did you enable Remote Login yet?"
+  warn "🐧 Host ${userhost#*@} not reachable (ping failed). Did you enable Remote Login yet?"
   exit 1
 fi
 if ! ssh -i /home/pi/.ssh/id_filmkorn-scanner_ed25519 \
@@ -69,11 +69,11 @@ if ! ssh -i /home/pi/.ssh/id_filmkorn-scanner_ed25519 \
   "${userhost}" \
   "mkdir -p \"${rawpath}\" && test -w \"${rawpath}\""
 then
-  warn "Remote path not writable: ${rawpath}"
+  warn "🐧 Remote path on the host not writable: ${rawpath}"
   exit 1
 fi
 
-info "Checking remote rsync path..."
+info "🐧 Checking remote rsync path..."
 if ! ssh -i /home/pi/.ssh/id_filmkorn-scanner_ed25519 \
   -o BatchMode=yes \
   -o ConnectTimeout=5 \
@@ -81,11 +81,11 @@ if ! ssh -i /home/pi/.ssh/id_filmkorn-scanner_ed25519 \
   "${userhost}" \
   "/opt/homebrew/bin/rsync --version >/dev/null 2>&1"
 then
-  warn "Remote rsync not found at /opt/homebrew/bin/rsync"
+  warn "🐧 Proper rsync 3.x binary not found at /opt/homebrew/bin/rsync on your host -- did you run install_remote_scanning.sh yet?"
   exit 1
 fi
 
-info "Writing config..."
+info "🐧 Writing config to use for remote scans..."
 if ! cat << EOFCONFIGFILE > "$temp_conf"
 settings {
   logfile = "/tmp/lsyncd.log",
@@ -119,7 +119,7 @@ sync {
 }
 EOFCONFIGFILE
 then
-  echo "Failed to write lsyncd-to-host.conf" >&2
+  echo "🐧 Failed to write lsyncd-to-host.conf" >&2
   rm -f "$temp_conf"
   exit 1
 fi
@@ -127,14 +127,14 @@ fi
 mv "$temp_conf" "$conf_path"
 echo "${rawpath}" > "$dest_path"
 
-info "New host: ${userhost}"
-info "New path: ${rawpath}"
+info "🐧 New host: ${userhost}"
+info "🐧 New path: ${rawpath}"
 echo ""
-info "🐧Restarting services to apply changes..."
+info "🐧 Restarting services to apply changes..."
 sudo systemctl restart filmkorn-lsyncd.service
 sudo systemctl restart filmkorn-scanner.service
 echo ""
-info "Service status:"
+info "🐧 Service status:"
 sudo systemctl status --no-pager -n 20 filmkorn-lsyncd.service
 echo
-info "Configuration updated."
+info "🐧 Configuration updated."
