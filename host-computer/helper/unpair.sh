@@ -30,7 +30,7 @@ if [ -f /proc/device-tree/model ] && grep -qi "raspberry pi" /proc/device-tree/m
 fi
 
 info "Asking Raspi to unpair..."
-ssh pi@filmkorn-scanner.local "cd Filmkorn-Raw-Scanner/raspi; ./unpair-from-client.sh" || warn "Raspi unpair command failed"
+ssh pi@filmkorn-scanner.local "cd Filmkorn-Raw-Scanner/raspi/pairing; ./unpair-from-client.sh" || warn "Raspi unpair command failed"
 
 info "Removing Raspi from this computer's known_hosts..."
 ssh-keygen -R filmkorn-scanner.local >/dev/null 2>&1 || true
