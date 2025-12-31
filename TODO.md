@@ -5,28 +5,14 @@
 - log insight (from host)
 
 ## Next
+- [ ] log mit auf die Platte schreiben
 - [ ] is opme.sh working and ever called?
-- [ ] consider enabling wifi for time and updates (captive approach?)
 - [ ] "Allow full disk access for remote users" in installer script
 
 - [ ] Fuses are still at 1 MHz when bootstrapping from raspi. Test burning fuses with 5 VCC. MISO is 5V tho. 47K inbetween? Reset has a 10k Pullup too. I would recommend driving the pins from 5V logic via at least 10K resistor and also connect an external Schottky diode from the pin to 3.3V to prevent the input pin's voltage rising much above the PI's supply rail.
 - [ ] Auto-Stop in-channel Rewinds
+- [ ] consider enabling wifi for time and updates (captive approach?)
 
-- [ ] think about an update scenario (version info?)
-    - most pragmatic:
-        - shellscript on host pc:
-            - git pull on mac
-            - git pull on raspi
-            - reads current version of controller software (via hex filename?)
-            - updates controller
-    - All three parts need to contain/emit a version number
-        - [ ] Let the Arduino respond with a version to the Pi
-    - all components should get updated separately
-        - scanner.py via git
-        - controller via raspi via git
-        - raspi via imaging if necessary
-    - latest version announced via static github pages link?
-        - might contain a commit id, or checkout via tag?
 
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
 - [ ] Test with a Raspi 5
