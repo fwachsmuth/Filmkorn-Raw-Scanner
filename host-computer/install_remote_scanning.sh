@@ -16,9 +16,23 @@
 set -euo pipefail
 
 # ---------- helpers ----------
-log()  { printf "\033[1;32m[+]\033[0m %s\n" "$*"; }
-warn() { printf "\033[1;33m[!]\033[0m %s\n" "$*"; }
-err()  { printf "\033[1;31m[x]\033[0m %s\n" "$*"; }
+if [ -t 1 ]; then
+  _BOLD="$(printf '\033[1m')"
+  _GREEN="$(printf '\033[32m')"
+  _YELLOW="$(printf '\033[33m')"
+  _RED="$(printf '\033[31m')"
+  _RESET="$(printf '\033[0m')"
+else
+  _BOLD=""
+  _GREEN=""
+  _YELLOW=""
+  _RED=""
+  _RESET=""
+fi
+
+log()  { printf "%s%s%s\n" "${_BOLD}${_GREEN}" "$*" "${_RESET}"; }
+warn() { printf "%s%s%s\n" "${_BOLD}${_YELLOW}" "$*" "${_RESET}"; }
+err()  { printf "%s%s%s\n" "${_BOLD}${_RED}" "$*" "${_RESET}"; }
 die()  { err "$*"; exit 1; }
 
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
@@ -41,6 +55,9 @@ retry() {
 }
 
 # ---------- preflight ----------
+if [ -f /proc/device-tree/model ] && grep -qi "raspberry pi" /proc/device-tree/model; then
+  die "This script must run on the host computer, not on the Raspi."
+fi
 [[ "$(uname -s)" == "Darwin" ]] || die "This script is for macOS (Darwin) only."
 
 arch="$(uname -m)"
@@ -193,13 +210,13 @@ sudo dseditgroup -o edit -d "$current_user" -t user com.apple.access_ssh-disable
 
 if [[ ! -f ".paired" ]]; then
   warn "No paired Scanner detected yet (.paired missing)."
-  warn "Run ./pair.sh when you're ready to connect this Mac to the scanner."
-  read -r -p "Run ./pair.sh now? [y/N] " run_pair
+  warn "Run ./helper/pair.sh when you're ready to connect this Mac to the scanner."
+  read -r -p "Run ./helper/pair.sh now? [y/N] " run_pair
   if [[ "${run_pair:-}" =~ ^[Yy]$ ]]; then
-    ./pair.sh || warn "pair.sh exited with an error."
+    ./helper/pair.sh || warn "pair.sh exited with an error."
   fi
 else
-  log "A Scanner has already been paired. Run unpair.sh to remove pairing."
+  log "A Scanner has already been paired. Run helper/unpair.sh to remove pairing."
 fi
 
 log "Done."

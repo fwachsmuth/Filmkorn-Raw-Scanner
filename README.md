@@ -68,9 +68,9 @@ Both can easily be enabled by running host-computer/install_remote_scanning.sh f
 - Note that you cannot scan via Wifi. Wifi is too slow for this, especially on the Raspi. You will need to use an Ethernet cable. If you don't have Ethernet infrastructure in your house, you can also connect the Raspi directly with your computer with an Ethernet cable. (TBC)
 
 There are other helper scripts that you'll only need when scanning "in host mode" (to your computer):
-- pair.sh starts the parining process. It exchanges a ssh key pair with your raspi and sets the path for where you want your scans to go.
-- unpair.sh eliminates an existing pairing. Only needed if your computer or scanner changes or you run into other connectivity probelms.
-- set_scan_destination.sh changes the path where you want your incoming scans to go. 
+- helper/pair.sh starts the parining process. It exchanges a ssh key pair with your raspi and sets the path for where you want your scans to go.
+- helper/unpair.sh eliminates an existing pairing. Only needed if your computer or scanner changes or you run into other connectivity probelms.
+- helper/set_scan_destination.sh changes the path where you want your incoming scans to go.
 
 To enable host mode, you will need to pull GPIO05 to GND. This can easily be achieved with a jumper like this: [image]
 

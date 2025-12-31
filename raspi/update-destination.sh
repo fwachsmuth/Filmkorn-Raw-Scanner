@@ -31,6 +31,11 @@ warn() {
   echo "${BOLD}${YELLOW}$*${RESET}"
 }
 
+if ! [ -f /proc/device-tree/model ] || ! grep -qi "raspberry pi" /proc/device-tree/model; then
+  warn "This script must run on the Raspi."
+  exit 1
+fi
+
 while getopts "h:p:" opt
 do
   case "$opt" in
