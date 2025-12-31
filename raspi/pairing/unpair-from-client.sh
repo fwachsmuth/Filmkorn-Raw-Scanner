@@ -1,34 +1,57 @@
 #!/bin/bash
-# to be run on the raspi, not on the host computer!
+set -euo pipefail
 
-# echo "Removing known_hosts..."
-# rm ~/.ssh/knwon_hosts
-# rm ~/.ssh/knwon_hosts.old
+# To be run on the Raspi, not on the host computer.
+# This script removes ssh pairing artifacts on the Raspi, allowing a fresh pairing.
 
-echo "Removing client from Raspi's authorized_keys..."
-sed -i '\#scanning-#d' ~/.ssh/authorized_keys
 
-echo "Removing client from this Computer's known_hosts..."
-ssh-keygen -R filmkorn-scanner.local
+if [ -t 1 ]; then
+  BOLD="$(printf '\033[1m')"
+  GREEN="$(printf '\033[32m')"
+  YELLOW="$(printf '\033[33m')"
+  RESET="$(printf '\033[0m')"
+else
+  BOLD=""
+  GREEN=""
+  YELLOW=""
+  RESET=""
+fi
+
+info() {
+  echo "${BOLD}${GREEN}$*${RESET}"
+}
+
+warn() {
+  echo "${BOLD}${YELLOW}$*${RESET}"
+}
+
+if ! [ -f /proc/device-tree/model ] || ! grep -qi "raspberry pi" /proc/device-tree/model; then
+  warn "This script must run on the Raspi."
+  exit 1
+fi
+
+info "Removing your host computer from Raspi's authorized_keys..."
+sed -i '\#scanning-#d' ~/.ssh/authorized_keys || true
 
 # Remove local keypairs
-echo "Removing keypair from Raspi..."
-rm ~/.ssh/id_filmkorn-scanner_ed25519*
+info "Removing keypair from Raspi..."
+rm -f ~/.ssh/id_filmkorn-scanner_ed25519* || true
 
 # Verify
+echo ""
+info "Results of unpairing on Raspi:"
+info "Raspi's known_hosts:"
+test ~/.ssh/known_hosts && cat ~/.ssh/known_hosts || true
 echo "------------------------------------------------"
-echo "Raspi's knwon_hosts:"
-test ~/.ssh/known_hosts && cat ~/.ssh/known_hosts
+info "Raspi's remaining authorized_keys:"
+test ~/.ssh/authorized_keys && cat ~/.ssh/authorized_keys || true
 echo "------------------------------------------------"
-echo "Raspi's authorized_keys:"
-test ~/.ssh/authorized_keys && cat ~/.ssh/authorized_keys
+info "Raspi's remaining keys:"
+ls -la ~/.ssh/ || true
 echo "------------------------------------------------"
-echo "Raspi's keys:"
-ls -la ~/.ssh/
-echo "------------------------------------------------"
-echo "Raspi's config:"
-test ~/.ssh/config && cat ~/.ssh/config
+info "Raspi's remaining ssh config:"
+test ~/.ssh/config && cat ~/.ssh/config || true
 echo "------------------------------------------------"
 
-echo "Raspi finished its unpairing."
+info "Raspi finished its unpairing."
 echo ""

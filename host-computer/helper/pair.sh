@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# Run on the host computer (Mac), not on the Raspi.
+# Run on the host computer, not on the Raspi.
 # Pairs SSH keys in both directions and configures remote destination if available.
 
 if [ -t 1 ]; then
@@ -73,12 +73,12 @@ ssh pi@filmkorn-scanner.local -t "ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25
 
 if [ -f ".scan_destination" ]; then
   info "Configuring where on the Mac the scans should be stored..."
-  ssh pi@filmkorn-scanner.local "./Filmkorn-Raw-Scanner/raspi/pairing/update-destination.sh -h $(whoami)@$(hostname -s).local -p \"$(cat .scan_destination)\""
+  ssh -t pi@filmkorn-scanner.local "FORCE_COLOR=1 ./Filmkorn-Raw-Scanner/raspi/pairing/update-destination.sh -h $(whoami)@$(hostname -s).local -p \"$(cat .scan_destination)\""
 else
   warn "No Scanning Destination defined yet. Run helper/set_scan_destination.sh to do so."
 fi
 
 echo ""
-info "Pairing complete!"
+info "Pairing successfully completed!"
 echo ""
 touch .paired
