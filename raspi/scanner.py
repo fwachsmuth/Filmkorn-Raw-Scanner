@@ -531,7 +531,7 @@ def _start_update(tag: str):
     update_in_progress = True
     logging.info("update: starting update to %s", tag)
     show_update_screen([f"Updating {tag}", "Please wait"])
-    update_script = os.path.join(os.path.dirname(__file__), "update.sh")
+    update_script = os.path.join(os.path.dirname(__file__), "ota-updating", "update.sh")
     try:
         subprocess.run(
             ["sudo", "systemctl", "reset-failed", "filmkorn-update.service"],

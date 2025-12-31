@@ -73,7 +73,7 @@ ssh pi@filmkorn-scanner.local -t "ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25
 
 if [ -f ".scan_destination" ]; then
   info "Configuring where on the Mac the scans should be stored..."
-  ssh pi@filmkorn-scanner.local "./Filmkorn-Raw-Scanner/raspi/update-destination.sh -h $(whoami)@$(hostname -s).local -p \"$(cat .scan_destination)\""
+  ssh pi@filmkorn-scanner.local "./Filmkorn-Raw-Scanner/raspi/pairing/update-destination.sh -h $(whoami)@$(hostname -s).local -p \"$(cat .scan_destination)\""
 else
   warn "No Scanning Destination defined yet. Run helper/set_scan_destination.sh to do so."
 fi

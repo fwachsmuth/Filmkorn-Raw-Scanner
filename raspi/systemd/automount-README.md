@@ -15,7 +15,7 @@ This avoids brittle `ACTION=remove` races (device may already be gone; disk+part
 
 ### Repo files
 
-- Script: `raspi/mount-largest-usb.sh`
+- Script: `raspi/scanner-helpers/mount-largest-usb.sh`
 - systemd unit template: `raspi/systemd/usb-mount-largest@.service`
 - udev rule: `raspi/systemd/99-usb-mount-largest.rules`
 - Installer: `raspi/systemd/install_services.sh`

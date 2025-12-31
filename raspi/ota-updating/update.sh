@@ -10,8 +10,8 @@ fi
 REPO_DIR="/home/pi/Filmkorn-Raw-Scanner"
 SERVICE_NAME="filmkorn-scanner.service"
 LOG_TAG="filmkorn-update"
-PREFLIGHT_SCRIPT="/home/pi/Filmkorn-Raw-Scanner/raspi/preflight.sh"
-POSTFLIGHT_SCRIPT="/home/pi/Filmkorn-Raw-Scanner/raspi/postflight.sh"
+PREFLIGHT_SCRIPT="/home/pi/Filmkorn-Raw-Scanner/raspi/ota-updating/preflight.sh"
+POSTFLIGHT_SCRIPT="/home/pi/Filmkorn-Raw-Scanner/raspi/ota-updating/postflight.sh"
 
 log() {
   logger -t "$LOG_TAG" "$*"

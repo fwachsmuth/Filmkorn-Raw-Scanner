@@ -2,19 +2,19 @@
 
 
 ┌────────────────────────────┐
-│ pair.sh                    │
+│ helper/pair.sh             │
 │                            │
 │ - creates and installs an  │
 │   ssh keypair to allow the │
 │   raspi to send us files   │
 │ - updates the repository   │                 ┌──────────────────────────────┐
-│   on the raspi             │                 │ update-destination.sh        │
+│   on the raspi             │                 │ pairing/update-destination.sh │
 │ - attempts to update the   ├────────────────►│                              │
 │   destination paths        │      calls      │ - creates lsyncd-to-host.conf|        │
 └────────────────────────────┘                 │ - creates .scan_destination  │
                                       ┌───────►│                              │
 ┌────────────────────────────┐        │        └──────────────────────────────┘
-│ set_scan_destination.sh    │        │                      
+│ helper/set_scan_destination.sh │        │                      
 │                            │        │                      
 │ - updates the file         ├────────┘                      
 │   .scan_destination        │      calls      
@@ -25,7 +25,7 @@
 
 
 ┌────────────────────────────┐                 ┌──────────────────────────────┐
-│ unpair.sh                  │                 │ unpair-from-client.sh        │
+│ helper/unpair.sh           │                 │ pairing/unpair-from-client.sh │
 │                            │      calls      │                              │
 │ - removes ssh keys and     ├────────────────►│ - removes ssh keys and       │
 │   raspi's allowances       │                 │   makes the host computer    │
