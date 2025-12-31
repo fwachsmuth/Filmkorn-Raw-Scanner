@@ -5,7 +5,9 @@
 - log insight (from host)
 
 ## Next
-- [ ] log mit auf die Platte schreiben
+- [ ] Add davinci resolve assets to repo
+- [ ] Checkout newest tag after image expand
+- [ ] scan-log mit auf die Platte schreiben, ebenso update-logs (weitere?)
 - [ ] is opme.sh working and ever called?
 - [ ] "Allow full disk access for remote users" in installer script
 
