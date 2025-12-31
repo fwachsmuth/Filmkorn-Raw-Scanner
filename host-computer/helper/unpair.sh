@@ -54,9 +54,10 @@ echo "------------------------------------------------"
 info "Local authorized_keys:"
 cat ~/.ssh/authorized_keys || true
 echo "------------------------------------------------"
-info "Local keys:"
+info "Remaining local keys:"
 ls -la ~/.ssh/ || true
 echo "------------------------------------------------"
-info "Local config:"
+info "Local ssh config:"
 cat ~/.ssh/config || true
+echo ""
 echo "------------------------------------------------"

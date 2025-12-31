@@ -56,14 +56,34 @@ do
 done
 
 if [ -z "${rawpath:-}" ]; then
-  warn "No new path has been defined."
-  helpFunction
+  echo ""
+  read -r -p "Drag the destination folder here and press Enter: " rawpath
+  rawpath="${rawpath%/}"
+  if [[ "$rawpath" == "\""*\""\" ]]; then
+    rawpath="${rawpath%\"}"
+    rawpath="${rawpath#\"}"
+  fi
+  if [ -z "${rawpath:-}" ]; then
+    warn "No new path has been defined."
+    helpFunction
+  fi
 fi
 
 rawpath="${rawpath%/}"
+info "Selected destination: ${rawpath}"
+read -r -p "Use this destination? [y/N] " confirm_dest
+if [[ ! "${confirm_dest:-}" =~ ^[Yy]$ ]]; then
+  warn "Destination update canceled."
+  exit 0
+fi
+
 if [ ! -d "$rawpath" ]; then
   warn "The path ${rawpath} does not seem to exist. Please check and try again."
   warn "If your path contains spaces, wrap it in quotes, e.g. \"/Volumes/Macintosh HD\""
+  exit 1
+fi
+if [ ! -w "$rawpath" ]; then
+  warn "The path ${rawpath} is not writable."
   exit 1
 fi
 
