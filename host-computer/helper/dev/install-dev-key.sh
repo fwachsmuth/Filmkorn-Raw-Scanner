@@ -39,7 +39,7 @@ if ! command -v ssh >/dev/null 2>&1; then
 fi
 
 if ! ls ~/.ssh/id_filmkorn-scanner-dev_ed25519* >/dev/null 2>&1; then
-  warn "Dev key not found at ~/.ssh/id_filmkorn-scanner-dev_ed25519*"
+  warn "Dev key not found at ~/.ssh/id_filmkorn-scanner-dev_ed25519*. You are probably not Friedemann."
   exit 1
 fi
 
