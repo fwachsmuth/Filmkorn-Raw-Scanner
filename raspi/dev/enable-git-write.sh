@@ -41,14 +41,24 @@ fi
 
 cd ~/Filmkorn-Raw-Scanner
 
-info "Setting GitHub SSH remote..."
-git remote set-url origin git@github.com:fwachsmuth/Filmkorn-Raw-Scanner.git
+current_remote="$(git remote get-url origin 2>/dev/null || true)"
+if [ "$current_remote" != "git@github.com:fwachsmuth/Filmkorn-Raw-Scanner.git" ]; then
+  info "Setting GitHub SSH remote..."
+  git remote set-url origin git@github.com:fwachsmuth/Filmkorn-Raw-Scanner.git
+fi
 
-info "Configuring git identity..."
-git config --global user.email "me@peaceman.de"
-git config --global user.name "Friedemann Wachsmuth"
+current_email="$(git config --global user.email 2>/dev/null || true)"
+current_name="$(git config --global user.name 2>/dev/null || true)"
+if [ -z "$current_email" ]; then
+  info "Configuring git email..."
+  git config --global user.email "me@peaceman.de"
+fi
+if [ -z "$current_name" ]; then
+  info "Configuring git user name..."
+  git config --global user.name "Friedemann Wachsmuth"
+fi
 
-if ! grep -q id_filmkorn-scanner-dev_ed25519 ~/.ssh/config; then
+if ! grep -q "IdentityFile ~/.ssh/id_filmkorn-scanner-dev_ed25519" ~/.ssh/config 2>/dev/null; then
   info "Updating ~/.ssh/config..."
   cat <<EOT >> ~/.ssh/config
 Host github.com
