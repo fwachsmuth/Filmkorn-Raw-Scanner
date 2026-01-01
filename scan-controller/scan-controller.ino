@@ -109,6 +109,7 @@ bool isScanning = false;
 bool updateMode = false;
 bool pairingMode = false;
 uint32_t pairingModeEnteredAt = 0;
+uint32_t pairingModeExitIgnoreUntil = 0;
 uint32_t bootIgnoreUntil = 0;
 
 volatile bool piIsReady = false;
@@ -190,7 +191,9 @@ void loop() {
         lastPairingLogAt = millis();
       }
       if (pairingButtonsB > 990 || currentButton == STOP) {
+        Serial.println("Pairing mode: stop pressed");
         pairingMode = false;
+        pairingModeExitIgnoreUntil = millis() + 1000;
         nextPiCmd = CMD_PAIRING_CANCEL;
       } else if ((millis() - pairingModeEnteredAt) > 130000) {
         pairingMode = false;
@@ -251,6 +254,16 @@ void loop() {
         case NONE:
         default:
           break;
+        case STOP:
+          if (millis() < pairingModeExitIgnoreUntil) {
+            break;
+          }
+          if (isScanning) {
+            stopScanning();
+          } else {
+            stopMotor();
+          }
+          break;
         case ZOOM:
           setZoomMode((zoomMode == Z10_1) ? Z1_1 : (ZoomMode)((uint8_t)zoomMode + 1));
           nextPiCmd = (Command)((uint8_t)CMD_Z1_1 + (uint8_t)zoomMode);
@@ -258,13 +271,6 @@ void loop() {
         case LIGHT:
           setLampMode(!lampMode);
           nextPiCmd = (Command)((uint8_t)CMD_LAMP_OFF + lampMode);
-          break;
-        case STOP:
-          if (isScanning) {
-            stopScanning();
-          } else {
-            stopMotor();
-          }
           break;
         case RUNREV:
           if (motorState == FWD)
