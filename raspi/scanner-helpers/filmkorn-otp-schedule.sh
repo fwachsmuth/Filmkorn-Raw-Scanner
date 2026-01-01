@@ -21,6 +21,6 @@ if (( expiry <= now )); then
 fi
 
 delay=$((expiry - now))
-sudo systemctl reset-failed filmkorn-otp-expire.service >/dev/null 2>&1 || true
-sudo systemctl stop filmkorn-otp-expire.service >/dev/null 2>&1 || true
-sudo systemd-run --unit=filmkorn-otp-expire --collect --on-active="${delay}s" "$REVOKE_SCRIPT" >/dev/null
+sudo systemctl reset-failed filmkorn-otp-expire.timer filmkorn-otp-expire.service >/dev/null 2>&1 || true
+sudo systemctl stop filmkorn-otp-expire.timer filmkorn-otp-expire.service >/dev/null 2>&1 || true
+sudo systemd-run --unit=filmkorn-otp-expire --collect --replace --on-active="${delay}s" "$REVOKE_SCRIPT" >/dev/null

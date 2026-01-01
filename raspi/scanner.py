@@ -587,6 +587,31 @@ def _update_cancel(_args=None):
     update_mode = False
     show_ready_to_scan()
 
+def _run_otp_scheduler() -> bool:
+    candidates = [
+        "/usr/local/sbin/filmkorn-otp-schedule.sh",
+        os.path.join(repo_root, "raspi", "scanner-helpers", "filmkorn-otp-schedule.sh"),
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            schedule = subprocess.run(
+                ["sudo", path],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if schedule.returncode == 0:
+                logging.info("pairing: expiry scheduled via %s", path)
+                return True
+            logging.error(
+                "pairing: failed to schedule OTP expiry via %s: %s",
+                path,
+                schedule.stderr.strip(),
+            )
+            return False
+    logging.error("pairing: OTP scheduler script not found")
+    return False
+
 def _enable_pairing_password(code: str, expires_at: int) -> bool:
     config_lines = "PasswordAuthentication yes\nKbdInteractiveAuthentication yes\n"
     try:
@@ -635,16 +660,8 @@ def _enable_pairing_password(code: str, expires_at: int) -> bool:
             logging.error("pairing: failed to set pi password: %s", passwd_result.stderr.strip())
             return False
         logging.info("pairing: pi password set")
-        schedule = subprocess.run(
-            ["sudo", "/usr/local/sbin/filmkorn-otp-schedule.sh"],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        if schedule.returncode != 0:
-            logging.error("pairing: failed to schedule OTP expiry: %s", schedule.stderr.strip())
+        if not _run_otp_scheduler():
             return False
-        logging.info("pairing: expiry scheduled")
         restart = subprocess.run(
             ["sudo", "/bin/sh", "-c", "systemctl reload ssh || systemctl restart ssh"],
             check=False,
