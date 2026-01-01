@@ -1913,23 +1913,23 @@ if __name__ == '__main__':
     try:
         last_disk_check = 0.0
         last_resolution_check = 0.0
-    while True:
-        now = time.monotonic()
-        if (
-            not state.scanning
-            and not shutting_down
-            and (
-                current_screen in {
-                    "insert-film",
-                    "ready-to-scan",
-                    "ready-to-scan-local",
-                    "ready-to-scan-net",
-                    "no-drive-connected",
-                    "too-much-power",
-                    "no-usb3-drive",
-                }
-                or sleep_mode
-                or pairing_mode
+        while True:
+            now = time.monotonic()
+            if (
+                not state.scanning
+                and not shutting_down
+                and (
+                    current_screen in {
+                        "insert-film",
+                        "ready-to-scan",
+                        "ready-to-scan-local",
+                        "ready-to-scan-net",
+                        "no-drive-connected",
+                        "too-much-power",
+                        "no-usb3-drive",
+                    }
+                    or sleep_mode
+                    or pairing_mode
                 )
             ):
                 if current_screen == "no-drive-connected" and idle_since is None:
