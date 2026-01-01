@@ -109,7 +109,8 @@ bool isScanning = false;
 bool updateMode = false;
 bool pairingMode = false;
 uint32_t pairingModeEnteredAt = 0;
-uint32_t pairingModeExitIgnoreUntil = 0;
+bool pairingCancelPending = false;
+uint32_t pairingCancelSentAt = 0;
 uint32_t bootIgnoreUntil = 0;
 
 volatile bool piIsReady = false;
@@ -193,7 +194,8 @@ void loop() {
       if (pairingButtonsB > 990 || currentButton == STOP) {
         Serial.println("Pairing mode: stop pressed");
         pairingMode = false;
-        pairingModeExitIgnoreUntil = millis() + 1000;
+        pairingCancelPending = true;
+        pairingCancelSentAt = millis();
         nextPiCmd = CMD_PAIRING_CANCEL;
       } else if ((millis() - pairingModeEnteredAt) > 130000) {
         pairingMode = false;
@@ -255,9 +257,6 @@ void loop() {
         default:
           break;
         case STOP:
-          if (millis() < pairingModeExitIgnoreUntil) {
-            break;
-          }
           if (isScanning) {
             stopScanning();
           } else {
@@ -507,6 +506,7 @@ void i2cReceive(int howMany) {
     if ((Command)i2cCommand == CMD_PAIRING_EXIT) {
       pairingMode = false;
       nextPiCmd = CMD_NONE;
+      pairingCancelPending = false;
     }
     // Don't set piIsReady if we aren't scanning anymore
     if ((Command)i2cCommand == CMD_READY && isScanning) {
@@ -529,19 +529,28 @@ void i2cReceive(int howMany) {
 
 void i2cRequest() {
   // This gets called when the Pi uses ask_arduino() in its loop to ask what to do next. 
-  Wire.write(nextPiCmd);
+  Command cmdToSend = nextPiCmd;
+  Wire.write(cmdToSend);
+
+  if (pairingCancelPending && (millis() - pairingCancelSentAt) > 5000) {
+    pairingCancelPending = false;
+  }
 
   // Special cas ewhen the exposure pot was changed
-  if (nextPiCmd == CMD_SET_EXP) {
+  if (cmdToSend == CMD_SET_EXP) {
     Serial.println("Requesting new Exposure Time value.");
     Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
   }
 
   // Special case to get initial (current) values of film load switch and exposue pot
-  if (nextPiCmd == CMD_SET_INITVALUES) {
+  if (cmdToSend == CMD_SET_INITVALUES) {
     #define INIT_VALUES_SIZE 3
     Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot); // little endian
     Wire.write(filmLoadState);
   }
-  nextPiCmd = CMD_NONE;
+  if (pairingCancelPending && cmdToSend == CMD_PAIRING_CANCEL) {
+    nextPiCmd = CMD_PAIRING_CANCEL;
+  } else {
+    nextPiCmd = CMD_NONE;
+  }
 }
