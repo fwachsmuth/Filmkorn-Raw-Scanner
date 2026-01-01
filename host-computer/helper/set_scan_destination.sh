@@ -57,7 +57,7 @@ done
 
 if [ -z "${rawpath:-}" ]; then
   echo ""
-  read -r -p "Drag the destination folder here and press Enter: " rawpath
+  read -r -p "Drag the destination folder for your scanned films here, then press Enter: " rawpath
   rawpath="${rawpath%/}"
   if [[ "$rawpath" == \"*\" && "$rawpath" == *\" ]]; then
     rawpath="${rawpath#\"}"

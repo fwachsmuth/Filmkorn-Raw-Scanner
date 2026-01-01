@@ -147,7 +147,7 @@ if ! $paired_exists; then
   # Todo: Use a canned sesame key for ssh-copy and delete it afterwards
   echo "Please enter the temporary Raspi password ${BOLD}'filmkornscanner'${RESET} to allow pairing."
   ssh-keyscan -H filmkorn-scanner.local >> ~/.ssh/known_hosts 2>/dev/null || warn "Could not prefetch host key for filmkorn-scanner.local"
-  if ! ssh-copy-id \
+  if ! ssh-copy-id -q \
     -o StrictHostKeyChecking=accept-new \
     -o PubkeyAuthentication=no \
     -o PreferredAuthentications=password,keyboard-interactive \
