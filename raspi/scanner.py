@@ -700,6 +700,8 @@ def _cancel_pairing_mode():
         return
     logging.info("pairing: canceled by controller")
     pairing_mode = False
+    global pairing_exit_pending
+    pairing_exit_pending = True
     if state.scanning:
         logging.info("pairing: forcing scan state to stopped")
         state.scanning = False
@@ -709,6 +711,12 @@ def _cancel_pairing_mode():
 def _enter_pairing_mode():
     global pairing_mode
     logging.info("pairing: entering pairing mode")
+    logging.info(
+        "pairing: enter state sleep_mode=%s current_screen=%s update_mode=%s",
+        sleep_mode,
+        current_screen,
+        update_mode,
+    )
     pairing_mode = True
     code = f"{secrets.randbelow(1000000):06d}"
     expires_at = int(time.time()) + 120
