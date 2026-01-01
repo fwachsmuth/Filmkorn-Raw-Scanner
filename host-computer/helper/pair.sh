@@ -50,6 +50,13 @@ if [ -f /proc/device-tree/model ] && grep -qi "raspberry pi" /proc/device-tree/m
   exit 1
 fi
 
+host_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+install_semaphore="${host_dir}/.scanner_installed"
+if [ ! -f "$install_semaphore" ]; then
+  warn "Please run install_remote_scanning.sh once before attempting to pair with the scanner."
+  exit 1
+fi
+
 paired_exists=false
 if [ -f ".paired" ]; then
   paired_exists=true
