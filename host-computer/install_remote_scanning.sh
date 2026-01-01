@@ -176,20 +176,42 @@ fi
 
 log "Checking macOS Remote Login (SSH)…"
 current_user="$(whoami)"
-log "Requesting admin rights for Remote Login configuration…"
-if ! sudo -v; then
-  warn "Could not obtain sudo privileges. Skipping Remote Login configuration."
-  log "Done."
-  exit 0
+remote_login_status="$(/usr/sbin/systemsetup -getremotelogin 2>/dev/null || true)"
+remote_login_enabled=false
+if [[ "$remote_login_status" == *"On"* ]]; then
+  remote_login_enabled=true
+elif command -v nc >/dev/null 2>&1 && nc -z 127.0.0.1 22 >/dev/null 2>&1; then
+  remote_login_enabled=true
 fi
-remote_login_status="$(sudo systemsetup -getremotelogin 2>/dev/null || true)"
 if [[ -z "$remote_login_status" ]]; then
   warn "Could not query Remote Login state (systemsetup failed)."
 else
   log "Remote Login status: ${remote_login_status}"
 fi
 
-if [[ "$remote_login_status" != *"On"* ]]; then
+have_sudo=false
+ensure_sudo() {
+  if $have_sudo; then
+    return 0
+  fi
+  log "Requesting admin rights for Remote Login configuration…"
+  if sudo -v; then
+    have_sudo=true
+    return 0
+  fi
+  warn "Could not obtain sudo privileges. Skipping Remote Login configuration."
+  log "Done."
+  exit 0
+}
+
+if ! $remote_login_enabled; then
+  ensure_sudo
+  remote_login_status="$(sudo systemsetup -getremotelogin 2>/dev/null || true)"
+  if [[ -z "$remote_login_status" ]]; then
+    warn "Could not query Remote Login state (systemsetup failed)."
+  else
+    log "Remote Login status: ${remote_login_status}"
+  fi
   warn "Remote Login is off."
   read -r -p "Open \"System Settings -> General -> Sharing\" now? [y/N] " open_sharing
   if [[ "${open_sharing:-}" =~ ^[Yy]$ ]]; then
@@ -211,13 +233,16 @@ fi
 if dseditgroup -o checkmember -m "$current_user" com.apple.access_ssh >/dev/null 2>&1; then
   log "Remote Login already allowed for user: ${current_user}"
 else
+  ensure_sudo
   if sudo dseditgroup -o edit -a "$current_user" -t user com.apple.access_ssh >/dev/null 2>&1; then
     log "Allowed Remote Login for user: ${current_user}"
   else
     warn "Failed to allow Remote Login for user: ${current_user}"
   fi
 fi
-sudo dseditgroup -o edit -d "$current_user" -t user com.apple.access_ssh-disabled >/dev/null 2>&1 || true
+if $have_sudo; then
+  sudo dseditgroup -o edit -d "$current_user" -t user com.apple.access_ssh-disabled >/dev/null 2>&1 || true
+fi
 
 if dseditgroup -o checkmember -m "$current_user" com.apple.access_ssh >/dev/null 2>&1; then
   log "Confirmed Remote Login access for user: ${current_user}"
