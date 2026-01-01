@@ -689,6 +689,7 @@ def _exit_pairing_mode_screen():
     pairing_exit_pending = True
     if not sleep_mode:
         show_ready_to_scan()
+    _reset_sleep_button_state()
 
 def _cancel_pairing_mode():
     global pairing_mode
@@ -697,6 +698,7 @@ def _cancel_pairing_mode():
     logging.info("pairing: canceled by controller")
     pairing_mode = False
     show_ready_to_scan()
+    _reset_sleep_button_state()
 
 def _enter_pairing_mode():
     global pairing_mode
@@ -981,6 +983,15 @@ def _poll_sleep_button(now: float) -> bool:
             _enter_sleep_mode()
         return True
     return button_state == 0
+
+def _reset_sleep_button_state():
+    global last_sleep_button_state, last_sleep_button_change, sleep_button_armed
+    try:
+        last_sleep_button_state = GPIO.input(26)
+    except Exception:
+        last_sleep_button_state = 1
+    last_sleep_button_change = time.monotonic()
+    sleep_button_armed = (last_sleep_button_state == 1)
 
 def _apply_camera_controls():
     camera.set_controls({
