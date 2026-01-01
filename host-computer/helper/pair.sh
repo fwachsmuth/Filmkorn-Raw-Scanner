@@ -148,10 +148,10 @@ if ! $paired_exists; then
   # Display it on the screen after a certain key combination was pressed on the scanner.
   warn "Please enter the password shown on the scanner screen."
   echo ""
-  echo "To reveal the pairing code:"
-  echo "- ${BOLD}${YELLOW}press power button${RESET} to send the scanner to sleep"
-  echo "- press and ${BOLD}${YELLOW}hold the SCAN (circle) button${RESET}, and while holding"
-  echo "- ${BOLD}${YELLOW}press the power button again${RESET} to wake the scanner up again"
+  echo "To reveal the password:"
+  echo "- ${BOLD}press power button${RESET} to send the scanner to sleep"
+  echo "- press and ${BOLD}hold the SCAN (circle) button${RESET}, and while holding,"
+  echo "- ${BOLD}press the power button again${RESET} to wake the scanner up."
   ssh-keyscan -H filmkorn-scanner.local >> ~/.ssh/known_hosts 2>/dev/null || warn "Could not prefetch host key for filmkorn-scanner.local"
   ssh_copy_tmp="$(mktemp)"
   if ! ssh-copy-id \

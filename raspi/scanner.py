@@ -1964,7 +1964,7 @@ if __name__ == '__main__':
                     pairing_exit_pending = False
                 except Exception as exc:
                     logging.warning("pairing: failed to notify controller to exit pairing mode: %s", exc)
-            if sleep_mode or pairing_mode:
+            if not state.scanning and not shutting_down:
                 if _poll_sleep_button(now):
                     time.sleep(0.05)
                     continue
@@ -1984,18 +1984,11 @@ if __name__ == '__main__':
                         "too-much-power",
                         "no-usb3-drive",
                     }
-                    or sleep_mode
                     or pairing_mode
                 )
             ):
                 if current_screen == "no-drive-connected" and idle_since is None:
                     idle_since = now
-                if _poll_sleep_button(now):
-                    time.sleep(0.05)
-                    continue
-                if sleep_mode:
-                    time.sleep(0.1)
-                    continue
                 if (
                     idle_since is not None
                     and (now - idle_since) >= 900.0
