@@ -5,26 +5,21 @@
 - log insight (from host)
 
 ## Next
-- [ ] Add davinci resolve assets to repo
-- [ ] Checkout newest tag after image expand
-- [ ] scan-log mit auf die Platte schreiben, ebenso update-logs (weitere?)
-- [ ] is opme.sh working and ever called?
 - [ ] "Allow full disk access for remote users" in installer script
+- [ ] scan-log mit auf die Platte schreiben, ebenso update-logs (weitere?)
+
+- [ ] Imaging
+    - [ ] Postflight: Checkout newest tag after image expand
+
+
+- [ ] Add davinci resolve assets to repo
 
 - [ ] Fuses are still at 1 MHz when bootstrapping from raspi. Test burning fuses with 5 VCC. MISO is 5V tho. 47K inbetween? Reset has a 10k Pullup too. I would recommend driving the pins from 5V logic via at least 10K resistor and also connect an external Schottky diode from the pin to 3.3V to prevent the input pin's voltage rising much above the PI's supply rail.
 - [ ] Auto-Stop in-channel Rewinds
 - [ ] consider enabling wifi for time and updates (captive approach?)
-
-
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
 - [ ] Test with a Raspi 5
 - [ ] Write Build-your-own howtos
-- [ ] fix pair.sh: Can't git:
-            Host key verification failed.
-            fatal: Could not read from remote repository.
-
-            Please make sure you have the correct access rights
-            and the repository exists.
 - [ ] Try out platformio and see if it fixes the crashy USB/UART oddity
 
 
