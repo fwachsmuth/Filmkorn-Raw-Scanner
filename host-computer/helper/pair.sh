@@ -89,23 +89,71 @@ if ! $paired_exists; then
 fi
 
 # Configure this computer for easy & secure ssh to the Raspi, if it isn't yet
-if ! grep -q filmkorn-scanner.local ~/.ssh/config; then
-  info "Updating ~/.ssh/config..."
-  cat <<EOT >> ~/.ssh/config
-Host filmkorn-scanner.local
-  AddKeysToAgent no
-  UseKeychain no
-  IdentitiesOnly yes
-  IdentityFile ~/.ssh/id_filmkorn-scanner_ed25519
-  StrictHostKeyChecking no
-EOT
-fi
+info "Ensuring ~/.ssh/config is set for filmkorn-scanner.local..."
+mkdir -p ~/.ssh
+touch ~/.ssh/config
+python3 - <<'PY'
+import os
+import re
+
+path = os.path.expanduser("~/.ssh/config")
+target = "filmkorn-scanner.local"
+host_re = re.compile(r'^\s*Host\s+(.+)\s*$')
+
+with open(path, "r", encoding="utf-8", errors="ignore") as f:
+  lines = f.readlines()
+
+out = []
+i = 0
+found = False
+while i < len(lines):
+  line = lines[i]
+  match = host_re.match(line)
+  if match:
+    hosts = match.group(1).split()
+    if target in hosts:
+      found = True
+      out.append(f"Host {target}\n")
+      i += 1
+      while i < len(lines) and not host_re.match(lines[i]):
+        i += 1
+      out.extend([
+        "  AddKeysToAgent no\n",
+        "  UseKeychain no\n",
+        "  IdentitiesOnly yes\n",
+        "  IdentityFile ~/.ssh/id_filmkorn-scanner_ed25519\n",
+        "  StrictHostKeyChecking accept-new\n",
+      ])
+      continue
+  out.append(line)
+  i += 1
+
+if not found:
+  out.append("\n")
+  out.extend([
+    f"Host {target}\n",
+    "  AddKeysToAgent no\n",
+    "  UseKeychain no\n",
+    "  IdentitiesOnly yes\n",
+    "  IdentityFile ~/.ssh/id_filmkorn-scanner_ed25519\n",
+    "  StrictHostKeyChecking accept-new\n",
+  ])
+
+with open(path, "w", encoding="utf-8") as f:
+  f.writelines(out)
+PY
 
 if ! $paired_exists; then
   # Todo: Use a canned sesame key for ssh-copy and delete it afterwards
   echo "Please enter the temporary Raspi password ${BOLD}'filmkornscanner'${RESET} to allow pairing."
   ssh-keyscan -H filmkorn-scanner.local >> ~/.ssh/known_hosts 2>/dev/null || warn "Could not prefetch host key for filmkorn-scanner.local"
-  if ! ssh-copy-id -o StrictHostKeyChecking=accept-new -i ~/.ssh/id_filmkorn-scanner_ed25519.pub pi@filmkorn-scanner.local > /dev/null 2> /dev/null; then
+  if ! ssh-copy-id \
+    -o StrictHostKeyChecking=accept-new \
+    -o PubkeyAuthentication=no \
+    -o PreferredAuthentications=password,keyboard-interactive \
+    -i ~/.ssh/id_filmkorn-scanner_ed25519.pub \
+    pi@filmkorn-scanner.local
+  then
     warn "Failed to install SSH key on the scanner. Check the password and network connection."
     exit 1
   fi
@@ -114,15 +162,21 @@ fi
 if ! $paired_exists; then
   # On the Raspi, generate and deploy a keypair to send files to this computer
   info "Generating SSH keypair on the Raspi..."
-  ssh pi@filmkorn-scanner.local "ssh-keygen -t ed25519 -q -f ~/.ssh/id_filmkorn-scanner_ed25519 -C pi@filmkorn-scanner -N ''"
+  ssh -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
+    pi@filmkorn-scanner.local \
+    "rm -f ~/.ssh/id_filmkorn-scanner_ed25519 ~/.ssh/id_filmkorn-scanner_ed25519.pub && ssh-keygen -t ed25519 -q -f ~/.ssh/id_filmkorn-scanner_ed25519 -C pi@filmkorn-scanner -N ''"
   echo ""
   echo "When prompted, please enter the password ${BOLD}of this Mac${RESET} to allow receiving scanned film frames going forward."
-  ssh pi@filmkorn-scanner.local -t "ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub $(whoami)@$(hostname -s).local > /dev/null 2> /dev/null"
+  ssh -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
+    pi@filmkorn-scanner.local -t \
+    "ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub $(whoami)@$(hostname -s).local > /dev/null 2> /dev/null"
 fi
 
 if [ -f ".scan_destination" ]; then
   info "Configuring where on the Mac the scans should be stored..."
-  ssh -t pi@filmkorn-scanner.local "FORCE_COLOR=1 ./Filmkorn-Raw-Scanner/raspi/pairing/update-destination.sh -h $(whoami)@$(hostname -s).local -p \"$(cat .scan_destination)\""
+  ssh -t -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
+    pi@filmkorn-scanner.local \
+    "FORCE_COLOR=1 ./Filmkorn-Raw-Scanner/raspi/pairing/update-destination.sh -h $(whoami)@$(hostname -s).local -p \"$(cat .scan_destination)\""
 else
   warn "No Scanning Destination defined yet."
   ./helper/set_scan_destination.sh

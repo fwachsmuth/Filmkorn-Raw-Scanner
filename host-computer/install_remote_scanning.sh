@@ -191,7 +191,7 @@ fi
 
 if [[ "$remote_login_status" != *"On"* ]]; then
   warn "Remote Login is off."
-  read -r -p "Open System Settings -> General -> Sharing now? [y/N] " open_sharing
+  read -r -p "Open \"System Settings -> General -> Sharing\" now? [y/N] " open_sharing
   if [[ "${open_sharing:-}" =~ ^[Yy]$ ]]; then
     open "x-apple.systempreferences:com.apple.Sharing-Settings.extension"
   fi
@@ -202,7 +202,7 @@ if [[ "$remote_login_status" != *"On"* ]]; then
       log "Remote Login enabled."
       break
     fi
-    warn "Remote Login is still off. Enable it in System Settings -> General -> Sharing."
+    warn "Enable 'Remote Login' in System Settings to continue."
   done
 else
   log "Remote Login already enabled."
@@ -227,13 +227,9 @@ fi
 
 if [[ ! -f ".paired" ]]; then
   warn "No paired Scanner detected yet (.paired missing)."
-  warn "Run ./helper/pair.sh when you are ready to pair this computer with your scanner."
-  read -r -p "Run ./helper/pair.sh now? [y/N] " run_pair
-  if [[ "${run_pair:-}" =~ ^[Yy]$ ]]; then
-    if ! BYPASS_INSTALL_SEMAPHORE=1 ./helper/pair.sh; then
-      warn "pair.sh exited with an error."
-      exit 1
-    fi
+  if ! BYPASS_INSTALL_SEMAPHORE=1 ./helper/pair.sh; then
+    warn "pair.sh exited with an error."
+    exit 1
   fi
 else
   log "A Scanner has already been paired. Run helper/unpair.sh to remove pairing."
