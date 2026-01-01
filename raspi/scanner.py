@@ -677,17 +677,27 @@ def _enable_pairing_password(code: str, expires_at: int) -> bool:
         logging.exception("pairing: enable password auth failed: %s", exc)
         return False
 
+def _exit_pairing_mode_screen():
+    global pairing_mode
+    if not pairing_mode:
+        return
+    logging.info("pairing: auto-leaving pairing screen")
+    pairing_mode = False
+    if not sleep_mode:
+        show_ready_to_scan()
+
 def _enter_pairing_mode():
     global pairing_mode
     logging.info("pairing: entering pairing mode")
     pairing_mode = True
     code = f"{secrets.randbelow(1000000):06d}"
-    expires_at = int(time.time()) + 300
+    expires_at = int(time.time()) + 120
     if not _enable_pairing_password(code, expires_at):
         show_update_screen(["Pairing failed", "Could not enable SSH"])
         return
     logging.info("pairing: otp code generated")
-    show_update_screen(["Pairing code", code, "This password expires in 5 minutes"])
+    show_update_screen(["Pairing code", code, "This password expires in 2 minutes"])
+    threading.Timer(120.0, _exit_pairing_mode_screen).start()
 
 def _apply_overlay_if_ready():
     global pending_overlay, overlay_supported, overlay_retry_count, overlay_retry_timer
@@ -1932,6 +1942,9 @@ if __name__ == '__main__':
         last_resolution_check = 0.0
         while True:
             now = time.monotonic()
+            if pairing_mode and _poll_sleep_button(now):
+                time.sleep(0.05)
+                continue
             if (
                 not state.scanning
                 and not shutting_down
