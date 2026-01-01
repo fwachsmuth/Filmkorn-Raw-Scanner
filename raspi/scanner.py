@@ -607,6 +607,7 @@ def _enable_pairing_password(code: str, expires_at: int) -> bool:
         if result.returncode != 0:
             logging.error("pairing: failed to enable password auth: %s", result.stderr.strip())
             return False
+        logging.info("pairing: password authentication enabled")
         expiry_result = subprocess.run(
             [
                 "sudo",
@@ -623,6 +624,7 @@ def _enable_pairing_password(code: str, expires_at: int) -> bool:
         if expiry_result.returncode != 0:
             logging.error("pairing: failed to write OTP expiry: %s", expiry_result.stderr.strip())
             return False
+        logging.info("pairing: expiry timestamp written")
         passwd_result = subprocess.run(
             ["sudo", "/bin/sh", "-c", "echo \"pi:$1\" | chpasswd", "_", code],
             check=False,
@@ -632,6 +634,7 @@ def _enable_pairing_password(code: str, expires_at: int) -> bool:
         if passwd_result.returncode != 0:
             logging.error("pairing: failed to set pi password: %s", passwd_result.stderr.strip())
             return False
+        logging.info("pairing: pi password set")
         schedule = subprocess.run(
             ["sudo", "/usr/local/sbin/filmkorn-otp-schedule.sh"],
             check=False,
@@ -641,6 +644,7 @@ def _enable_pairing_password(code: str, expires_at: int) -> bool:
         if schedule.returncode != 0:
             logging.error("pairing: failed to schedule OTP expiry: %s", schedule.stderr.strip())
             return False
+        logging.info("pairing: expiry scheduled")
         restart = subprocess.run(
             ["sudo", "/bin/sh", "-c", "systemctl reload ssh || systemctl restart ssh"],
             check=False,
@@ -650,6 +654,7 @@ def _enable_pairing_password(code: str, expires_at: int) -> bool:
         if restart.returncode != 0:
             logging.error("pairing: failed to reload ssh: %s", restart.stderr.strip())
             return False
+        logging.info("pairing: ssh reloaded")
         return True
     except Exception as exc:
         logging.exception("pairing: enable password auth failed: %s", exc)
@@ -664,6 +669,7 @@ def _enter_pairing_mode():
     if not _enable_pairing_password(code, expires_at):
         show_update_screen(["Pairing failed", "Could not enable SSH"])
         return
+    logging.info("pairing: otp code generated")
     show_update_screen(["Pairing code", code, "This password expires in 5 minutes"])
 
 def _apply_overlay_if_ready():
@@ -1841,6 +1847,7 @@ def loop():
 
     if command is not None:
         if command == Command.PAIRING_ENTER:
+            logging.info("pairing: received pairing enter command")
             _enter_pairing_mode()
             return
         if command == Command.UPDATE_ENTER:
