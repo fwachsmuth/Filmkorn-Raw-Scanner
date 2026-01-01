@@ -37,6 +37,10 @@ sed -i '\#scanning-#d' ~/.ssh/authorized_keys || true
 info "🐧 Removing keypair from Raspi..."
 rm -f ~/.ssh/id_filmkorn-scanner_ed25519* || true
 
+info "🐧 Re-enabling password authentication on Raspi..."
+sudo rm -f /etc/ssh/sshd_config.d/filmkorn-password.conf || true
+sudo systemctl reload ssh || sudo systemctl restart ssh || true
+
 # Verify
 echo ""
 info "🐧 Results of unpairing on Raspi:"
