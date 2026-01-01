@@ -39,6 +39,8 @@ rm -f ~/.ssh/id_filmkorn-scanner_ed25519* || true
 
 info "🐧 Re-enabling password authentication on Raspi..."
 sudo rm -f /etc/ssh/sshd_config.d/filmkorn-password.conf || true
+sudo rm -f /var/lib/filmkorn/otp_expires_at || true
+sudo systemctl stop filmkorn-otp-expire.service >/dev/null 2>&1 || true
 sudo systemctl reload ssh || sudo systemctl restart ssh || true
 
 # Verify

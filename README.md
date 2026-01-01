@@ -185,3 +185,8 @@ The scanner comes with a couple of systemd services and helper scripts and servi
 - usb-mount-largest@.service identifies the biggest partition on a connected drive and mounts it. extFS and ext4 are supported — NTFS is just too slow.
 
 The other scripts you'll find are helpers that are called directly by the services, if needed. 'scanner.py' is where the brains are. 
+
+
+## Magic Buttons
+- Hold << and >> during wake-up toenable firmware update mode
+- Hold SCAN button (Rec) during wake-up to enable pairing mode

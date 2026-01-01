@@ -98,5 +98,22 @@ sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-wake.service" \
 sudo systemctl daemon-reload
 sudo systemctl disable --now filmkorn-sleep.service filmkorn-wake.service || true
 
+###
+### OTP pairing expiry helper
+###
+echo "Installing OTP pairing expiry helpers"
+
+sudo install -m 0755 "${SCRIPT_DIR}/../scanner-helpers/filmkorn-otp-revoke.sh" \
+  /usr/local/sbin/filmkorn-otp-revoke.sh
+sudo install -m 0755 "${SCRIPT_DIR}/../scanner-helpers/filmkorn-otp-schedule.sh" \
+  /usr/local/sbin/filmkorn-otp-schedule.sh
+
+sudo install -m 0644 "${SCRIPT_DIR}/filmkorn-otp-schedule.service" \
+  /etc/systemd/system/filmkorn-otp-schedule.service
+
+sudo systemctl daemon-reload
+sudo systemctl enable filmkorn-otp-schedule.service
+sudo systemctl restart filmkorn-otp-schedule.service || true
+
 echo
 echo "All services installed and restarted where applicable."
