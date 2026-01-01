@@ -1,0 +1,12 @@
+#!/bin/bash
+set -euo pipefail
+
+HOST_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
+COMMAND_FILE="$HOST_DIR/host-computer/install_remote_scanning.command"
+
+if [ ! -f "$COMMAND_FILE" ]; then
+  echo "Missing $COMMAND_FILE"
+  exit 1
+fi
+
+open -a Terminal "$COMMAND_FILE"
