@@ -190,11 +190,7 @@ else
 fi
 
 if [[ "$remote_login_status" != *"On"* ]]; then
-  if sudo systemsetup -setremotelogin on >/dev/null 2>&1; then
-    log "Enabled Remote Login."
-  else
-    warn "Failed to enable Remote Login system-wide. Proceeding with user-level access only."
-  fi
+  warn "Remote Login is off. Enable it in System Settings -> General -> Sharing."
 else
   log "Remote Login already enabled."
 fi
@@ -218,7 +214,7 @@ fi
 
 if [[ ! -f ".paired" ]]; then
   warn "No paired Scanner detected yet (.paired missing)."
-  warn "Run ./helper/pair.sh when you're ready to connect this Mac to the scanner."
+  warn "Run ./helper/pair.sh when you are ready to pair this computer with your scanner."
   read -r -p "Run ./helper/pair.sh now? [y/N] " run_pair
   if [[ "${run_pair:-}" =~ ^[Yy]$ ]]; then
     BYPASS_INSTALL_SEMAPHORE=1 ./helper/pair.sh || warn "pair.sh exited with an error."
