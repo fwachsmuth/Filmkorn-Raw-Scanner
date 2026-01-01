@@ -686,6 +686,9 @@ def _exit_pairing_mode_screen():
         return
     logging.info("pairing: auto-leaving pairing screen")
     pairing_mode = False
+    if state.scanning:
+        logging.info("pairing: forcing scan state to stopped")
+        state.scanning = False
     pairing_exit_pending = True
     if not sleep_mode:
         show_ready_to_scan()
@@ -697,6 +700,9 @@ def _cancel_pairing_mode():
         return
     logging.info("pairing: canceled by controller")
     pairing_mode = False
+    if state.scanning:
+        logging.info("pairing: forcing scan state to stopped")
+        state.scanning = False
     show_ready_to_scan()
     _reset_sleep_button_state()
 
