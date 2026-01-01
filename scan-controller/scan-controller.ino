@@ -75,6 +75,7 @@ enum Command
   CMD_UPDATE_CANCEL,
   CMD_PAIRING_ENTER,
   CMD_PAIRING_EXIT,
+  CMD_PAIRING_CANCEL,
 
   // Raspi to Arduino
   CMD_READY = 128,
@@ -180,7 +181,10 @@ void loop() {
   if (updateMode || pairingMode) {
     if (pairingMode) {
       currentButton = pollButtons();
-      if (currentButton == STOP || (millis() - pairingModeEnteredAt) > 130000) {
+      if (currentButton == STOP) {
+        pairingMode = false;
+        nextPiCmd = CMD_PAIRING_CANCEL;
+      } else if ((millis() - pairingModeEnteredAt) > 130000) {
         pairingMode = false;
         nextPiCmd = CMD_NONE;
       }

@@ -142,6 +142,7 @@ class Command(enum.Enum):
     UPDATE_CANCEL = 19
     PAIRING_ENTER = 20
     PAIRING_EXIT = 21
+    PAIRING_CANCEL = 22
 
     # Raspi to Arduino. Ths is handled by i2cReceive() on the Controller side.
     READY = 128
@@ -688,6 +689,14 @@ def _exit_pairing_mode_screen():
     pairing_exit_pending = True
     if not sleep_mode:
         show_ready_to_scan()
+
+def _cancel_pairing_mode():
+    global pairing_mode
+    if not pairing_mode:
+        return
+    logging.info("pairing: canceled by controller")
+    pairing_mode = False
+    show_ready_to_scan()
 
 def _enter_pairing_mode():
     global pairing_mode
@@ -1887,6 +1896,9 @@ def loop():
         if command == Command.PAIRING_ENTER:
             logging.info("pairing: received pairing enter command")
             _enter_pairing_mode()
+            return
+        if command == Command.PAIRING_CANCEL:
+            _cancel_pairing_mode()
             return
         if command == Command.UPDATE_ENTER:
             _enter_update_mode()
