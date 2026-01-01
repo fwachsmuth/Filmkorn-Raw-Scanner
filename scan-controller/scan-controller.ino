@@ -107,6 +107,7 @@ bool lampMode = false;
 bool isScanning = false;
 bool updateMode = false;
 bool pairingMode = false;
+uint32_t pairingModeEnteredAt = 0;
 uint32_t bootIgnoreUntil = 0;
 
 volatile bool piIsReady = false;
@@ -149,6 +150,7 @@ void setup() {
   bool bootScan = (bootButtonsB > 30 && bootButtonsB < 70);
   if (bootScan) {
     pairingMode = true;
+    pairingModeEnteredAt = millis();
     nextPiCmd = CMD_PAIRING_ENTER;
     Serial.println("Pairing mode: enter");
   } else if (bootStop || bootRunRevRunFwd) {
@@ -177,6 +179,11 @@ void loop() {
 
   if (updateMode || pairingMode) {
     if (pairingMode) {
+      currentButton = pollButtons();
+      if (currentButton == STOP || (millis() - pairingModeEnteredAt) > 130000) {
+        pairingMode = false;
+        nextPiCmd = CMD_NONE;
+      }
       return;
     }
     currentButton = pollButtons();
