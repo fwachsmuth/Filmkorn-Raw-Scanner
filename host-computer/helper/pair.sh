@@ -80,8 +80,12 @@ check_scanner_reachable
 
 # Generate and deploy a keypair to control the scanning Raspi
 if ! $paired_exists; then
-  info "Generating local SSH keypair for the scanner..."
-  ssh-keygen -t ed25519 -q -f ~/.ssh/id_filmkorn-scanner_ed25519 -C "scanning-$(whoami)@$(hostname -s)" -N ''
+  if [ -f ~/.ssh/id_filmkorn-scanner_ed25519 ]; then
+    info "Using existing SSH keypair for the scanner."
+  else
+    info "Generating local SSH keypair for the scanner..."
+    ssh-keygen -t ed25519 -q -f ~/.ssh/id_filmkorn-scanner_ed25519 -C "scanning-$(whoami)@$(hostname -s)" -N ''
+  fi
 fi
 
 # Configure this computer for easy & secure ssh to the Raspi, if it isn't yet
