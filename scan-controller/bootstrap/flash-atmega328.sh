@@ -31,7 +31,13 @@ fi
 #     -U hfuse:w:0xDA:m \
 #     -U lfuse:w:0xFF:m 
 
-sudo raspi-gpio set 16 op dh
+python3 - <<'PY'
+import RPi.GPIO as GPIO
+
+UC_POWER_GPIO = 16  # GPIO16 (physical pin 36) enables µC power switch on the controller PCB
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(UC_POWER_GPIO, GPIO.OUT, initial=GPIO.HIGH)
+PY
     
 # Burn uC Code & bootloader 
 # This is for the new, self-built avrdude 8.1 with libgpiod support.
