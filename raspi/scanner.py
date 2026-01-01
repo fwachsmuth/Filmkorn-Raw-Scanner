@@ -101,6 +101,7 @@ update_current_tag = None
 update_in_progress = False
 update_error = None
 pairing_mode = False
+pairing_exit_pending = False
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 current_version_label = None
 STATUS_SCREENS = {
@@ -679,15 +680,12 @@ def _enable_pairing_password(code: str, expires_at: int) -> bool:
         return False
 
 def _exit_pairing_mode_screen():
-    global pairing_mode
+    global pairing_mode, pairing_exit_pending
     if not pairing_mode:
         return
     logging.info("pairing: auto-leaving pairing screen")
     pairing_mode = False
-    try:
-        tell_arduino(Command.PAIRING_EXIT)
-    except Exception as exc:
-        logging.warning("pairing: failed to notify controller to exit pairing mode: %s", exc)
+    pairing_exit_pending = True
     if not sleep_mode:
         show_ready_to_scan()
 
@@ -863,16 +861,13 @@ def clear_tty1():
         pass
 
 def _enter_sleep_mode():
-    global sleep_mode, preview_started, camera_running, pairing_mode, current_screen
+    global sleep_mode, preview_started, camera_running, pairing_mode, current_screen, pairing_exit_pending
     logging.info("Entering sleep mode")
     if pairing_mode:
         logging.info("pairing: exiting pairing screen due to sleep")
         pairing_mode = False
         current_screen = None
-        try:
-            tell_arduino(Command.PAIRING_EXIT)
-        except Exception as exc:
-            logging.warning("pairing: failed to notify controller to exit pairing mode: %s", exc)
+        pairing_exit_pending = True
     try:
         GPIO.output(UC_POWER_GPIO, GPIO.LOW)
     except Exception:
@@ -1951,6 +1946,12 @@ if __name__ == '__main__':
         last_resolution_check = 0.0
         while True:
             now = time.monotonic()
+            if pairing_exit_pending and not sleep_mode:
+                try:
+                    tell_arduino(Command.PAIRING_EXIT)
+                    pairing_exit_pending = False
+                except Exception as exc:
+                    logging.warning("pairing: failed to notify controller to exit pairing mode: %s", exc)
             if sleep_mode or pairing_mode:
                 if _poll_sleep_button(now):
                     time.sleep(0.05)
