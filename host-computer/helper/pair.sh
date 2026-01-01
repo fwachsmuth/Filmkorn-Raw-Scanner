@@ -24,6 +24,27 @@ warn() {
   echo "${BOLD}${YELLOW}$*${RESET}"
 }
 
+check_scanner_reachable() {
+  if ! ping -c 1 -W 1 filmkorn-scanner.local >/dev/null 2>&1; then
+    warn "Scanner could not be reached. Please connect your Scanner to Ethernet and turn it on, then try again."
+    exit 1
+  fi
+}
+
+check_local_ssh_reachable() {
+  if ! command -v nc >/dev/null 2>&1; then
+    warn "nc (netcat) not found; skipping local SSH reachability check."
+    return
+  fi
+  if ! nc -z localhost 22 >/dev/null 2>&1; then
+    warn "This computer does not seem reachable by the Scanner. Please enable ssh login."
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+      warn "On your Mac, go to System Settings -> General -> Sharing and enable both 'Remote Login' and \"Allow full disk access for remote users\"."
+    fi
+    exit 1
+  fi
+}
+
 if [ -f /proc/device-tree/model ] && grep -qi "raspberry pi" /proc/device-tree/model; then
   warn "This script must run on the host computer, not on the Raspi."
   exit 1
@@ -47,6 +68,9 @@ if ! command -v ssh-keygen >/dev/null 2>&1; then
   exit 1
 fi
 
+check_local_ssh_reachable
+check_scanner_reachable
+
 # Generate and deploy a keypair to control the scanning Raspi
 if ! $paired_exists; then
   info "Generating local SSH keypair for the scanner..."
@@ -67,7 +91,7 @@ EOT
 fi
 
 if ! $paired_exists; then
-  # To do: Use sesame key for ssh-copy and delete it afterwards
+  # Todo: Use a canned sesame key for ssh-copy and delete it afterwards
   echo "Please enter the temporary Raspi password ${BOLD}'filmkornscanner'${RESET} to allow pairing."
   ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub pi@filmkorn-scanner.local > /dev/null 2> /dev/null
 fi
