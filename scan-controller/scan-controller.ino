@@ -183,6 +183,12 @@ void loop() {
       dummyread = analogRead(BUTTONS_B_PIN);
       int pairingButtonsB = analogRead(BUTTONS_B_PIN);
       currentButton = pollButtons();
+      static uint32_t lastPairingLogAt = 0;
+      if (millis() - lastPairingLogAt > 500) {
+        Serial.print("Pairing A1 ADC: ");
+        Serial.println(pairingButtonsB);
+        lastPairingLogAt = millis();
+      }
       if (pairingButtonsB > 990 || currentButton == STOP) {
         pairingMode = false;
         nextPiCmd = CMD_PAIRING_CANCEL;
