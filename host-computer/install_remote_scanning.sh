@@ -131,28 +131,43 @@ fi
 stock_rsync="/usr/bin/rsync"
 hb_rsync="$(brew --prefix)/bin/rsync"
 
-# If Homebrew rsync is already installed, we’re done (but we’ll verify)
-if [[ -x "$hb_rsync" ]]; then
-  log "Homebrew rsync already installed at: $hb_rsync"
+stock_ver="$("$stock_rsync" --version | head -n1 || true)"
+if [[ "$stock_ver" == *"version 3."* ]]; then
+  log "System rsync is already 3.x; skipping Homebrew rsync install."
+  skip_rsync_install=true
 else
-  log "Installing rsync via Homebrew…"
-  if ! brew install rsync; then
-    # Common error: permissions / ownership problems in prefix
-    warn "brew install rsync failed. Running quick diagnostics…"
-    brew doctor || true
-    die "Failed to install rsync with Homebrew. See output above for the cause."
+  skip_rsync_install=false
+fi
+
+# If Homebrew rsync is already installed, we’re done (but we’ll verify)
+if ! $skip_rsync_install; then
+  if [[ -x "$hb_rsync" ]]; then
+    log "Homebrew rsync already installed at: $hb_rsync"
+  else
+    log "Installing rsync via Homebrew…"
+    if ! brew install rsync; then
+      # Common error: permissions / ownership problems in prefix
+      warn "brew install rsync failed. Running quick diagnostics…"
+      brew doctor || true
+      die "Failed to install rsync with Homebrew. See output above for the cause."
+    fi
   fi
 fi
 
-[[ -x "$hb_rsync" ]] || die "rsync install reported success but binary not found at: $hb_rsync"
+if ! $skip_rsync_install; then
+  [[ -x "$hb_rsync" ]] || die "rsync install reported success but binary not found at: $hb_rsync"
+fi
 
 # ---------- verify versions and PATH ----------
 log "Verifying rsync versions…"
-stock_ver="$("$stock_rsync" --version | head -n1 || true)"
 hb_ver="$("$hb_rsync" --version | head -n1 || true)"
 
 printf "  Stock macOS rsync: %s (%s)\n" "$stock_rsync" "${stock_ver:-unknown}"
-printf "  Homebrew rsync:    %s (%s)\n" "$hb_rsync" "${hb_ver:-unknown}"
+if $skip_rsync_install; then
+  printf "  Homebrew rsync:    %s (%s)\n" "$hb_rsync" "skipped"
+else
+  printf "  Homebrew rsync:    %s (%s)\n" "$hb_rsync" "${hb_ver:-unknown}"
+fi
 
 # Ensure current shell finds the Homebrew rsync (optional; some users may prefer /usr/bin/rsync)
 resolved="$(command -v rsync || true)"
