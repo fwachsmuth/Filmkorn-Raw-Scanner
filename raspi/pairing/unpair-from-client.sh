@@ -30,28 +30,28 @@ if ! [ -f /proc/device-tree/model ] || ! grep -qi "raspberry pi" /proc/device-tr
   exit 1
 fi
 
-info "Removing your host computer from Raspi's authorized_keys..."
+info "🐧 Removing your host computer from Raspi's authorized_keys..."
 sed -i '\#scanning-#d' ~/.ssh/authorized_keys || true
 
 # Remove local keypairs
-info "Removing keypair from Raspi..."
+info "🐧 Removing keypair from Raspi..."
 rm -f ~/.ssh/id_filmkorn-scanner_ed25519* || true
 
 # Verify
 echo ""
-info "Results of unpairing on Raspi:"
-info "Raspi's known_hosts:"
+info "🐧 Results of unpairing on Raspi:"
+info "🐧 Raspi's known_hosts:"
 test ~/.ssh/known_hosts && cat ~/.ssh/known_hosts || true
 echo "------------------------------------------------"
-info "Raspi's remaining authorized_keys:"
+info "🐧 Raspi's remaining authorized_keys:"
 test ~/.ssh/authorized_keys && cat ~/.ssh/authorized_keys || true
 echo "------------------------------------------------"
-info "Raspi's remaining keys:"
+info "🐧 Raspi's remaining keys:"
 ls -la ~/.ssh/ || true
 echo "------------------------------------------------"
-info "Raspi's remaining ssh config:"
+info "🐧 Raspi's remaining ssh config:"
 test ~/.ssh/config && cat ~/.ssh/config || true
 echo "------------------------------------------------"
 
-info "Raspi finished its unpairing."
+info "🐧 Raspi finished its unpairing."
 echo ""
