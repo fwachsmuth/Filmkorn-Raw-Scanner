@@ -35,7 +35,8 @@ if [[ ! "${confirm_unpair:-}" =~ ^[Yy]$ ]]; then
 fi
 
 info "Asking Raspi to unpair..."
-ssh-keyscan -H filmkorn-scanner.local >> ~/.ssh/known_hosts 2>/dev/null || true
+ssh-keygen -R filmkorn-scanner.local >/dev/null 2>&1 || true
+ssh-keyscan -H -t ed25519 filmkorn-scanner.local 2>/dev/null | grep -v '^#' >> ~/.ssh/known_hosts || true
 unpair_ok=true
 if ! ssh -t -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
   pi@filmkorn-scanner.local \
@@ -70,6 +71,8 @@ cat ~/.ssh/config || true
 echo ""
 echo "------------------------------------------------"
 
-if ! $unpair_ok; then
+if $unpair_ok; then
+  info "Unpairing completed on the Raspi."
+else
   warn "Unpairing did not succeed on the Raspi. Please retry once the scanner is reachable."
 fi
