@@ -14,6 +14,8 @@
 #     Intel:         /usr/local
 #
 set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+INSTALL_SEMAPHORE="${SCRIPT_DIR}/.scanner_installed"
 
 # ---------- helpers ----------
 if [ -t 1 ]; then
@@ -220,4 +222,5 @@ else
 fi
 
 log "Done."
+touch "$INSTALL_SEMAPHORE"
 exit 0
