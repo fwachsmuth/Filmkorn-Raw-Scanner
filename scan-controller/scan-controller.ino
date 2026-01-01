@@ -180,8 +180,10 @@ void loop() {
 
   if (updateMode || pairingMode) {
     if (pairingMode) {
+      dummyread = analogRead(BUTTONS_B_PIN);
+      int pairingButtonsB = analogRead(BUTTONS_B_PIN);
       currentButton = pollButtons();
-      if (currentButton == STOP) {
+      if (pairingButtonsB > 990 || currentButton == STOP) {
         pairingMode = false;
         nextPiCmd = CMD_PAIRING_CANCEL;
       } else if ((millis() - pairingModeEnteredAt) > 130000) {
