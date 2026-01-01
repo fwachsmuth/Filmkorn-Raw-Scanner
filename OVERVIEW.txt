@@ -1,34 +1,36 @@
         Host Computer                                   Raspberry Pi
 
+┌──────────────────────────────────────┐
+│ install_remote_scanning.sh           │
+│ - installs Homebrew + rsync          │
+│ - enables Remote Login               │
+│ - touches .scanner_installed         │
+└──────────────────┬───────────────────┘
+                   │
+                   ▼
+┌──────────────────────────────────────┐
+│ helper/pair.sh                       │
+│ - creates and installs an ssh key    │
+│ - configures raspi keys              │          ┌────────────────────────────────┐
+│ - ensures destination path is set    ├─────────►│ pairing/update-destination.sh  │
+└──────────────────────────────────────┘  calls   │ (via pair.sh)                  │
+                   │                              │ - creates lsyncd-to-host.conf  │
+                   │ if no scan                   │ - writes .scan_destination     │
+                   │ destination                  │ - validates host/path/rsync    │
+                   │ defined yet                  └────────────────────────────────┘
+                   │
+                   ▼
+┌──────────────────────────────────────┐          ┌────────────────────────────────┐
+│ helper/set_scan_destination.sh       │          │ pairing/update-destination.sh  │
+│ - updates local .scan_destination    ├─────────►│ (via set_scan_destination.sh)  │
+│ - calls update-destination           │  calls   │ - creates lsyncd-to-host.conf  │
+└──────────────────────────────────────┘          │ - writes .scan_destination     │
+                                                  │ - validates host/path/rsync    │
+                                                  └────────────────────────────────┘
 
-┌────────────────────────────┐
-│ helper/pair.sh             │
-│                            │
-│ - creates and installs an  │
-│   ssh keypair to allow the │
-│   raspi to send us files   │
-│ - updates the repository   │                 ┌──────────────────────────────┐
-│   on the raspi             │                 │ pairing/update-destination.sh │
-│ - attempts to update the   ├────────────────►│                              │
-│   destination paths        │      calls      │ - creates lsyncd-to-host.conf|        │
-└────────────────────────────┘                 │ - creates .scan_destination  │
-                                      ┌───────►│                              │
-┌────────────────────────────┐        │        └──────────────────────────────┘
-│ helper/set_scan_destination.sh │        │                      
-│                            │        │                      
-│ - updates the file         ├────────┘                      
-│   .scan_destination        │      calls      
-│                            │                 
-└────────────────────────────┘                 
-                                               
-
-
-
-┌────────────────────────────┐                 ┌──────────────────────────────┐
-│ helper/unpair.sh           │                 │ pairing/unpair-from-client.sh │
-│                            │      calls      │                              │
-│ - removes ssh keys and     ├────────────────►│ - removes ssh keys and       │
-│   raspi's allowances       │                 │   makes the host computer    │
-│                            │                 │   unknown                    │
-└────────────────────────────┘                 │                              │
-                                               └──────────────────────────────┘
+┌──────────────────────────────────────┐          ┌────────────────────────────────┐
+│ helper/unpair.sh                     │          │ pairing/unpair-from-client.sh  │
+│ - removes ssh keys and allowances    ├─────────►│ - removes ssh keys and         │
+│                                      │  calls   │   makes the host computer      │
+└──────────────────────────────────────┘          │   unknown                      │
+                                                  └────────────────────────────────┘
