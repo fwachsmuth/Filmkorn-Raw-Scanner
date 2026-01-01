@@ -134,7 +134,7 @@ info "🐧 Restarting services to apply changes..."
 sudo systemctl restart filmkorn-lsyncd.service
 sudo systemctl restart filmkorn-scanner.service
 echo ""
-info "🐧 Service status:"
-sudo systemctl status --no-pager -n 20 filmkorn-lsyncd.service
-echo
+# info "🐧 Service status:"
+# sudo systemctl status --no-pager -n 20 filmkorn-lsyncd.service
+# echo
 info "🐧 Configuration updated."
