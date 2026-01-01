@@ -1,0 +1,10 @@
+[Unit]
+Description=Filmkorn OTP expiry scheduler
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/filmkorn-otp-schedule.sh
+
+[Install]
+WantedBy=multi-user.target

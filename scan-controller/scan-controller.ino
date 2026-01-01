@@ -73,6 +73,7 @@ enum Command
   CMD_UPDATE_NEXT,
   CMD_UPDATE_CONFIRM,
   CMD_UPDATE_CANCEL,
+  CMD_PAIRING_ENTER,
 
   // Raspi to Arduino
   CMD_READY = 128,
@@ -104,6 +105,7 @@ int dummyread; // for throw-away ADC reads (avoids multiplex-carryover of S&H ca
 bool lampMode = false;
 bool isScanning = false;
 bool updateMode = false;
+bool pairingMode = false;
 uint32_t bootIgnoreUntil = 0;
 
 volatile bool piIsReady = false;
@@ -139,7 +141,12 @@ void setup() {
   int bootButtonsB = analogRead(BUTTONS_B_PIN);
   bool bootStop = bootButtonsB > 900;
   bool bootRunRevRunFwd = (bootButtonsA > 120 && bootButtonsA < 160) && (bootButtonsB > 120 && bootButtonsB < 160);
-  if (bootStop || bootRunRevRunFwd) {
+  bool bootScan = (bootButtonsB > 30 && bootButtonsB < 70);
+  if (bootScan) {
+    pairingMode = true;
+    nextPiCmd = CMD_PAIRING_ENTER;
+    Serial.println("Pairing mode: enter");
+  } else if (bootStop || bootRunRevRunFwd) {
     updateMode = true;
     nextPiCmd = CMD_UPDATE_ENTER;
     Serial.println("Update mode: enter");
@@ -163,7 +170,10 @@ void loop() {
     return;
   }
 
-  if (updateMode) {
+  if (updateMode || pairingMode) {
+    if (pairingMode) {
+      return;
+    }
     currentButton = pollButtons();
     if (currentButton != prevButton) {
       prevButton = currentButton;

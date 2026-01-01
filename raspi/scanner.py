@@ -14,6 +14,7 @@ import time
 import os
 import os.path
 import shlex
+import secrets
 import atexit
 import threading
 from collections import deque
@@ -99,6 +100,7 @@ update_selected = 0
 update_current_tag = None
 update_in_progress = False
 update_error = None
+pairing_mode = False
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 current_version_label = None
 STATUS_SCREENS = {
@@ -137,6 +139,7 @@ class Command(enum.Enum):
     UPDATE_NEXT = 17
     UPDATE_CONFIRM = 18
     UPDATE_CANCEL = 19
+    PAIRING_ENTER = 20
 
     # Raspi to Arduino. Ths is handled by i2cReceive() on the Controller side.
     READY = 128
@@ -244,7 +247,7 @@ class State:
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
     global current_screen, pending_overlay, last_status_screen, idle_since
-    if update_mode:
+    if update_mode or pairing_mode:
         return
     if power_warning_active and not sleep_mode and message != "too-much-power":
         return
@@ -584,6 +587,85 @@ def _update_cancel(_args=None):
     update_mode = False
     show_ready_to_scan()
 
+def _enable_pairing_password(code: str, expires_at: int) -> bool:
+    config_lines = "PasswordAuthentication yes\nKbdInteractiveAuthentication yes\n"
+    try:
+        result = subprocess.run(
+            [
+                "sudo",
+                "/bin/sh",
+                "-c",
+                "mkdir -p /etc/ssh/sshd_config.d && "
+                "printf '%s' \"$1\" | tee /etc/ssh/sshd_config.d/filmkorn-password.conf >/dev/null",
+                "_",
+                config_lines,
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            logging.error("pairing: failed to enable password auth: %s", result.stderr.strip())
+            return False
+        expiry_result = subprocess.run(
+            [
+                "sudo",
+                "/bin/sh",
+                "-c",
+                "mkdir -p /var/lib/filmkorn && printf '%s\\n' \"$1\" | tee /var/lib/filmkorn/otp_expires_at >/dev/null",
+                "_",
+                str(expires_at),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if expiry_result.returncode != 0:
+            logging.error("pairing: failed to write OTP expiry: %s", expiry_result.stderr.strip())
+            return False
+        passwd_result = subprocess.run(
+            ["sudo", "/bin/sh", "-c", "echo \"pi:$1\" | chpasswd", "_", code],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if passwd_result.returncode != 0:
+            logging.error("pairing: failed to set pi password: %s", passwd_result.stderr.strip())
+            return False
+        schedule = subprocess.run(
+            ["sudo", "/usr/local/sbin/filmkorn-otp-schedule.sh"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if schedule.returncode != 0:
+            logging.error("pairing: failed to schedule OTP expiry: %s", schedule.stderr.strip())
+            return False
+        restart = subprocess.run(
+            ["sudo", "/bin/sh", "-c", "systemctl reload ssh || systemctl restart ssh"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if restart.returncode != 0:
+            logging.error("pairing: failed to reload ssh: %s", restart.stderr.strip())
+            return False
+        return True
+    except Exception as exc:
+        logging.exception("pairing: enable password auth failed: %s", exc)
+        return False
+
+def _enter_pairing_mode():
+    global pairing_mode
+    logging.info("pairing: entering pairing mode")
+    pairing_mode = True
+    code = f"{secrets.randbelow(1000000):06d}"
+    expires_at = int(time.time()) + 300
+    if not _enable_pairing_password(code, expires_at):
+        show_update_screen(["Pairing failed", "Could not enable SSH"])
+        return
+    show_update_screen(["Pairing code", code, "This password expires in 5 minutes"])
+
 def _apply_overlay_if_ready():
     global pending_overlay, overlay_supported, overlay_retry_count, overlay_retry_timer
     if (
@@ -670,7 +752,7 @@ def _build_fps_overlay(text: str):
 
 def _render_scan_overlay():
     global pending_overlay
-    if update_mode:
+    if update_mode or pairing_mode:
         return
     show_shutter = state.scanning or current_screen in {
         "ready-to-scan",
@@ -1758,6 +1840,9 @@ def loop():
         return
 
     if command is not None:
+        if command == Command.PAIRING_ENTER:
+            _enter_pairing_mode()
+            return
         if command == Command.UPDATE_ENTER:
             _enter_update_mode()
             return
