@@ -1942,9 +1942,13 @@ if __name__ == '__main__':
         last_resolution_check = 0.0
         while True:
             now = time.monotonic()
-            if pairing_mode and _poll_sleep_button(now):
-                time.sleep(0.05)
-                continue
+            if sleep_mode or pairing_mode:
+                if _poll_sleep_button(now):
+                    time.sleep(0.05)
+                    continue
+                if sleep_mode:
+                    time.sleep(0.1)
+                    continue
             if (
                 not state.scanning
                 and not shutting_down
