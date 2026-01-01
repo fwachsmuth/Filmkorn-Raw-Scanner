@@ -146,18 +146,24 @@ PY
 if ! $paired_exists; then
   # Todo: Create a temporary password on the Raspi for initial pairing instead of using the default one. 
   # Display it on the screen after a certain key combination was pressed on the scanner.
-  echo "Please enter the 6-digit pairing code shown on the scanner screen."
+  warn "Please enter the 6-digit pairing code shown on the scanner screen."
   ssh-keyscan -H filmkorn-scanner.local >> ~/.ssh/known_hosts 2>/dev/null || warn "Could not prefetch host key for filmkorn-scanner.local"
+  ssh_copy_tmp="$(mktemp)"
   if ! ssh-copy-id \
     -o StrictHostKeyChecking=accept-new \
     -o PubkeyAuthentication=no \
     -o PreferredAuthentications=password,keyboard-interactive \
     -i ~/.ssh/id_filmkorn-scanner_ed25519.pub \
-    pi@filmkorn-scanner.local >/dev/null
+    pi@filmkorn-scanner.local >/dev/null \
+    2>"$ssh_copy_tmp"
   then
+    grep -v '^/usr/bin/ssh-copy-id: INFO:' "$ssh_copy_tmp" >&2 || true
+    rm -f "$ssh_copy_tmp"
     warn "Failed to install SSH key on the scanner. Check the password and network connection."
     exit 1
   fi
+  grep -v '^/usr/bin/ssh-copy-id: INFO:' "$ssh_copy_tmp" >&2 || true
+  rm -f "$ssh_copy_tmp"
   copied_key=true
 fi
 

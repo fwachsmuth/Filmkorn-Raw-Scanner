@@ -831,8 +831,12 @@ def clear_tty1():
         pass
 
 def _enter_sleep_mode():
-    global sleep_mode, preview_started, camera_running
+    global sleep_mode, preview_started, camera_running, pairing_mode, current_screen
     logging.info("Entering sleep mode")
+    if pairing_mode:
+        logging.info("pairing: exiting pairing screen due to sleep")
+        pairing_mode = False
+        current_screen = None
     try:
         GPIO.output(UC_POWER_GPIO, GPIO.LOW)
     except Exception:
@@ -855,10 +859,13 @@ def _enter_sleep_mode():
     )
 
 def _exit_sleep_mode():
-    global overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, sleep_mode
+    global overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, sleep_mode, pairing_mode
     global power_warning_active, usb3_warning_active, usb_speed_warning_logged, usb_power_warning_logged
     global last_usb_power_check, last_usb_speed_check
     logging.info("Waking up")
+    if pairing_mode:
+        logging.info("pairing: clearing pairing mode on wake")
+        pairing_mode = False
     subprocess.run(
         ["sudo", "systemctl", "start", "filmkorn-wake.service"],
         check=False,
@@ -1906,12 +1913,12 @@ if __name__ == '__main__':
     try:
         last_disk_check = 0.0
         last_resolution_check = 0.0
-        while True:
-            now = time.monotonic()
-            if (
-                not state.scanning
-                and not shutting_down
-                and (
+    while True:
+        now = time.monotonic()
+        if (
+            not state.scanning
+            and not shutting_down
+            and (
                 current_screen in {
                     "insert-film",
                     "ready-to-scan",
@@ -1922,6 +1929,7 @@ if __name__ == '__main__':
                     "no-usb3-drive",
                 }
                 or sleep_mode
+                or pairing_mode
                 )
             ):
                 if current_screen == "no-drive-connected" and idle_since is None:
