@@ -74,6 +74,7 @@ enum Command
   CMD_UPDATE_CONFIRM,
   CMD_UPDATE_CANCEL,
   CMD_PAIRING_ENTER,
+  CMD_PAIRING_EXIT,
 
   // Raspi to Arduino
   CMD_READY = 128,
@@ -478,6 +479,10 @@ void i2cReceive(int howMany) {
       i2cCommand = Wire.read();
     }
     
+    if ((Command)i2cCommand == CMD_PAIRING_EXIT) {
+      pairingMode = false;
+      nextPiCmd = CMD_NONE;
+    }
     // Don't set piIsReady if we aren't scanning anymore
     if ((Command)i2cCommand == CMD_READY && isScanning) {
       piIsReady = true;

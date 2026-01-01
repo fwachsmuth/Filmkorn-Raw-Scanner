@@ -140,6 +140,7 @@ class Command(enum.Enum):
     UPDATE_CONFIRM = 18
     UPDATE_CANCEL = 19
     PAIRING_ENTER = 20
+    PAIRING_EXIT = 21
 
     # Raspi to Arduino. Ths is handled by i2cReceive() on the Controller side.
     READY = 128
@@ -683,6 +684,10 @@ def _exit_pairing_mode_screen():
         return
     logging.info("pairing: auto-leaving pairing screen")
     pairing_mode = False
+    try:
+        tell_arduino(Command.PAIRING_EXIT)
+    except Exception as exc:
+        logging.warning("pairing: failed to notify controller to exit pairing mode: %s", exc)
     if not sleep_mode:
         show_ready_to_scan()
 
@@ -864,6 +869,10 @@ def _enter_sleep_mode():
         logging.info("pairing: exiting pairing screen due to sleep")
         pairing_mode = False
         current_screen = None
+        try:
+            tell_arduino(Command.PAIRING_EXIT)
+        except Exception as exc:
+            logging.warning("pairing: failed to notify controller to exit pairing mode: %s", exc)
     try:
         GPIO.output(UC_POWER_GPIO, GPIO.LOW)
     except Exception:
