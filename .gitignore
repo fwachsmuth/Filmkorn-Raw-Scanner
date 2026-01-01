@@ -50,3 +50,4 @@ _autosave*
 scan-controller/build/arduino.avr.pro/scan-controller.ino.eep
 scan-controller/build/arduino.avr.pro/scan-controller.ino.elf
 scan-controller/build/arduino.avr.pro/scan-controller.ino.with_bootloader.bin
+host-computer/.scanner_installed

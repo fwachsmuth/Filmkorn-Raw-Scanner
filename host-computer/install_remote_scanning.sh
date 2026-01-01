@@ -193,7 +193,7 @@ if [[ "$remote_login_status" != *"On"* ]]; then
   if sudo systemsetup -setremotelogin on >/dev/null 2>&1; then
     log "Enabled Remote Login."
   else
-    warn "Failed to enable Remote Login. You may need admin rights."
+    warn "Failed to enable Remote Login system-wide. Proceeding with user-level access only."
   fi
 else
   log "Remote Login already enabled."
@@ -210,12 +210,18 @@ else
 fi
 sudo dseditgroup -o edit -d "$current_user" -t user com.apple.access_ssh-disabled >/dev/null 2>&1 || true
 
+if dseditgroup -o checkmember -m "$current_user" com.apple.access_ssh >/dev/null 2>&1; then
+  log "Confirmed Remote Login access for user: ${current_user}"
+else
+  warn "Remote Login access does not appear enabled for user: ${current_user}"
+fi
+
 if [[ ! -f ".paired" ]]; then
   warn "No paired Scanner detected yet (.paired missing)."
   warn "Run ./helper/pair.sh when you're ready to connect this Mac to the scanner."
   read -r -p "Run ./helper/pair.sh now? [y/N] " run_pair
   if [[ "${run_pair:-}" =~ ^[Yy]$ ]]; then
-    ./helper/pair.sh || warn "pair.sh exited with an error."
+    BYPASS_INSTALL_SEMAPHORE=1 ./helper/pair.sh || warn "pair.sh exited with an error."
   fi
 else
   log "A Scanner has already been paired. Run helper/unpair.sh to remove pairing."
