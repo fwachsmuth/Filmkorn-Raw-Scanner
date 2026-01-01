@@ -52,7 +52,7 @@ fi
 
 host_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 install_semaphore="${host_dir}/.scanner_installed"
-if [ ! -f "$install_semaphore" ]; then
+if [ "${BYPASS_INSTALL_SEMAPHORE:-0}" != "1" ] && [ ! -f "$install_semaphore" ]; then
   warn "Please run install_remote_scanning.sh once before attempting to pair with the scanner."
   exit 1
 fi
