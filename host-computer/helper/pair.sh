@@ -144,7 +144,8 @@ with open(path, "w", encoding="utf-8") as f:
 PY
 
 if ! $paired_exists; then
-  # Todo: Use a canned sesame key for ssh-copy and delete it afterwards
+  # Todo: Create a temporary password on the Raspi for initial pairing instead of using the default one. 
+  # Display it on the screen after a certain key combination was pressed on the scanner.
   echo "Please enter the temporary Raspi password ${BOLD}'filmkornscanner'${RESET} to allow pairing."
   ssh-keyscan -H filmkorn-scanner.local >> ~/.ssh/known_hosts 2>/dev/null || warn "Could not prefetch host key for filmkorn-scanner.local"
   if ! ssh-copy-id \
@@ -157,6 +158,7 @@ if ! $paired_exists; then
     warn "Failed to install SSH key on the scanner. Check the password and network connection."
     exit 1
   fi
+  copied_key=true
 fi
 
 if ! $paired_exists; then
@@ -185,4 +187,15 @@ fi
 echo ""
 info "Pairing successfully completed!"
 echo ""
+if $paired_exists || ${copied_key:-false}; then
+  if ssh -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
+    pi@filmkorn-scanner.local "true" >/dev/null 2>&1; then
+    info "Disabling password authentication on the Raspi..."
+    ssh -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
+      pi@filmkorn-scanner.local \
+      "sudo mkdir -p /etc/ssh/sshd_config.d && echo 'PasswordAuthentication no' | sudo tee /etc/ssh/sshd_config.d/filmkorn-password.conf >/dev/null && (sudo systemctl reload ssh || sudo systemctl restart ssh)"
+  else
+    warn "Skipping password-auth disable; SSH connectivity check failed."
+  fi
+fi
 touch .paired
