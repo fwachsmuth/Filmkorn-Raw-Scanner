@@ -179,7 +179,8 @@ sudo rm -rf /var/cache/apt/archives/* || true
 sudo rm -rf /tmp/* /var/tmp/* || true
 if [[ "${ZERO_FILL}" == "true" ]]; then
   avail_kb="$(df -k / | awk 'NR==2{print $4}')"
-  if [[ -n "$avail_kb" && "$avail_kb" -gt 262144 ]]; then
+  avail_kb="${avail_kb:-0}"
+  if [[ "$avail_kb" -gt 262144 ]]; then
     count=$(( (avail_kb - 131072) / 1024 ))
     if [[ "$count" -gt 0 ]]; then
       sudo dd if=/dev/zero of=/zero.fill bs=1M count="$count" status=progress || true
