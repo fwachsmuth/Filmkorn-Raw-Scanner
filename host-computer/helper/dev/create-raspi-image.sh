@@ -117,12 +117,33 @@ fi
 if [[ "${DRY_RUN}" == "false" ]]; then
 ssh "${USER}@${HOST}" "KEEP_SSH=${KEEP_SSH} KEEP_HOSTKEYS=${KEEP_HOSTKEYS} KEEP_HISTORY=${KEEP_HISTORY} ZERO_FILL=${ZERO_FILL} sudo bash -s" <<'EOF'
 set -euo pipefail
+KEEP_SSH="${KEEP_SSH:-false}"
+KEEP_HOSTKEYS="${KEEP_HOSTKEYS:-false}"
+KEEP_HISTORY="${KEEP_HISTORY:-false}"
+ZERO_FILL="${ZERO_FILL:-false}"
 
 STASH_DIR="/run/filmkorn-imaging"
 sudo mkdir -p "\$STASH_DIR" || true
 
 sudo systemctl stop filmkorn-scanner.service || true
 sudo systemctl stop filmkorn-lsyncd.service || true
+
+restore_and_exit() {
+  if [[ "${KEEP_HISTORY}" != "true" ]]; then
+    sudo tar -xzf "$STASH_DIR/imaging-history.tgz" -C / 2>/dev/null || true
+    sudo rm -f "$STASH_DIR/imaging-history.tgz" || true
+  fi
+  if [[ "${KEEP_SSH}" != "true" ]]; then
+    sudo tar -xzf "$STASH_DIR/imaging-ssh.tgz" -C / 2>/dev/null || true
+    sudo rm -f "$STASH_DIR/imaging-ssh.tgz" || true
+  fi
+  if [[ "${KEEP_HOSTKEYS}" != "true" ]]; then
+    sudo tar -xzf "$STASH_DIR/imaging-hostkeys.tgz" -C / 2>/dev/null || true
+    sudo rm -f "$STASH_DIR/imaging-hostkeys.tgz" || true
+  fi
+  sudo rmdir "$STASH_DIR" >/dev/null 2>&1 || true
+}
+trap restore_and_exit ERR
 
 if [[ "${KEEP_SSH}" == "true" ]]; then
   true
@@ -196,7 +217,7 @@ if [[ "${DRY_RUN}" == "true" ]]; then
   info "Dry run: would install first-boot tasks (auto-resize)"
 else
   info "Installing first-boot tasks (auto-resize)..."
-  ssh "${USER}@${HOST}" "sudo bash -s" <<'EOF'
+  if ! ssh "${USER}@${HOST}" "sudo bash -s" <<'EOF'
 set -euo pipefail
 sudo install -m 0755 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner-helpers/filmkorn-firstboot.sh /usr/local/sbin/filmkorn-firstboot.sh
 sudo install -m 0644 /home/pi/Filmkorn-Raw-Scanner/raspi/systemd/filmkorn-firstboot.service /etc/systemd/system/filmkorn-firstboot.service
@@ -204,13 +225,23 @@ sudo rm -f /var/lib/filmkorn/firstboot.done
 sudo systemctl daemon-reload
 sudo systemctl enable filmkorn-firstboot.service
 EOF
+  then
+    warn "First-boot install failed; restoring stashed files..."
+    ssh "${USER}@${HOST}" "sudo bash -c 'for f in /run/filmkorn-imaging/imaging-*.tgz; do [ -f \"$f\" ] || continue; tar -xzf \"$f\" -C / 2>/dev/null || true; rm -f \"$f\"; done; rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true'" || true
+    exit 1
+  fi
 fi
 
 if [[ "${DRY_RUN}" == "true" ]]; then
   info "Dry run: would stream image to $OUTPUT"
 else
-info "Creating compressed image: $OUTPUT"
-ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; sync; if mount -o remount,ro / 2>/dev/null; then trap \"mount -o remount,rw /\" EXIT; else if command -v fsfreeze >/dev/null 2>&1; then fsfreeze -f /; trap \"fsfreeze -u /\" EXIT; else echo \"WARN: could not remount / read-only and fsfreeze not available\" >&2; fi; fi; dd if=/dev/mmcblk0 bs=4M status=progress | gzip -1'" > "$OUTPUT"
+  info "Creating compressed image: $OUTPUT"
+  if ! ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; sync; if mount -o remount,ro / 2>/dev/null; then trap \"mount -o remount,rw /\" EXIT; else if command -v fsfreeze >/dev/null 2>&1; then fsfreeze -f /; trap \"fsfreeze -u /\" EXIT; else echo \"WARN: could not remount / read-only and fsfreeze not available\" >&2; fi; fi; dd if=/dev/mmcblk0 bs=4M status=progress | gzip -1'" > "$OUTPUT"
+  then
+    warn "Imaging failed; restoring stashed files..."
+    ssh "${USER}@${HOST}" "sudo bash -c 'for f in /run/filmkorn-imaging/imaging-*.tgz; do [ -f \"$f\" ] || continue; tar -xzf \"$f\" -C / 2>/dev/null || true; rm -f \"$f\"; done; rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true'" || true
+    exit 1
+  fi
 fi
 
 if [[ "${DRY_RUN}" == "true" ]]; then
