@@ -182,7 +182,7 @@ if ! $paired_exists; then
   echo "When prompted, please enter the password ${BOLD}of this Mac${RESET} to allow receiving scanned film frames going forward."
   ssh -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
     pi@filmkorn-scanner.local -t \
-    "ssh -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=~/.ssh/known_hosts $(whoami)@$(hostname -s).local true >/dev/null 2>&1; ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub $(whoami)@$(hostname -s).local > /dev/null 2> /dev/null"
+    "ssh-keyscan -H $(hostname -s).local >> ~/.ssh/known_hosts 2>/dev/null || true; ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub -o StrictHostKeyChecking=accept-new $(whoami)@$(hostname -s).local > /dev/null 2> /dev/null"
 fi
 
 if [ -f ".scan_destination" ]; then
