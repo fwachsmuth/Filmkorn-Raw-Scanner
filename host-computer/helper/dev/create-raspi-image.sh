@@ -22,6 +22,7 @@ warn() {
 }
 
 HOST="filmkorn-scanner.local"
+USER="pi"
 OUTPUT=""
 ZERO_FILL=true
 
@@ -33,6 +34,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --output)
       OUTPUT="${2:-}"
+      shift 2
+      ;;
+    --user)
+      USER="${2:-}"
       shift 2
       ;;
     --no-zero)
@@ -48,6 +53,10 @@ done
 
 if [[ -z "$HOST" ]]; then
   warn "Missing --host value."
+  exit 1
+fi
+if [[ -z "$USER" ]]; then
+  warn "Missing --user value."
   exit 1
 fi
 
@@ -69,7 +78,7 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 REMOTE_REPO="/home/pi/Filmkorn-Raw-Scanner"
 
 info "Preparing Raspberry Pi for imaging..."
-ssh "$HOST" "sudo bash -s" <<'EOF'
+ssh "${USER}@${HOST}" "sudo bash -s" <<'EOF'
 set -euo pipefail
 
 sudo systemctl stop filmkorn-scanner.service || true
@@ -99,7 +108,7 @@ sudo sync
 EOF
 
 info "Installing first-boot tasks (auto-resize)..."
-ssh "$HOST" "sudo bash -s" <<EOF
+ssh "${USER}@${HOST}" "sudo bash -s" <<EOF
 set -euo pipefail
 sudo install -m 0755 "$REPO_DIR/raspi/scanner-helpers/filmkorn-firstboot.sh" /usr/local/sbin/filmkorn-firstboot.sh
 sudo install -m 0644 "$REPO_DIR/raspi/systemd/filmkorn-firstboot.service" /etc/systemd/system/filmkorn-firstboot.service
@@ -109,6 +118,6 @@ sudo systemctl enable filmkorn-firstboot.service
 EOF
 
 info "Creating compressed image: $OUTPUT"
-ssh "$HOST" "sudo bash -c 'set -euo pipefail; sync; mount -o remount,ro /; trap \"mount -o remount,rw /\" EXIT; dd if=/dev/mmcblk0 bs=4M status=progress | gzip -1'" > "$OUTPUT"
+ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; sync; mount -o remount,ro /; trap \"mount -o remount,rw /\" EXIT; dd if=/dev/mmcblk0 bs=4M status=progress | gzip -1'" > "$OUTPUT"
 
 info "Image created: $OUTPUT"
