@@ -115,7 +115,7 @@ else
   info "Preparing Raspberry Pi for imaging..."
 fi
 if [[ "${DRY_RUN}" == "false" ]]; then
-ssh "${USER}@${HOST}" "sudo bash -s" <<EOF
+ssh "${USER}@${HOST}" "KEEP_SSH=${KEEP_SSH} KEEP_HOSTKEYS=${KEEP_HOSTKEYS} KEEP_HISTORY=${KEEP_HISTORY} ZERO_FILL=${ZERO_FILL} sudo bash -s" <<'EOF'
 set -euo pipefail
 
 STASH_DIR="/run/filmkorn-imaging"
