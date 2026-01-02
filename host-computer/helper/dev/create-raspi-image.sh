@@ -78,13 +78,13 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 REMOTE_REPO="/home/pi/Filmkorn-Raw-Scanner"
 
 info "Preparing Raspberry Pi for imaging..."
-ssh "${USER}@${HOST}" "sudo bash -s" <<'EOF'
+ssh "${USER}@${HOST}" "sudo bash -s" <<EOF
 set -euo pipefail
 
 sudo systemctl stop filmkorn-scanner.service || true
 sudo systemctl stop filmkorn-lsyncd.service || true
 
-sudo rm -rf /home/pi/.ssh /root/.ssh || true
+sudo rm -rf /root/.ssh || true
 sudo rm -f /etc/ssh/ssh_host_* || true
 sudo rm -f /home/pi/.bash_history /root/.bash_history || true
 sudo rm -f /home/pi/.zsh_history /root/.zsh_history || true
@@ -119,5 +119,8 @@ EOF
 
 info "Creating compressed image: $OUTPUT"
 ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; sync; mount -o remount,ro /; trap \"mount -o remount,rw /\" EXIT; dd if=/dev/mmcblk0 bs=4M status=progress | gzip -1'" > "$OUTPUT"
+
+info "Removing Pi SSH keys..."
+ssh "${USER}@${HOST}" "sudo rm -rf /home/pi/.ssh || true"
 
 info "Image created: $OUTPUT"
