@@ -226,6 +226,10 @@ void loop() {
     return;
   }
 
+  if (pairingCancelPending) {
+    return;
+  }
+
   currentButton = pollButtons();
   if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
   {
