@@ -35,10 +35,8 @@ usage() {
 Usage: $(basename "$0") [options]
 
 Options:
-  --host <hostname>       Raspi hostname (default: filmkorn-scanner.local)
-  --user <user>           SSH user (default: pi)
   --output <file>         Output image file (.img.gz)
-  --no-zero               Skip zero-fill step
+  --skip-zeroing          Skip zero-fill step
   --keep-ssh              Do not remove /home/pi/.ssh and /root/.ssh from the image
   --keep-hostkeys         Do not remove /etc/ssh/ssh_host_* from the image
   --keep-history          Do not remove shell/editor history files from the image
@@ -54,19 +52,11 @@ fi
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --host)
-      HOST="${2:-}"
-      shift 2
-      ;;
     --output)
       OUTPUT="${2:-}"
       shift 2
       ;;
-    --user)
-      USER="${2:-}"
-      shift 2
-      ;;
-    --no-zero)
+    --skip-zeroing)
       ZERO_FILL=false
       shift 1
       ;;
@@ -97,12 +87,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ -z "$HOST" ]]; then
-  warn "Missing --host value."
-  exit 1
-fi
-if [[ -z "$USER" ]]; then
-  warn "Missing --user value."
+if [[ -z "$HOST" || -z "$USER" ]]; then
+  warn "Host/user not configured in script."
   exit 1
 fi
 
@@ -172,6 +158,17 @@ else
   sudo rm -f /home/pi/.python_history /root/.python_history || true
 fi
 
+sudo tar -czf "\$STASH_DIR/imaging-config.tgz" --ignore-failed-read \
+  /home/pi/Filmkorn-Raw-Scanner/raspi/.user_and_host \
+  /home/pi/Filmkorn-Raw-Scanner/raspi/.scan_destination \
+  /home/pi/Filmkorn-Raw-Scanner/raspi/lsyncd-to-host.conf \
+  /home/pi/Filmkorn-Raw-Scanner/raspi/dev/enable-git-write.sh \
+  2>/dev/null || true
+sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.user_and_host || true
+sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.scan_destination || true
+sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/lsyncd-to-host.conf || true
+sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/dev/enable-git-write.sh || true
+
 sudo journalctl --rotate || true
 sudo journalctl --vacuum-time=1s || true
 sudo find /var/log -type f -exec truncate -s 0 {} + || true
@@ -218,12 +215,12 @@ fi
 if [[ "${DRY_RUN}" == "true" ]]; then
   info "Dry run: would restore stashed files"
 else
-  if [[ "${KEEP_HISTORY}" == "true" ]]; then
-    true
-  else
-    info "Restoring history files from /run..."
-    ssh "${USER}@${HOST}" "sudo tar -xzf /run/filmkorn-imaging/imaging-history.tgz -C / 2>/dev/null || true; sudo rm -f /run/filmkorn-imaging/imaging-history.tgz || true"
-  fi
+if [[ "${KEEP_HISTORY}" == "true" ]]; then
+  true
+else
+  info "Restoring history files from /run..."
+  ssh "${USER}@${HOST}" "sudo tar -xzf /run/filmkorn-imaging/imaging-history.tgz -C / 2>/dev/null || true; sudo rm -f /run/filmkorn-imaging/imaging-history.tgz || true"
+fi
   if [[ "${KEEP_SSH}" == "true" ]]; then
     info "Keeping Pi SSH keys (skip /home/pi/.ssh cleanup)"
   else
@@ -231,14 +228,17 @@ else
     ssh "${USER}@${HOST}" "sudo tar -xzf /run/filmkorn-imaging/imaging-ssh.tgz -C / 2>/dev/null || true; sudo rm -f /run/filmkorn-imaging/imaging-ssh.tgz || true"
   fi
 
-  if [[ "${KEEP_HOSTKEYS}" == "true" ]]; then
-    true
-  else
-    info "Restoring SSH host keys from /run..."
-    ssh "${USER}@${HOST}" "sudo tar -xzf /run/filmkorn-imaging/imaging-hostkeys.tgz -C / 2>/dev/null || true; sudo rm -f /run/filmkorn-imaging/imaging-hostkeys.tgz || true"
-  fi
+if [[ "${KEEP_HOSTKEYS}" == "true" ]]; then
+  true
+else
+  info "Restoring SSH host keys from /run..."
+  ssh "${USER}@${HOST}" "sudo tar -xzf /run/filmkorn-imaging/imaging-hostkeys.tgz -C / 2>/dev/null || true; sudo rm -f /run/filmkorn-imaging/imaging-hostkeys.tgz || true"
+fi
 
-  ssh "${USER}@${HOST}" "sudo rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true"
+info "Restoring host-specific config from /run..."
+ssh "${USER}@${HOST}" "sudo tar -xzf /run/filmkorn-imaging/imaging-config.tgz -C / 2>/dev/null || true; sudo rm -f /run/filmkorn-imaging/imaging-config.tgz || true"
+
+ssh "${USER}@${HOST}" "sudo rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true"
 fi
 
 info "Image created: $OUTPUT"
