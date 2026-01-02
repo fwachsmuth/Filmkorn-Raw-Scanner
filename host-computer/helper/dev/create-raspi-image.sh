@@ -227,7 +227,7 @@ sudo systemctl enable filmkorn-firstboot.service
 EOF
   then
     warn "First-boot install failed; restoring stashed files..."
-    ssh "${USER}@${HOST}" "sudo bash -c 'for f in /run/filmkorn-imaging/imaging-*.tgz; do [ -f \"$f\" ] || continue; tar -xzf \"$f\" -C / 2>/dev/null || true; rm -f \"$f\"; done; rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true'" || true
+    ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; for f in /run/filmkorn-imaging/imaging-*.tgz; do [ -f \"\$f\" ] || continue; tar -xzf \"\$f\" -C / 2>/dev/null || true; rm -f \"\$f\"; done; rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true'" || true
     exit 1
   fi
 fi
@@ -239,7 +239,7 @@ else
   if ! ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; sync; if mount -o remount,ro / 2>/dev/null; then trap \"mount -o remount,rw /\" EXIT; else if command -v fsfreeze >/dev/null 2>&1; then fsfreeze -f /; trap \"fsfreeze -u /\" EXIT; else echo \"WARN: could not remount / read-only and fsfreeze not available\" >&2; fi; fi; dd if=/dev/mmcblk0 bs=4M status=progress | gzip -1'" > "$OUTPUT"
   then
     warn "Imaging failed; restoring stashed files..."
-    ssh "${USER}@${HOST}" "sudo bash -c 'for f in /run/filmkorn-imaging/imaging-*.tgz; do [ -f \"$f\" ] || continue; tar -xzf \"$f\" -C / 2>/dev/null || true; rm -f \"$f\"; done; rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true'" || true
+    ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; for f in /run/filmkorn-imaging/imaging-*.tgz; do [ -f \"\$f\" ] || continue; tar -xzf \"\$f\" -C / 2>/dev/null || true; rm -f \"\$f\"; done; rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true'" || true
     exit 1
   fi
 fi
