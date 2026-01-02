@@ -531,6 +531,11 @@ void i2cRequest() {
   // This gets called when the Pi uses ask_arduino() in its loop to ask what to do next. 
   Command cmdToSend = nextPiCmd;
   Wire.write(cmdToSend);
+  if (cmdToSend == CMD_PAIRING_ENTER) {
+    Serial.println("I2C: sent pairing enter");
+  } else if (cmdToSend == CMD_PAIRING_CANCEL) {
+    Serial.println("I2C: sent pairing cancel");
+  }
 
   if (pairingCancelPending && (millis() - pairingCancelSentAt) > 5000) {
     pairingCancelPending = false;
