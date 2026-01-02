@@ -155,7 +155,7 @@ programmer # raspberry_pi_gpio
     sdi                    = 18;
 ;
 ````
-- sudo avrdude -C ~/avrdude_gpio.conf -p atmega328p  -c raspberry_pi_gpio -P gpiochip0  -vvvv
+- sudo avrdude -C ~/Filmkorn-Raw-Scanner/scan-controller/avrdude_gpio.conf -p atmega328p  -c raspberry_pi_gpio -P gpiochip0  -vvvv
 
 
 Build:
@@ -164,7 +164,7 @@ arduino-cli compile --fqbn arduino:avr:pro:cpu=8MHzatmega328 --export-binaries s
 
 Flash:
 sudo avrdude \
-  -C ~/avrdude_gpio.conf \
+  -C ~/Filmkorn-Raw-Scanner/scan-controller/avrdude_gpio.conf \
   -p atmega328p \
   -c raspberry_pi_gpio \
   -P gpiochip0 \

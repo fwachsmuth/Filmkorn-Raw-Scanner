@@ -96,7 +96,7 @@ GPIO.setup(16, GPIO.OUT, initial=GPIO.HIGH)
 PY
 sleep 0.5
 run_and_log "flash" /usr/local/bin/avrdude \
-  -C /home/pi/avrdude_gpio.conf \
+  -C /home/pi/Filmkorn-Raw-Scanner/scan-controller/avrdude_gpio.conf \
   -p atmega328p \
   -c raspberry_pi_gpio \
   -P gpiochip0 \
