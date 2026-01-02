@@ -122,17 +122,17 @@ sudo sync
 EOF
 
 info "Installing first-boot tasks (auto-resize)..."
-ssh "${USER}@${HOST}" "sudo bash -s" <<EOF
+ssh "${USER}@${HOST}" "sudo bash -s" <<'EOF'
 set -euo pipefail
-sudo install -m 0755 "$REPO_DIR/raspi/scanner-helpers/filmkorn-firstboot.sh" /usr/local/sbin/filmkorn-firstboot.sh
-sudo install -m 0644 "$REPO_DIR/raspi/systemd/filmkorn-firstboot.service" /etc/systemd/system/filmkorn-firstboot.service
+sudo install -m 0755 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner-helpers/filmkorn-firstboot.sh /usr/local/sbin/filmkorn-firstboot.sh
+sudo install -m 0644 /home/pi/Filmkorn-Raw-Scanner/raspi/systemd/filmkorn-firstboot.service /etc/systemd/system/filmkorn-firstboot.service
 sudo rm -f /var/lib/filmkorn/firstboot.done
 sudo systemctl daemon-reload
 sudo systemctl enable filmkorn-firstboot.service
 EOF
 
 info "Creating compressed image: $OUTPUT"
-ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; sync; mount -o remount,ro /; trap \"mount -o remount,rw /\" EXIT; dd if=/dev/mmcblk0 bs=4M status=progress | gzip -1'" > "$OUTPUT"
+ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; sync; if mount -o remount,ro /; then trap \"mount -o remount,rw /\" EXIT; else if command -v fsfreeze >/dev/null 2>&1; then fsfreeze -f /; trap \"fsfreeze -u /\" EXIT; else echo \"WARN: could not remount / read-only and fsfreeze not available\" >&2; fi; fi; dd if=/dev/mmcblk0 bs=4M status=progress | gzip -1'" > "$OUTPUT"
 
 if [[ "${KEEP_SSH}" == "true" ]]; then
   info "Keeping Pi SSH keys (skip /home/pi/.ssh cleanup)"
