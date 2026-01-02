@@ -55,3 +55,8 @@ scan-controller/build/arduino.avr.pro/scan-controller.ino.with_bootloader.bin
 
 # Filmkorn Raw Scanner installation marker
 host-computer/.scanner_installed
+
+# SD card images
+images/
+*.img
+*.img.gz

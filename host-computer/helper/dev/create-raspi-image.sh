@@ -141,6 +141,8 @@ restore_and_exit() {
     sudo tar -xzf "$STASH_DIR/imaging-hostkeys.tgz" -C / 2>/dev/null || true
     sudo rm -f "$STASH_DIR/imaging-hostkeys.tgz" || true
   fi
+  sudo tar -xzf "$STASH_DIR/imaging-config.tgz" -C / 2>/dev/null || true
+  sudo rm -f "$STASH_DIR/imaging-config.tgz" || true
   sudo rmdir "$STASH_DIR" >/dev/null 2>&1 || true
 }
 trap restore_and_exit ERR
@@ -243,14 +245,24 @@ REMOUNT_RO="false"
 FROZEN="false"
 
 restore_after_image() {
-  if [[ "${KEEP_SSH}" != "true" ]]; then
+  exec 1>&2
+  if [[ "${KEEP_SSH}" != "true" ]] && [ -f /run/filmkorn-imaging/imaging-ssh.tgz ]; then
     tar -xzf /run/filmkorn-imaging/imaging-ssh.tgz -C / 2>/dev/null || true
     rm -f /run/filmkorn-imaging/imaging-ssh.tgz || true
   fi
-  if [[ "${KEEP_HOSTKEYS}" != "true" ]]; then
+  if [[ "${KEEP_HOSTKEYS}" != "true" ]] && [ -f /run/filmkorn-imaging/imaging-hostkeys.tgz ]; then
     tar -xzf /run/filmkorn-imaging/imaging-hostkeys.tgz -C / 2>/dev/null || true
     rm -f /run/filmkorn-imaging/imaging-hostkeys.tgz || true
   fi
+  if [ -f /run/filmkorn-imaging/imaging-history.tgz ]; then
+    tar -xzf /run/filmkorn-imaging/imaging-history.tgz -C / 2>/dev/null || true
+    rm -f /run/filmkorn-imaging/imaging-history.tgz || true
+  fi
+  if [ -f /run/filmkorn-imaging/imaging-config.tgz ]; then
+    tar -xzf /run/filmkorn-imaging/imaging-config.tgz -C / 2>/dev/null || true
+    rm -f /run/filmkorn-imaging/imaging-config.tgz || true
+  fi
+  rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true
 }
 
 cleanup() {
@@ -293,18 +305,6 @@ fi
 
 if [[ "${DRY_RUN}" == "true" ]]; then
   info "Dry run: would restore stashed files"
-else
-if [[ "${KEEP_HISTORY}" == "true" ]]; then
-  true
-else
-  info "Restoring history files from /run..."
-  ssh "${USER}@${HOST}" "sudo tar -xzf /run/filmkorn-imaging/imaging-history.tgz -C / 2>/dev/null || true; sudo rm -f /run/filmkorn-imaging/imaging-history.tgz || true"
-fi
-
-info "Restoring host-specific config from /run..."
-ssh "${USER}@${HOST}" "sudo tar -xzf /run/filmkorn-imaging/imaging-config.tgz -C / 2>/dev/null || true; sudo rm -f /run/filmkorn-imaging/imaging-config.tgz || true"
-
-ssh "${USER}@${HOST}" "sudo rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true"
 fi
 
 info "Image created: $OUTPUT"
