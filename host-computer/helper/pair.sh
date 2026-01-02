@@ -192,7 +192,7 @@ if [ -f ".scan_destination" ]; then
     "FORCE_COLOR=1 ./Filmkorn-Raw-Scanner/raspi/pairing/update-destination.sh -h $(whoami)@$(hostname -s).local -p \"$(cat .scan_destination)\""
 else
   warn "No Scanning Destination defined yet."
-  ./helper/set_scan_destination.sh
+  "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/set_scan_destination.sh"
 fi
 
 echo ""
