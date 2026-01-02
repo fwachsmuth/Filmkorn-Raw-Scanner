@@ -185,12 +185,6 @@ void loop() {
       dummyread = analogRead(BUTTONS_B_PIN);
       int pairingButtonsB = analogRead(BUTTONS_B_PIN);
       currentButton = pollButtons();
-      static uint32_t lastPairingLogAt = 0;
-      if (millis() - lastPairingLogAt > 500) {
-        Serial.print("Pairing A1 ADC: ");
-        Serial.println(pairingButtonsB);
-        lastPairingLogAt = millis();
-      }
       if (pairingButtonsB > 990 || currentButton == STOP) {
         Serial.println("Pairing mode: stop pressed");
         pairingMode = false;
@@ -535,11 +529,6 @@ void i2cRequest() {
   // This gets called when the Pi uses ask_arduino() in its loop to ask what to do next. 
   Command cmdToSend = nextPiCmd;
   Wire.write(cmdToSend);
-  if (cmdToSend == CMD_PAIRING_ENTER) {
-    Serial.println("I2C: sent pairing enter");
-  } else if (cmdToSend == CMD_PAIRING_CANCEL) {
-    Serial.println("I2C: sent pairing cancel");
-  }
 
   if (pairingCancelPending && (millis() - pairingCancelSentAt) > 5000) {
     pairingCancelPending = false;
