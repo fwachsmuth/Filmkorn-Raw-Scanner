@@ -54,6 +54,8 @@ fi
 repo_root="${HOME}/Filmkorn-Raw-Scanner"
 conf_path="${repo_root}/raspi/lsyncd-to-host.conf"
 dest_path="${repo_root}/raspi/.scan_destination"
+user_and_host_path="${repo_root}/raspi/.user_and_host"
+host_path_path="${repo_root}/raspi/.host_path"
 temp_conf="$(mktemp)"
 rawpath="${rawpath%/}"
 
@@ -126,6 +128,8 @@ fi
 
 mv "$temp_conf" "$conf_path"
 echo "${rawpath}" > "$dest_path"
+echo "${userhost}" > "$user_and_host_path"
+echo "${rawpath}" > "$host_path_path"
 
 info "🐧 New host: ${userhost}"
 info "🐧 New path: ${rawpath}"
