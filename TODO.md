@@ -7,22 +7,10 @@
 ## Next
 - [ ] Imaging Scripts
 This restores ssh and history on the pi from ramdisk:
-- host-computer/helper/dev/create-raspi-image.sh \
-  --host filmkorn-scanner.local \
-  --output filmkorn-raspi-test.img.gz \
-  --no-zero
-
-Only add --keep-ssh or --keep-history if you want to skip removal entirely
-
-
+- host-computer/helper/dev/create-raspi-image.sh --output images/filmkorn-raspi-test.img.gz --skip-zeroing
+  Only add --keep-ssh or --keep-history or --keep-history if you want to skip removal entirely
 
 - [ ] handle scanner.log (increases, we have journalctl)
-- [ ] find out why umount fails
-- [ ] also, delete created configs 
-    lsyncd-to-host.conf
-    raspi/.scan_destination
-    /var/log/*
-
 
 - [ ] avoid ssh warning on pairing (see notes)
 - [ ] scan-log mit auf die Platte schreiben, ebenso update-logs (weitere?)
