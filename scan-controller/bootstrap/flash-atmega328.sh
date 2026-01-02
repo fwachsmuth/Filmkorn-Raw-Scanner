@@ -21,7 +21,7 @@ fi
 # Meanwhile, we need to burn the fuses using an external programmer.
 #
 # sudo avrdude \
-#     -C ~/Filmkorn-Raw-Scanner/scan-controller/bootstrap/avrdude_gpio.conf \
+#     -C ~/Filmkorn-Raw-Scanner/scan-controller/avrdude_gpio.conf \
 #     -v \
 #     -p atmega328p \
 #     -c pi_1 \
@@ -43,7 +43,7 @@ PY
 # This is for the new, self-built avrdude 8.1 with libgpiod support.
 # Fuse setting still needs to be tested!!!! 
 sudo /usr/local/bin/avrdude \
-  -C /home/pi/avrdude_gpio.conf \
+  -C /home/pi/Filmkorn-Raw-Scanner/scan-controller/avrdude_gpio.conf \
   -p atmega328p \
   -c raspberry_pi_gpio \
   -P gpiochip0 \
