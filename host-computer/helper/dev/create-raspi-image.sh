@@ -149,13 +149,11 @@ if [[ "${KEEP_SSH}" == "true" ]]; then
   true
 else
   sudo tar -czf "\$STASH_DIR/imaging-ssh.tgz" --ignore-failed-read /home/pi/.ssh /root/.ssh 2>/dev/null || true
-  sudo rm -rf /home/pi/.ssh /root/.ssh || true
 fi
 if [[ "${KEEP_HOSTKEYS}" == "true" ]]; then
   true
 else
   sudo tar -czf "\$STASH_DIR/imaging-hostkeys.tgz" --ignore-failed-read /etc/ssh/ssh_host_* 2>/dev/null || true
-  sudo rm -f /etc/ssh/ssh_host_* || true
 fi
 if [[ "${KEEP_HISTORY}" == "true" ]]; then
   true
@@ -236,7 +234,56 @@ if [[ "${DRY_RUN}" == "true" ]]; then
   info "Dry run: would stream image to $OUTPUT"
 else
   info "Creating compressed image: $OUTPUT"
-  if ! ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; sync; if mount -o remount,ro / 2>/dev/null; then trap \"mount -o remount,rw /\" EXIT; else if command -v fsfreeze >/dev/null 2>&1; then fsfreeze -f /; trap \"fsfreeze -u /\" EXIT; else echo \"WARN: could not remount / read-only and fsfreeze not available\" >&2; fi; fi; dd if=/dev/mmcblk0 bs=4M status=progress | gzip -1'" > "$OUTPUT"
+  if ! ssh "${USER}@${HOST}" "KEEP_SSH=${KEEP_SSH} KEEP_HOSTKEYS=${KEEP_HOSTKEYS} sudo bash -s" <<'EOF' > "$OUTPUT"
+set -euo pipefail
+KEEP_SSH="${KEEP_SSH:-false}"
+KEEP_HOSTKEYS="${KEEP_HOSTKEYS:-false}"
+
+REMOUNT_RO="false"
+FROZEN="false"
+
+restore_after_image() {
+  if [[ "${KEEP_SSH}" != "true" ]]; then
+    tar -xzf /run/filmkorn-imaging/imaging-ssh.tgz -C / 2>/dev/null || true
+    rm -f /run/filmkorn-imaging/imaging-ssh.tgz || true
+  fi
+  if [[ "${KEEP_HOSTKEYS}" != "true" ]]; then
+    tar -xzf /run/filmkorn-imaging/imaging-hostkeys.tgz -C / 2>/dev/null || true
+    rm -f /run/filmkorn-imaging/imaging-hostkeys.tgz || true
+  fi
+}
+
+cleanup() {
+  if [[ "${FROZEN}" == "true" ]]; then
+    fsfreeze -u / || true
+  elif [[ "${REMOUNT_RO}" == "true" ]]; then
+    mount -o remount,rw / || true
+  fi
+  restore_after_image
+}
+trap cleanup EXIT
+
+if [[ "${KEEP_SSH}" != "true" ]]; then
+  rm -rf /home/pi/.ssh /root/.ssh || true
+fi
+if [[ "${KEEP_HOSTKEYS}" != "true" ]]; then
+  rm -f /etc/ssh/ssh_host_* || true
+fi
+
+sync
+if mount -o remount,ro / 2>/dev/null; then
+  REMOUNT_RO="true"
+else
+  if command -v fsfreeze >/dev/null 2>&1; then
+    fsfreeze -f /
+    FROZEN="true"
+  else
+    echo "WARN: could not remount / read-only and fsfreeze not available" >&2
+  fi
+fi
+
+dd if=/dev/mmcblk0 bs=4M status=progress | gzip -1
+EOF
   then
     warn "Imaging failed; restoring stashed files..."
     ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; for f in /run/filmkorn-imaging/imaging-*.tgz; do [ -f \"\$f\" ] || continue; tar -xzf \"\$f\" -C / 2>/dev/null || true; rm -f \"\$f\"; done; rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true'" || true
@@ -252,19 +299,6 @@ if [[ "${KEEP_HISTORY}" == "true" ]]; then
 else
   info "Restoring history files from /run..."
   ssh "${USER}@${HOST}" "sudo tar -xzf /run/filmkorn-imaging/imaging-history.tgz -C / 2>/dev/null || true; sudo rm -f /run/filmkorn-imaging/imaging-history.tgz || true"
-fi
-  if [[ "${KEEP_SSH}" == "true" ]]; then
-    info "Keeping Pi SSH keys (skip /home/pi/.ssh cleanup)"
-  else
-    info "Restoring SSH keys from /run..."
-    ssh "${USER}@${HOST}" "sudo tar -xzf /run/filmkorn-imaging/imaging-ssh.tgz -C / 2>/dev/null || true; sudo rm -f /run/filmkorn-imaging/imaging-ssh.tgz || true"
-  fi
-
-if [[ "${KEEP_HOSTKEYS}" == "true" ]]; then
-  true
-else
-  info "Restoring SSH host keys from /run..."
-  ssh "${USER}@${HOST}" "sudo tar -xzf /run/filmkorn-imaging/imaging-hostkeys.tgz -C / 2>/dev/null || true; sudo rm -f /run/filmkorn-imaging/imaging-hostkeys.tgz || true"
 fi
 
 info "Restoring host-specific config from /run..."
