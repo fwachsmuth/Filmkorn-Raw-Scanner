@@ -114,6 +114,7 @@ STATUS_SCREENS = {
     "target-dir-does-not-exist",
     "cannot-connect-to-arduino",
     "cannot-connect-to-paired-mac",
+    "no-host-computer-paired-yet",
 }
 
 class Command(enum.Enum):
@@ -1454,6 +1455,13 @@ def _read_scan_destination() -> Optional[str]:
     except Exception:
         return None
 
+def _read_host_path() -> Optional[str]:
+    try:
+        with open(".host_path", "r") as file:
+            return file.read().strip()
+    except Exception:
+        return None
+
 def _ensure_usb_mount() -> bool:
     if os.path.ismount("/mnt/usb"):
         return True
@@ -1890,15 +1898,18 @@ def setup():
     sleep(1) # wait a bit here to avoid i2c IO Errors
     arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
 
-    # Fetch the content of the files from /home/pi/Filmkorn-Raw-Scanner/raspi/
-    with open(".user_and_host", "r") as file:
-        user_and_host = file.read().strip()
-    with open(".host_path", "r") as file:
-        host_path = file.read().strip()
-    logging.info(f"Starting Converter Process as {user_and_host}:{host_path}")
+    user_and_host = _read_user_and_host()
+    host_path = _read_host_path()
+    if user_and_host and host_path:
+        logging.info("Starting Converter Process as %s:%s", user_and_host, host_path)
+    else:
+        logging.warning("No host computer paired yet (missing .user_and_host or .host_path).")
 
     # Show a first screen to indicate we are running
-    show_ready_to_scan()
+    if user_and_host and host_path:
+        show_ready_to_scan()
+    else:
+        show_screen("no-host-computer-paired-yet")
     tell_arduino(Command.TELL_INITVALUES)
     logging.info("Asked Controller about the initial values. ")
 

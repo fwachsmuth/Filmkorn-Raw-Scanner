@@ -96,12 +96,4 @@ ssh -t -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
   pi@filmkorn-scanner.local \
   "FORCE_COLOR=1 ./Filmkorn-Raw-Scanner/raspi/pairing/update-destination.sh -h $(whoami)@$(hostname -s).local -p \"${rawpath}\""
 
-# Propagate variables to the Raspi for status screens/debugging.
-ssh -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
-  pi@filmkorn-scanner.local \
-  "echo $(whoami)@$(hostname -s).local > ./Filmkorn-Raw-Scanner/raspi/.user_and_host"
-ssh -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
-  pi@filmkorn-scanner.local \
-  "echo $(pwd) > ./Filmkorn-Raw-Scanner/raspi/.host_path"
-
 info "Destination updated."
