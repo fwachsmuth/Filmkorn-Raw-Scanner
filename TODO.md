@@ -5,7 +5,8 @@
 - log insight (from host)
 
 ## Next
-- [ ] Imaging Scripts
+- [ ] Imaging Scripts (host-computer/helper/dev/create-raspi-image.sh --host filmkorn-scanner.local --output filmkorn-raspi-test.img.gz --no-zero)
+- [ ] Add hex flashing to update script
 - [ ] scan-log mit auf die Platte schreiben, ebenso update-logs (weitere?)
 - [ ] test bootstrapping and fuse writing
 - [ ] consider enabling wifi for time and updates (captive approach?)

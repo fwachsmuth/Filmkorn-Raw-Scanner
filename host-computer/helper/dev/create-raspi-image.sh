@@ -25,6 +25,8 @@ HOST="filmkorn-scanner.local"
 USER="pi"
 OUTPUT=""
 ZERO_FILL=true
+KEEP_SSH=false
+KEEP_HOSTKEYS=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -42,6 +44,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --no-zero)
       ZERO_FILL=false
+      shift 1
+      ;;
+    --keep-ssh)
+      KEEP_SSH=true
+      shift 1
+      ;;
+    --keep-hostkeys)
+      KEEP_HOSTKEYS=true
       shift 1
       ;;
     *)
@@ -74,7 +84,7 @@ if ! command -v gzip >/dev/null 2>&1; then
   exit 1
 fi
 
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 REMOTE_REPO="/home/pi/Filmkorn-Raw-Scanner"
 
 info "Preparing Raspberry Pi for imaging..."
@@ -85,7 +95,11 @@ sudo systemctl stop filmkorn-scanner.service || true
 sudo systemctl stop filmkorn-lsyncd.service || true
 
 sudo rm -rf /root/.ssh || true
-sudo rm -f /etc/ssh/ssh_host_* || true
+if [[ "${KEEP_HOSTKEYS}" == "true" ]]; then
+  true
+else
+  sudo rm -f /etc/ssh/ssh_host_* || true
+fi
 sudo rm -f /home/pi/.bash_history /root/.bash_history || true
 sudo rm -f /home/pi/.zsh_history /root/.zsh_history || true
 sudo rm -f /home/pi/.viminfo /root/.viminfo || true
@@ -120,7 +134,11 @@ EOF
 info "Creating compressed image: $OUTPUT"
 ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; sync; mount -o remount,ro /; trap \"mount -o remount,rw /\" EXIT; dd if=/dev/mmcblk0 bs=4M status=progress | gzip -1'" > "$OUTPUT"
 
-info "Removing Pi SSH keys..."
-ssh "${USER}@${HOST}" "sudo rm -rf /home/pi/.ssh || true"
+if [[ "${KEEP_SSH}" == "true" ]]; then
+  info "Keeping Pi SSH keys (skip /home/pi/.ssh cleanup)"
+else
+  info "Removing Pi SSH keys..."
+  ssh "${USER}@${HOST}" "sudo rm -rf /home/pi/.ssh || true"
+fi
 
 info "Image created: $OUTPUT"
