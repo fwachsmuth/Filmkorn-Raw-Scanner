@@ -1,0 +1,11 @@
+[Unit]
+Description=Filmkorn first boot tasks
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/filmkorn-firstboot.sh
+
+[Install]
+WantedBy=multi-user.target
