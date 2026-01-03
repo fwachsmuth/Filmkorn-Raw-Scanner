@@ -104,6 +104,19 @@ pairing_mode = False
 pairing_exit_pending = False
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 current_version_label = None
+mcu_flash_in_progress = False
+mcu_flash_checked = False
+mcu_flash_error = None
+MCU_FLASH_SCRIPT = os.path.join(repo_root, "scan-controller", "bootstrap", "flash-atmega328.sh")
+MCU_HEX_PATH = os.path.join(
+    repo_root,
+    "scan-controller",
+    "build",
+    "arduino.avr.pro",
+    "scan-controller.ino.with_bootloader.hex",
+)
+MCU_AVRDUDE = "/usr/local/bin/avrdude"
+MCU_AVRDUDE_CONF = os.path.join(repo_root, "scan-controller", "avrdude_gpio.conf")
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -115,6 +128,7 @@ STATUS_SCREENS = {
     "cannot-connect-to-arduino",
     "cannot-connect-to-paired-mac",
     "no-host-computer-paired-yet",
+    "updating-ino",
 }
 
 class Command(enum.Enum):
@@ -1462,6 +1476,82 @@ def _read_host_path() -> Optional[str]:
     except Exception:
         return None
 
+def _verify_mcu_firmware() -> bool:
+    global mcu_flash_checked, mcu_flash_error
+    if mcu_flash_checked:
+        return False
+    mcu_flash_checked = True
+    logging.info("mcu: starting firmware verify")
+    if not os.path.isfile(MCU_HEX_PATH):
+        mcu_flash_error = f"missing hex: {MCU_HEX_PATH}"
+        logging.error("mcu: %s", mcu_flash_error)
+        return False
+    if not os.path.isfile(MCU_AVRDUDE_CONF):
+        mcu_flash_error = f"missing avrdude config: {MCU_AVRDUDE_CONF}"
+        logging.error("mcu: %s", mcu_flash_error)
+        return False
+    if not os.path.isfile(MCU_AVRDUDE):
+        mcu_flash_error = f"missing avrdude: {MCU_AVRDUDE}"
+        logging.error("mcu: %s", mcu_flash_error)
+        return False
+    result = subprocess.run(
+        [
+            MCU_AVRDUDE,
+            "-C",
+            MCU_AVRDUDE_CONF,
+            "-p",
+            "atmega328p",
+            "-c",
+            "raspberry_pi_gpio",
+            "-P",
+            "gpiochip0",
+            "-U",
+            f"flash:v:{MCU_HEX_PATH}:i",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    if result.returncode == 0:
+        logging.info("mcu: firmware already matches expected hex")
+        return False
+    else:
+        logging.warning("mcu: firmware mismatch detected (code=%s)", result.returncode)
+        if result.stderr:
+            logging.info("mcu: verify stderr: %s", result.stderr.strip())
+        return True
+
+def _run_mcu_flash_if_needed():
+    global mcu_flash_in_progress, mcu_flash_error
+    if mcu_flash_in_progress:
+        return
+    if not os.path.isfile(MCU_FLASH_SCRIPT):
+        mcu_flash_error = f"missing flash script: {MCU_FLASH_SCRIPT}"
+        logging.error("mcu: %s", mcu_flash_error)
+        return
+    mcu_flash_in_progress = True
+    logging.info("mcu: flashing start")
+    show_screen("updating-ino")
+    result = subprocess.run(
+        ["bash", MCU_FLASH_SCRIPT],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    if result.stdout:
+        logging.info("mcu: flash stdout: %s", result.stdout.strip())
+    if result.stderr:
+        logging.info("mcu: flash stderr: %s", result.stderr.strip())
+    if result.returncode == 0:
+        logging.info("mcu: flashing completed")
+    else:
+        logging.error("mcu: flashing failed (code=%s)", result.returncode)
+    mcu_flash_in_progress = False
+    if last_status_screen:
+        show_screen(last_status_screen)
+    else:
+        show_ready_to_scan()
+
 def _ensure_usb_mount() -> bool:
     if os.path.ismount("/mnt/usb"):
         return True
@@ -1910,12 +2000,18 @@ def setup():
         show_ready_to_scan()
     else:
         show_screen("no-host-computer-paired-yet")
+    if _verify_mcu_firmware():
+        _run_mcu_flash_if_needed()
     tell_arduino(Command.TELL_INITVALUES)
     logging.info("Asked Controller about the initial values. ")
 
     ssh_subprocess = None
 
 def loop():
+    if mcu_flash_in_progress:
+        time.sleep(0.05)
+        return
+
     poll_ssh_subprocess()
 
     received = ask_arduino()  # This tells us what to do next. See Command enum.
