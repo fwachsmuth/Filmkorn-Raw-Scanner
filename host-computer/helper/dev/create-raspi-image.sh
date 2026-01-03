@@ -122,6 +122,10 @@ KEEP_HOSTKEYS="${KEEP_HOSTKEYS:-false}"
 KEEP_HISTORY="${KEEP_HISTORY:-false}"
 ZERO_FILL="${ZERO_FILL:-false}"
 
+log() {
+  echo "imaging-prep: $*" >&2
+}
+
 STASH_DIR="/run/filmkorn-imaging"
 sudo mkdir -p "\$STASH_DIR" || true
 
@@ -150,16 +154,19 @@ trap restore_and_exit ERR
 if [[ "${KEEP_SSH}" == "true" ]]; then
   true
 else
+  log "stashing ssh keys"
   sudo tar -czf "\$STASH_DIR/imaging-ssh.tgz" --ignore-failed-read /home/pi/.ssh /root/.ssh 2>/dev/null || true
 fi
 if [[ "${KEEP_HOSTKEYS}" == "true" ]]; then
   true
 else
+  log "stashing ssh host keys"
   sudo tar -czf "\$STASH_DIR/imaging-hostkeys.tgz" --ignore-failed-read /etc/ssh/ssh_host_* 2>/dev/null || true
 fi
 if [[ "${KEEP_HISTORY}" == "true" ]]; then
   true
 else
+  log "stashing shell/editor history"
   sudo tar -czf "\$STASH_DIR/imaging-history.tgz" --ignore-failed-read \
     /home/pi/.bash_history \
     /root/.bash_history \
@@ -179,6 +186,7 @@ else
   sudo rm -f /home/pi/.python_history /root/.python_history || true
 fi
 
+log "stashing host-specific config"
 sudo tar -czf "\$STASH_DIR/imaging-config.tgz" --ignore-failed-read \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.user_and_host \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.scan_destination \
@@ -244,21 +252,29 @@ KEEP_HOSTKEYS="${KEEP_HOSTKEYS:-false}"
 REMOUNT_RO="false"
 FROZEN="false"
 
+log() {
+  echo "imaging: $*" >&2
+}
+
 restore_after_image() {
   exec 1>&2
   if [[ "${KEEP_SSH}" != "true" ]] && [ -f /run/filmkorn-imaging/imaging-ssh.tgz ]; then
+    log "restoring ssh keys"
     tar -xzf /run/filmkorn-imaging/imaging-ssh.tgz -C / 2>/dev/null || true
     rm -f /run/filmkorn-imaging/imaging-ssh.tgz || true
   fi
   if [[ "${KEEP_HOSTKEYS}" != "true" ]] && [ -f /run/filmkorn-imaging/imaging-hostkeys.tgz ]; then
+    log "restoring ssh host keys"
     tar -xzf /run/filmkorn-imaging/imaging-hostkeys.tgz -C / 2>/dev/null || true
     rm -f /run/filmkorn-imaging/imaging-hostkeys.tgz || true
   fi
   if [ -f /run/filmkorn-imaging/imaging-history.tgz ]; then
+    log "restoring history files"
     tar -xzf /run/filmkorn-imaging/imaging-history.tgz -C / 2>/dev/null || true
     rm -f /run/filmkorn-imaging/imaging-history.tgz || true
   fi
   if [ -f /run/filmkorn-imaging/imaging-config.tgz ]; then
+    log "restoring host-specific config"
     tar -xzf /run/filmkorn-imaging/imaging-config.tgz -C / 2>/dev/null || true
     rm -f /run/filmkorn-imaging/imaging-config.tgz || true
   fi
@@ -276,17 +292,21 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ "${KEEP_SSH}" != "true" ]]; then
+  log "removing ssh keys"
   rm -rf /home/pi/.ssh /root/.ssh || true
 fi
 if [[ "${KEEP_HOSTKEYS}" != "true" ]]; then
+  log "removing ssh host keys"
   rm -f /etc/ssh/ssh_host_* || true
 fi
 
 sync
 if mount -o remount,ro / 2>/dev/null; then
+  log "remounted / read-only"
   REMOUNT_RO="true"
 else
   if command -v fsfreeze >/dev/null 2>&1; then
+    log "freezing /"
     fsfreeze -f /
     FROZEN="true"
   else

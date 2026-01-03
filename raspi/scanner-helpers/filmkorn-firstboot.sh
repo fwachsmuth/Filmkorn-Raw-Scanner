@@ -20,6 +20,10 @@ else
   echo "firstboot: raspi-config not found; skipping expand"
 fi
 
+echo "firstboot: ensuring ssh host keys"
+ssh-keygen -A || true
+systemctl restart ssh || true
+
 touch "$MARKER_FILE"
 systemctl disable --now filmkorn-firstboot.service || true
 
