@@ -472,7 +472,7 @@ if [[ "${DRY_RUN}" == "false" ]]; then
     info "Shrinking image to ${shrink_img}..."
     (
       cd "$img_dir"
-      bash -lc "pishrink \"$fullsize_img\" \"$shrink_img\""
+      bash -lc "source ~/.bash_profile >/dev/null 2>&1 || true; source ~/.bashrc >/dev/null 2>&1 || true; pishrink \"$fullsize_img\" \"$shrink_img\""
     )
   else
     warn "pishrink not found; skipping shrink step."
