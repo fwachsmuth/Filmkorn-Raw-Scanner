@@ -250,14 +250,16 @@ else
   warn "Remote Login access does not appear enabled for user: ${current_user}"
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 if [[ ! -f ".paired" ]]; then
   warn "No paired Scanner detected yet (.paired missing)."
-  if ! BYPASS_INSTALL_SEMAPHORE=1 ./helper/pair.sh; then
+  if ! BYPASS_INSTALL_SEMAPHORE=1 "${SCRIPT_DIR}/helper/pair.sh"; then
     warn "pair.sh exited with an error."
     exit 1
   fi
 else
-  log "A Scanner has already been paired. Run helper/unpair.sh to remove pairing."
+  log "A Scanner has already been paired. Run ${SCRIPT_DIR}/helper/unpair.sh to remove pairing."
 fi
 
 log "Done."
