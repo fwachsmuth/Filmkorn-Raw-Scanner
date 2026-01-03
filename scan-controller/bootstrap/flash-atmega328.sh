@@ -29,6 +29,10 @@
 
 
 
+log() {
+  echo "flash-atmega328: $*"
+}
+
 # If GPIO16 (uC power) is already high, skip stopping the service and re-driving it.
 gpio16_level() {
   python3 - <<'PY'
@@ -54,17 +58,22 @@ PY
 }
 
 GPIO16_LEVEL="$(gpio16_level || true)"
+log "GPIO16 level=${GPIO16_LEVEL:-unknown}"
 if [ "$GPIO16_LEVEL" = "1" ]; then
+  log "GPIO16 already high; skipping service stop and power toggle."
   SKIP_SERVICE_RESTART=1
 else
   if [ -z "${SKIP_SERVICE_RESTART:-}" ]; then
     SERVICE_NAME="filmkorn-scanner.service"
+    log "Stopping ${SERVICE_NAME} to power MCU."
     sudo systemctl stop "$SERVICE_NAME"
     cleanup() {
+      log "Starting ${SERVICE_NAME} after flashing."
       sudo systemctl start "$SERVICE_NAME"
     }
     trap cleanup EXIT
   fi
+  log "Setting GPIO16 high to power MCU."
   set_gpio16_high
 fi
 
