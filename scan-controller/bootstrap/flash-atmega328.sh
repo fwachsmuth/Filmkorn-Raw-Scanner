@@ -55,4 +55,4 @@ sudo /usr/local/bin/avrdude \
   -p atmega328p \
   -c raspberry_pi_gpio \
   -P gpiochip0 \
-  -U flash:w:~/Filmkorn-Raw-Scanner/scan-controller/build/arduino.avr.pro/scan-controller.ino.hex:i
+  -U flash:w:/home/pi/Filmkorn-Raw-Scanner/scan-controller/build/arduino.avr.pro/scan-controller.ino.with_bootloader.hex:i
