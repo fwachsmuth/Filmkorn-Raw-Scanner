@@ -43,6 +43,7 @@ KEEP_SSH=false
 KEEP_HOSTKEYS=false
 KEEP_HISTORY=false
 DRY_RUN=false
+PISHRINK_CMD="${PISHRINK_CMD:-docker run --rm -it --privileged -v \"\\$PWD\":/workdir pishrink}"
 
 usage() {
   cat <<EOF
@@ -147,12 +148,12 @@ else
   STASH_RAMDISK="/run/filmkorn-imaging-ramdisk"
   LOG_FILE="/run/filmkorn-imaging.log"
 fi
-sudo mkdir -p "\$STASH_DIR" "\$STASH_RAMDISK" "\$STASH_PERSIST" || true
+sudo mkdir -p "$STASH_DIR" "$STASH_RAMDISK" "$STASH_PERSIST" || true
 touch "\$LOG_FILE" 2>/dev/null || true
 
 log() {
   echo "imaging-prep: $*" >&2
-  echo "imaging-prep: $*" >>"\$LOG_FILE" 2>/dev/null || true
+  echo "imaging-prep: $*" >>"$LOG_FILE" 2>/dev/null || true
   logger -t filmkorn-imaging "imaging-prep: $*" 2>/dev/null || true
 }
 
@@ -209,29 +210,29 @@ if [[ "${KEEP_SSH}" == "true" ]]; then
   true
 else
   log "stashing ssh keys"
-  sudo tar -czf "\$STASH_DIR/imaging-ssh.tgz" --ignore-failed-read /home/pi/.ssh /root/.ssh 2>/dev/null || true
-  if [ ! -s "\$STASH_DIR/imaging-ssh.tgz" ]; then
+  sudo tar -czf "$STASH_DIR/imaging-ssh.tgz" --ignore-failed-read /home/pi/.ssh /root/.ssh 2>/dev/null || true
+  if [ ! -s "$STASH_DIR/imaging-ssh.tgz" ]; then
     log "FATAL: ssh stash missing; aborting imaging"
     exit 1
   fi
-  stash_copy "\$STASH_DIR/imaging-ssh.tgz"
+  stash_copy "$STASH_DIR/imaging-ssh.tgz"
 fi
 if [[ "${KEEP_HOSTKEYS}" == "true" ]]; then
   true
 else
   log "stashing ssh host keys"
-  sudo tar -czf "\$STASH_DIR/imaging-hostkeys.tgz" --ignore-failed-read /etc/ssh/ssh_host_* 2>/dev/null || true
-  if [ ! -s "\$STASH_DIR/imaging-hostkeys.tgz" ]; then
+  sudo tar -czf "$STASH_DIR/imaging-hostkeys.tgz" --ignore-failed-read /etc/ssh/ssh_host_* 2>/dev/null || true
+  if [ ! -s "$STASH_DIR/imaging-hostkeys.tgz" ]; then
     log "FATAL: ssh host key stash missing; aborting imaging"
     exit 1
   fi
-  stash_copy "\$STASH_DIR/imaging-hostkeys.tgz"
+  stash_copy "$STASH_DIR/imaging-hostkeys.tgz"
 fi
 if [[ "${KEEP_HISTORY}" == "true" ]]; then
   true
 else
   log "stashing shell/editor history"
-  sudo tar -czf "\$STASH_DIR/imaging-history.tgz" --ignore-failed-read \
+  sudo tar -czf "$STASH_DIR/imaging-history.tgz" --ignore-failed-read \
     /home/pi/.bash_history \
     /root/.bash_history \
     /home/pi/.zsh_history \
@@ -243,12 +244,12 @@ else
     /home/pi/.python_history \
     /root/.python_history \
     2>/dev/null || true
-  if [ ! -s "\$STASH_DIR/imaging-history.tgz" ]; then
+  if [ ! -s "$STASH_DIR/imaging-history.tgz" ]; then
     log "FATAL: history stash missing; aborting imaging"
     exit 1
   fi
-  stash_copy "\$STASH_DIR/imaging-history.tgz"
-  if [ -s "\$STASH_DIR/imaging-history.tgz" ]; then
+  stash_copy "$STASH_DIR/imaging-history.tgz"
+  if [ -s "$STASH_DIR/imaging-history.tgz" ]; then
     sudo rm -f /home/pi/.bash_history /root/.bash_history || true
     sudo rm -f /home/pi/.zsh_history /root/.zsh_history || true
     sudo rm -f /home/pi/.viminfo /root/.viminfo || true
@@ -260,18 +261,18 @@ else
 fi
 
 log "stashing host-specific config"
-sudo tar -czf "\$STASH_DIR/imaging-config.tgz" --ignore-failed-read \
+sudo tar -czf "$STASH_DIR/imaging-config.tgz" --ignore-failed-read \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.user_and_host \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.scan_destination \
   /home/pi/Filmkorn-Raw-Scanner/raspi/lsyncd-to-host.conf \
   /home/pi/Filmkorn-Raw-Scanner/raspi/dev/enable-git-write.sh \
   2>/dev/null || true
-if [ ! -s "\$STASH_DIR/imaging-config.tgz" ]; then
+if [ ! -s "$STASH_DIR/imaging-config.tgz" ]; then
   log "FATAL: host-specific config stash missing; aborting imaging"
   exit 1
 fi
-stash_copy "\$STASH_DIR/imaging-config.tgz"
-if [ -s "\$STASH_DIR/imaging-config.tgz" ]; then
+stash_copy "$STASH_DIR/imaging-config.tgz"
+if [ -s "$STASH_DIR/imaging-config.tgz" ]; then
   sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.user_and_host || true
   sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.scan_destination || true
   sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/lsyncd-to-host.conf || true
@@ -348,7 +349,7 @@ FROZEN="false"
 
 log() {
   echo "imaging: $*" >&2
-  echo "imaging: $*" >>"\$LOG_FILE" 2>/dev/null || true
+  echo "imaging: $*" >>"$LOG_FILE" 2>/dev/null || true
   logger -t filmkorn-imaging "imaging: $*" 2>/dev/null || true
 }
 
@@ -472,7 +473,7 @@ if [[ "${DRY_RUN}" == "false" ]]; then
     info "Shrinking image to ${shrink_img}..."
     (
       cd "$img_dir"
-      bash -lc "source ~/.bash_profile >/dev/null 2>&1 || true; source ~/.bashrc >/dev/null 2>&1 || true; pishrink \"$fullsize_img\" \"$shrink_img\""
+      bash -lc "$PISHRINK_CMD \"$fullsize_img\" \"$shrink_img\""
     )
   else
     warn "pishrink not found; skipping shrink step."
