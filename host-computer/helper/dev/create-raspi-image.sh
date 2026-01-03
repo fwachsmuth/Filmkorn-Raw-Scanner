@@ -305,6 +305,17 @@ set -euo pipefail
 KEEP_SSH="${KEEP_SSH:-false}"
 KEEP_HOSTKEYS="${KEEP_HOSTKEYS:-false}"
 
+STASH_DIR="/run/filmkorn-imaging"
+STASH_PERSIST="/var/lib/filmkorn-imaging"
+if [ -d /mnt/ramdisk ]; then
+  STASH_RAMDISK="/mnt/ramdisk/filmkorn-imaging"
+  LOG_FILE="/mnt/ramdisk/filmkorn-imaging.log"
+else
+  STASH_RAMDISK="/run/filmkorn-imaging-ramdisk"
+  LOG_FILE="/run/filmkorn-imaging.log"
+fi
+mkdir -p "$STASH_DIR" "$STASH_RAMDISK" "$STASH_PERSIST" || true
+
 REMOUNT_RO="false"
 FROZEN="false"
 
