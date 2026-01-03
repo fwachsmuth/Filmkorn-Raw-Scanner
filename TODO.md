@@ -73,6 +73,10 @@ This restores ssh and history on the pi from ramdisk:
 	•	plus ein frei gewählter Reset-GPIO
 - [ ] Change Exposure Pot to a knobbed Alps type
 - [ ] Use a longer power switch
+- [ ] Bigger Net/HDD Switch
+- [ ] Add GND TPs to GPIO TPs
+
+
 
 
 ## Snippets
