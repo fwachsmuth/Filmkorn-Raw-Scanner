@@ -14,22 +14,30 @@ if [ -z "${SKIP_SERVICE_RESTART:-}" ]; then
   trap cleanup EXIT
 fi
 
+# This is how we successfully flash in raspi/dev/ino-update.sh, so we replicate it here:
+# run_and_log "flash" /usr/local/bin/avrdude \
+#   -C /home/pi/Filmkorn-Raw-Scanner/scan-controller/avrdude_gpio.conf \
+#   -p atmega328p \
+#   -c raspberry_pi_gpio \
+#   -P gpiochip0 \
+#   -U flash:w:${HEX_PATH}:i
 
-# writing Fuses
-# The below doesn't seem to work when run from a raspi, probably due to programming voltage being too low (~3.2V)
-# It might also be a problem with the older Version 6.3-20171130 running on the raspi. IDE uses 6.3-20190619!
-# Meanwhile, we need to burn the fuses using an external programmer.
-#
-# sudo avrdude \
-#     -C ~/Filmkorn-Raw-Scanner/scan-controller/avrdude_gpio.conf \
-#     -v \
+# Burn fuses
+
+# sudo /usr/local/bin/avrdude \
+#     -C /home/pi/Filmkorn-Raw-Scanner/scan-controller/avrdude_gpio.conf \
 #     -p atmega328p \
-#     -c pi_1 \
+#     -c raspberry_pi_gpio \
+#     -P gpiochip0 \
 #     -e \
 #     -U lock:w:0x3F:m \
 #     -U efuse:w:0xFD:m \
 #     -U hfuse:w:0xDA:m \
 #     -U lfuse:w:0xFF:m 
+
+# Seems to lead to a Voltage mismatch: Pi is 3.3V logic. A vanilla Arduino/ATmega at 5V might need level shifting or it won’t read MISO correctly.
+
+
 
 python3 - <<'PY'
 import RPi.GPIO as GPIO
