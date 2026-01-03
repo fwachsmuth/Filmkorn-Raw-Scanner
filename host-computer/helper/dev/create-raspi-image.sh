@@ -92,14 +92,6 @@ if [[ -z "$HOST" || -z "$USER" ]]; then
   exit 1
 fi
 
-if [[ -z "$OUTPUT" ]]; then
-  short_sha="$(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null || true)"
-  if [[ -z "$short_sha" ]]; then
-    short_sha="unknown"
-  fi
-  OUTPUT="filmkorn-raspi-fullsize-${short_sha}-$(date +%Y%m%d).img.gz"
-fi
-
 if ! command -v ssh >/dev/null 2>&1; then
   warn "ssh is required."
   exit 1
@@ -112,6 +104,14 @@ fi
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 REMOTE_REPO="/home/pi/Filmkorn-Raw-Scanner"
+
+if [[ -z "$OUTPUT" ]]; then
+  short_sha="$(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null || true)"
+  if [[ -z "$short_sha" ]]; then
+    short_sha="unknown"
+  fi
+  OUTPUT="filmkorn-raspi-fullsize-${short_sha}-$(date +%Y%m%d).img.gz"
+fi
 
 if [[ "${DRY_RUN}" == "true" ]]; then
   info "Dry run: would prepare Raspberry Pi for imaging"
