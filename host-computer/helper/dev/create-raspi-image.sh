@@ -140,7 +140,7 @@ ZERO_FILL="${ZERO_FILL:-false}"
 
 STASH_DIR="/run/filmkorn-imaging"
 STASH_PERSIST="/var/lib/filmkorn-imaging"
-if [ -d /mnt/ramdisk ]; then
+if command -v mountpoint >/dev/null 2>&1 && mountpoint -q /mnt/ramdisk; then
   STASH_RAMDISK="/mnt/ramdisk/filmkorn-imaging"
   LOG_FILE="/mnt/ramdisk/filmkorn-imaging.log"
 else
@@ -148,10 +148,12 @@ else
   LOG_FILE="/run/filmkorn-imaging.log"
 fi
 sudo mkdir -p "\$STASH_DIR" "\$STASH_RAMDISK" "\$STASH_PERSIST" || true
+touch "\$LOG_FILE" 2>/dev/null || true
 
 log() {
   echo "imaging-prep: $*" >&2
   echo "imaging-prep: $*" >>"\$LOG_FILE" 2>/dev/null || true
+  logger -t filmkorn-imaging "imaging-prep: $*" 2>/dev/null || true
 }
 
 stash_copy() {
@@ -208,6 +210,10 @@ if [[ "${KEEP_SSH}" == "true" ]]; then
 else
   log "stashing ssh keys"
   sudo tar -czf "\$STASH_DIR/imaging-ssh.tgz" --ignore-failed-read /home/pi/.ssh /root/.ssh 2>/dev/null || true
+  if [ ! -s "\$STASH_DIR/imaging-ssh.tgz" ]; then
+    log "FATAL: ssh stash missing; aborting imaging"
+    exit 1
+  fi
   stash_copy "\$STASH_DIR/imaging-ssh.tgz"
 fi
 if [[ "${KEEP_HOSTKEYS}" == "true" ]]; then
@@ -215,6 +221,10 @@ if [[ "${KEEP_HOSTKEYS}" == "true" ]]; then
 else
   log "stashing ssh host keys"
   sudo tar -czf "\$STASH_DIR/imaging-hostkeys.tgz" --ignore-failed-read /etc/ssh/ssh_host_* 2>/dev/null || true
+  if [ ! -s "\$STASH_DIR/imaging-hostkeys.tgz" ]; then
+    log "FATAL: ssh host key stash missing; aborting imaging"
+    exit 1
+  fi
   stash_copy "\$STASH_DIR/imaging-hostkeys.tgz"
 fi
 if [[ "${KEEP_HISTORY}" == "true" ]]; then
@@ -233,12 +243,20 @@ else
     /home/pi/.python_history \
     /root/.python_history \
     2>/dev/null || true
+  if [ ! -s "\$STASH_DIR/imaging-history.tgz" ]; then
+    log "FATAL: history stash missing; aborting imaging"
+    exit 1
+  fi
   stash_copy "\$STASH_DIR/imaging-history.tgz"
-  sudo rm -f /home/pi/.bash_history /root/.bash_history || true
-  sudo rm -f /home/pi/.zsh_history /root/.zsh_history || true
-  sudo rm -f /home/pi/.viminfo /root/.viminfo || true
-  sudo rm -f /home/pi/.nano_history /root/.nano_history || true
-  sudo rm -f /home/pi/.python_history /root/.python_history || true
+  if [ -s "\$STASH_DIR/imaging-history.tgz" ]; then
+    sudo rm -f /home/pi/.bash_history /root/.bash_history || true
+    sudo rm -f /home/pi/.zsh_history /root/.zsh_history || true
+    sudo rm -f /home/pi/.viminfo /root/.viminfo || true
+    sudo rm -f /home/pi/.nano_history /root/.nano_history || true
+    sudo rm -f /home/pi/.python_history /root/.python_history || true
+  else
+    log "keeping history files (stash missing)"
+  fi
 fi
 
 log "stashing host-specific config"
@@ -248,11 +266,19 @@ sudo tar -czf "\$STASH_DIR/imaging-config.tgz" --ignore-failed-read \
   /home/pi/Filmkorn-Raw-Scanner/raspi/lsyncd-to-host.conf \
   /home/pi/Filmkorn-Raw-Scanner/raspi/dev/enable-git-write.sh \
   2>/dev/null || true
+if [ ! -s "\$STASH_DIR/imaging-config.tgz" ]; then
+  log "FATAL: host-specific config stash missing; aborting imaging"
+  exit 1
+fi
 stash_copy "\$STASH_DIR/imaging-config.tgz"
-sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.user_and_host || true
-sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.scan_destination || true
-sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/lsyncd-to-host.conf || true
-sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/dev/enable-git-write.sh || true
+if [ -s "\$STASH_DIR/imaging-config.tgz" ]; then
+  sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.user_and_host || true
+  sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.scan_destination || true
+  sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/lsyncd-to-host.conf || true
+  sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/dev/enable-git-write.sh || true
+else
+  log "keeping host-specific config (stash missing)"
+fi
 
 sudo journalctl --rotate || true
 sudo journalctl --vacuum-time=1s || true
@@ -307,7 +333,7 @@ KEEP_HOSTKEYS="${KEEP_HOSTKEYS:-false}"
 
 STASH_DIR="/run/filmkorn-imaging"
 STASH_PERSIST="/var/lib/filmkorn-imaging"
-if [ -d /mnt/ramdisk ]; then
+if command -v mountpoint >/dev/null 2>&1 && mountpoint -q /mnt/ramdisk; then
   STASH_RAMDISK="/mnt/ramdisk/filmkorn-imaging"
   LOG_FILE="/mnt/ramdisk/filmkorn-imaging.log"
 else
@@ -315,6 +341,7 @@ else
   LOG_FILE="/run/filmkorn-imaging.log"
 fi
 mkdir -p "$STASH_DIR" "$STASH_RAMDISK" "$STASH_PERSIST" || true
+touch "$LOG_FILE" 2>/dev/null || true
 
 REMOUNT_RO="false"
 FROZEN="false"
@@ -322,6 +349,7 @@ FROZEN="false"
 log() {
   echo "imaging: $*" >&2
   echo "imaging: $*" >>"\$LOG_FILE" 2>/dev/null || true
+  logger -t filmkorn-imaging "imaging: $*" 2>/dev/null || true
 }
 
 has_stash() {
