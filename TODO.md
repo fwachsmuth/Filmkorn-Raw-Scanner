@@ -7,8 +7,11 @@
 ## Next
 - [ ] Imaging Scripts
 This restores ssh and history on the pi from ramdisk:
-- host-computer/helper/dev/create-raspi-image.sh --output images/filmkorn-raspi-test.img.gz --skip-zeroing
-  Only add --keep-ssh or --keep-history or --keep-history if you want to skip removal entirely
+- host-computer/helper/dev/create-raspi-image.sh --skip-zeroing
+  (Only add --keep-ssh or --keep-history or --keep-history if you want to skip removal entirely)
+  pishrink filmkorn-raspi-a34098.img smaller-a34098.img
+
+  Add Note that "Full Access" is required!!
 
 - [ ] handle scanner.log (increases, we have journalctl)
 
