@@ -35,13 +35,15 @@ log() {
 
 # If GPIO16 (uC power) is already high, skip stopping the service and re-driving it.
 gpio16_level() {
-  python3 - <<'PY'
+  sudo python3 - <<'PY'
 try:
     import RPi.GPIO as GPIO
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(16, GPIO.IN)
     print(1 if GPIO.input(16) else 0)
-except Exception:
+except Exception as exc:
+    import sys
+    print(f"ERR:{exc}", file=sys.stderr)
     print(0)
 PY
 }
