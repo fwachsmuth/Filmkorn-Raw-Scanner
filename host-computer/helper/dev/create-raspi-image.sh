@@ -43,7 +43,7 @@ KEEP_SSH=false
 KEEP_HOSTKEYS=false
 KEEP_HISTORY=false
 DRY_RUN=false
-PISHRINK_CMD="${PISHRINK_CMD:-docker run --rm -it --privileged -v \"\\$PWD\":/workdir pishrink}"
+PISHRINK_CMD="${PISHRINK_CMD:-docker run --rm -it --privileged -v \"$PWD\":/workdir pishrink}"
 
 usage() {
   cat <<EOF
