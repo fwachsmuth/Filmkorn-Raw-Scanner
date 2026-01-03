@@ -33,52 +33,6 @@ log() {
   echo "flash-atmega328: $*"
 }
 
-# If GPIO16 (uC power) is already high, skip stopping the service and re-driving it.
-gpio16_level() {
-  sudo python3 - <<'PY'
-try:
-    import RPi.GPIO as GPIO
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(16, GPIO.IN)
-    print(1 if GPIO.input(16) else 0)
-except Exception as exc:
-    import sys
-    print(f"ERR:{exc}", file=sys.stderr)
-    print(0)
-PY
-}
-
-set_gpio16_high() {
-  python3 - <<'PY'
-try:
-    import RPi.GPIO as GPIO
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(16, GPIO.OUT, initial=GPIO.HIGH)
-except Exception:
-    pass
-PY
-}
-
-GPIO16_LEVEL="$(gpio16_level || true)"
-log "GPIO16 level=${GPIO16_LEVEL:-unknown}"
-if [ "$GPIO16_LEVEL" = "1" ]; then
-  log "GPIO16 already high; skipping service stop and power toggle."
-  SKIP_SERVICE_RESTART=1
-else
-  if [ -z "${SKIP_SERVICE_RESTART:-}" ]; then
-    SERVICE_NAME="filmkorn-scanner.service"
-    log "Stopping ${SERVICE_NAME} to power MCU."
-    sudo systemctl stop "$SERVICE_NAME"
-    cleanup() {
-      log "Starting ${SERVICE_NAME} after flashing."
-      sudo systemctl start "$SERVICE_NAME"
-    }
-    trap cleanup EXIT
-  fi
-  log "Setting GPIO16 high to power MCU."
-  set_gpio16_high
-fi
-
 HEX_PATH="/home/pi/Filmkorn-Raw-Scanner/scan-controller/build/arduino.avr.pro/scan-controller.ino.with_bootloader.hex"
 CONF_PATH="/home/pi/Filmkorn-Raw-Scanner/scan-controller/avrdude_gpio.conf"
 
@@ -87,16 +41,7 @@ if [ ! -f "$HEX_PATH" ]; then
   exit 2
 fi
 
-quick_bytes="$(sudo /usr/local/bin/avrdude \
-  -C "$CONF_PATH" \
-  -p atmega328p \
-  -c raspberry_pi_gpio \
-  -P gpiochip0 \
-  -U flash:r:-:r 2>/dev/null | head -c 16 | od -An -tx1 | tr -d ' \n' || true)"
-
-if [ -n "$quick_bytes" ] && [ "$quick_bytes" = "ffffffffffffffffffffffffffffffff" ]; then
-  echo "ATmega328P flash appears empty (first 16 bytes are 0xFF), flashing."
-else
+log "Attempting verification without stopping service."
 if sudo /usr/local/bin/avrdude \
   -C "$CONF_PATH" \
   -p atmega328p \
@@ -106,7 +51,6 @@ if sudo /usr/local/bin/avrdude \
 then
   echo "ATmega328P flash already matches ${HEX_PATH}, skipping."
   exit 0
-fi
 fi
     
 # Burn uC Code & bootloader 
