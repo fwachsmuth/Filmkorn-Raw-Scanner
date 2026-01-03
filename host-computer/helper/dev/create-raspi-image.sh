@@ -93,7 +93,11 @@ if [[ -z "$HOST" || -z "$USER" ]]; then
 fi
 
 if [[ -z "$OUTPUT" ]]; then
-  OUTPUT="filmkorn-raspi-$(date +%Y%m%d-%H%M%S).img.gz"
+  short_sha="$(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null || true)"
+  if [[ -z "$short_sha" ]]; then
+    short_sha="unknown"
+  fi
+  OUTPUT="filmkorn-raspi-fullsize-${short_sha}-$(date +%Y%m%d).img.gz"
 fi
 
 if ! command -v ssh >/dev/null 2>&1; then
@@ -328,3 +332,21 @@ if [[ "${DRY_RUN}" == "true" ]]; then
 fi
 
 info "Image created: $OUTPUT"
+
+if [[ "${DRY_RUN}" == "false" ]]; then
+  if command -v pishrink >/dev/null 2>&1; then
+    img_dir="$(cd "$(dirname "$OUTPUT")" && pwd)"
+    fullsize_gz="$(basename "$OUTPUT")"
+    fullsize_img="${fullsize_gz%.gz}"
+    shrink_img="${fullsize_img/filmkorn-raspi-fullsize-/filmkorn-raspi-}"
+    info "Expanding image to ${fullsize_img}..."
+    gzip -dk "${img_dir}/${fullsize_gz}"
+    info "Shrinking image to ${shrink_img}..."
+    (
+      cd "$img_dir"
+      pishrink "$fullsize_img" "$shrink_img"
+    )
+  else
+    warn "pishrink not found; skipping shrink step."
+  fi
+fi
