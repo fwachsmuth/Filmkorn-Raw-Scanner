@@ -55,6 +55,16 @@ if [ ! -f "$HEX_PATH" ]; then
   exit 2
 fi
 
+quick_bytes="$(sudo /usr/local/bin/avrdude \
+  -C "$CONF_PATH" \
+  -p atmega328p \
+  -c raspberry_pi_gpio \
+  -P gpiochip0 \
+  -U flash:r:-:r 2>/dev/null | head -c 16 | od -An -tx1 | tr -d ' \n' || true)"
+
+if [ -n "$quick_bytes" ] && [ "$quick_bytes" = "ffffffffffffffffffffffffffffffff" ]; then
+  echo "ATmega328P flash appears empty (first 16 bytes are 0xFF), flashing."
+else
 if sudo /usr/local/bin/avrdude \
   -C "$CONF_PATH" \
   -p atmega328p \
@@ -64,6 +74,7 @@ if sudo /usr/local/bin/avrdude \
 then
   echo "ATmega328P flash already matches ${HEX_PATH}, skipping."
   exit 0
+fi
 fi
     
 # Burn uC Code & bootloader 
