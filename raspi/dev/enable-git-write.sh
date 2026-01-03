@@ -68,4 +68,10 @@ EOT
   chmod 600 ~/.ssh/config
 fi
 
+info "Testing SSH access to GitHub..."
+if ! ssh -T git@github.com >/dev/null 2>&1; then
+  warn "SSH authentication to GitHub failed. Check ~/.ssh/id_filmkorn-scanner-dev_ed25519."
+  exit 1
+fi
+
 info "Dev git write access enabled."
