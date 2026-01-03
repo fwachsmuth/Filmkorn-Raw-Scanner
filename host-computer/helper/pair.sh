@@ -24,6 +24,10 @@ warn() {
   echo "${BOLD}${YELLOW}$*${RESET}"
 }
 
+local_hostname() {
+  scutil --get LocalHostName 2>/dev/null || hostname -s
+}
+
 check_scanner_reachable() {
   if ! ping -c 1 -W 1 filmkorn-scanner.local >/dev/null 2>&1; then
     warn "Scanner could not be reached. Please connect your Scanner to Ethernet and turn it on, then try again."
@@ -84,7 +88,7 @@ if ! $paired_exists; then
     info "Using existing SSH keypair for the scanner."
   else
     info "Generating local SSH keypair for the scanner..."
-    ssh-keygen -t ed25519 -q -f ~/.ssh/id_filmkorn-scanner_ed25519 -C "scanning-$(whoami)@$(hostname -s)" -N ''
+    ssh-keygen -t ed25519 -q -f ~/.ssh/id_filmkorn-scanner_ed25519 -C "scanning-$(whoami)@$(local_hostname)" -N ''
   fi
 fi
 
@@ -182,14 +186,14 @@ if ! $paired_exists; then
   echo "When prompted, please enter the password ${BOLD}of this Mac${RESET} to allow receiving scanned film frames going forward."
   ssh -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
     pi@filmkorn-scanner.local -t \
-    "ssh-keyscan -H $(hostname -s).local >> ~/.ssh/known_hosts 2>/dev/null || true; ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub -o StrictHostKeyChecking=accept-new $(whoami)@$(hostname -s).local > /dev/null 2> /dev/null"
+    "ssh-keyscan -H $(local_hostname).local >> ~/.ssh/known_hosts 2>/dev/null || true; ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub -o StrictHostKeyChecking=accept-new $(whoami)@$(local_hostname).local > /dev/null 2> /dev/null"
 fi
 
 if [ -f ".scan_destination" ]; then
   info "Configuring where on the Mac the scans should be stored..."
   ssh -t -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
     pi@filmkorn-scanner.local \
-    "FORCE_COLOR=1 ./Filmkorn-Raw-Scanner/raspi/pairing/update-destination.sh -h $(whoami)@$(hostname -s).local -p \"$(cat .scan_destination)\""
+    "FORCE_COLOR=1 ./Filmkorn-Raw-Scanner/raspi/pairing/update-destination.sh -h $(whoami)@$(local_hostname).local -p \"$(cat .scan_destination)\""
 else
   warn "No Scanning Destination defined yet."
   "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/set_scan_destination.sh"

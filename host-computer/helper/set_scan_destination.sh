@@ -33,6 +33,10 @@ warn() {
   echo "${BOLD}${YELLOW}$*${RESET}"
 }
 
+local_hostname() {
+  scutil --get LocalHostName 2>/dev/null || hostname -s
+}
+
 if [ -f /proc/device-tree/model ] && grep -qi "raspberry pi" /proc/device-tree/model; then
   warn "This script must run on the host computer, not on the Raspi."
   exit 1
@@ -94,6 +98,6 @@ echo "${rawpath}" > .scan_destination
 info "Propagating destination to the Raspi..."
 ssh -t -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
   pi@filmkorn-scanner.local \
-  "FORCE_COLOR=1 ./Filmkorn-Raw-Scanner/raspi/pairing/update-destination.sh -h $(whoami)@$(hostname -s).local -p \"${rawpath}\""
+  "FORCE_COLOR=1 ./Filmkorn-Raw-Scanner/raspi/pairing/update-destination.sh -h $(whoami)@$(local_hostname).local -p \"${rawpath}\""
 
 info "Destination updated."
