@@ -1908,7 +1908,7 @@ def setup():
     # GPIO 17 (BCM) input. "Resolution" switch is connected here.
     #   0 => Full-res RAW
     #   1 => Half-res RAW
-    GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_OFF)
     resolution_switch = GPIO.input(17)
     current_resolution_switch = resolution_switch
     last_resolution_label = "4K Raw" if resolution_switch == 0 else "2K Raw"

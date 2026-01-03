@@ -5,6 +5,7 @@
 - log insight (from host)
 
 ## Next
+- Remove Starting Converter Process as peaceman@wachsmut-mbp-2025.local:/Volumes/Filme 4TB
 - [ ] Imaging Scripts
 This restores ssh and history on the pi from ramdisk:
 - host-computer/helper/dev/create-raspi-image.sh --skip-zeroing
@@ -75,6 +76,7 @@ This restores ssh and history on the pi from ramdisk:
 - [ ] Use a longer power switch
 - [ ] Bigger Net/HDD Switch
 - [ ] Add GND TPs to GPIO TPs
+- [ ] Make SW2 Pull up/dn 10K or less. 47k is noisy.
 
 
 
