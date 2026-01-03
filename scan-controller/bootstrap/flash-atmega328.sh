@@ -46,13 +46,32 @@ UC_POWER_GPIO = 16  # GPIO16 (physical pin 36) enables µC power switch on the c
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(UC_POWER_GPIO, GPIO.OUT, initial=GPIO.HIGH)
 PY
+
+HEX_PATH="/home/pi/Filmkorn-Raw-Scanner/scan-controller/build/arduino.avr.pro/scan-controller.ino.with_bootloader.hex"
+CONF_PATH="/home/pi/Filmkorn-Raw-Scanner/scan-controller/avrdude_gpio.conf"
+
+if [ ! -f "$HEX_PATH" ]; then
+  echo "Missing hex: $HEX_PATH" >&2
+  exit 2
+fi
+
+if sudo /usr/local/bin/avrdude \
+  -C "$CONF_PATH" \
+  -p atmega328p \
+  -c raspberry_pi_gpio \
+  -P gpiochip0 \
+  -U "flash:v:${HEX_PATH}:i"
+then
+  echo "ATmega328P flash already matches ${HEX_PATH}, skipping."
+  exit 0
+fi
     
 # Burn uC Code & bootloader 
 # This is for the new, self-built avrdude 8.1 with libgpiod support.
 # Fuse setting still needs to be tested!!!! 
 sudo /usr/local/bin/avrdude \
-  -C /home/pi/Filmkorn-Raw-Scanner/scan-controller/avrdude_gpio.conf \
+  -C "$CONF_PATH" \
   -p atmega328p \
   -c raspberry_pi_gpio \
   -P gpiochip0 \
-  -U flash:w:/home/pi/Filmkorn-Raw-Scanner/scan-controller/build/arduino.avr.pro/scan-controller.ino.with_bootloader.hex:i
+  -U "flash:w:${HEX_PATH}:i"
