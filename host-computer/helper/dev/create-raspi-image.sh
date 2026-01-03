@@ -243,6 +243,8 @@ else
     /root/.nano_history \
     /home/pi/.python_history \
     /root/.python_history \
+    /home/pi/.gitconfig \
+    /root/.gitconfig \
     2>/dev/null || true
   if [ ! -s "$STASH_DIR/imaging-history.tgz" ]; then
     log "FATAL: history stash missing; aborting imaging"
@@ -255,6 +257,7 @@ else
     sudo rm -f /home/pi/.viminfo /root/.viminfo || true
     sudo rm -f /home/pi/.nano_history /root/.nano_history || true
     sudo rm -f /home/pi/.python_history /root/.python_history || true
+    sudo rm -f /home/pi/.gitconfig /root/.gitconfig || true
   else
     log "keeping history files (stash missing)"
   fi
