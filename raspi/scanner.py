@@ -1880,11 +1880,16 @@ def setup():
     atexit.register(cleanup_terminal)
     clear_tty1()
 
-    # set up logging
-    logging.basicConfig(filename='scanner.log', level=logging.DEBUG)
-    console_handler = logging.StreamHandler()  # Create a handler for stdout
-    console_handler.setLevel(logging.DEBUG)    # Set the logging level for the handler
-    logging.getLogger('').addHandler(console_handler)  # Add the handler to the root logger
+    # set up logging (file + stdout so journalctl includes full detail)
+    logging.root.handlers.clear()
+    file_handler = logging.FileHandler("scanner.log")
+    file_handler.setLevel(logging.DEBUG)
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter("%(levelname)s:%(name)s:%(message)s")
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+    logging.basicConfig(level=logging.DEBUG, handlers=[file_handler, console_handler])
     logging.getLogger("picamera2").setLevel(logging.WARNING)
     logging.getLogger("libcamera").setLevel(logging.WARNING)
 
