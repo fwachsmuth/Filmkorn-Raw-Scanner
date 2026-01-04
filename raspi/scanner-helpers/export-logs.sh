@@ -89,7 +89,7 @@ journalctl -b -o short-iso --no-pager > "${tmpdir}/journalctl-boot.log"
   echo
   if command -v lsusb >/dev/null 2>&1; then
     echo "USB:"
-    lsusb
+    lsusb -tv
     echo
   fi
   echo "Network:"
