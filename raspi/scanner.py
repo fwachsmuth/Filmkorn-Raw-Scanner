@@ -764,21 +764,26 @@ def _export_logs() -> str:
     return result.stdout.strip()
 
 def _enter_logs_mode():
-    global logs_mode, logs_in_progress
+    global logs_mode, logs_in_progress, last_status_screen
     if logs_mode or logs_in_progress:
         return
     logging.info("logs: entering log export mode")
     logs_mode = True
     logs_in_progress = True
-    show_update_screen(["Exporting logs", "Please wait"])
+    show_screen("generating-debug-log")
     try:
         output_path = _export_logs()
-        filename = os.path.basename(output_path) if output_path else "scan-log.zip"
-        show_update_screen(["Logs saved", filename])
         logging.info("logs: export saved %s", output_path)
+        if last_status_screen:
+            show_screen(last_status_screen)
+        else:
+            show_ready_to_scan()
     except Exception as exc:
         logging.exception("logs: export failed: %s", exc)
-        show_update_screen(["Log export failed", "Check system logs"])
+        if last_status_screen:
+            show_screen(last_status_screen)
+        else:
+            show_ready_to_scan()
     finally:
         logs_in_progress = False
         logs_mode = False

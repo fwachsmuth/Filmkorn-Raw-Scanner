@@ -75,6 +75,9 @@ journalctl -b -o short-iso --no-pager > "${tmpdir}/journalctl-boot.log"
     echo "Temperature: $(vcgencmd measure_temp | sed 's/^temp=//')"
     echo
   fi
+  echo "Memory:"
+  free -h
+  echo
   echo "Kernel:"
   uname -a
   echo
@@ -84,13 +87,35 @@ journalctl -b -o short-iso --no-pager > "${tmpdir}/journalctl-boot.log"
   echo "Block devices:"
   lsblk -f
   echo
+  if command -v lsusb >/dev/null 2>&1; then
+    echo "USB:"
+    lsusb
+    echo
+  fi
   echo "Network:"
   ip -br a
+  if command -v nmcli >/dev/null 2>&1; then
+    echo
+    echo "Network (nmcli):"
+    nmcli dev status
+  elif command -v iwconfig >/dev/null 2>&1; then
+    echo
+    echo "Wireless (iwconfig):"
+    iwconfig
+  fi
   if command -v vcgencmd >/dev/null 2>&1; then
     echo
     echo "Throttling:"
     vcgencmd get_throttled
   fi
+  echo
+  echo "Service status:"
+  systemctl --no-pager --full status filmkorn-scanner.service || true
+  systemctl --no-pager --full status filmkorn-lsyncd.service || true
+  systemctl --no-pager --full status ssh.service || true
+  echo
+  echo "Kernel warnings:"
+  dmesg --level=err,warn || true
 } > "${tmpdir}/system-info.txt"
 
 (cd "$tmpdir" && zip -q -r "$outfile" .)
