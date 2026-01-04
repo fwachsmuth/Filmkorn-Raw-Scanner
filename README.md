@@ -1,5 +1,25 @@
 # Filmkorn Raw-Scanner
 
+## This is totally outdated.
+
+Updated version is work in progress. 🚧
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## What is this?
 The Filmkorn Raw-Scanner, formerly known as Piscanuino, is an open source solution to make film scanning in amazing quality possible at a lowe price. In factm the project originated from [a bet](https://www.filmvorfuehrer.de/topic/31851-challenge-framescanner-f%C3%BCr-350%E2%82%AC-bauen/): 
 *Is it possible to build a high quality film scanner for < 350 €?*
@@ -155,7 +175,7 @@ programmer # raspberry_pi_gpio
     sdi                    = 18;
 ;
 ````
-- sudo avrdude -C ~/Filmkorn-Raw-Scanner/scan-controller/avrdude_gpio.conf -p atmega328p  -c raspberry_pi_gpio -P gpiochip0  -vvvv
+- sudo avrdude -C ~/avrdude_gpio.conf -p atmega328p  -c raspberry_pi_gpio -P gpiochip0  -vvvv
 
 
 Build:
@@ -164,14 +184,12 @@ arduino-cli compile --fqbn arduino:avr:pro:cpu=8MHzatmega328 --export-binaries s
 
 Flash:
 sudo avrdude \
-  -C ~/Filmkorn-Raw-Scanner/scan-controller/avrdude_gpio.conf \
+  -C ~/avrdude_gpio.conf \
   -p atmega328p \
   -c raspberry_pi_gpio \
   -P gpiochip0 \
-  -U flash:w:scan-controller/scan-controller.ino.with_bootloader.hex:i
+  -U flash:w:scan-controller/build/arduino.avr.pro/scan-controller.ino.with_bootloader.hex:i
 
-Or, what we just built:
--U flash:w:scan-controller/build/arduino.avr.pro/scan-controller.ino.with_bootloader.hex:i
 
 
 ## Raspi Architecture
@@ -183,6 +201,7 @@ The scanner comes with a couple of systemd services and helper scripts and servi
 - filmkorn-sleep.service saves power and turns the camera and display off when not in use
 - filmkorn-wake.service does the opposite
 - usb-mount-largest@.service identifies the biggest partition on a connected drive and mounts it. extFS and ext4 are supported — NTFS is just too slow.
+TODO: Explain our other services and helper scripts
 
 The other scripts you'll find are helpers that are called directly by the services, if needed. 'scanner.py' is where the brains are. 
 
@@ -190,3 +209,4 @@ The other scripts you'll find are helpers that are called directly by the servic
 ## Magic Buttons
 - Hold << and >> during wake-up toenable firmware update mode
 - Hold SCAN button (Rec) during wake-up to enable pairing mode
+- Hold LAMP during wake-up generates a debug log zip
