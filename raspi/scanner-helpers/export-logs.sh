@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+umask 0002
 
 OUT_DIR="/mnt/ramdisk"
 if [ ! -d "$OUT_DIR" ]; then
@@ -57,4 +58,5 @@ journalctl -b -o short-iso --no-pager > "${tmpdir}/journalctl-boot.log"
 } > "${tmpdir}/system-info.txt"
 
 (cd "$tmpdir" && zip -q -r "$outfile" .)
+chown pi:pi "$outfile" || true
 echo "$outfile"
