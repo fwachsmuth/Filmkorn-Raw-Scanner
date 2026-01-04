@@ -102,6 +102,8 @@ update_in_progress = False
 update_error = None
 pairing_mode = False
 pairing_exit_pending = False
+logs_mode = False
+logs_in_progress = False
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 current_version_label = None
 mcu_flash_in_progress = False
@@ -158,6 +160,8 @@ class Command(enum.Enum):
     PAIRING_ENTER = 20
     PAIRING_EXIT = 21
     PAIRING_CANCEL = 22
+    LOGS_ENTER = 23
+    LOGS_EXIT = 24
 
     # Raspi to Arduino. Ths is handled by i2cReceive() on the Controller side.
     READY = 128
@@ -741,6 +745,47 @@ def _enter_pairing_mode():
     logging.info("pairing: otp code generated")
     show_update_screen(["Pairing code", code, "This password expires in 2 minutes"])
     threading.Timer(120.0, _exit_pairing_mode_screen).start()
+
+def _export_logs() -> str:
+    export_script = os.path.join(os.path.dirname(__file__), "scanner-helpers", "export-logs.sh")
+    if not os.path.exists(export_script):
+        raise FileNotFoundError(export_script)
+    result = subprocess.run(
+        ["sudo", export_script],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    logging.info("logs: export stdout: %s", result.stdout.strip())
+    if result.stderr.strip():
+        logging.warning("logs: export stderr: %s", result.stderr.strip())
+    if result.returncode != 0:
+        raise RuntimeError(f"export failed code={result.returncode}")
+    return result.stdout.strip()
+
+def _enter_logs_mode():
+    global logs_mode, logs_in_progress
+    if logs_mode or logs_in_progress:
+        return
+    logging.info("logs: entering log export mode")
+    logs_mode = True
+    logs_in_progress = True
+    show_update_screen(["Exporting logs", "Please wait"])
+    try:
+        output_path = _export_logs()
+        filename = os.path.basename(output_path) if output_path else "scan-log.zip"
+        show_update_screen(["Logs saved", filename])
+        logging.info("logs: export saved %s", output_path)
+    except Exception as exc:
+        logging.exception("logs: export failed: %s", exc)
+        show_update_screen(["Log export failed", "Check system logs"])
+    finally:
+        logs_in_progress = False
+        logs_mode = False
+        try:
+            tell_arduino(Command.LOGS_EXIT)
+        except Exception as exc:
+            logging.warning("logs: failed to notify controller to exit logs mode: %s", exc)
 
 def _apply_overlay_if_ready():
     global pending_overlay, overlay_supported, overlay_retry_count, overlay_retry_timer
@@ -2036,6 +2081,9 @@ def loop():
             return
         if command == Command.PAIRING_CANCEL:
             _cancel_pairing_mode()
+            return
+        if command == Command.LOGS_ENTER:
+            _enter_logs_mode()
             return
         if command == Command.UPDATE_ENTER:
             _enter_update_mode()

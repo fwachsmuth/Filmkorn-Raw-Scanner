@@ -76,6 +76,8 @@ enum Command
   CMD_PAIRING_ENTER,
   CMD_PAIRING_EXIT,
   CMD_PAIRING_CANCEL,
+  CMD_LOGS_ENTER,
+  CMD_LOGS_EXIT,
 
   // Raspi to Arduino
   CMD_READY = 128,
@@ -108,6 +110,7 @@ bool lampMode = false;
 bool isScanning = false;
 bool updateMode = false;
 bool pairingMode = false;
+bool logsMode = false;
 uint32_t pairingModeEnteredAt = 0;
 bool pairingCancelPending = false;
 uint32_t pairingCancelSentAt = 0;
@@ -151,11 +154,16 @@ void setup() {
   bool bootStop = bootButtonsB > 900;
   bool bootRunRevRunFwd = (bootButtonsA > 120 && bootButtonsA < 160) && (bootButtonsB > 120 && bootButtonsB < 160);
   bool bootScan = (bootButtonsB > 30 && bootButtonsB < 70);
+  bool bootLight = bootButtonsA > 990;
   if (bootScan) {
     pairingMode = true;
     pairingModeEnteredAt = millis();
     nextPiCmd = CMD_PAIRING_ENTER;
     Serial.println("Pairing mode: enter");
+  } else if (bootLight) {
+    logsMode = true;
+    nextPiCmd = CMD_LOGS_ENTER;
+    Serial.println("Log dump: enter");
   } else if (bootStop || bootRunRevRunFwd) {
     updateMode = true;
     nextPiCmd = CMD_UPDATE_ENTER;
@@ -180,7 +188,7 @@ void loop() {
     return;
   }
 
-  if (updateMode || pairingMode) {
+  if (updateMode || pairingMode || logsMode) {
     if (pairingMode) {
       dummyread = analogRead(BUTTONS_B_PIN);
       int pairingButtonsB = analogRead(BUTTONS_B_PIN);
@@ -197,24 +205,26 @@ void loop() {
       }
       return;
     }
-    currentButton = pollButtons();
-    if (currentButton != prevButton) {
-      prevButton = currentButton;
-      switch (currentButton) {
-        case RUNREV:
-          nextPiCmd = CMD_UPDATE_PREV;
-          break;
-        case RUNFWD:
-          nextPiCmd = CMD_UPDATE_NEXT;
-          break;
-        case SCAN:
-          nextPiCmd = CMD_UPDATE_CONFIRM;
-          break;
-        case STOP:
-          nextPiCmd = CMD_UPDATE_CANCEL;
-          break;
-        default:
-          break;
+    if (updateMode) {
+      currentButton = pollButtons();
+      if (currentButton != prevButton) {
+        prevButton = currentButton;
+        switch (currentButton) {
+          case RUNREV:
+            nextPiCmd = CMD_UPDATE_PREV;
+            break;
+          case RUNFWD:
+            nextPiCmd = CMD_UPDATE_NEXT;
+            break;
+          case SCAN:
+            nextPiCmd = CMD_UPDATE_CONFIRM;
+            break;
+          case STOP:
+            nextPiCmd = CMD_UPDATE_CANCEL;
+            break;
+          default:
+            break;
+        }
       }
     }
     return;
@@ -505,6 +515,10 @@ void i2cReceive(int howMany) {
       pairingMode = false;
       nextPiCmd = CMD_NONE;
       pairingCancelPending = false;
+    }
+    if ((Command)i2cCommand == CMD_LOGS_EXIT) {
+      logsMode = false;
+      nextPiCmd = CMD_NONE;
     }
     // Don't set piIsReady if we aren't scanning anymore
     if ((Command)i2cCommand == CMD_READY && isScanning) {
