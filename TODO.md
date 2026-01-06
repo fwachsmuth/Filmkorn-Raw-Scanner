@@ -1,14 +1,46 @@
 # To Dos
 
 ## Next
-- Remove Starting Converter Process as peaceman@wachsmut-mbp-2025.local:/Volumes/Filme 4TB
+- Remove "Starting Converter Process as peaceman@wachsmut-mbp-2025.local:/Volumes/Filme 4TB"
 
+Bugs:
+On initial pairing attempt after flashing a258ff1-20260103 I got
+        To reveal the password:
+        - press power button to send the scanner to sleep
+        - press and hold the SCAN (circle) button, and while holding,
+        - press the power button again to wake the scanner up.
+        Could not prefetch host key for filmkorn-scanner.local
+
+        /usr/bin/ssh-copy-id: ERROR: ssh: connect to host filmkorn-scanner.local port 22: Connection refused
+
+        Failed to install SSH key on the scanner. Check the password and network connection.
+
+And on second attempt:
+        Configuring where on the Mac the scans should be stored...
+        Validating host and path...
+        mkdir: /Volumes/Filme 4TB: Permission denied
+        🐧 Remote path on the host not writable: /Volumes/Filme 4TB
+        Connection to filmkorn-scanner.local closed.
+        pair.sh exited with an error.
+
+ISO ist nicht fest?
+
+
+
+- [ ] 57 mm statt 60 mm
+- [ ] 3 mm Abstand
+- [ ] weisses SUgru
+- [ ] add hystheresis to film end detection
+- [ ] Don't crash w/o camera
+- [ ] 27W Netzteil messen
+- [ ] Bei TRansport oder Preview -> No Film LED an?
 - [ ] Write Build-your-own howtos
 - [ ] Add Note that "Full Access" is required!!
 - [ ] consider enabling wifi for time and updates (captive approach?)
 - [ ] consider fsck on /mnt/usb
 - [ ] Add davinci resolve assets to repo
 - [ ] Allow having multiple scanners on the network?
+- [ ] Real Power off
 
 - [ ] Auto-Stop in-channel Rewinds
 - [ ] Test with 2 GB Raspi (1 GB Ramdisk)
@@ -28,19 +60,20 @@
 - [ ] Update ReadMes
 
 ## Hardware
-- [ ] Staubschutzhaube bauen
+- [ ] Bodge: R8 -> 1K, 100n zwischen Pin 1 und 2 von Q1
+- [ ] 10u (!) Kerko parallel zu C6/8/10
+- [ ] Klebepunkt im Weg
+
 - [ ] Test higher PWM freqs
 - [ ] Add a pull-down switch to GPIO5 (for remote mode)
-- [ ] Disconnect GPIO3 and GPIIO 26 since we no longer an do proper power-down/up and need ugly i2c hacks rn
+- [ ] Disconnect GPIO3 and GPIIO 26 since we no longer an do proper power-down/up and rn need ugly hacks to not collide with i2c
 - [ ] Consider flipping the Raspi GPIO 180° (all wires out on one side)
 - [ ] Relabel "Target" Switch with "Resolution"
-- For avrdude, use linuxspi instead of linuxgpio. linuxgpio bit-bangt über sysfs; das ist auf neuen Kernels zunehmend hakelig. GPIO12 ist von PM/audio belegt...
-	•	SPI über /dev/spidev* (Programmer linuxspi) 19-21-23
-	•	plus ein frei gewählter Reset-GPIO
 - [ ] Change Exposure Pot to a knobbed Alps type
 - [ ] Use a longer power switch
-- [ ] Bigger Net/HDD Switch
+- [ ] Bigger Net/HDD and Reslution Switches
 - [ ] Add GND TPs to GPIO TPs
 - [ ] Make SW2 Pull up/dn 10K or less. 47k is noisy.
+- [ ] Staubschutzhaube bauen
 
 ## Snippets

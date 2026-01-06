@@ -72,6 +72,12 @@ if ! ssh -i /home/pi/.ssh/id_filmkorn-scanner_ed25519 \
   "mkdir -p \"${rawpath}\" && test -w \"${rawpath}\""
 then
   warn "🐧 Remote path on the host not writable: ${rawpath}"
+  if [[ "${rawpath}" == /Volumes/* ]]; then
+    warn "🐧 Tip: On macOS, enable General -> Sharing -> Remote Login -> (i) -> 'Allow full disk access for remote users',"
+    warn "🐧 and make sure it is mounted and you have write permissions."
+  else
+    warn "🐧 make sure it is mounted and you have write permissions."
+  fi
   exit 1
 fi
 
