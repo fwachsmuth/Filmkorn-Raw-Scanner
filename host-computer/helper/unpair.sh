@@ -28,10 +28,21 @@ if [ -f /proc/device-tree/model ] && grep -qi "raspberry pi" /proc/device-tree/m
   exit 1
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+SCAN_DESTINATION_FILE="${REPO_ROOT}/.scan_destination"
+
 read -r -p "Proceed with unpairing this host and your scanner? [y/N] " confirm_unpair
 if [[ ! "${confirm_unpair:-}" =~ ^[Yy]$ ]]; then
   warn "Unpairing canceled."
   exit 0
+fi
+
+if [ -f "$SCAN_DESTINATION_FILE" ]; then
+  read -r -p "Also delete the saved scan destination (.scan_destination)? [y/N] " delete_dest
+  if [[ "${delete_dest:-}" =~ ^[Yy]$ ]]; then
+    rm -f "$SCAN_DESTINATION_FILE" || true
+  fi
 fi
 
 info "Asking Raspi to unpair..."
