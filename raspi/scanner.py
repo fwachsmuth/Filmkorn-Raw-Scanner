@@ -1124,7 +1124,6 @@ def _apply_camera_controls():
         "Contrast": 1.0,
         "Saturation": 1.0,
         "ExposureValue": 0.0,
-        "AnalogueGain": 1.0,
     })
 
 def _create_camera_config(raw_size):
@@ -1884,7 +1883,11 @@ def shoot_raw(arg_bytes=None):
         logging.error("RAWs path inaccessible; stopping scan")
         state.stop_scan()
         return
-    camera.set_controls({"AeEnable": False, "ExposureTime": shutter_speed})
+    camera.set_controls({
+        "AeEnable": False,
+        "ExposureTime": shutter_speed,
+        "AnalogueGain": 1.0,  # ISO 100 on HQ camera (IMX477)
+    })
     start_time = time.time()
     request = None
     try:
