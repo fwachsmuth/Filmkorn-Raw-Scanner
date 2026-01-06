@@ -78,6 +78,7 @@ enum Command
   CMD_PAIRING_CANCEL,
   CMD_LOGS_ENTER,
   CMD_LOGS_EXIT,
+  CMD_UNPAIR_ENTER,
 
   // Raspi to Arduino
   CMD_READY = 128,
@@ -155,6 +156,7 @@ void setup() {
   bool bootRunRevRunFwd = (bootButtonsA > 120 && bootButtonsA < 160) && (bootButtonsB > 120 && bootButtonsB < 160);
   bool bootScan = (bootButtonsB > 30 && bootButtonsB < 70);
   bool bootLight = bootButtonsA > 990;
+  bool bootRunRev = (bootButtonsA > 120 && bootButtonsA < 160) && (bootButtonsB < 2);
   if (bootScan) {
     pairingMode = true;
     pairingModeEnteredAt = millis();
@@ -164,6 +166,9 @@ void setup() {
     logsMode = true;
     nextPiCmd = CMD_LOGS_ENTER;
     Serial.println("Log dump: enter");
+  } else if (bootRunRev) {
+    nextPiCmd = CMD_UNPAIR_ENTER;
+    Serial.println("Unpair: enter");
   } else if (bootStop || bootRunRevRunFwd) {
     updateMode = true;
     nextPiCmd = CMD_UPDATE_ENTER;

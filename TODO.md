@@ -4,27 +4,11 @@
 - Remove "Starting Converter Process as peaceman@wachsmut-mbp-2025.local:/Volumes/Filme 4TB"
 
 Bugs:
-On initial pairing attempt after flashing a258ff1-20260103 I got
-        To reveal the password:
-        - press power button to send the scanner to sleep
-        - press and hold the SCAN (circle) button, and while holding,
-        - press the power button again to wake the scanner up.
-        Could not prefetch host key for filmkorn-scanner.local
-
-        /usr/bin/ssh-copy-id: ERROR: ssh: connect to host filmkorn-scanner.local port 22: Connection refused
-
-        Failed to install SSH key on the scanner. Check the password and network connection.
-
-And on second attempt:
-        Configuring where on the Mac the scans should be stored...
-        Validating host and path...
-        mkdir: /Volumes/Filme 4TB: Permission denied
-        🐧 Remote path on the host not writable: /Volumes/Filme 4TB
-        Connection to filmkorn-scanner.local closed.
-        pair.sh exited with an error.
+    Right after first boot:
+    /usr/bin/ssh-copy-id: ERROR: ssh: connect to host filmkorn-scanner.local port 22: Connection refused
+    Failed to install SSH key on the scanner. Check the password and network connection.
 
 ISO ist nicht fest?
-
 
 
 - [ ] 57 mm statt 60 mm

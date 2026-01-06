@@ -104,6 +104,7 @@ pairing_mode = False
 pairing_exit_pending = False
 logs_mode = False
 logs_in_progress = False
+unpair_in_progress = False
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 current_version_label = None
 mcu_flash_in_progress = False
@@ -162,6 +163,7 @@ class Command(enum.Enum):
     PAIRING_CANCEL = 22
     LOGS_ENTER = 23
     LOGS_EXIT = 24
+    UNPAIR_ENTER = 25
 
     # Raspi to Arduino. Ths is handled by i2cReceive() on the Controller side.
     READY = 128
@@ -791,6 +793,46 @@ def _enter_logs_mode():
             tell_arduino(Command.LOGS_EXIT)
         except Exception as exc:
             logging.warning("logs: failed to notify controller to exit logs mode: %s", exc)
+
+def _enter_unpair_mode():
+    global unpair_in_progress, last_status_screen
+    if unpair_in_progress:
+        return
+    if update_mode or pairing_mode or logs_mode or logs_in_progress:
+        logging.warning(
+            "unpair: skipped due to active mode update=%s pairing=%s logs=%s",
+            update_mode,
+            pairing_mode,
+            logs_mode,
+        )
+        return
+    unpair_in_progress = True
+    logging.info("unpair: entering unpair mode")
+    unpair_script = os.path.join(os.path.dirname(__file__), "pairing", "unpair-from-client.sh")
+    if not os.path.exists(unpair_script):
+        logging.error("unpair: script not found at %s", unpair_script)
+    else:
+        try:
+            result = subprocess.run(
+                ["sudo", unpair_script],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            logging.info("unpair: stdout: %s", result.stdout.strip())
+            if result.stderr.strip():
+                logging.warning("unpair: stderr: %s", result.stderr.strip())
+            if result.returncode != 0:
+                logging.error("unpair: script failed code=%s", result.returncode)
+        except Exception as exc:
+            logging.exception("unpair: failed to run script: %s", exc)
+    show_screen("unpaired-from-client")
+    time.sleep(5)
+    if last_status_screen:
+        show_screen(last_status_screen)
+    else:
+        show_ready_to_scan()
+    unpair_in_progress = False
 
 def _apply_overlay_if_ready():
     global pending_overlay, overlay_supported, overlay_retry_count, overlay_retry_timer
@@ -2089,6 +2131,9 @@ def loop():
             return
         if command == Command.LOGS_ENTER:
             _enter_logs_mode()
+            return
+        if command == Command.UNPAIR_ENTER:
+            _enter_unpair_mode()
             return
         if command == Command.UPDATE_ENTER:
             _enter_update_mode()
