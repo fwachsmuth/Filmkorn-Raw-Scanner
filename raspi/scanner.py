@@ -2090,9 +2090,7 @@ def setup():
 
     user_and_host = _read_user_and_host()
     host_path = _read_host_path()
-    if user_and_host and host_path:
-        logging.info("Starting Converter Process as %s:%s", user_and_host, host_path)
-    else:
+    if not user_and_host or not host_path:
         logging.warning("No host computer paired yet (missing .user_and_host or .host_path).")
 
     # Show a first screen to indicate we are running
