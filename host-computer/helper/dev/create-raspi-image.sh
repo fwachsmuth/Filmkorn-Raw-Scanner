@@ -287,7 +287,6 @@ sudo tar -czf "$STASH_DIR/imaging-config.tgz" --ignore-failed-read \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.user_and_host \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.scan_destination \
   /home/pi/Filmkorn-Raw-Scanner/raspi/lsyncd-to-host.conf \
-  /home/pi/Filmkorn-Raw-Scanner/raspi/dev/enable-git-write.sh \
   2>/dev/null || true
 if [ ! -s "$STASH_DIR/imaging-config.tgz" ]; then
   log "FATAL: host-specific config stash missing; aborting imaging"
@@ -298,7 +297,6 @@ if [ -s "$STASH_DIR/imaging-config.tgz" ]; then
   sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.user_and_host || true
   sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.scan_destination || true
   sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/lsyncd-to-host.conf || true
-  sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/dev/enable-git-write.sh || true
 else
   log "keeping host-specific config (stash missing)"
 fi
