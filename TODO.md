@@ -1,24 +1,15 @@
 # To Dos
 
 ## Next
-- Remove "Starting Converter Process as peaceman@wachsmut-mbp-2025.local:/Volumes/Filme 4TB"
-
-Bugs:
+Verify:
     Right after first boot:
     /usr/bin/ssh-copy-id: ERROR: ssh: connect to host filmkorn-scanner.local port 22: Connection refused
     Failed to install SSH key on the scanner. Check the password and network connection.
-
-ISO ist nicht fest?
-
-
-- [ ] 57 mm statt 60 mm
-- [ ] 3 mm Abstand
-- [ ] weisses SUgru
 - [ ] add hystheresis to film end detection
-- [ ] Don't crash w/o camera
-- [ ] 27W Netzteil messen
-- [ ] Bei TRansport oder Preview -> No Film LED an?
+
 - [ ] Write Build-your-own howtos
+- [ ] weisses Sugru
+
 - [ ] Add Note that "Full Access" is required!!
 - [ ] consider enabling wifi for time and updates (captive approach?)
 - [ ] consider fsck on /mnt/usb
