@@ -103,6 +103,8 @@ uint8_t filmLoadState;
 
 bool lastFilmEndState;
 bool filmEndState;
+bool filmEndLowPending = false;
+uint32_t filmEndLowSince = 0;
 
 
 int dummyread; // for throw-away ADC reads (avoids multiplex-carryover of S&H cap charges)
@@ -356,10 +358,18 @@ void readExposurePot() {
 void readFilmEndSensor() {
   lastFilmEndState = filmEndState;
   filmEndState = digitalRead(FILM_END_PIN);
-  if (filmEndState != lastFilmEndState) {
-    if (filmEndState == 0) {
+  if (filmEndState == 0) {
+    if (lastFilmEndState != 0) {
+      filmEndLowSince = millis();
+      filmEndLowPending = true;
+    }
+    if (filmEndLowPending && (millis() - filmEndLowSince) >= 500) {
       nextPiCmd = CMD_SHOW_INSERT_FILM;
-    } else {
+      filmEndLowPending = false;
+    }
+  } else {
+    filmEndLowPending = false;
+    if (lastFilmEndState != 1) {
       nextPiCmd = CMD_SHOW_READY_TO_SCAN;
     }
   }
