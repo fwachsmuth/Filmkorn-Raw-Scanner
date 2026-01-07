@@ -145,6 +145,7 @@ ZERO_FILL="${ZERO_FILL:-false}"
 
 STASH_DIR="/run/filmkorn-imaging"
 STASH_PERSIST="/var/lib/filmkorn-imaging"
+STASH_USB=""
 if command -v mountpoint >/dev/null 2>&1 && mountpoint -q /mnt/ramdisk; then
   STASH_RAMDISK="/mnt/ramdisk/filmkorn-imaging"
   LOG_FILE="/mnt/ramdisk/filmkorn-imaging.log"
@@ -152,7 +153,13 @@ else
   STASH_RAMDISK="/run/filmkorn-imaging-ramdisk"
   LOG_FILE="/run/filmkorn-imaging.log"
 fi
+if command -v mountpoint >/dev/null 2>&1 && mountpoint -q /mnt/usb; then
+  STASH_USB="/mnt/usb/filmkorn-imaging"
+fi
 sudo mkdir -p "$STASH_DIR" "$STASH_RAMDISK" "$STASH_PERSIST" || true
+if [ -n "$STASH_USB" ]; then
+  sudo mkdir -p "$STASH_USB" || true
+fi
 touch "\$LOG_FILE" 2>/dev/null || true
 
 log() {
@@ -166,6 +173,9 @@ stash_copy() {
   if [ -s "\$src" ]; then
     cp -f "\$src" "\$STASH_RAMDISK/$(basename "\$src")" 2>/dev/null || true
     cp -f "\$src" "\$STASH_PERSIST/$(basename "\$src")" 2>/dev/null || true
+    if [ -n "\$STASH_USB" ]; then
+      cp -f "\$src" "\$STASH_USB/$(basename "\$src")" 2>/dev/null || true
+    fi
   fi
 }
 
