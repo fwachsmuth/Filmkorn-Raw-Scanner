@@ -112,6 +112,10 @@ if ! command -v gzip >/dev/null 2>&1; then
   exit 1
 fi
 
+info "Before continuing, open a separate SSH session to ${USER}@${HOST}."
+info "Keep it open so you can recover SSH if needed during imaging."
+read -r -p "Press Enter to continue once that session is connected: " confirm_ssh
+
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 REMOTE_REPO="/home/pi/Filmkorn-Raw-Scanner"
 OUTPUT_DIR="${REPO_DIR}/images"
