@@ -165,7 +165,7 @@ sudo mkdir -p "$STASH_DIR" "$STASH_RAMDISK" "$STASH_PERSIST" || true
 if [ -n "$STASH_USB" ]; then
   sudo mkdir -p "$STASH_USB" || true
 fi
-touch "\$LOG_FILE" 2>/dev/null || true
+touch "$LOG_FILE" 2>/dev/null || true
 
 log() {
   echo "imaging-prep: $*" >&2
