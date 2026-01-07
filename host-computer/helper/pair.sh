@@ -31,6 +31,28 @@ local_hostname() {
 check_scanner_reachable() {
   if ! ping -c 1 -W 1 filmkorn-scanner.local >/dev/null 2>&1; then
     warn "Scanner could not be reached. Please connect your Scanner to Ethernet and turn it on, then try again."
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+      local sharing_iface=""
+      if command -v ifconfig >/dev/null 2>&1; then
+        sharing_iface="$(ifconfig | awk '
+          /^[a-z0-9]/ {gsub(":", "", $1); iface=$1}
+          $1=="inet" && $2 ~ /^192\.168\.2\./ {print iface; exit}
+        ')"
+      fi
+      if [[ -n "$sharing_iface" ]]; then
+        warn "Detected Internet Sharing interface: ${sharing_iface} (192.168.2.x)."
+        warn "Attempting to add a route to 192.168.2.0/24..."
+        if sudo route -n add -net 192.168.2.0/24 -interface "$sharing_iface" >/dev/null 2>&1; then
+          if ping -c 1 -W 1 filmkorn-scanner.local >/dev/null 2>&1; then
+            return
+          fi
+        fi
+        warn "Route attempt did not restore reachability."
+      else
+        warn "If you use Internet Sharing, toggling it off/on can rebuild the bridge route."
+        warn "Or add a route manually: sudo route -n add -net 192.168.2.0/24 -interface bridge100"
+      fi
+    fi
     exit 1
   fi
 }
