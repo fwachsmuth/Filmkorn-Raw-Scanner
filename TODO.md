@@ -5,7 +5,6 @@ Verify:
     Right after first boot:
     /usr/bin/ssh-copy-id: ERROR: ssh: connect to host filmkorn-scanner.local port 22: Connection refused
     Failed to install SSH key on the scanner. Check the password and network connection.
-- [ ] add hystheresis to film end detection
 
 - [ ] Write Build-your-own howtos
 - [ ] weisses Sugru

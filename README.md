@@ -207,7 +207,7 @@ The other scripts you'll find are helpers that are called directly by the servic
 
 
 ## Magic Buttons
-- Hold << and >> during wake-up toenable firmware update mode
+- Hold << and >> during wake-up to enable firmware update mode
 - Hold SCAN button (Rec) during wake-up to enable pairing mode
 - Hold LAMP during wake-up generates a debug log zip
 - Hold << during wake-up unpairs from client

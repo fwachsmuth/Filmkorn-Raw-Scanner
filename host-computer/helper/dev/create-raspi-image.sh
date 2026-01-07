@@ -35,6 +35,16 @@ warn() {
   echo "${BOLD}${YELLOW}$*${RESET}"
 }
 
+manual_shrink_hint() {
+  local img_dir="$1"
+  local fullsize_img="$2"
+  local shrink_img="$3"
+  warn "Docker isn't happy. Please complete manually:"
+  warn "cd ${img_dir}"
+  warn "pishrink ${fullsize_img} ${shrink_img}"
+  warn "pigz  -9 -k ${shrink_img}"
+}
+
 HOST="filmkorn-scanner.local"
 USER="pi"
 OUTPUT=""
@@ -493,9 +503,16 @@ if [[ "${DRY_RUN}" == "false" ]]; then
     info "Shrinking image to ${shrink_img}..."
     (
       cd "$img_dir"
-      bash -lc "$PISHRINK_CMD \"$fullsize_img\" \"$shrink_img\""
+      if ! bash -lc "$PISHRINK_CMD \"$fullsize_img\" \"$shrink_img\""; then
+        manual_shrink_hint "$img_dir" "$fullsize_img" "$shrink_img"
+      fi
     )
   else
     warn "pishrink not found; skipping shrink step."
+    img_dir="$(cd "$(dirname "$OUTPUT")" && pwd)"
+    fullsize_gz="$(basename "$OUTPUT")"
+    fullsize_img="${fullsize_gz%.gz}"
+    shrink_img="${fullsize_img/filmkorn-raspi-fullsize-/filmkorn-raspi-}"
+    manual_shrink_hint "$img_dir" "$fullsize_img" "$shrink_img"
   fi
 fi
