@@ -364,6 +364,11 @@ void readFilmEndSensor() {
       filmEndLowPending = true;
     }
     if (filmEndLowPending && (millis() - filmEndLowSince) >= 500) {
+      // Stop motor if running continuously (RUNFWD/RUNREV) and film was inserted
+      if (motorState == FWD || motorState == REV) {
+        Serial.println("Film ended during continuous run - stopping");
+        stopMotor();
+      }
       nextPiCmd = CMD_SHOW_INSERT_FILM;
       filmEndLowPending = false;
     }
