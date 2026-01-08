@@ -112,6 +112,7 @@ int dummyread; // for throw-away ADC reads (avoids multiplex-carryover of S&H ca
 bool lampMode = false;
 bool isScanning = false;
 uint8_t scanExtraFrames = 0;  // frames to continue after film end detected
+uint8_t filmEjectAdvances = 0;  // advances to eject film after scanning done
 bool updateMode = false;
 bool pairingMode = false;
 bool logsMode = false;
@@ -261,8 +262,10 @@ void loop() {
       scanExtraFrames--;
       if (scanExtraFrames == 0)
       {
-        Serial.println("Extra frames done - stopping scan");
+        Serial.println("Extra frames done - stopping scan, ejecting film");
         stopScanning();
+        filmEjectAdvances = 15;  // start eject phase
+        motorFWD1();  // start first eject advance
       }
       else
       {
@@ -274,6 +277,20 @@ void loop() {
     {
       motorFWD1();               // advance
       nextPiCmd = CMD_SHOOT_RAW; // tell to shoot
+    }
+  }
+
+  // Handle film eject advances (after scan ends)
+  if (filmEjectAdvances > 0 && motorState == STOPPED)
+  {
+    filmEjectAdvances--;
+    if (filmEjectAdvances > 0)
+    {
+      motorFWD1();  // next eject advance
+    }
+    else
+    {
+      Serial.println("Film eject complete");
     }
   }
 
@@ -344,6 +361,7 @@ void loop() {
         case SCAN:
           isScanning = true;
           scanExtraFrames = 0;  // reset extra frames counter
+          filmEjectAdvances = 0;  // cancel any pending eject
           nextPiCmd = CMD_START_SCAN;
           setLampMode(true);
           // ... (don't forget to detach ISR)
@@ -458,6 +476,7 @@ void setZoomMode(ZoomMode mode) {
 }
 
 void motorFWD1() {
+  motorState = FWD;  // mark as moving (ISR will set back to STOPPED)
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
   analogWrite(MOTOR_A_PIN, singleStepMotorPower);
@@ -465,6 +484,7 @@ void motorFWD1() {
 }
 
 void motorREV1() {
+  motorState = REV;  // mark as moving (ISR will set back to STOPPED)
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
   analogWrite(MOTOR_A_PIN, 0);
