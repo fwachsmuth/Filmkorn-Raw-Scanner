@@ -485,7 +485,7 @@ ControlButton pollButtons() {
   int buttonBankA = analogRead(BUTTONS_A_PIN); // Substract 5 since A0 tends to get noisy when other A-ins are used!?
   dummyread = analogRead(BUTTONS_B_PIN);   // avoid spill-over from multiplexed ADC (discharge S&H cap)
   int buttonBankB = analogRead(BUTTONS_B_PIN) ;
-  ControlButton buttonChoice;
+  ControlButton buttonChoice = NONE;
 
   delay(10); // debounce (since button release bounce is not covered in the FSM)
 
