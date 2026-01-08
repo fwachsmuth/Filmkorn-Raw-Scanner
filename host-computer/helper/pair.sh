@@ -99,6 +99,8 @@ if [ -f /proc/device-tree/model ] && grep -qi "raspberry pi" /proc/device-tree/m
 fi
 
 host_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+paired_file="${host_dir}/.paired"
+scan_destination_file="${host_dir}/.scan_destination"
 install_semaphore="${host_dir}/.scanner_installed"
 if [ "${BYPASS_INSTALL_SEMAPHORE:-0}" != "1" ] && [ ! -f "$install_semaphore" ]; then
   warn "Please run install_remote_scanning.sh once before attempting to pair with the scanner."
@@ -106,10 +108,10 @@ if [ "${BYPASS_INSTALL_SEMAPHORE:-0}" != "1" ] && [ ! -f "$install_semaphore" ];
 fi
 
 paired_exists=false
-if [ -f ".paired" ]; then
+if [ -f "$paired_file" ]; then
   paired_exists=true
 fi
-if $paired_exists && [ -f ".scan_destination" ]; then
+if $paired_exists && [ -f "$scan_destination_file" ]; then
   warn "Systems already paired. Use ./helper/unpair.sh first if you want to initiate pairing again."
   exit 0
 fi
@@ -234,11 +236,11 @@ if ! $paired_exists; then
     "ssh-keyscan -H $(local_hostname).local >> ~/.ssh/known_hosts 2>/dev/null || true; ssh-copy-id -i ~/.ssh/id_filmkorn-scanner_ed25519.pub -o StrictHostKeyChecking=accept-new $(whoami)@$(local_hostname).local > /dev/null 2> /dev/null"
 fi
 
-if [ -f ".scan_destination" ]; then
+if [ -f "$scan_destination_file" ]; then
   info "Configuring where on the Mac the scans should be stored..."
   ssh -t -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
     pi@filmkorn-scanner.local \
-    "FORCE_COLOR=1 ./Filmkorn-Raw-Scanner/raspi/pairing/update-destination.sh -h $(whoami)@$(local_hostname).local -p \"$(cat .scan_destination)\""
+    "FORCE_COLOR=1 ./Filmkorn-Raw-Scanner/raspi/pairing/update-destination.sh -h $(whoami)@$(local_hostname).local -p \"$(cat "$scan_destination_file")\""
 else
   warn "No Scanning Destination defined yet."
   "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/set_scan_destination.sh"
@@ -258,4 +260,4 @@ if $paired_exists || ${copied_key:-false}; then
     warn "Skipping password-auth disable; SSH connectivity check failed."
   fi
 fi
-touch .paired
+touch "$paired_file"

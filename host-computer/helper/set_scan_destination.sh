@@ -42,10 +42,14 @@ if [ -f /proc/device-tree/model ] && grep -qi "raspberry pi" /proc/device-tree/m
   exit 1
 fi
 
-if [ -f ".scan_destination" ]; then
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+HOST_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SCAN_DESTINATION_FILE="${HOST_DIR}/.scan_destination"
+
+if [ -f "$SCAN_DESTINATION_FILE" ]; then
   info "Currently configured Scan Destination:"
   echo ""
-  cat .scan_destination
+  cat "$SCAN_DESTINATION_FILE"
   echo ""
 else
   warn "No Scan Destination has previously been configured yet."
@@ -93,7 +97,7 @@ if [ ! -w "$rawpath" ]; then
 fi
 
 info "Setting Scan Destination to ${rawpath}"
-echo "${rawpath}" > .scan_destination
+echo "${rawpath}" > "$SCAN_DESTINATION_FILE"
 
 info "Propagating destination to the Raspi..."
 ssh -t -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \

@@ -1,7 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-# this script removes ssh pairing keys and local references, allowing a fresh pairing.
+# Run on the host computer (Mac), not on the Raspi.
+# Removes local pairing artifacts without touching the Raspi.
 
 if [ -t 1 ]; then
   BOLD="$(printf '\033[1m')"
@@ -31,10 +32,11 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HOST_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 SCAN_DESTINATION_FILE="${HOST_DIR}/.scan_destination"
+INSTALL_SEMAPHORE="${HOST_DIR}/.scanner_installed"
 
-read -r -p "Proceed with unpairing this host and your scanner? [y/N] " confirm_unpair
+read -r -p "Proceed with local unpairing (no changes on the Raspi)? [y/N] " confirm_unpair
 if [[ ! "${confirm_unpair:-}" =~ ^[Yy]$ ]]; then
-  warn "Unpairing canceled."
+  warn "Local unpairing canceled."
   exit 0
 fi
 
@@ -45,28 +47,17 @@ if [ -f "$SCAN_DESTINATION_FILE" ]; then
   fi
 fi
 
-info "Asking Raspi to unpair..."
-ssh-keygen -R filmkorn-scanner.local >/dev/null 2>&1 || true
-ssh-keyscan -H -t ed25519 filmkorn-scanner.local 2>/dev/null | grep -v '^#' >> ~/.ssh/known_hosts || true
-unpair_ok=true
-if ! ssh -t -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes -i ~/.ssh/id_filmkorn-scanner_ed25519 \
-  pi@filmkorn-scanner.local \
-  "cd Filmkorn-Raw-Scanner/raspi/pairing; FORCE_COLOR=1 ./unpair-from-client.sh"
-then
-  warn "The Raspi failed to unpair."
-  unpair_ok=false
-fi
-
-info "  Removing Raspi from this computer's known_hosts..."
+info "Removing Raspi from this computer's known_hosts..."
 ssh-keygen -R filmkorn-scanner.local >/dev/null 2>&1 || true
 
-info "  Removing Raspi from this computer's authorized_keys..."
+info "Removing Raspi from this computer's authorized_keys..."
 sed -i '' '\#pi@filmkorn-scanner#d' ~/.ssh/authorized_keys || true # BSD sed
 
-info "  Removing keypair from this computer..."
+info "Removing keypair from this computer..."
 rm -f ~/.ssh/id_filmkorn-scanner_ed25519* || true
 
 rm -f "${HOST_DIR}/.paired" || true
+rm -f "$INSTALL_SEMAPHORE" || true
 
 info "Local known_hosts:"
 cat ~/.ssh/known_hosts || true
@@ -82,8 +73,4 @@ cat ~/.ssh/config || true
 echo ""
 echo "------------------------------------------------"
 
-if $unpair_ok; then
-  info "Unpairing completed on the Raspi."
-else
-  warn "Unpairing did not succeed on the Raspi. Please retry once the scanner is reachable."
-fi
+info "Local unpairing completed."

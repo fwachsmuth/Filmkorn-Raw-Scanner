@@ -16,6 +16,7 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INSTALL_SEMAPHORE="${SCRIPT_DIR}/.scanner_installed"
+PAIRED_FILE="${SCRIPT_DIR}/.paired"
 
 # ---------- helpers ----------
 if [ -t 1 ]; then
@@ -252,7 +253,7 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-if [[ ! -f ".paired" ]]; then
+if [[ ! -f "$PAIRED_FILE" ]]; then
   warn "No paired Scanner detected yet (.paired missing)."
   if ! BYPASS_INSTALL_SEMAPHORE=1 "${SCRIPT_DIR}/helper/pair.sh"; then
     warn "pair.sh exited with an error."
