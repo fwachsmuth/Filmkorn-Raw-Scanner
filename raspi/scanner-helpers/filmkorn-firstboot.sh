@@ -22,7 +22,7 @@ fi
 
 echo "firstboot: ensuring ssh host keys"
 ssh-keygen -A || true
-systemctl restart ssh || true
+systemctl enable --now ssh || true
 
 touch "$MARKER_FILE"
 systemctl disable --now filmkorn-firstboot.service || true
