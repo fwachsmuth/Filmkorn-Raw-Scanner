@@ -111,6 +111,7 @@ int dummyread; // for throw-away ADC reads (avoids multiplex-carryover of S&H ca
 
 bool lampMode = false;
 bool isScanning = false;
+uint8_t scanExtraFrames = 0;  // frames to continue after film end detected
 bool updateMode = false;
 bool pairingMode = false;
 bool logsMode = false;
@@ -247,8 +248,27 @@ void loop() {
     piIsReady = false;
     if (!digitalRead(FILM_END_PIN))
     {
-      Serial.println("Film ended");
-      stopScanning();
+      if (scanExtraFrames == 0)
+      {
+        // First time film end detected - start countdown toscan film remainder
+        scanExtraFrames = 25;
+        Serial.println("Film ended - scanning 25 extra frames");
+      }
+    }
+    
+    if (scanExtraFrames > 0)
+    {
+      scanExtraFrames--;
+      if (scanExtraFrames == 0)
+      {
+        Serial.println("Extra frames done - stopping scan");
+        stopScanning();
+      }
+      else
+      {
+        motorFWD1();               // advance
+        nextPiCmd = CMD_SHOOT_RAW; // tell to shoot
+      }
     }
     else
     {
@@ -323,6 +343,7 @@ void loop() {
           break;
         case SCAN:
           isScanning = true;
+          scanExtraFrames = 0;  // reset extra frames counter
           nextPiCmd = CMD_START_SCAN;
           setLampMode(true);
           // ... (don't forget to detach ISR)
