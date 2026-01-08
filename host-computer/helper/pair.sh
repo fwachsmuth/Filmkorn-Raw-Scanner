@@ -61,14 +61,14 @@ wait_for_scanner_ssh() {
   local -r max_wait=15
   local waited=0
   if ! command -v nc >/dev/null 2>&1; then
-    return
+    return 0
   fi
   while ! nc -z filmkorn-scanner.local 22 >/dev/null 2>&1; do
     if [ "$waited" -ge "$max_wait" ]; then
       warn "Scanner SSH did not become ready after ${max_wait}s."
       read -r -p "Press Enter to keep waiting, or type 'q' to stop: " keep_waiting
       if [[ "${keep_waiting:-}" =~ ^[Qq]$ ]]; then
-        return
+        return 1
       fi
       waited=0
       continue
@@ -77,6 +77,7 @@ wait_for_scanner_ssh() {
     sleep 1
     waited=$((waited + 1))
   done
+  return 0
 }
 
 check_local_ssh_reachable() {
@@ -127,7 +128,10 @@ fi
 
 check_local_ssh_reachable
 check_scanner_reachable
-wait_for_scanner_ssh
+if ! wait_for_scanner_ssh; then
+  warn "Scanner SSH wait canceled by user."
+  exit 0
+fi
 
 # Generate and deploy a keypair to control the scanning Raspi
 if ! $paired_exists; then
