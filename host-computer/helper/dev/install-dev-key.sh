@@ -49,5 +49,8 @@ scp ~/.ssh/id_filmkorn-scanner-dev_ed25519* pi@filmkorn-scanner.local:~/.ssh
 info "Fixing SSH key permissions on the scanner..."
 ssh pi@filmkorn-scanner.local "chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_filmkorn-scanner-dev_ed25519 && chmod 644 ~/.ssh/id_filmkorn-scanner-dev_ed25519.pub"
 
+info "Seeding GitHub host key on the scanner..."
+ssh pi@filmkorn-scanner.local "ssh-keyscan -H github.com >> ~/.ssh/known_hosts 2>/dev/null || true"
+
 info "Enabling git write access on the scanner..."
 ssh pi@filmkorn-scanner.local "cd Filmkorn-Raw-Scanner/raspi/dev; ./enable-git-write.sh"
