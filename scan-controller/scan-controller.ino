@@ -96,8 +96,8 @@ enum ZoomMode {
 // Define some global variables
 uint8_t fps18MotorPower = 0;
 uint8_t singleStepMotorPower = 0;
-int16_t lastExposurePot = 0;
 int16_t exposurePot = 0;
+int16_t lastSentExposurePot = -100;  // last value sent to Pi (init far away to trigger first send)
 // uint16_t loopCounter;
 uint8_t filmLoadState;
 
@@ -382,12 +382,13 @@ void loop() {
 }
 
 void readExposurePot() {
-  lastExposurePot = exposurePot;
   dummyread = analogRead(EXPOSURE_POT);
   dummyread = analogRead(EXPOSURE_POT);
   int16_t newExposurePot = analogRead(EXPOSURE_POT);
-  if (abs(lastExposurePot - newExposurePot) >= 3) {
+  // Compare against last SENT value to avoid drift-triggered updates
+  if (abs(lastSentExposurePot - newExposurePot) >= 8) {
     exposurePot = newExposurePot;
+    lastSentExposurePot = newExposurePot;
     Serial.print("New Exposure Setting: ");
     Serial.println(exposurePot);
     nextPiCmd = CMD_SET_EXP;
