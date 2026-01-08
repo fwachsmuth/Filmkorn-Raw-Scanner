@@ -53,7 +53,7 @@ KEEP_SSH=false
 KEEP_HOSTKEYS=false
 KEEP_HISTORY=false
 DRY_RUN=false
-PISHRINK_CMD="${PISHRINK_CMD:-docker run --rm -it --privileged -v \"$PWD\":/workdir pishrink}"
+PISHRINK_CMD="${PISHRINK_CMD:-docker run --rm -it --privileged -v \"$PWD\":/workdir -w /workdir/images pishrink}"
 
 usage() {
   cat <<EOF
@@ -141,7 +141,7 @@ if [[ -z "$OUTPUT" ]]; then
   if [[ -z "$short_sha" ]]; then
     short_sha="unknown"
   fi
-  OUTPUT="filmkorn-raspi-fullsize-${short_sha}-$(date +%Y%m%d).img.gz"
+  OUTPUT="filmkorn-raspi-fullsize-$(date +%Y%m%d)-${short_sha}.img.gz"
 fi
 OUTPUT="${OUTPUT_DIR}/$(basename "$OUTPUT")"
 
