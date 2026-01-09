@@ -2088,7 +2088,10 @@ def setup():
 
     # Instanziate things
     state = State()
-    camera = Picamera2()
+    # Use scientific tuning file - no lens shading correction, better for telecine
+    # See: https://forums.kinograph.cc/t/pi-hq-camera-vs-dslr-image-fidelity/2810/32
+    tuning = Picamera2.load_tuning_file('imx477_scientific.json')
+    camera = Picamera2(tuning=tuning)
     raw_format = None
     for candidate in camera.sensor_modes:
         if candidate.get("bit_depth") == SENSOR_BIT_DEPTH:
