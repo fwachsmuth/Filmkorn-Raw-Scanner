@@ -208,7 +208,6 @@ class State:
         self.fps_sum = 0.0
         self.fps_count = 0
         self.warmup_needed = False
-        self.drop_first_frame = False
 
     @property
     def lamp_mode(self) -> bool:
@@ -247,7 +246,6 @@ class State:
         global sleep_mode
         sleep_mode = False
         self.warmup_needed = True
-        self.drop_first_frame = True
         set_zoom_mode_1_1()
         set_lamp_on()
         self.set_raws_path()
@@ -1969,7 +1967,7 @@ def shoot_raw(arg_bytes=None):
                     warmup.release()
             state.warmup_needed = False
 
-            attempts = 5
+            attempts = 6
             for i in range(attempts):
                 candidate = camera.capture_request()
                 try:
@@ -1990,14 +1988,6 @@ def shoot_raw(arg_bytes=None):
     finally:
         if request is not None:
             request.release()
-    if state.drop_first_frame and state.raw_count == 0:
-        try:
-            os.remove(state.raws_path.format(0))
-        except FileNotFoundError:
-            pass
-        state.drop_first_frame = False
-        say_ready()
-        return
     state.raw_count += 1
     elapsed_time = time.time() - start_time
     fps = 1 / elapsed_time if elapsed_time > 0 else 0.0
