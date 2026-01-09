@@ -1678,6 +1678,62 @@ def _ensure_usb_mount() -> bool:
         )
     return os.path.ismount("/mnt/usb")
 
+def _check_usb_filesystem() -> bool:
+    """Check and repair USB filesystem if needed. Returns True if check passed."""
+    if not os.path.ismount("/mnt/usb"):
+        logging.info("fsck: /mnt/usb not mounted, skipping")
+        return False
+
+    mount_device = _get_mount_device("/mnt/usb")
+    if not mount_device:
+        logging.info("fsck: could not determine mount device")
+        return False
+
+    logging.info("fsck: checking filesystem on %s", mount_device)
+    show_screen("checking-filesystem")
+
+    # Unmount for fsck (can't check mounted filesystem)
+    umount_result = subprocess.run(
+        ["sudo", "umount", "/mnt/usb"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    if umount_result.returncode != 0:
+        logging.warning("fsck: failed to unmount: %s", umount_result.stderr.strip())
+        return False
+
+    # Run fsck with auto-repair (-a for FAT/exFAT, -p for ext)
+    # Try fsck.exfat first (common for USB drives), fall back to generic fsck
+    fsck_result = subprocess.run(
+        ["sudo", "fsck", "-y", mount_device],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    logging.info("fsck: exit code %s", fsck_result.returncode)
+    if fsck_result.stdout:
+        logging.info("fsck: stdout: %s", fsck_result.stdout.strip())
+    if fsck_result.stderr:
+        logging.info("fsck: stderr: %s", fsck_result.stderr.strip())
+
+    # Remount
+    mount_result = subprocess.run(
+        ["sudo", "mount", mount_device, "/mnt/usb"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    if mount_result.returncode != 0:
+        logging.error("fsck: failed to remount: %s", mount_result.stderr.strip())
+        return False
+
+    # fsck exit codes: 0 = clean, 1 = errors corrected, 2+ = errors remain
+    return fsck_result.returncode in (0, 1)
+
 def _find_usb_disk_name() -> Optional[str]:
     result = subprocess.run(
         ["lsblk", "-nr", "-o", "NAME,TYPE,RM,TRAN"],
@@ -2021,7 +2077,8 @@ def setup():
     storage_location = GPIO.input(5)
     logging.info(f"GPIO 5 state (1=HDD/local, 0=Net/remote): {storage_location}")
     if storage_location == 1:
-        _ensure_usb_mount()
+        if _ensure_usb_mount():
+            _check_usb_filesystem()
 
     # GPIO 26 (BCM) input. Sleep/wake button (momentary, active low).
     GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_OFF)
