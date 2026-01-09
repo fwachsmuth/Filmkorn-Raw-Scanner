@@ -2077,8 +2077,7 @@ def setup():
     storage_location = GPIO.input(5)
     logging.info(f"GPIO 5 state (1=HDD/local, 0=Net/remote): {storage_location}")
     if storage_location == 1:
-        if _ensure_usb_mount():
-            _check_usb_filesystem()
+        _ensure_usb_mount()
 
     # GPIO 26 (BCM) input. Sleep/wake button (momentary, active low).
     GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_OFF)
@@ -2112,6 +2111,10 @@ def setup():
     camera_start()
     overlay_ready = True
     _apply_overlay_if_ready()
+
+    # Check USB filesystem if in local storage mode
+    if storage_location == 1 and os.path.ismount("/mnt/usb"):
+        _check_usb_filesystem()
 
     # Switch lsyncd to the right config for the selected storage target.
     switch_lsyncd_config(storage_location)
