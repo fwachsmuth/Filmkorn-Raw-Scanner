@@ -60,6 +60,7 @@ current_screen = None
 ready_screen_polling = False
 camera_running = False
 sensor_size = None
+raw_format = "SBGGR12"  # uncompressed 12-bit raw, updated in setup()
 overlay_cache = {}
 preview_started = False
 preview_size = (640, 480)
@@ -1126,10 +1127,10 @@ def _apply_camera_controls():
         "ExposureValue": 0.0,
     })
 
-def _create_camera_config(raw_size):
+def _create_camera_config(raw_size, raw_format="SBGGR12"):
     return camera.create_preview_configuration(
         main={"size": (preview_size), "format": "XBGR8888"},
-        raw={"size": raw_size, "format": "SBGGR12_CSI2P"},
+        raw={"size": raw_size, "format": raw_format},  # uncompressed for best quality
         transform=Transform(rotation=180, hflip=True, vflip=False),
         buffer_count=4,  # increase from default 1 for better performance
     )
@@ -1149,7 +1150,7 @@ def _reconfigure_camera(raw_size):
         pass
     preview_started = False
     camera_running = False
-    camera.configure(_create_camera_config(raw_size))
+    camera.configure(_create_camera_config(raw_size, raw_format))
     sensor_size = camera.camera_configuration().get("sensor", {}).get("output_size", FULL_RESOLUTION)
     preview_size = camera.camera_configuration().get("main", {}).get("size", preview_size)
     _apply_camera_controls()
@@ -2104,19 +2105,18 @@ def setup():
     # See: https://forums.kinograph.cc/t/pi-hq-camera-vs-dslr-image-fidelity/2810/32
     tuning = Picamera2.load_tuning_file('imx477_scientific.json')
     camera = Picamera2(tuning=tuning)
-    raw_format = None
+    global raw_format
     for candidate in camera.sensor_modes:
         if candidate.get("bit_depth") == SENSOR_BIT_DEPTH:
             raw_format = candidate.get("unpacked") or candidate.get("format")
             break
-    if raw_format is None:
-        raw_format = "SRGGB12"
+    logging.info(f"Using raw format: {raw_format}")
     overlay_ready = False
     overlay_supported = True
     overlay_retry_count = 0
     overlay_retry_timer = None
     raw_size = (4056, 3040) if resolution_switch == 0 else (2028, 1520)
-    camera_config = _create_camera_config(raw_size)
+    camera_config = _create_camera_config(raw_size, raw_format)
     camera.configure(camera_config)
     
 
