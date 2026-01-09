@@ -1706,7 +1706,6 @@ def _check_usb_filesystem() -> bool:
         return False
 
     # Run fsck with auto-repair (-a for FAT/exFAT, -p for ext)
-    # Try fsck.exfat first (common for USB drives), fall back to generic fsck
     fsck_result = subprocess.run(
         ["sudo", "fsck", "-y", mount_device],
         stdout=subprocess.PIPE,
@@ -1720,14 +1719,26 @@ def _check_usb_filesystem() -> bool:
     if fsck_result.stderr:
         logging.info("fsck: stderr: %s", fsck_result.stderr.strip())
 
-    # Remount
-    mount_result = subprocess.run(
-        ["sudo", "mount", mount_device, "/mnt/usb"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        check=False,
-    )
+    # Remount using the original mount script to preserve options (uid/gid for exFAT)
+    # Extract disk name from device path (e.g., /dev/sda2 -> sda)
+    block_device = _get_block_device_name(mount_device)
+    if block_device:
+        mount_result = subprocess.run(
+            ["sudo", "/usr/local/sbin/mount-largest-usb.sh", block_device],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False,
+        )
+    else:
+        # Fallback to simple mount
+        mount_result = subprocess.run(
+            ["sudo", "mount", mount_device, "/mnt/usb"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False,
+        )
     if mount_result.returncode != 0:
         logging.error("fsck: failed to remount: %s", mount_result.stderr.strip())
         return False
