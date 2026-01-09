@@ -1131,6 +1131,7 @@ def _create_camera_config(raw_size):
         main={"size": (preview_size), "format": "XBGR8888"},
         raw={"size": raw_size, "format": "SBGGR12_CSI2P"},
         transform=Transform(rotation=180, hflip=True, vflip=False),
+        buffer_count=4,  # increase from default 1 for better performance
     )
 
 def _reconfigure_camera(raw_size):
