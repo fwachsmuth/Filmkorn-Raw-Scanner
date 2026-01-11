@@ -114,6 +114,7 @@ bool isScanning = false;
 uint8_t scanExtraFrames = 0;  // frames to continue after film end detected
 uint8_t filmEjectAdvances = 0;  // advances to eject film after scanning done
 volatile bool singleStepInProgress = false;  // true while single-step motor advance is running
+uint8_t scanFilmEndCount = 0;  // consecutive film-end reads needed to trigger end-of-roll
 bool updateMode = false;
 bool pairingMode = false;
 bool logsMode = false;
@@ -252,10 +253,18 @@ void loop() {
     {
       if (scanExtraFrames == 0)
       {
-        // First time film end detected - start countdown toscan film remainder
-        scanExtraFrames = 25;
-        Serial.println("Film ended - scanning 25 extra frames");
+        scanFilmEndCount++;
+        if (scanFilmEndCount >= 3)  // require 3 consecutive film-end reads
+        {
+          // Film end confirmed - start countdown to scan film remainder
+          scanExtraFrames = 25;
+          Serial.println("Film ended - scanning 25 extra frames");
+        }
       }
+    }
+    else
+    {
+      scanFilmEndCount = 0;  // reset counter if film is detected
     }
     
     if (scanExtraFrames > 0)
@@ -362,6 +371,7 @@ void loop() {
         case SCAN:
           isScanning = true;
           scanExtraFrames = 0;  // reset extra frames counter
+          scanFilmEndCount = 0;  // reset film end debounce counter
           filmEjectAdvances = 0;  // cancel any pending eject
           nextPiCmd = CMD_START_SCAN;
           setLampMode(true);
