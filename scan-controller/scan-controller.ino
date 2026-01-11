@@ -140,6 +140,10 @@ Command nextPiCmd = CMD_NONE;
 ZoomMode zoomMode = Z1_1;
 
 void setup() {
+  // Immediately disable lamp to prevent brief flash during boot
+  pinMode(LAMP_PIN, OUTPUT);
+  digitalWrite(LAMP_PIN, LOW);
+
   Serial.begin(115200);
 
   pinMode(BUTTONS_A_PIN, INPUT);
@@ -148,7 +152,6 @@ void setup() {
   pinMode(CONT_RUN_POT, INPUT);
   pinMode(EXPOSURE_POT, INPUT);
   pinMode(FAN_PIN, OUTPUT);
-  pinMode(LAMP_PIN, OUTPUT);
   // pinMode(LED_PIN, OUTPUT);
   pinMode(MOTOR_A_PIN, OUTPUT);
   pinMode(MOTOR_B_PIN, OUTPUT);
