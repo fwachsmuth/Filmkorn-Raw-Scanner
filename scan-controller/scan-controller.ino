@@ -333,7 +333,7 @@ void loop() {
           motorRev();
           break;
         case REV1:
-          if (motorState != STOPPED) {
+          if (motorState != STOPPED || singleStepInProgress) {
             Serial.println("Motor not stopped.");
           } else {
             Serial.print("< at Speed ");
@@ -342,7 +342,7 @@ void loop() {
           }
           break;
         case FWD1:
-          if (motorState != STOPPED) {
+          if (motorState != STOPPED || singleStepInProgress) {
             Serial.println("Motor not stopped.");
           } else {
             Serial.print("> at Speed ");
