@@ -1117,7 +1117,7 @@ def _apply_camera_controls():
     camera.set_controls({
         "AeEnable": True,
         "AwbEnable": True,
-        "AwbMode": controls.AwbModeEnum.Fluorescent,  # ~4000K-4700K
+        "AwbMode": controls.AwbModeEnum.Indoor,  # ~4500K-5000K
         "Brightness": 0.0,
         "Sharpness": 1.0,
         "Contrast": 1.0,
