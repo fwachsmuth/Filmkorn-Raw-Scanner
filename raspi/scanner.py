@@ -1116,8 +1116,8 @@ def _reset_sleep_button_state():
 def _apply_camera_controls():
     camera.set_controls({
         "AeEnable": True,
-        "AwbEnable": False,  # Use fixed white balance for consistent preview
-        "ColourGains": (1.6, 1.5),  # Approximate 4000K (red gain, blue gain)
+        "AwbEnable": True,
+        "AwbMode": controls.AwbModeEnum.Fluorescent,  # ~4000K-4700K
         "Brightness": 0.0,
         "Sharpness": 1.0,
         "Contrast": 1.0,
