@@ -383,8 +383,8 @@ void loop() {
     // don't readExposurePot if a button has been pressed
     if (!isScanning) {
       readExposurePot(); // reads with some hysteresis to avoid flickering
+      readFilmEndSensor();  // only check film end when not scanning
     }
-    readFilmEndSensor();
   }
 
   if (motorState == FWD || motorState == REV) {
