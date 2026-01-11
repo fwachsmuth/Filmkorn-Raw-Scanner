@@ -165,14 +165,14 @@ void setup() {
   bool bootStop = bootButtonsB > 900;
   bool bootRunRevRunFwd = (bootButtonsA > 120 && bootButtonsA < 160) && (bootButtonsB > 120 && bootButtonsB < 160);
   bool bootScan = (bootButtonsB > 30 && bootButtonsB < 70);
-  bool bootLight = bootButtonsA > 990;
+  bool bootZoom = (bootButtonsA > 290 && bootButtonsA < 330);
   bool bootRunRev = (bootButtonsA > 120 && bootButtonsA < 160) && (bootButtonsB < 2);
   if (bootScan) {
     pairingMode = true;
     pairingModeEnteredAt = millis();
     nextPiCmd = CMD_PAIRING_ENTER;
     Serial.println("Pairing mode: enter");
-  } else if (bootLight) {
+  } else if (bootZoom) {
     logsMode = true;
     nextPiCmd = CMD_LOGS_ENTER;
     Serial.println("Log dump: enter");
