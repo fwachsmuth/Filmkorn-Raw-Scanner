@@ -183,6 +183,7 @@ class Command(enum.Enum):
     READY = 128
     TELL_INITVALUES = 129 # asks for film load state and exposure pot value (both only get send when they change)
     TELL_LOADSTATE = 130
+    AWB_EXIT = 131
 
 def process_is_running(contents: str) -> bool:
     try:
@@ -701,6 +702,10 @@ def _awb_confirm(_args=None):
     logging.info("awb: confirmed %s", AWB_OPTIONS[awb_selected][0])
     _save_awb_setting(awb_selected)
     awb_mode = False
+    try:
+        tell_arduino(Command.AWB_EXIT)
+    except Exception as exc:
+        logging.warning("awb: failed to notify controller to exit AWB mode: %s", exc)
     _apply_camera_controls()
     show_ready_to_scan()
 
@@ -710,6 +715,10 @@ def _awb_cancel(_args=None):
         return
     logging.info("awb: canceled by user")
     awb_mode = False
+    try:
+        tell_arduino(Command.AWB_EXIT)
+    except Exception as exc:
+        logging.warning("awb: failed to notify controller to exit AWB mode: %s", exc)
     show_ready_to_scan()
 
 # --- End AWB Menu ---

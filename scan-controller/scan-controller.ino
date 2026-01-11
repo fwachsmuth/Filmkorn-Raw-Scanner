@@ -88,7 +88,8 @@ enum Command
   // Raspi to Arduino
   CMD_READY = 128,
   CMD_TELL_INITVALUES, // send film load state and exposure pot value (both only get send when they change)
-  CMD_TELL_LOADSTATE
+  CMD_TELL_LOADSTATE,
+  CMD_AWB_EXIT
 };
 
 enum ZoomMode {
@@ -631,6 +632,11 @@ void i2cReceive(int howMany) {
     if ((Command)i2cCommand == CMD_LOGS_EXIT) {
       logsMode = false;
       nextPiCmd = CMD_NONE;
+    }
+    if ((Command)i2cCommand == CMD_AWB_EXIT) {
+      awbMode = false;
+      nextPiCmd = CMD_NONE;
+      Serial.println("AWB menu: exit");
     }
     // Don't set piIsReady if we aren't scanning anymore
     if ((Command)i2cCommand == CMD_READY && isScanning) {
