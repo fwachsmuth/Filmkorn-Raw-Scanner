@@ -113,6 +113,7 @@ bool lampMode = false;
 bool isScanning = false;
 uint8_t scanExtraFrames = 0;  // frames to continue after film end detected
 uint8_t filmEjectAdvances = 0;  // advances to eject film after scanning done
+volatile bool singleStepInProgress = false;  // true while single-step motor advance is running
 bool updateMode = false;
 bool pairingMode = false;
 bool logsMode = false;
@@ -281,7 +282,7 @@ void loop() {
   }
 
   // Handle film eject advances (after scan ends)
-  if (filmEjectAdvances > 0 && motorState == STOPPED)
+  if (filmEjectAdvances > 0 && !singleStepInProgress)
   {
     filmEjectAdvances--;
     if (filmEjectAdvances > 0)
@@ -424,6 +425,7 @@ void readFilmEndSensor() {
 void stopMotor() {
   // ...
   motorState = STOPPED;
+  singleStepInProgress = false;
   Serial.println("Motor: Stop");
 
   // Enable the below three lines if breaking makes sense
@@ -477,7 +479,7 @@ void setZoomMode(ZoomMode mode) {
 }
 
 void motorFWD1() {
-  motorState = FWD;  // mark as moving (ISR will set back to STOPPED)
+  singleStepInProgress = true;
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
   analogWrite(MOTOR_A_PIN, singleStepMotorPower);
@@ -485,7 +487,7 @@ void motorFWD1() {
 }
 
 void motorREV1() {
-  motorState = REV;  // mark as moving (ISR will set back to STOPPED)
+  singleStepInProgress = true;
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
   analogWrite(MOTOR_A_PIN, 0);
@@ -508,6 +510,7 @@ void motorRev() {
 
 void stopMotorISR() {
   motorState = STOPPED;
+  singleStepInProgress = false;
   digitalWrite(MOTOR_A_PIN, HIGH);
   digitalWrite(MOTOR_B_PIN, HIGH);
 //  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
