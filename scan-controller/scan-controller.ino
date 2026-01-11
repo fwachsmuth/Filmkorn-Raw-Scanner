@@ -149,6 +149,10 @@ void setup() {
   pinMode(EYE_PIN, INPUT);
   pinMode(FILM_END_PIN, INPUT);
 
+  // Initialize film end state to current value to prevent spurious state change detection
+  filmEndState = digitalRead(FILM_END_PIN);
+  lastFilmEndState = filmEndState;
+
   bootIgnoreUntil = millis() + 800;
   dummyread = analogRead(BUTTONS_A_PIN);
   int bootButtonsA = analogRead(BUTTONS_A_PIN);
@@ -623,9 +627,9 @@ void i2cRequest() {
     pairingCancelPending = false;
   }
 
-  // Special cas ewhen the exposure pot was changed
+  // Special case when the exposure pot was changed
   if (cmdToSend == CMD_SET_EXP) {
-    Serial.println("Requesting new Exposure Time value.");
+    Serial.println("Sending new Exposure Time value.");
     Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
   }
 
