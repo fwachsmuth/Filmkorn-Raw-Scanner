@@ -129,6 +129,7 @@ MCU_HEX_PATH = os.path.join(
 )
 MCU_AVRDUDE = "/usr/local/bin/avrdude"
 MCU_AVRDUDE_CONF = os.path.join(repo_root, "scan-controller", "avrdude_gpio.conf")
+MCU_HEX_HASH_FILE = os.path.join(os.path.dirname(__file__), ".mcu_hex_hash")
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -1681,16 +1682,52 @@ def _read_host_path() -> Optional[str]:
     except Exception:
         return None
 
+def _compute_hex_hash() -> str:
+    """Compute SHA256 hash of the MCU HEX file."""
+    import hashlib
+    sha256 = hashlib.sha256()
+    with open(MCU_HEX_PATH, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
+def _get_stored_hex_hash() -> str:
+    """Get the stored hash of the last verified/flashed HEX file."""
+    if os.path.isfile(MCU_HEX_HASH_FILE):
+        try:
+            with open(MCU_HEX_HASH_FILE, "r") as f:
+                return f.read().strip()
+        except Exception:
+            pass
+    return ""
+
+def _save_hex_hash(hex_hash: str):
+    """Save the hash of the current HEX file."""
+    try:
+        with open(MCU_HEX_HASH_FILE, "w") as f:
+            f.write(hex_hash)
+    except Exception as e:
+        logging.warning("mcu: failed to save hex hash: %s", e)
+
 def _verify_mcu_firmware() -> bool:
     global mcu_flash_checked, mcu_flash_error
     if mcu_flash_checked:
         return False
     mcu_flash_checked = True
-    logging.info("mcu: starting firmware verify")
+    
     if not os.path.isfile(MCU_HEX_PATH):
         mcu_flash_error = f"missing hex: {MCU_HEX_PATH}"
         logging.error("mcu: %s", mcu_flash_error)
         return False
+    
+    # Check if HEX file has changed since last verification
+    current_hash = _compute_hex_hash()
+    stored_hash = _get_stored_hex_hash()
+    if current_hash == stored_hash:
+        logging.info("mcu: hex file unchanged (hash match), skipping avrdude verify")
+        return False
+    
+    logging.info("mcu: hex file changed, starting firmware verify")
     if not os.path.isfile(MCU_AVRDUDE_CONF):
         mcu_flash_error = f"missing avrdude config: {MCU_AVRDUDE_CONF}"
         logging.error("mcu: %s", mcu_flash_error)
@@ -1719,6 +1756,7 @@ def _verify_mcu_firmware() -> bool:
     )
     if result.returncode == 0:
         logging.info("mcu: firmware already matches expected hex")
+        _save_hex_hash(current_hash)  # Save hash on successful verify
         return False
     else:
         logging.warning("mcu: firmware mismatch detected (code=%s)", result.returncode)
@@ -1749,6 +1787,11 @@ def _run_mcu_flash_if_needed():
         logging.info("mcu: flash stderr: %s", result.stderr.strip())
     if result.returncode == 0:
         logging.info("mcu: flashing completed")
+        # Save hash after successful flash
+        try:
+            _save_hex_hash(_compute_hex_hash())
+        except Exception as e:
+            logging.warning("mcu: failed to save hex hash after flash: %s", e)
     else:
         logging.error("mcu: flashing failed (code=%s)", result.returncode)
     mcu_flash_in_progress = False
