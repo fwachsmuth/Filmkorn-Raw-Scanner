@@ -106,6 +106,14 @@ pairing_exit_pending = False
 logs_mode = False
 logs_in_progress = False
 unpair_in_progress = False
+awb_mode = False
+awb_selected = 0
+AWB_OPTIONS = [
+    ("~3600K", controls.AwbModeEnum.Tungsten),
+    ("~4500K", controls.AwbModeEnum.Fluorescent),
+    ("~5500K", controls.AwbModeEnum.Daylight),
+]
+AWB_FILE = os.path.join(os.path.dirname(__file__), ".awb_mode")
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 current_version_label = None
 mcu_flash_in_progress = False
@@ -165,6 +173,11 @@ class Command(enum.Enum):
     LOGS_ENTER = 23
     LOGS_EXIT = 24
     UNPAIR_ENTER = 25
+    AWB_ENTER = 26
+    AWB_PREV = 27
+    AWB_NEXT = 28
+    AWB_CONFIRM = 29
+    AWB_CANCEL = 30
 
     # Raspi to Arduino. Ths is handled by i2cReceive() on the Controller side.
     READY = 128
@@ -609,6 +622,97 @@ def _update_cancel(_args=None):
     logging.info("update: canceled by user")
     update_mode = False
     show_ready_to_scan()
+
+# --- AWB Menu ---
+
+def _load_awb_setting() -> int:
+    """Load the stored AWB mode index from file. Returns 2 (Daylight) as default."""
+    if os.path.exists(AWB_FILE):
+        try:
+            with open(AWB_FILE, "r") as f:
+                idx = int(f.read().strip())
+                if 0 <= idx < len(AWB_OPTIONS):
+                    return idx
+        except (ValueError, IOError):
+            pass
+    return 2  # Default to Daylight (~5500K)
+
+def _save_awb_setting(idx: int):
+    """Save the AWB mode index to file."""
+    try:
+        with open(AWB_FILE, "w") as f:
+            f.write(str(idx))
+        logging.info("awb: saved setting %d (%s)", idx, AWB_OPTIONS[idx][0])
+    except IOError as e:
+        logging.error("awb: failed to save setting: %s", e)
+
+def _get_current_awb_mode():
+    """Get the current AWB mode enum based on stored setting."""
+    idx = _load_awb_setting()
+    return AWB_OPTIONS[idx][1]
+
+def _show_awb_selection():
+    global awb_selected
+    selected_label, _ = AWB_OPTIONS[awb_selected]
+    lines = [
+        "Preview White Balance",
+        "",
+        f"Selected: {selected_label}",
+        "",
+        "",
+        "Use \u23ea/\u23e9 to select.",
+    ]
+    stored_idx = _load_awb_setting()
+    stored_label = AWB_OPTIONS[stored_idx][0]
+    lines.append(f"Current: {stored_label}")
+    show_update_screen(
+        lines,
+        footer_left="\u23f9 Cancel",
+        footer_right="\u23fa Apply",
+    )
+
+def _enter_awb_mode():
+    global awb_mode, awb_selected
+    logging.info("awb: entering AWB menu")
+    awb_mode = True
+    awb_selected = _load_awb_setting()
+    _show_awb_selection()
+
+def _awb_prev(_args=None):
+    global awb_selected
+    if not awb_mode:
+        return
+    awb_selected = (awb_selected - 1) % len(AWB_OPTIONS)
+    logging.info("awb: selected %s", AWB_OPTIONS[awb_selected][0])
+    _show_awb_selection()
+
+def _awb_next(_args=None):
+    global awb_selected
+    if not awb_mode:
+        return
+    awb_selected = (awb_selected + 1) % len(AWB_OPTIONS)
+    logging.info("awb: selected %s", AWB_OPTIONS[awb_selected][0])
+    _show_awb_selection()
+
+def _awb_confirm(_args=None):
+    global awb_mode
+    if not awb_mode:
+        return
+    logging.info("awb: confirmed %s", AWB_OPTIONS[awb_selected][0])
+    _save_awb_setting(awb_selected)
+    awb_mode = False
+    _apply_camera_controls()
+    show_ready_to_scan()
+
+def _awb_cancel(_args=None):
+    global awb_mode
+    if not awb_mode:
+        return
+    logging.info("awb: canceled by user")
+    awb_mode = False
+    show_ready_to_scan()
+
+# --- End AWB Menu ---
 
 def _run_otp_scheduler() -> bool:
     candidates = [
@@ -1114,10 +1218,11 @@ def _reset_sleep_button_state():
     sleep_button_armed = (last_sleep_button_state == 1)
 
 def _apply_camera_controls():
+    awb_mode_setting = _get_current_awb_mode()
     camera.set_controls({
         "AeEnable": True,
         "AwbEnable": True,
-        "AwbMode": controls.AwbModeEnum.Daylight,
+        "AwbMode": awb_mode_setting,
         "Brightness": 0.0,
         "Sharpness": 1.0,
         "Contrast": 1.0,
@@ -2210,6 +2315,19 @@ def loop():
                 Command.UPDATE_NEXT: _update_next,
                 Command.UPDATE_CONFIRM: _update_confirm,
                 Command.UPDATE_CANCEL: _update_cancel,
+            }.get(command, None)
+            if func is not None:
+                func(received[1:])
+            return
+        if command == Command.AWB_ENTER:
+            _enter_awb_mode()
+            return
+        if awb_mode:
+            func = {
+                Command.AWB_PREV: _awb_prev,
+                Command.AWB_NEXT: _awb_next,
+                Command.AWB_CONFIRM: _awb_confirm,
+                Command.AWB_CANCEL: _awb_cancel,
             }.get(command, None)
             if func is not None:
                 func(received[1:])

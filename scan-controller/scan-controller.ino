@@ -79,6 +79,11 @@ enum Command
   CMD_LOGS_ENTER,
   CMD_LOGS_EXIT,
   CMD_UNPAIR_ENTER,
+  CMD_AWB_ENTER,
+  CMD_AWB_PREV,
+  CMD_AWB_NEXT,
+  CMD_AWB_CONFIRM,
+  CMD_AWB_CANCEL,
 
   // Raspi to Arduino
   CMD_READY = 128,
@@ -118,6 +123,7 @@ uint8_t scanFilmEndCount = 0;  // consecutive film-end reads needed to trigger e
 bool updateMode = false;
 bool pairingMode = false;
 bool logsMode = false;
+bool awbMode = false;
 uint32_t pairingModeEnteredAt = 0;
 bool pairingCancelPending = false;
 uint32_t pairingCancelSentAt = 0;
@@ -166,6 +172,7 @@ void setup() {
   bool bootRunRevRunFwd = (bootButtonsA > 120 && bootButtonsA < 160) && (bootButtonsB > 120 && bootButtonsB < 160);
   bool bootScan = (bootButtonsB > 30 && bootButtonsB < 70);
   bool bootZoom = (bootButtonsA > 290 && bootButtonsA < 330);
+  bool bootLight = bootButtonsA > 990;
   bool bootRunRev = (bootButtonsA > 120 && bootButtonsA < 160) && (bootButtonsB < 2);
   if (bootScan) {
     pairingMode = true;
@@ -176,6 +183,10 @@ void setup() {
     logsMode = true;
     nextPiCmd = CMD_LOGS_ENTER;
     Serial.println("Log dump: enter");
+  } else if (bootLight) {
+    awbMode = true;
+    nextPiCmd = CMD_AWB_ENTER;
+    Serial.println("AWB menu: enter");
   } else if (bootRunRev) {
     nextPiCmd = CMD_UNPAIR_ENTER;
     Serial.println("Unpair: enter");
@@ -203,7 +214,7 @@ void loop() {
     return;
   }
 
-  if (updateMode || pairingMode || logsMode) {
+  if (updateMode || pairingMode || logsMode || awbMode) {
     if (pairingMode) {
       dummyread = analogRead(BUTTONS_B_PIN);
       int pairingButtonsB = analogRead(BUTTONS_B_PIN);
@@ -236,6 +247,28 @@ void loop() {
             break;
           case STOP:
             nextPiCmd = CMD_UPDATE_CANCEL;
+            break;
+          default:
+            break;
+        }
+      }
+    }
+    if (awbMode) {
+      currentButton = pollButtons();
+      if (currentButton != prevButton) {
+        prevButton = currentButton;
+        switch (currentButton) {
+          case RUNREV:
+            nextPiCmd = CMD_AWB_PREV;
+            break;
+          case RUNFWD:
+            nextPiCmd = CMD_AWB_NEXT;
+            break;
+          case SCAN:
+            nextPiCmd = CMD_AWB_CONFIRM;
+            break;
+          case STOP:
+            nextPiCmd = CMD_AWB_CANCEL;
             break;
           default:
             break;
