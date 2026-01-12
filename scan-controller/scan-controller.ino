@@ -159,7 +159,6 @@ MenuState menuState = MENU_IDLE;
 uint8_t menuSelected = 0;  // Current selection in main menu
 bool stopButtonPressed = false;
 uint32_t stopButtonPressedAt = 0;
-bool menuEnterPending = false;  // Set when long-press detected, enter menu on release
 const uint32_t STOP_LONG_PRESS_MS = 4000;  // 4 seconds
 
 volatile bool piIsReady = false;
@@ -275,25 +274,20 @@ void loop() {
         // Button still held - check if long enough
         uint32_t pressDuration = millis() - stopButtonPressedAt;
         if (pressDuration >= STOP_LONG_PRESS_MS && !menuEnterPending) {
-          // Long press detected - set flag to enter menu when button is released
-          menuEnterPending = true;
-          Serial.println("Menu: long press detected, waiting for release...");
+          // Long press detected - enter menu immediately
+          menuState = MENU_MAIN;
+          menuSelected = 0;
+          stopButtonPressed = false;
+          menuEnterPending = false;
+          prevButton = NONE;  // Reset prevButton so menu navigation works
+          currentButton = NONE;  // Reset currentButton
+          nextPiCmd = CMD_MENU_ENTER;
+          Serial.println("Menu: enter (long press STOP)");
+          return;
         }
       }
     } else {
       // Button not pressed or released
-      if (menuEnterPending) {
-        // Button was released after long-press - enter menu now
-        menuState = MENU_MAIN;
-        menuSelected = 0;
-        stopButtonPressed = false;
-        menuEnterPending = false;
-        prevButton = NONE;  // Reset prevButton so menu navigation works
-        currentButton = NONE;  // Reset currentButton
-        nextPiCmd = CMD_MENU_ENTER;
-        Serial.println("Menu: enter (long press STOP completed)");
-        return;
-      }
       if (stopButtonPressed) {
         // Button was pressed but released before long-press threshold
         uint32_t pressDuration = millis() - stopButtonPressedAt;
@@ -311,7 +305,6 @@ void loop() {
   } else {
     // Not idle - reset long-press state
     stopButtonPressed = false;
-    menuEnterPending = false;
   }
 
   if (updateMode || pairingMode || logsMode || awbMode) {

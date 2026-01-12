@@ -408,6 +408,62 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None):
     rgba[..., 3] = 255
     return rgba
 
+def _build_menu_overlay(lines):
+    """Build a left-aligned menu overlay (similar to _build_update_overlay but left-aligned)"""
+    if preview_size is None:
+        return None
+    base = Image.new("RGBA", preview_size, (0, 0, 0, 255))
+    draw = ImageDraw.Draw(base)
+    try:
+        symbol_font = ImageFont.truetype("/usr/share/fonts/truetype/noto/NotoSansSymbols2-Regular.ttf", 28)
+    except OSError:
+        symbol_font = ImageFont.load_default()
+    try:
+        text_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28)
+    except OSError:
+        text_font = ImageFont.load_default()
+    symbol_chars = {"\u23ea", "\u23e9", "\u23fa", "\u23f9"}
+
+    def _measure_mixed(text: str):
+        width = 0
+        height = 0
+        for ch in text:
+            font = symbol_font if ch in symbol_chars else text_font
+            if hasattr(draw, "textbbox"):
+                bbox = draw.textbbox((0, 0), ch, font=font)
+                w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+            else:
+                w, h = draw.textsize(ch, font=font)
+            width += w
+            height = max(height, h)
+        return width, height
+
+    def _draw_mixed(text: str, x: int, y: int):
+        for ch in text:
+            font = symbol_font if ch in symbol_chars else text_font
+            draw.text((x, y), ch, font=font, fill=(255, 255, 255, 255))
+            if hasattr(draw, "textbbox"):
+                bbox = draw.textbbox((0, 0), ch, font=font)
+                x += bbox[2] - bbox[0]
+            else:
+                x += draw.textsize(ch, font=font)[0]
+
+    metrics = []
+    for line in lines:
+        line_w, line_h = _measure_mixed(line)
+        metrics.append((line, line_w, line_h))
+    spacing = 10
+    total_height = sum(h for _, _, h in metrics) + spacing * (len(metrics) - 1)
+    y = max(0, (preview_size[1] - total_height) // 2)
+    left_margin = 20  # Left margin for menu alignment
+    for line, w, h in metrics:
+        x = left_margin  # Left-align instead of center
+        _draw_mixed(line, x, y)
+        y += h + spacing
+    rgba = np.array(base, dtype=np.uint8)
+    rgba[..., 3] = 255
+    return rgba
+
 def show_update_screen(lines, footer_left=None, footer_right=None):
     global current_screen, pending_overlay, idle_since, overlay_ready
     overlay_key = "update:" + "|".join(lines) + f"|{footer_left}|{footer_right}"
@@ -982,11 +1038,11 @@ def _show_menu_screen():
     for i, item in enumerate(MENU_ITEMS):
         prefix = "> " if i == menu_selected else "  "
         lines.append(prefix + item)
-    lines.extend(["", "Use \u23ea/\u23e9 to navigate", "\u23fa Select  \u23f9 Back"])
+    lines.extend(["", "</>", "\u23fa Select  \u23f9 Back"])
     overlay_key = "menu:" + str(menu_selected)
     overlay = overlay_cache.get(overlay_key)
     if overlay is None:
-        overlay = _build_update_overlay(lines)
+        overlay = _build_menu_overlay(lines)
         overlay_cache[overlay_key] = overlay
     current_screen = "menu"
     idle_since = None
