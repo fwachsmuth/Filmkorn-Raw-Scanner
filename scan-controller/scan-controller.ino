@@ -273,12 +273,11 @@ void loop() {
       } else {
         // Button still held - check if long enough
         uint32_t pressDuration = millis() - stopButtonPressedAt;
-        if (pressDuration >= STOP_LONG_PRESS_MS && !menuEnterPending) {
+        if (pressDuration >= STOP_LONG_PRESS_MS) {
           // Long press detected - enter menu immediately
           menuState = MENU_MAIN;
           menuSelected = 0;
           stopButtonPressed = false;
-          menuEnterPending = false;
           prevButton = NONE;  // Reset prevButton so menu navigation works
           currentButton = NONE;  // Reset currentButton
           nextPiCmd = CMD_MENU_ENTER;
