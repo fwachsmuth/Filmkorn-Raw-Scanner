@@ -693,9 +693,10 @@ def _update_cancel(_args=None):
         return
     logging.info("update: canceled by user")
     update_mode = False
-    # If we came from menu, go back to menu; otherwise show ready screen
+    # If we came from menu, show menu (will be cleared if MENU_EXIT follows)
+    # If Arduino exits menu completely (STOP pressed), it will send CMD_MENU_EXIT
+    # next, which will call _exit_menu_mode() to clear menu_mode and hide menu
     if menu_mode:
-        menu_mode = True  # Ensure menu mode is still active
         _show_menu_screen()
     else:
         show_ready_to_scan()
@@ -1034,11 +1035,11 @@ def _enter_unpair_mode():
 
 def _show_menu_screen():
     global current_screen, pending_overlay, idle_since, overlay_ready, menu_selected
-    lines = ["Settings Menu", ""]
+    lines = ["Settings Menu", "", ""]  # Extra empty line after title
     for i, item in enumerate(MENU_ITEMS):
         prefix = "> " if i == menu_selected else "  "
         lines.append(prefix + item)
-    lines.extend(["", "</>", "\u23fa Select  \u23f9 Back"])
+    lines.append("")  # Empty line after menu items
     overlay_key = "menu:" + str(menu_selected)
     overlay = overlay_cache.get(overlay_key)
     if overlay is None:
@@ -2536,11 +2537,13 @@ def loop():
             _enter_update_mode()
             return
         if update_mode:
+            if command == Command.UPDATE_CANCEL:
+                _update_cancel(received[1:])
+                return
             func = {
                 Command.UPDATE_PREV: _update_prev,
                 Command.UPDATE_NEXT: _update_next,
                 Command.UPDATE_CONFIRM: _update_confirm,
-                Command.UPDATE_CANCEL: _update_cancel,
             }.get(command, None)
             if func is not None:
                 func(received[1:])

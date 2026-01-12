@@ -670,6 +670,8 @@ void handleMenuSystem() {
             updateMode = false;
             nextPiCmd = CMD_UPDATE_CANCEL;
             Serial.println("Update: exit menu");
+            // Note: Python will need to detect menu exit via menuState change
+            // We'll send CMD_MENU_EXIT on next i2c request if menuState is IDLE
             break;
           default:
             break;
@@ -975,6 +977,10 @@ void i2cRequest() {
   }
   if (pairingCancelPending && cmdToSend == CMD_PAIRING_CANCEL) {
     nextPiCmd = CMD_PAIRING_CANCEL;
+  } else if (cmdToSend == CMD_UPDATE_CANCEL && menuState == MENU_IDLE) {
+    // If we just canceled update and menu is now IDLE, send MENU_EXIT next
+    // so Python knows to exit menu mode
+    nextPiCmd = CMD_MENU_EXIT;
   } else {
     nextPiCmd = CMD_NONE;
   }
