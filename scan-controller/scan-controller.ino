@@ -256,22 +256,47 @@ void loop() {
   }
 
   // Check for long-press STOP button to enter menu (only when idle/ready)
+  // We need to check raw ADC value directly, not pollButtons(), because pollButtons()
+  // only detects edge transitions and won't continuously return STOP while held
   if (!isScanning && motorState == STOPPED && !singleStepInProgress) {
-    currentButton = pollButtons();
-    if (currentButton == STOP) {
+    dummyread = analogRead(BUTTONS_B_PIN);
+    int buttonBankB = analogRead(BUTTONS_B_PIN);
+    bool stopButtonCurrentlyPressed = (buttonBankB > 990);  // STOP button threshold
+    
+    if (stopButtonCurrentlyPressed) {
       if (!stopButtonPressed) {
+        // Button just pressed - start timing
         stopButtonPressed = true;
         stopButtonPressedAt = millis();
-      } else if ((millis() - stopButtonPressedAt) >= STOP_LONG_PRESS_MS) {
-        // Long press detected - enter menu
-        menuState = MENU_MAIN;
-        menuSelected = 0;
-        stopButtonPressed = false;
-        nextPiCmd = CMD_MENU_ENTER;
-        Serial.println("Menu: enter (long press STOP)");
-        return;
+        Serial.println("Menu: STOP button pressed, timing...");
+      } else {
+        // Button still held - check if long enough
+        uint32_t pressDuration = millis() - stopButtonPressedAt;
+        if (pressDuration >= STOP_LONG_PRESS_MS) {
+          // Long press detected - enter menu
+          menuState = MENU_MAIN;
+          menuSelected = 0;
+          stopButtonPressed = false;
+          nextPiCmd = CMD_MENU_ENTER;
+          Serial.println("Menu: enter (long press STOP)");
+          return;
+        }
       }
     } else {
+      // Button not pressed or released
+      if (stopButtonPressed) {
+        // Button was pressed but released before long-press threshold
+        uint32_t pressDuration = millis() - stopButtonPressedAt;
+        Serial.print("Menu: STOP released after ");
+        Serial.print(pressDuration);
+        Serial.println(" ms (too short)");
+        // If it was a quick press (< 500ms), trigger normal STOP action
+        // This allows quick STOP presses to still work normally
+        if (pressDuration < 500 && !isScanning && motorState == STOPPED) {
+          // Quick press - trigger normal stop action
+          stopMotor();
+        }
+      }
       stopButtonPressed = false;
     }
   } else {
@@ -420,10 +445,15 @@ void loop() {
         default:
           break;
         case STOP:
-          if (isScanning) {
-            stopScanning();
-          } else {
-            stopMotor();
+          // Only trigger normal STOP action if we're not actively timing a long-press
+          // If stopButtonPressed is true, we're timing a long-press, so don't trigger normal action
+          // The long-press handler will either enter menu (if held long enough) or do nothing
+          if (!stopButtonPressed) {
+            if (isScanning) {
+              stopScanning();
+            } else {
+              stopMotor();
+            }
           }
           break;
         case ZOOM:
