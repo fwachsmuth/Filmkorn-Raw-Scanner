@@ -114,6 +114,15 @@ AWB_OPTIONS = [
     ("~5500K", controls.AwbModeEnum.Daylight),
 ]
 AWB_FILE = os.path.join(os.path.dirname(__file__), ".awb_mode")
+menu_mode = False
+menu_selected = 0
+MENU_ITEMS = [
+    "Firmware Update",
+    "Start Pairing",
+    "Preview White Balance",
+    "Create Debug Log",
+    "Factory Reset",
+]
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 current_version_label = None
 mcu_flash_in_progress = False
@@ -179,6 +188,11 @@ class Command(enum.Enum):
     AWB_NEXT = 28
     AWB_CONFIRM = 29
     AWB_CANCEL = 30
+    MENU_ENTER = 31
+    MENU_EXIT = 32
+    MENU_PREV = 33
+    MENU_NEXT = 34
+    MENU_SELECT = 35
 
     # Raspi to Arduino. Ths is handled by i2cReceive() on the Controller side.
     READY = 128
@@ -618,12 +632,17 @@ def _update_confirm(_args=None):
     _confirm_update_after_delay(selected)
 
 def _update_cancel(_args=None):
-    global update_mode
+    global update_mode, menu_mode
     if not update_mode:
         return
     logging.info("update: canceled by user")
     update_mode = False
-    show_ready_to_scan()
+    # If we came from menu, go back to menu; otherwise show ready screen
+    if menu_mode:
+        menu_mode = True  # Ensure menu mode is still active
+        _show_menu_screen()
+    else:
+        show_ready_to_scan()
 
 # --- AWB Menu ---
 
@@ -711,7 +730,7 @@ def _awb_confirm(_args=None):
     show_ready_to_scan()
 
 def _awb_cancel(_args=None):
-    global awb_mode
+    global awb_mode, menu_mode
     if not awb_mode:
         return
     logging.info("awb: canceled by user")
@@ -720,7 +739,11 @@ def _awb_cancel(_args=None):
         tell_arduino(Command.AWB_EXIT)
     except Exception as exc:
         logging.warning("awb: failed to notify controller to exit AWB mode: %s", exc)
-    show_ready_to_scan()
+    # If we came from menu, go back to menu; otherwise show ready screen
+    if menu_mode:
+        _show_menu_screen()
+    else:
+        show_ready_to_scan()
 
 # --- End AWB Menu ---
 
@@ -829,7 +852,7 @@ def _exit_pairing_mode_screen():
     _reset_sleep_button_state()
 
 def _cancel_pairing_mode():
-    global pairing_mode
+    global pairing_mode, menu_mode
     if not pairing_mode:
         return
     logging.info("pairing: canceled by controller")
@@ -839,7 +862,11 @@ def _cancel_pairing_mode():
     if state.scanning:
         logging.info("pairing: forcing scan state to stopped")
         state.scanning = False
-    show_ready_to_scan()
+    # If we came from menu, go back to menu; otherwise show ready screen
+    if menu_mode:
+        _show_menu_screen()
+    else:
+        show_ready_to_scan()
     _reset_sleep_button_state()
 
 def _enter_pairing_mode():
@@ -889,16 +916,8 @@ def _enter_logs_mode():
     try:
         output_path = _export_logs()
         logging.info("logs: export saved %s", output_path)
-        if last_status_screen:
-            show_screen(last_status_screen)
-        else:
-            show_ready_to_scan()
     except Exception as exc:
         logging.exception("logs: export failed: %s", exc)
-        if last_status_screen:
-            show_screen(last_status_screen)
-        else:
-            show_ready_to_scan()
     finally:
         logs_in_progress = False
         logs_mode = False
@@ -906,6 +925,13 @@ def _enter_logs_mode():
             tell_arduino(Command.LOGS_EXIT)
         except Exception as exc:
             logging.warning("logs: failed to notify controller to exit logs mode: %s", exc)
+        # If we came from menu, go back to menu; otherwise show ready screen
+        if menu_mode:
+            _show_menu_screen()
+        elif last_status_screen:
+            show_screen(last_status_screen)
+        else:
+            show_ready_to_scan()
 
 def _enter_unpair_mode():
     global unpair_in_progress, last_status_screen
@@ -941,11 +967,86 @@ def _enter_unpair_mode():
             logging.exception("unpair: failed to run script: %s", exc)
     show_screen("unpaired-from-client")
     time.sleep(5)
-    if last_status_screen:
+    # If we came from menu, go back to menu; otherwise show ready screen
+    if menu_mode:
+        _show_menu_screen()
+    elif last_status_screen:
         show_screen(last_status_screen)
     else:
         show_ready_to_scan()
     unpair_in_progress = False
+
+def _show_menu_screen():
+    global current_screen, pending_overlay, idle_since, overlay_ready, menu_selected
+    lines = ["Settings Menu", ""]
+    for i, item in enumerate(MENU_ITEMS):
+        prefix = "> " if i == menu_selected else "  "
+        lines.append(prefix + item)
+    lines.extend(["", "Use \u23ea/\u23e9 to navigate", "\u23fa Select  \u23f9 Back"])
+    overlay_key = "menu:" + str(menu_selected)
+    overlay = overlay_cache.get(overlay_key)
+    if overlay is None:
+        overlay = _build_update_overlay(lines)
+        overlay_cache[overlay_key] = overlay
+    current_screen = "menu"
+    idle_since = None
+    pending_overlay = overlay
+    if not preview_started:
+        logging.info("Menu screen: starting preview for overlay")
+        try:
+            camera_start()
+        except Exception as exc:
+            logging.error("Menu screen: failed to start preview: %s", exc)
+    overlay_ready = True
+    _apply_overlay_if_ready()
+    if pending_overlay is not None:
+        threading.Timer(0.2, _apply_overlay_if_ready).start()
+
+def _enter_menu_mode():
+    global menu_mode, menu_selected
+    logging.info("menu: entering menu mode")
+    menu_mode = True
+    menu_selected = 0
+    _show_menu_screen()
+
+def _exit_menu_mode():
+    global menu_mode
+    logging.info("menu: exiting menu mode")
+    menu_mode = False
+    try:
+        tell_arduino(Command.MENU_EXIT)
+    except Exception as exc:
+        logging.warning("menu: failed to notify controller to exit menu mode: %s", exc)
+    if last_status_screen:
+        show_screen(last_status_screen)
+    else:
+        show_ready_to_scan()
+
+def _menu_prev():
+    global menu_selected
+    if not menu_mode:
+        return
+    menu_selected = (menu_selected - 1 + len(MENU_ITEMS)) % len(MENU_ITEMS)
+    logging.info("menu: selected item %d: %s", menu_selected, MENU_ITEMS[menu_selected])
+    _show_menu_screen()
+
+def _menu_next():
+    global menu_selected
+    if not menu_mode:
+        return
+    menu_selected = (menu_selected + 1) % len(MENU_ITEMS)
+    logging.info("menu: selected item %d: %s", menu_selected, MENU_ITEMS[menu_selected])
+    _show_menu_screen()
+
+def _menu_select():
+    global menu_selected
+    if not menu_mode:
+        return
+    selected_item = MENU_ITEMS[menu_selected]
+    logging.info("menu: selected item %d: %s", menu_selected, selected_item)
+    
+    # The Arduino will send the appropriate command based on the selected item
+    # We don't need to do anything here as the Arduino handles the transition
 
 def _apply_overlay_if_ready():
     global pending_overlay, overlay_supported, overlay_retry_count, overlay_retry_timer
@@ -2345,6 +2446,23 @@ def loop():
         return
 
     if command is not None:
+        # Menu system commands
+        if command == Command.MENU_ENTER:
+            _enter_menu_mode()
+            return
+        if command == Command.MENU_EXIT:
+            _exit_menu_mode()
+            return
+        if command == Command.MENU_PREV:
+            _menu_prev()
+            return
+        if command == Command.MENU_NEXT:
+            _menu_next()
+            return
+        if command == Command.MENU_SELECT:
+            _menu_select()
+            return
+        
         if command == Command.PAIRING_ENTER:
             logging.info("pairing: received pairing enter command")
             _enter_pairing_mode()

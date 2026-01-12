@@ -84,6 +84,11 @@ enum Command
   CMD_AWB_NEXT,
   CMD_AWB_CONFIRM,
   CMD_AWB_CANCEL,
+  CMD_MENU_ENTER,
+  CMD_MENU_EXIT,
+  CMD_MENU_PREV,
+  CMD_MENU_NEXT,
+  CMD_MENU_SELECT,
 
   // Raspi to Arduino
   CMD_READY = 128,
@@ -96,6 +101,25 @@ enum ZoomMode {
   Z1_1, //  1:1
   Z3_1, //  3:1
   Z10_1 // 10:1
+};
+
+enum MenuState {
+  MENU_IDLE,      // Normal operation
+  MENU_MAIN,      // Main settings menu
+  MENU_UPDATE,    // Firmware update submenu
+  MENU_PAIRING,   // Pairing submenu
+  MENU_AWB,       // White balance submenu
+  MENU_LOGS,      // Debug log submenu
+  MENU_UNPAIR     // Factory reset submenu
+};
+
+enum MenuItem {
+  MENU_ITEM_UPDATE = 0,
+  MENU_ITEM_PAIRING = 1,
+  MENU_ITEM_AWB = 2,
+  MENU_ITEM_LOGS = 3,
+  MENU_ITEM_UNPAIR = 4,
+  MENU_ITEM_COUNT = 5
 };
 
 
@@ -129,6 +153,13 @@ uint32_t pairingModeEnteredAt = 0;
 bool pairingCancelPending = false;
 uint32_t pairingCancelSentAt = 0;
 uint32_t bootIgnoreUntil = 0;
+
+// Menu system
+MenuState menuState = MENU_IDLE;
+uint8_t menuSelected = 0;  // Current selection in main menu
+bool stopButtonPressed = false;
+uint32_t stopButtonPressedAt = 0;
+const uint32_t STOP_LONG_PRESS_MS = 4000;  // 4 seconds
 
 volatile bool piIsReady = false;
 
@@ -216,6 +247,35 @@ void loop() {
     currentButton = pollButtons();
     prevButton = currentButton;
     return;
+  }
+
+  // Handle menu system
+  if (menuState != MENU_IDLE) {
+    handleMenuSystem();
+    return;
+  }
+
+  // Check for long-press STOP button to enter menu (only when idle/ready)
+  if (!isScanning && motorState == STOPPED && !singleStepInProgress) {
+    currentButton = pollButtons();
+    if (currentButton == STOP) {
+      if (!stopButtonPressed) {
+        stopButtonPressed = true;
+        stopButtonPressedAt = millis();
+      } else if ((millis() - stopButtonPressedAt) >= STOP_LONG_PRESS_MS) {
+        // Long press detected - enter menu
+        menuState = MENU_MAIN;
+        menuSelected = 0;
+        stopButtonPressed = false;
+        nextPiCmd = CMD_MENU_ENTER;
+        Serial.println("Menu: enter (long press STOP)");
+        return;
+      }
+    } else {
+      stopButtonPressed = false;
+    }
+  } else {
+    stopButtonPressed = false;
   }
 
   if (updateMode || pairingMode || logsMode || awbMode) {
@@ -472,6 +532,188 @@ void readFilmEndSensor() {
   }
 }
 
+void handleMenuSystem() {
+  currentButton = pollButtons();
+  
+  if (menuState == MENU_MAIN) {
+    // Main menu navigation
+    if (currentButton != prevButton) {
+      prevButton = currentButton;
+      switch (currentButton) {
+        case REV1:
+          // Navigate up (wrap around)
+          menuSelected = (menuSelected - 1 + MENU_ITEM_COUNT) % MENU_ITEM_COUNT;
+          nextPiCmd = CMD_MENU_PREV;
+          Serial.print("Menu: selected item ");
+          Serial.println(menuSelected);
+          break;
+        case FWD1:
+          // Navigate down (wrap around)
+          menuSelected = (menuSelected + 1) % MENU_ITEM_COUNT;
+          nextPiCmd = CMD_MENU_NEXT;
+          Serial.print("Menu: selected item ");
+          Serial.println(menuSelected);
+          break;
+        case RUNFWD:
+          // Enter selected menu item
+          nextPiCmd = CMD_MENU_SELECT;
+          Serial.print("Menu: entering item ");
+          Serial.println(menuSelected);
+          switch ((MenuItem)menuSelected) {
+            case MENU_ITEM_UPDATE:
+              menuState = MENU_UPDATE;
+              updateMode = true;
+              nextPiCmd = CMD_UPDATE_ENTER;
+              break;
+            case MENU_ITEM_PAIRING:
+              menuState = MENU_PAIRING;
+              pairingMode = true;
+              pairingModeEnteredAt = millis();
+              nextPiCmd = CMD_PAIRING_ENTER;
+              break;
+            case MENU_ITEM_AWB:
+              menuState = MENU_AWB;
+              awbMode = true;
+              nextPiCmd = CMD_AWB_ENTER;
+              break;
+            case MENU_ITEM_LOGS:
+              menuState = MENU_LOGS;
+              logsMode = true;
+              nextPiCmd = CMD_LOGS_ENTER;
+              break;
+            case MENU_ITEM_UNPAIR:
+              menuState = MENU_UNPAIR;
+              nextPiCmd = CMD_UNPAIR_ENTER;
+              break;
+            default:
+              break;
+          }
+          break;
+        case RUNREV:
+          // Exit menu
+          menuState = MENU_IDLE;
+          nextPiCmd = CMD_MENU_EXIT;
+          Serial.println("Menu: exit");
+          break;
+        default:
+          break;
+      }
+    }
+  } else {
+    // Handle submenu modes (update, pairing, awb, logs, unpair)
+    if (updateMode) {
+      currentButton = pollButtons();
+      if (currentButton != prevButton) {
+        prevButton = currentButton;
+        switch (currentButton) {
+          case RUNREV:
+            // Go back to main menu
+            menuState = MENU_MAIN;
+            updateMode = false;
+            nextPiCmd = CMD_UPDATE_CANCEL;
+            Serial.println("Update: back to menu");
+            break;
+          case REV1:
+            nextPiCmd = CMD_UPDATE_PREV;
+            break;
+          case FWD1:
+            nextPiCmd = CMD_UPDATE_NEXT;
+            break;
+          case RUNFWD:
+            nextPiCmd = CMD_UPDATE_CONFIRM;
+            break;
+          case STOP:
+            // Exit menu completely
+            menuState = MENU_IDLE;
+            updateMode = false;
+            nextPiCmd = CMD_UPDATE_CANCEL;
+            Serial.println("Update: exit menu");
+            break;
+          default:
+            break;
+        }
+      }
+    } else if (pairingMode) {
+      dummyread = analogRead(BUTTONS_B_PIN);
+      int pairingButtonsB = analogRead(BUTTONS_B_PIN);
+      currentButton = pollButtons();
+      if (pairingButtonsB > 990 || currentButton == STOP) {
+        Serial.println("Pairing mode: stop pressed");
+        menuState = MENU_MAIN;
+        pairingMode = false;
+        pairingCancelPending = true;
+        pairingCancelSentAt = millis();
+        nextPiCmd = CMD_PAIRING_CANCEL;
+      } else if (currentButton == RUNREV) {
+        // Go back to main menu
+        menuState = MENU_MAIN;
+        pairingMode = false;
+        nextPiCmd = CMD_PAIRING_CANCEL;
+        Serial.println("Pairing: back to menu");
+      } else if ((millis() - pairingModeEnteredAt) > 130000) {
+        menuState = MENU_MAIN;
+        pairingMode = false;
+        nextPiCmd = CMD_NONE;
+      }
+    } else if (awbMode) {
+      currentButton = pollButtons();
+      if (currentButton != prevButton) {
+        prevButton = currentButton;
+        switch (currentButton) {
+          case RUNREV:
+            // Go back to main menu
+            menuState = MENU_MAIN;
+            awbMode = false;
+            nextPiCmd = CMD_AWB_CANCEL;
+            Serial.println("AWB: back to menu");
+            break;
+          case REV1:
+            nextPiCmd = CMD_AWB_PREV;
+            break;
+          case FWD1:
+            nextPiCmd = CMD_AWB_NEXT;
+            break;
+          case RUNFWD:
+            nextPiCmd = CMD_AWB_CONFIRM;
+            break;
+          case STOP:
+            // Exit menu completely
+            menuState = MENU_IDLE;
+            awbMode = false;
+            nextPiCmd = CMD_AWB_CANCEL;
+            Serial.println("AWB: exit menu");
+            break;
+          default:
+            break;
+        }
+      }
+    } else if (logsMode) {
+      currentButton = pollButtons();
+      if (currentButton != prevButton) {
+        prevButton = currentButton;
+        if (currentButton == RUNREV || currentButton == STOP) {
+          // Go back to main menu or exit
+          menuState = MENU_MAIN;
+          logsMode = false;
+          nextPiCmd = CMD_LOGS_EXIT;
+          Serial.println("Logs: back to menu");
+        }
+      }
+    } else if (menuState == MENU_UNPAIR) {
+      currentButton = pollButtons();
+      if (currentButton != prevButton) {
+        prevButton = currentButton;
+        if (currentButton == RUNREV || currentButton == STOP) {
+          // Go back to main menu or exit
+          menuState = MENU_MAIN;
+          nextPiCmd = CMD_NONE;
+          Serial.println("Unpair: back to menu");
+        }
+      }
+    }
+  }
+}
+
 
 void stopMotor() {
   // ...
@@ -629,17 +871,25 @@ void i2cReceive(int howMany) {
     
     if ((Command)i2cCommand == CMD_PAIRING_EXIT) {
       pairingMode = false;
+      menuState = MENU_MAIN;
       nextPiCmd = CMD_NONE;
       pairingCancelPending = false;
     }
     if ((Command)i2cCommand == CMD_LOGS_EXIT) {
       logsMode = false;
+      menuState = MENU_MAIN;
       nextPiCmd = CMD_NONE;
     }
     if ((Command)i2cCommand == CMD_AWB_EXIT) {
       awbMode = false;
+      menuState = MENU_MAIN;
       nextPiCmd = CMD_NONE;
       Serial.println("AWB menu: exit");
+    }
+    if ((Command)i2cCommand == CMD_MENU_EXIT) {
+      menuState = MENU_IDLE;
+      nextPiCmd = CMD_NONE;
+      Serial.println("Menu: exit (from Pi)");
     }
     // Don't set piIsReady if we aren't scanning anymore
     if ((Command)i2cCommand == CMD_READY && isScanning) {
