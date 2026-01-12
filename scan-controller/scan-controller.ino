@@ -308,22 +308,6 @@ void loop() {
         stopButtonPressed = false;
       }
     }
-    } else {
-      // Button not pressed or released
-      if (stopButtonPressed) {
-        // Button was pressed but released before long-press threshold
-        uint32_t pressDuration = millis() - stopButtonPressedAt;
-        Serial.print("Menu: STOP released after ");
-        Serial.print(pressDuration);
-        Serial.println(" ms (too short)");
-        // Reset button state so pollButtons() can detect the release and handle it normally
-        stopButtonPressed = false;
-        // Reset prevButton so the button release can be detected by normal handler
-        prevButton = NONE;
-      } else {
-        stopButtonPressed = false;
-      }
-    }
   } else {
     // Not idle - reset long-press state
     stopButtonPressed = false;
