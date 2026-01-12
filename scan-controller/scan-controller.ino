@@ -159,6 +159,7 @@ MenuState menuState = MENU_IDLE;
 uint8_t menuSelected = 0;  // Current selection in main menu
 bool stopButtonPressed = false;
 uint32_t stopButtonPressedAt = 0;
+bool menuEnterPending = false;  // Set when long-press detected, enter menu on release
 const uint32_t STOP_LONG_PRESS_MS = 4000;  // 4 seconds
 
 volatile bool piIsReady = false;
@@ -258,6 +259,7 @@ void loop() {
   // Check for long-press STOP button to enter menu (only when idle/ready)
   // We need to check raw ADC value directly, not pollButtons(), because pollButtons()
   // only detects edge transitions and won't continuously return STOP while held
+  // Only check for long-press if we're truly idle (not scanning, motor stopped, no single step)
   if (!isScanning && motorState == STOPPED && !singleStepInProgress) {
     dummyread = analogRead(BUTTONS_B_PIN);
     int buttonBankB = analogRead(BUTTONS_B_PIN);
@@ -272,16 +274,40 @@ void loop() {
       } else {
         // Button still held - check if long enough
         uint32_t pressDuration = millis() - stopButtonPressedAt;
-        if (pressDuration >= STOP_LONG_PRESS_MS) {
-          // Long press detected - enter menu
-          menuState = MENU_MAIN;
-          menuSelected = 0;
-          stopButtonPressed = false;
-          nextPiCmd = CMD_MENU_ENTER;
-          Serial.println("Menu: enter (long press STOP)");
-          return;
+        if (pressDuration >= STOP_LONG_PRESS_MS && !menuEnterPending) {
+          // Long press detected - set flag to enter menu when button is released
+          menuEnterPending = true;
+          Serial.println("Menu: long press detected, waiting for release...");
         }
       }
+    } else {
+      // Button not pressed or released
+      if (menuEnterPending) {
+        // Button was released after long-press - enter menu now
+        menuState = MENU_MAIN;
+        menuSelected = 0;
+        stopButtonPressed = false;
+        menuEnterPending = false;
+        prevButton = NONE;  // Reset prevButton so menu navigation works
+        currentButton = NONE;  // Reset currentButton
+        nextPiCmd = CMD_MENU_ENTER;
+        Serial.println("Menu: enter (long press STOP completed)");
+        return;
+      }
+      if (stopButtonPressed) {
+        // Button was pressed but released before long-press threshold
+        uint32_t pressDuration = millis() - stopButtonPressedAt;
+        Serial.print("Menu: STOP released after ");
+        Serial.print(pressDuration);
+        Serial.println(" ms (too short)");
+        // Reset button state so pollButtons() can detect the release and handle it normally
+        stopButtonPressed = false;
+        // Reset prevButton so the button release can be detected by normal handler
+        prevButton = NONE;
+      } else {
+        stopButtonPressed = false;
+      }
+    }
     } else {
       // Button not pressed or released
       if (stopButtonPressed) {
@@ -290,17 +316,18 @@ void loop() {
         Serial.print("Menu: STOP released after ");
         Serial.print(pressDuration);
         Serial.println(" ms (too short)");
-        // If it was a quick press (< 500ms), trigger normal STOP action
-        // This allows quick STOP presses to still work normally
-        if (pressDuration < 500 && !isScanning && motorState == STOPPED) {
-          // Quick press - trigger normal stop action
-          stopMotor();
-        }
+        // Reset button state so pollButtons() can detect the release and handle it normally
+        stopButtonPressed = false;
+        // Reset prevButton so the button release can be detected by normal handler
+        prevButton = NONE;
+      } else {
+        stopButtonPressed = false;
       }
-      stopButtonPressed = false;
     }
   } else {
+    // Not idle - reset long-press state
     stopButtonPressed = false;
+    menuEnterPending = false;
   }
 
   if (updateMode || pairingMode || logsMode || awbMode) {
@@ -448,12 +475,17 @@ void loop() {
           // Only trigger normal STOP action if we're not actively timing a long-press
           // If stopButtonPressed is true, we're timing a long-press, so don't trigger normal action
           // The long-press handler will either enter menu (if held long enough) or do nothing
+          // Note: stopButtonPressed is reset when button is released, so normal STOP will work after release
           if (!stopButtonPressed) {
             if (isScanning) {
               stopScanning();
             } else {
               stopMotor();
             }
+          } else {
+            // We're timing a long-press, but user released before threshold
+            // The long-press handler will reset stopButtonPressed, so next press will work
+            Serial.println("STOP: ignoring (long-press timing)");
           }
           break;
         case ZOOM:
@@ -568,6 +600,10 @@ void handleMenuSystem() {
   if (menuState == MENU_MAIN) {
     // Main menu navigation
     if (currentButton != prevButton) {
+      Serial.print("Menu: button changed from ");
+      Serial.print(prevButton);
+      Serial.print(" to ");
+      Serial.println(currentButton);
       prevButton = currentButton;
       switch (currentButton) {
         case REV1:
