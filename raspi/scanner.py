@@ -2592,7 +2592,7 @@ def switch_lsyncd_config(storage_location: int) -> None:
                     user_and_host,
                     scan_destination,
                 )
-                while True:
+                while not shutting_down:
                     result = subprocess.run(
                         ["ping", "-c", "1", "-W", "1", host],
                         stdout=subprocess.DEVNULL,
@@ -2600,16 +2600,21 @@ def switch_lsyncd_config(storage_location: int) -> None:
                     )
                     logging.info("lsyncd: ping %s -> %s", host, result.returncode)
                     if result.returncode != 0:
-                        show_screen("cannot-connect-to-paired-mac")
+                        if not shutting_down:
+                            show_screen("cannot-connect-to-paired-mac")
                         sleep(1)
                         continue
                     if user_and_host and scan_destination:
                         if _can_write_remote_path(user_and_host, scan_destination):
                             break
-                        show_screen("target-dir-does-not-exist")
+                        if not shutting_down:
+                            show_screen("target-dir-does-not-exist")
                         sleep(1)
                         continue
                     break
+                if shutting_down:
+                    logging.info("lsyncd: aborting config switch due to shutdown")
+                    return
         _atomic_symlink(target_conf, LSYNCD_ACTIVE_CONF)
         logging.info(f"lsyncd: set active config -> {target_conf}")
         # Requires sudoers rule for pi to restart lsyncd without password.
