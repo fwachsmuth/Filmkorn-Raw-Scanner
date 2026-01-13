@@ -1213,11 +1213,22 @@ def _unpair_cancel(_args=None):
         show_ready_to_scan()
 
 def _show_menu_screen():
-    global current_screen, pending_overlay, idle_since, overlay_ready, menu_selected
+    global current_screen, pending_overlay, idle_since, overlay_ready, menu_selected, awb_stored_idx
+    # Ensure AWB setting is loaded (in case it changed)
+    awb_stored_idx = _load_awb_setting()
     lines = ["Settings Menu", "", ""]  # Extra empty line after title
     for i, item in enumerate(MENU_ITEMS):
         prefix = "> " if i == menu_selected else "  "
-        lines.append(prefix + item)
+        # Special handling for "Preview White Balance" to show current K value
+        if item == "Preview White Balance":
+            # Extract K value from AWB_OPTIONS (format: "~3600K" -> "3600 K")
+            awb_label = AWB_OPTIONS[awb_stored_idx][0]
+            # Remove "~" and "K", then add " K"
+            k_value = awb_label.replace("~", "").replace("K", "").strip()
+            display_item = f"Preview White Balance ({k_value} K)"
+        else:
+            display_item = item
+        lines.append(prefix + display_item)
     lines.append("")  # Empty line after menu items
     # With only 5 items, overlay building is fast - build synchronously
     overlay = _build_menu_overlay(lines)
