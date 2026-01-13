@@ -1994,6 +1994,9 @@ def _ramdisk_empty_poll_loop():
 
 def show_ready_to_scan():
     global ready_to_scan
+    # Don't show ready screen if we're in menu mode
+    if menu_mode:
+        return
     if storage_location == 1 and not os.path.ismount("/mnt/usb"):
         ready_to_scan = False
         show_screen("no-drive-connected")
@@ -2590,8 +2593,8 @@ def switch_lsyncd_config(storage_location: int) -> None:
             if shutting_down:
                 logging.info("lsyncd: aborting config switch due to shutdown")
                 return
-            # USB is now mounted, show ready screen
-            if storage_location == 1:
+            # USB is now mounted, show ready screen (only if not in menu mode)
+            if storage_location == 1 and not menu_mode:
                 show_screen("ready-to-scan-local")
         if target_conf == LSYNCD_CONF_NET:
             user_and_host = _read_user_and_host()
@@ -2632,8 +2635,8 @@ def switch_lsyncd_config(storage_location: int) -> None:
         # Requires sudoers rule for pi to restart lsyncd without password.
         # subprocess.run(["sudo", "systemctl", "daemon-reload"], check=False)
         subprocess.run(["sudo", "systemctl", "restart", "filmkorn-lsyncd.service"], check=False) # TODO: try reload instead
-        # Show the appropriate ready screen after config switch completes
-        if not shutting_down:
+        # Show the appropriate ready screen after config switch completes (only if not in menu mode)
+        if not shutting_down and not menu_mode:
             if storage_location == 1:
                 show_screen("ready-to-scan-local")
             elif storage_location == 0:
