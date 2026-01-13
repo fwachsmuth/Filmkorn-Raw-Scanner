@@ -1526,10 +1526,9 @@ def _exit_menu_mode():
         tell_arduino(Command.MENU_EXIT)
     except Exception as exc:
         logging.warning("menu: failed to notify controller to exit menu mode: %s", exc)
-    if last_status_screen:
-        show_screen(last_status_screen)
-    else:
-        show_ready_to_scan()
+    # Always show the current ready screen based on storage_location, not the cached last_status_screen
+    # This ensures the screen is correct after target changes
+    show_ready_to_scan()
 
 def _menu_prev():
     global menu_selected
