@@ -694,7 +694,8 @@ def _update_prev(_args=None):
         return
     update_selected = (update_selected - 1) % len(update_tags)
     logging.info("update: selected tag %s", update_tags[update_selected])
-    _show_update_selection()
+    # Build overlay in background thread to avoid blocking i2c polling
+    threading.Thread(target=_show_update_selection, daemon=True).start()
 
 def _update_next(_args=None):
     global update_selected, update_confirmation_mode, update_confirmation_selected
@@ -712,7 +713,8 @@ def _update_next(_args=None):
         return
     update_selected = (update_selected + 1) % len(update_tags)
     logging.info("update: selected tag %s", update_tags[update_selected])
-    _show_update_selection()
+    # Build overlay in background thread to avoid blocking i2c polling
+    threading.Thread(target=_show_update_selection, daemon=True).start()
 
 def _start_update(tag: str):
     global update_in_progress
@@ -832,24 +834,33 @@ def _get_current_awb_mode():
     return AWB_OPTIONS[idx][1]
 
 def _show_awb_selection():
-    global awb_selected
-    selected_label, _ = AWB_OPTIONS[awb_selected]
-    lines = [
-        "Preview White Balance",
-        "",
-        f"Selected: {selected_label}",
-        "",
-        "",
-        "Use \u23ea/\u23e9 to select.",
-    ]
+    global awb_selected, current_screen, pending_overlay, overlay_ready, overlay_cache, preview_started
+    # Show options in vertical list (like settings menu)
+    lines = ["Preview White Balance", "", ""]
+    for i, (label, _) in enumerate(AWB_OPTIONS):
+        prefix = "> " if i == awb_selected else "  "
+        lines.append(prefix + label)
+    lines.append("")
     stored_idx = _load_awb_setting()
     stored_label = AWB_OPTIONS[stored_idx][0]
     lines.append(f"Current: {stored_label}")
-    show_update_screen(
-        lines,
-        footer_left="\u23f9 Cancel",
-        footer_right="\u23fa Apply",
-    )
+    
+    overlay_key = f"awb:{awb_selected}"
+    overlay = overlay_cache.get(overlay_key)
+    if overlay is None:
+        overlay = _build_menu_overlay(lines)
+        overlay_cache[overlay_key] = overlay
+    current_screen = "awb"
+    pending_overlay = overlay
+    if not preview_started:
+        try:
+            camera_start()
+        except Exception as exc:
+            logging.error("AWB screen: failed to start preview: %s", exc)
+    overlay_ready = True
+    _apply_overlay_if_ready()
+    if pending_overlay is not None:
+        threading.Timer(0.2, _apply_overlay_if_ready).start()
 
 def _enter_awb_mode():
     global awb_mode, awb_selected
@@ -864,7 +875,8 @@ def _awb_prev(_args=None):
         return
     awb_selected = (awb_selected - 1) % len(AWB_OPTIONS)
     logging.info("awb: selected %s", AWB_OPTIONS[awb_selected][0])
-    _show_awb_selection()
+    # Build overlay in background thread to avoid blocking i2c polling
+    threading.Thread(target=_show_awb_selection, daemon=True).start()
 
 def _awb_next(_args=None):
     global awb_selected
@@ -872,7 +884,8 @@ def _awb_next(_args=None):
         return
     awb_selected = (awb_selected + 1) % len(AWB_OPTIONS)
     logging.info("awb: selected %s", AWB_OPTIONS[awb_selected][0])
-    _show_awb_selection()
+    # Build overlay in background thread to avoid blocking i2c polling
+    threading.Thread(target=_show_awb_selection, daemon=True).start()
 
 def _awb_confirm(_args=None):
     global awb_mode
