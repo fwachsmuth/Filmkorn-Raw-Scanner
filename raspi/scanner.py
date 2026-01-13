@@ -1415,6 +1415,25 @@ def _unpair_confirm(_args=None):
                 logging.error("unpair: script failed code=%s", result.returncode)
         except Exception as exc:
             logging.exception("unpair: failed to run script: %s", exc)
+    
+    # Delete all preference dotfiles
+    preference_files = [
+        AWB_FILE,           # .awb_mode
+        TARGET_FILE,        # .scan_target_mode
+        MCU_HEX_HASH_FILE,  # .mcu_hex_hash
+        ".user_and_host",
+        ".scan_destination",
+        ".host_path",
+    ]
+    for pref_file in preference_files:
+        file_path = pref_file if os.path.isabs(pref_file) else os.path.join(os.path.dirname(__file__), pref_file)
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+                logging.info("unpair: deleted preference file: %s", file_path)
+            except Exception as exc:
+                logging.warning("unpair: failed to delete %s: %s", file_path, exc)
+    
     show_screen("unpaired-from-client")
     time.sleep(5)
     # Go back to menu or ready screen
