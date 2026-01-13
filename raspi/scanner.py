@@ -110,6 +110,7 @@ logs_in_progress = False
 unpair_in_progress = False
 awb_mode = False
 awb_selected = 0
+awb_stored_idx = 2  # Cached stored AWB setting (default to Daylight)
 AWB_OPTIONS = [
     ("~3600K", controls.AwbModeEnum.Tungsten),
     ("~4500K", controls.AwbModeEnum.Fluorescent),
@@ -843,15 +844,15 @@ def _get_current_awb_mode():
     return AWB_OPTIONS[idx][1]
 
 def _show_awb_selection():
-    global awb_selected, current_screen, pending_overlay, overlay_ready, overlay_cache, preview_started
+    global awb_selected, current_screen, pending_overlay, overlay_ready, overlay_cache, preview_started, awb_stored_idx
     # Show options in vertical list (like settings menu)
     lines = ["Preview White Balance", "", ""]
     for i, (label, _) in enumerate(AWB_OPTIONS):
         prefix = "> " if i == awb_selected else "  "
         lines.append(prefix + label)
     lines.append("")
-    stored_idx = _load_awb_setting()
-    stored_label = AWB_OPTIONS[stored_idx][0]
+    # Use cached stored index instead of reading from file every time
+    stored_label = AWB_OPTIONS[awb_stored_idx][0]
     lines.append(f"Current: {stored_label}")
     
     overlay_key = f"awb:{awb_selected}"
@@ -883,10 +884,12 @@ def _show_awb_selection():
         threading.Timer(0.2, _apply_overlay_if_ready).start()
 
 def _enter_awb_mode():
-    global awb_mode, awb_selected
+    global awb_mode, awb_selected, awb_stored_idx
     logging.info("awb: entering AWB menu")
     awb_mode = True
-    awb_selected = _load_awb_setting()
+    # Load and cache the stored setting once when entering menu
+    awb_stored_idx = _load_awb_setting()
+    awb_selected = awb_stored_idx
     _show_awb_selection()
 
 def _awb_prev(_args=None):
@@ -906,11 +909,12 @@ def _awb_next(_args=None):
     _show_awb_selection()
 
 def _awb_confirm(_args=None):
-    global awb_mode
+    global awb_mode, awb_stored_idx
     if not awb_mode:
         return
     logging.info("awb: confirmed %s", AWB_OPTIONS[awb_selected][0])
     _save_awb_setting(awb_selected)
+    awb_stored_idx = awb_selected  # Update cached stored index
     awb_mode = False
     try:
         tell_arduino(Command.AWB_EXIT)
