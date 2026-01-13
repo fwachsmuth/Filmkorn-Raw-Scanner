@@ -101,6 +101,8 @@ update_selected = 0
 update_current_tag = None
 update_in_progress = False
 update_error = None
+update_confirmation_mode = False
+update_confirmation_selected = 0  # 0 = No, 1 = Yes
 pairing_mode = False
 pairing_exit_pending = False
 logs_mode = False
@@ -565,6 +567,31 @@ def _get_current_tag() -> Optional[str]:
     return result.stdout.strip() or None
 
 def _show_update_selection():
+    global current_screen, pending_overlay, overlay_ready, update_confirmation_mode, update_confirmation_selected, overlay_cache, preview_started
+    if update_confirmation_mode:
+        # Show confirmation submenu
+        lines = ["Are you sure?", "", ""]
+        lines.append("> No" if update_confirmation_selected == 0 else "  No")
+        lines.append("> Yes" if update_confirmation_selected == 1 else "  Yes")
+        lines.append("")
+        overlay_key = f"update_confirm:{update_confirmation_selected}"
+        overlay = overlay_cache.get(overlay_key)
+        if overlay is None:
+            overlay = _build_menu_overlay(lines)
+            overlay_cache[overlay_key] = overlay
+        current_screen = "update_confirm"
+        pending_overlay = overlay
+        if not preview_started:
+            try:
+                camera_start()
+            except Exception as exc:
+                logging.error("Update confirm screen: failed to start preview: %s", exc)
+        overlay_ready = True
+        _apply_overlay_if_ready()
+        if pending_overlay is not None:
+            threading.Timer(0.2, _apply_overlay_if_ready).start()
+        return
+    
     if update_error:
         logging.error("update: error=%s", update_error)
         show_update_screen(["Update error", update_error, "Check connection"])
@@ -573,55 +600,96 @@ def _show_update_selection():
         logging.info("update: no installable tags")
         show_update_screen(["No update available", "No tags found"])
         return
-    selected = update_tags[update_selected]
-    version_label = "New Version" if update_selected == len(update_tags) - 1 else "Older Version"
-    lines = [
-        "Update available",
-        "",
-        f"{version_label}: {selected}",
-        "",
-        "",
-        "Use \u23ea/\u23e9 to select other versions.",
-    ]
+    
+    # Show tags in vertical list (like settings menu)
+    lines = ["Firmware Update", "", ""]
+    for i, tag in enumerate(update_tags):
+        prefix = "> " if i == update_selected else "  "
+        lines.append(prefix + tag)
+    lines.append("")
     if update_current_tag:
         lines.append(f"Current: {update_current_tag}")
-    show_update_screen(
-        lines,
-        footer_left="\u23f9 Cancel",
-        footer_right="\u23fa Install",
-    )
+    
+    overlay_key = f"update:{update_selected}"
+    overlay = overlay_cache.get(overlay_key)
+    if overlay is None:
+        overlay = _build_menu_overlay(lines)
+        overlay_cache[overlay_key] = overlay
+    current_screen = "update"
+    pending_overlay = overlay
+    if not preview_started:
+        try:
+            camera_start()
+        except Exception as exc:
+            logging.error("Update screen: failed to start preview: %s", exc)
+    overlay_ready = True
+    _apply_overlay_if_ready()
+    if pending_overlay is not None:
+        threading.Timer(0.2, _apply_overlay_if_ready).start()
 
 def _enter_update_mode():
-    global update_mode, update_tags, update_selected, update_current_tag, update_error
+    global update_mode, update_tags, update_selected, update_current_tag, update_error, update_confirmation_mode
     logging.info("update: entering update mode")
     update_mode = True
     update_error = None
+    update_confirmation_mode = False
+    
+    # Show menu immediately with cached tags (if any) for instant feedback
     try:
-        if not _fetch_tags():
-            update_error = "Fetch failed"
-            update_tags = []
-            update_selected = 0
-            update_current_tag = None
-            _show_update_selection()
-            return
-        update_tags = _list_tags()
+        update_tags = _list_tags()  # Get cached tags first
         update_current_tag = _get_current_tag()
         if update_tags:
             update_selected = len(update_tags) - 1
         else:
             update_selected = 0
-        _show_update_selection()
+        _show_update_selection()  # Show menu immediately
     except Exception as exc:
-        logging.exception("update: enter failed: %s", exc)
-        update_error = "Unexpected error"
+        logging.exception("update: failed to show cached tags: %s", exc)
         update_tags = []
         update_selected = 0
         update_current_tag = None
         _show_update_selection()
+    
+    # Then fetch tags in background and update menu when done
+    def _fetch_and_update():
+        global update_tags, update_selected, update_current_tag, update_error
+        try:
+            if not _fetch_tags():
+                update_error = "Fetch failed"
+                update_tags = []
+                update_selected = 0
+                update_current_tag = None
+            else:
+                update_tags = _list_tags()
+                update_current_tag = _get_current_tag()
+                if update_tags:
+                    update_selected = len(update_tags) - 1
+                else:
+                    update_selected = 0
+            _show_update_selection()
+        except Exception as exc:
+            logging.exception("update: fetch failed: %s", exc)
+            update_error = "Unexpected error"
+            update_tags = []
+            update_selected = 0
+            update_current_tag = None
+            _show_update_selection()
+    
+    # Start fetch in background thread
+    threading.Thread(target=_fetch_and_update, daemon=True).start()
 
 def _update_prev(_args=None):
-    global update_selected
-    if not update_mode or not update_tags:
+    global update_selected, update_confirmation_mode, update_confirmation_selected
+    if not update_mode:
+        _show_update_selection()
+        return
+    if update_confirmation_mode:
+        # Navigate confirmation menu
+        update_confirmation_selected = (update_confirmation_selected - 1) % 2
+        logging.info("update: confirmation selected %s", "No" if update_confirmation_selected == 0 else "Yes")
+        _show_update_selection()
+        return
+    if not update_tags:
         _show_update_selection()
         return
     update_selected = (update_selected - 1) % len(update_tags)
@@ -629,8 +697,17 @@ def _update_prev(_args=None):
     _show_update_selection()
 
 def _update_next(_args=None):
-    global update_selected
-    if not update_mode or not update_tags:
+    global update_selected, update_confirmation_mode, update_confirmation_selected
+    if not update_mode:
+        _show_update_selection()
+        return
+    if update_confirmation_mode:
+        # Navigate confirmation menu
+        update_confirmation_selected = (update_confirmation_selected + 1) % 2
+        logging.info("update: confirmation selected %s", "No" if update_confirmation_selected == 0 else "Yes")
+        _show_update_selection()
+        return
+    if not update_tags:
         _show_update_selection()
         return
     update_selected = (update_selected + 1) % len(update_tags)
@@ -678,21 +755,44 @@ def _confirm_update_after_delay(tag: str):
     threading.Timer(5.0, _start).start()
 
 def _update_confirm(_args=None):
+    global update_confirmation_mode, update_confirmation_selected
     if not update_mode:
+        return
+    if update_confirmation_mode:
+        # In confirmation menu - handle Yes/No selection
+        if update_confirmation_selected == 1:  # Yes selected
+            selected = update_tags[update_selected]
+            logging.info("update: confirmed tag %s", selected)
+            update_confirmation_mode = False
+            _confirm_update_after_delay(selected)
+        else:  # No selected - go back to tag selection
+            logging.info("update: confirmation cancelled")
+            update_confirmation_mode = False
+            _show_update_selection()
         return
     if not update_tags:
         _show_update_selection()
         return
+    # Show confirmation menu
     selected = update_tags[update_selected]
-    logging.info("update: confirm selected tag %s", selected)
-    _confirm_update_after_delay(selected)
+    logging.info("update: show confirmation for tag %s", selected)
+    update_confirmation_mode = True
+    update_confirmation_selected = 0  # Default to "No"
+    _show_update_selection()
 
 def _update_cancel(_args=None):
-    global update_mode, menu_mode
+    global update_mode, menu_mode, update_confirmation_mode
     if not update_mode:
+        return
+    if update_confirmation_mode:
+        # Cancel confirmation - go back to tag selection
+        logging.info("update: confirmation cancelled")
+        update_confirmation_mode = False
+        _show_update_selection()
         return
     logging.info("update: canceled by user")
     update_mode = False
+    update_confirmation_mode = False
     # If we came from menu, show menu (will be cleared if MENU_EXIT follows)
     # If Arduino exits menu completely (STOP pressed), it will send CMD_MENU_EXIT
     # next, which will call _exit_menu_mode() to clear menu_mode and hide menu
