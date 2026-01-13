@@ -716,6 +716,40 @@ void handleMenuSystem() {
             break;
         }
       }
+    } else if (targetMode) {
+      if (currentButton != prevButton) {
+        prevButton = currentButton;
+        switch (currentButton) {
+          case RUNREV:
+            // Go back to main menu
+            menuState = MENU_MAIN;
+            targetMode = false;
+            nextPiCmd = CMD_TARGET_CANCEL;
+            Serial.println("Target: back to menu");
+            break;
+          case REV1:
+            nextPiCmd = CMD_TARGET_PREV;
+            Serial.println("Target: prev");
+            break;
+          case FWD1:
+            nextPiCmd = CMD_TARGET_NEXT;
+            Serial.println("Target: next");
+            break;
+          case RUNFWD:
+            nextPiCmd = CMD_TARGET_CONFIRM;
+            Serial.println("Target: confirm");
+            break;
+          case STOP:
+            // Exit menu completely
+            menuState = MENU_IDLE;
+            targetMode = false;
+            nextPiCmd = CMD_TARGET_CANCEL;
+            Serial.println("Target: exit menu");
+            break;
+          default:
+            break;
+        }
+      }
     } else if (logsMode) {
       currentButton = pollButtons();
       if (currentButton != prevButton) {
