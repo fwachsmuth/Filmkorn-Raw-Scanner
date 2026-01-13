@@ -2586,8 +2586,14 @@ def switch_lsyncd_config(storage_location: int) -> None:
         if target_conf == LSYNCD_CONF_LOCAL and not os.path.ismount("/mnt/usb"):
             if current_screen != "no-drive-connected":
                 show_screen("no-drive-connected")
-            while not os.path.ismount("/mnt/usb"):
+            while not os.path.ismount("/mnt/usb") and not shutting_down:
                 sleep(1)
+            if shutting_down:
+                logging.info("lsyncd: aborting config switch due to shutdown")
+                return
+            # USB is now mounted, show ready screen
+            if storage_location == 1:
+                show_screen("ready-to-scan-local")
         if target_conf == LSYNCD_CONF_NET:
             user_and_host = _read_user_and_host()
             host = user_and_host.split("@", 1)[-1] if user_and_host else None
@@ -2627,11 +2633,11 @@ def switch_lsyncd_config(storage_location: int) -> None:
         # Requires sudoers rule for pi to restart lsyncd without password.
         # subprocess.run(["sudo", "systemctl", "daemon-reload"], check=False)
         subprocess.run(["sudo", "systemctl", "restart", "filmkorn-lsyncd.service"], check=False) # TODO: try reload instead
-        # Show the appropriate ready screen after config switch
-        if not shutting_down and target_conf == LSYNCD_CONF_NET:
-            # For network target, show ready screen even if connectivity check is ongoing
-            # The error screens will be shown by the loop above if needed
-            if storage_location == 0:
+        # Show the appropriate ready screen after config switch completes
+        if not shutting_down:
+            if storage_location == 1:
+                show_screen("ready-to-scan-local")
+            elif storage_location == 0:
                 show_screen("ready-to-scan-net")
     except Exception as e:
         logging.exception(f"lsyncd: failed to switch config to {target_conf}: {e}")
