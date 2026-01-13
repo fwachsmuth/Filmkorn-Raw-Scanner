@@ -793,6 +793,8 @@ def _update_cancel(_args=None):
     logging.info("update: canceled by user")
     update_mode = False
     update_confirmation_mode = False
+    # Clear update screen first
+    clear_overlay()
     # If we came from menu, show menu (will be cleared if MENU_EXIT follows)
     # If Arduino exits menu completely (STOP pressed), it will send CMD_MENU_EXIT
     # next, which will call _exit_menu_mode() to clear menu_mode and hide menu

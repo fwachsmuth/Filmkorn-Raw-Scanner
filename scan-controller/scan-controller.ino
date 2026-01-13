@@ -657,12 +657,15 @@ void handleMenuSystem() {
             break;
           case REV1:
             nextPiCmd = CMD_UPDATE_PREV;
+            Serial.println("Update: prev");
             break;
           case FWD1:
             nextPiCmd = CMD_UPDATE_NEXT;
+            Serial.println("Update: next");
             break;
           case RUNFWD:
             nextPiCmd = CMD_UPDATE_CONFIRM;
+            Serial.println("Update: confirm");
             break;
           case STOP:
             // Exit menu completely
