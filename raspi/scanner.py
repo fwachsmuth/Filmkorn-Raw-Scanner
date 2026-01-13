@@ -122,10 +122,21 @@ AWB_OPTIONS = [
 AWB_FILE = os.path.join(os.path.dirname(__file__), ".awb_mode")
 menu_mode = False
 menu_selected = 0
+# Scan target selection
+target_mode = False
+target_selected = 0
+target_stored_idx = 2  # Default to GPIO5 (auto mode)
+TARGET_OPTIONS = [
+    ("USB-Drive", 1),      # storage_location = 1
+    ("Host Computer", 0),  # storage_location = 0
+    ("GPIO5", 2),          # storage_location = read from GPIO5
+]
+TARGET_FILE = os.path.join(os.path.dirname(__file__), ".scan_target_mode")
 MENU_ITEMS = [
     "Firmware Update",
     "Start Pairing",
     "Preview White Balance",
+    "Select Scan Target",
     "Create Debug Log",
     "Factory Reset",
 ]
@@ -198,17 +209,23 @@ class Command(enum.Enum):
     AWB_NEXT = 32
     AWB_CONFIRM = 33
     AWB_CANCEL = 34
-    MENU_ENTER = 35
-    MENU_EXIT = 36
-    MENU_PREV = 37
-    MENU_NEXT = 38
-    MENU_SELECT = 39
+    TARGET_ENTER = 35
+    TARGET_PREV = 36
+    TARGET_NEXT = 37
+    TARGET_CONFIRM = 38
+    TARGET_CANCEL = 39
+    MENU_ENTER = 40
+    MENU_EXIT = 41
+    MENU_PREV = 42
+    MENU_NEXT = 43
+    MENU_SELECT = 44
 
     # Raspi to Arduino. Ths is handled by i2cReceive() on the Controller side.
     READY = 128
     TELL_INITVALUES = 129 # asks for film load state and exposure pot value (both only get send when they change)
     TELL_LOADSTATE = 130
     AWB_EXIT = 131
+    TARGET_EXIT = 132
 
 def process_is_running(contents: str) -> bool:
     try:
@@ -1007,6 +1024,133 @@ def _awb_cancel(_args=None):
 
 # --- End AWB Menu ---
 
+# --- Scan Target Menu ---
+
+def _load_target_setting() -> int:
+    """Load the stored scan target mode index from file. Returns 2 (GPIO5) as default."""
+    if os.path.exists(TARGET_FILE):
+        try:
+            with open(TARGET_FILE, "r") as f:
+                idx = int(f.read().strip())
+                if 0 <= idx < len(TARGET_OPTIONS):
+                    return idx
+        except (ValueError, IOError):
+            pass
+    return 2  # Default to GPIO5 (auto mode)
+
+def _save_target_setting(idx: int):
+    try:
+        with open(TARGET_FILE, "w") as f:
+            f.write(str(idx))
+        logging.info("target: saved setting %d (%s)", idx, TARGET_OPTIONS[idx][0])
+    except IOError as e:
+        logging.error("target: failed to save setting: %s", e)
+
+def _show_target_selection():
+    global target_selected, current_screen, pending_overlay, overlay_ready, preview_started, target_stored_idx
+    # Show options in vertical list (like settings menu)
+    lines = ["Select Scan Target", "", ""]
+    for i, (label, _) in enumerate(TARGET_OPTIONS):
+        prefix = "> " if i == target_selected else "  "
+        lines.append(prefix + label)
+    lines.append("")
+    # Use cached stored index instead of reading from file every time
+    stored_label = TARGET_OPTIONS[target_stored_idx][0]
+    lines.append(f"Current: {stored_label}")
+    
+    # With only 3 options, overlay building is fast - build fresh each time
+    # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
+    button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    current_screen = "target"
+    pending_overlay = overlay
+    if not preview_started:
+        logging.info("Target selection: starting preview for overlay")
+        try:
+            camera_start()
+        except Exception as exc:
+            logging.error("Target selection: failed to start preview: %s", exc)
+    overlay_ready = True
+    _apply_overlay_if_ready()
+    if pending_overlay is not None:
+        threading.Timer(0.2, _apply_overlay_if_ready).start()
+
+def _enter_target_mode():
+    global target_mode, target_selected, target_stored_idx
+    logging.info("target: entering target selection menu")
+    target_mode = True
+    # Load and cache the stored setting once when entering menu
+    target_stored_idx = _load_target_setting()
+    target_selected = target_stored_idx
+    _show_target_selection()
+
+def _target_prev(_args=None):
+    global target_selected
+    if not target_mode:
+        return
+    target_selected = (target_selected - 1) % len(TARGET_OPTIONS)
+    logging.info("target: selected %s", TARGET_OPTIONS[target_selected][0])
+    _show_target_selection()
+
+def _target_next(_args=None):
+    global target_selected
+    if not target_mode:
+        return
+    target_selected = (target_selected + 1) % len(TARGET_OPTIONS)
+    logging.info("target: selected %s", TARGET_OPTIONS[target_selected][0])
+    _show_target_selection()
+
+def _target_confirm(_args=None):
+    global target_mode, target_stored_idx, menu_mode, storage_location
+    if not target_mode:
+        return
+    logging.info("target: confirmed %s", TARGET_OPTIONS[target_selected][0])
+    _save_target_setting(target_selected)
+    target_stored_idx = target_selected  # Update cached stored index
+    target_mode = False
+    try:
+        tell_arduino(Command.TARGET_EXIT)
+    except Exception as exc:
+        logging.warning("target: failed to notify controller to exit target mode: %s", exc)
+    
+    # Apply the new target setting
+    target_value = TARGET_OPTIONS[target_selected][1]
+    if target_value == 2:
+        # GPIO5 mode - read from GPIO
+        storage_location = GPIO.input(5)
+        logging.info("target: switched to GPIO5 mode, current GPIO5 state: %d", storage_location)
+    else:
+        # Manual mode - set storage_location directly
+        storage_location = target_value
+        logging.info("target: switched to manual mode, storage_location: %d", storage_location)
+    
+    # Update lsyncd config
+    switch_lsyncd_config(storage_location)
+    
+    # If we came from menu, go back to menu; otherwise show ready screen
+    if menu_mode:
+        _show_menu_screen()
+    else:
+        show_ready_to_scan()
+
+def _target_cancel(_args=None):
+    global target_mode, menu_mode
+    if not target_mode:
+        return
+    logging.info("target: canceled by user")
+    target_mode = False
+    try:
+        tell_arduino(Command.TARGET_EXIT)
+    except Exception as exc:
+        logging.warning("target: failed to notify controller to exit target mode: %s", exc)
+    # If we came from menu, go back to menu; otherwise show ready screen
+    if menu_mode:
+        _show_menu_screen()
+    else:
+        show_ready_to_scan()
+
+# --- End Scan Target Menu ---
+
 def _run_otp_scheduler() -> bool:
     candidates = [
         "/usr/local/sbin/filmkorn-otp-schedule.sh",
@@ -1301,9 +1445,10 @@ def _unpair_cancel(_args=None):
         show_ready_to_scan()
 
 def _show_menu_screen():
-    global current_screen, pending_overlay, idle_since, overlay_ready, menu_selected, awb_stored_idx
+    global current_screen, pending_overlay, idle_since, overlay_ready, menu_selected, awb_stored_idx, target_stored_idx
     # Ensure AWB setting is loaded (in case it changed)
     awb_stored_idx = _load_awb_setting()
+    target_stored_idx = _load_target_setting()
     lines = ["Settings Menu", "", ""]  # Extra empty line after title
     for i, item in enumerate(MENU_ITEMS):
         prefix = "> " if i == menu_selected else "  "
@@ -1314,6 +1459,10 @@ def _show_menu_screen():
             # Remove "~" and "K", then add " K"
             k_value = awb_label.replace("~", "").replace("K", "").strip()
             display_item = f"Preview White Balance ({k_value} K)"
+        elif item == "Select Scan Target":
+            # Show current target
+            target_label = TARGET_OPTIONS[target_stored_idx][0]
+            display_item = f"Select Scan Target ({target_label})"
         else:
             display_item = item
         lines.append(prefix + display_item)
@@ -1609,6 +1758,8 @@ def _exit_sleep_mode():
         threading.Timer(0.5, _show_update_selection).start()
     elif awb_mode:
         threading.Timer(0.5, _show_awb_selection).start()
+    elif target_mode:
+        threading.Timer(0.5, _show_target_selection).start()
     elif unpair_mode:
         threading.Timer(0.5, _show_unpair_confirmation).start()
     else:
@@ -1744,22 +1895,25 @@ def _ready_screen_poll_loop():
                 continue
             if storage_location == 1 and not os.path.ismount("/mnt/usb"):
                 _ensure_usb_mount()
-            new_storage_location = GPIO.input(5)
-            if new_storage_location != storage_location:
-                storage_location = new_storage_location
-                logging.info(
-                    f"GPIO 5 changed while ready (1=HDD/local, 0=Net/remote): {storage_location}"
-                )
-                if storage_location == 1 and not os.path.ismount("/mnt/usb"):
-                    if not shutting_down:
-                        if current_screen != "no-drive-connected":
-                            show_screen("no-drive-connected")
-                else:
-                    switch_lsyncd_config(storage_location)
-                    if not shutting_down:
-                        show_ready_to_scan()
-                sleep(1)
-                continue
+            # Check GPIO 5 for target switch state change (only if in GPIO5 mode)
+            target_setting = _load_target_setting()
+            if target_setting == 2:  # GPIO5 mode
+                new_storage_location = GPIO.input(5)
+                if new_storage_location != storage_location:
+                    storage_location = new_storage_location
+                    logging.info(
+                        f"GPIO 5 changed while ready (1=HDD/local, 0=Net/remote): {storage_location}"
+                    )
+                    if storage_location == 1 and not os.path.ismount("/mnt/usb"):
+                        if not shutting_down:
+                            if current_screen != "no-drive-connected":
+                                show_screen("no-drive-connected")
+                    else:
+                        switch_lsyncd_config(storage_location)
+                        if not shutting_down:
+                            show_ready_to_scan()
+                    sleep(1)
+                    continue
             if (
                 storage_location == 1
                 and current_screen == "no-drive-connected"
@@ -2680,8 +2834,19 @@ def setup():
     #   1 => HDD / local USB
     #   0 => Net / remote
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    storage_location = GPIO.input(5)
-    logging.info(f"GPIO 5 state (1=HDD/local, 0=Net/remote): {storage_location}")
+    
+    # Load the target setting and initialize storage_location accordingly
+    target_stored_idx = _load_target_setting()
+    target_value = TARGET_OPTIONS[target_stored_idx][1]
+    if target_value == 2:
+        # GPIO5 mode - read from GPIO
+        storage_location = GPIO.input(5)
+        logging.info(f"GPIO 5 state (1=HDD/local, 0=Net/remote): {storage_location}")
+    else:
+        # Manual mode - use stored value
+        storage_location = target_value
+        logging.info(f"Manual target mode: storage_location={storage_location} (ignoring GPIO5)")
+    
     if storage_location == 1:
         _ensure_usb_mount()
 
@@ -2857,6 +3022,19 @@ def loop():
                 Command.AWB_NEXT: _awb_next,
                 Command.AWB_CONFIRM: _awb_confirm,
                 Command.AWB_CANCEL: _awb_cancel,
+            }.get(command, None)
+            if func is not None:
+                func(received[1:])
+            return
+        if command == Command.TARGET_ENTER:
+            _enter_target_mode()
+            return
+        if target_mode:
+            func = {
+                Command.TARGET_PREV: _target_prev,
+                Command.TARGET_NEXT: _target_next,
+                Command.TARGET_CONFIRM: _target_confirm,
+                Command.TARGET_CANCEL: _target_cancel,
             }.get(command, None)
             if func is not None:
                 func(received[1:])

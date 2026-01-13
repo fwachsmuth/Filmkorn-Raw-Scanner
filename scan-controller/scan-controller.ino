@@ -83,22 +83,28 @@ enum Command
   CMD_UNPAIR_NEXT,
   CMD_UNPAIR_CONFIRM,
   CMD_UNPAIR_CANCEL,
-  CMD_AWB_ENTER,
-  CMD_AWB_PREV,
-  CMD_AWB_NEXT,
-  CMD_AWB_CONFIRM,
-  CMD_AWB_CANCEL,
-  CMD_MENU_ENTER,
-  CMD_MENU_EXIT,
-  CMD_MENU_PREV,
-  CMD_MENU_NEXT,
-  CMD_MENU_SELECT,
+  CMD_AWB_ENTER = 30,
+  CMD_AWB_PREV = 31,
+  CMD_AWB_NEXT = 32,
+  CMD_AWB_CONFIRM = 33,
+  CMD_AWB_CANCEL = 34,
+  CMD_TARGET_ENTER = 35,
+  CMD_TARGET_PREV = 36,
+  CMD_TARGET_NEXT = 37,
+  CMD_TARGET_CONFIRM = 38,
+  CMD_TARGET_CANCEL = 39,
+  CMD_MENU_ENTER = 40,
+  CMD_MENU_EXIT = 41,
+  CMD_MENU_PREV = 42,
+  CMD_MENU_NEXT = 43,
+  CMD_MENU_SELECT = 44,
 
   // Raspi to Arduino
   CMD_READY = 128,
-  CMD_TELL_INITVALUES, // send film load state and exposure pot value (both only get send when they change)
-  CMD_TELL_LOADSTATE,
-  CMD_AWB_EXIT
+  CMD_TELL_INITVALUES = 129, // send film load state and exposure pot value (both only get send when they change)
+  CMD_TELL_LOADSTATE = 130,
+  CMD_AWB_EXIT = 131,
+  CMD_TARGET_EXIT = 132
 };
 
 enum ZoomMode {
@@ -113,6 +119,7 @@ enum MenuState {
   MENU_UPDATE,    // Firmware update submenu
   MENU_PAIRING,   // Pairing submenu
   MENU_AWB,       // White balance submenu
+  MENU_TARGET,    // Scan target submenu
   MENU_LOGS,      // Debug log submenu
   MENU_UNPAIR     // Factory reset submenu
 };
@@ -121,9 +128,10 @@ enum MenuItem {
   MENU_ITEM_UPDATE = 0,
   MENU_ITEM_PAIRING = 1,
   MENU_ITEM_AWB = 2,
-  MENU_ITEM_LOGS = 3,
-  MENU_ITEM_UNPAIR = 4,
-  MENU_ITEM_COUNT = 5
+  MENU_ITEM_TARGET = 3,
+  MENU_ITEM_LOGS = 4,
+  MENU_ITEM_UNPAIR = 5,
+  MENU_ITEM_COUNT = 6
 };
 
 
@@ -153,6 +161,7 @@ bool updateMode = false;
 bool pairingMode = false;
 bool logsMode = false;
 bool awbMode = false;
+bool targetMode = false;
 uint32_t pairingModeEnteredAt = 0;
 bool pairingCancelPending = false;
 uint32_t pairingCancelSentAt = 0;
@@ -587,6 +596,11 @@ void handleMenuSystem() {
               awbMode = true;
               nextPiCmd = CMD_AWB_ENTER;
               break;
+            case MENU_ITEM_TARGET:
+              menuState = MENU_TARGET;
+              targetMode = true;
+              nextPiCmd = CMD_TARGET_ENTER;
+              break;
             case MENU_ITEM_LOGS:
               menuState = MENU_LOGS;
               logsMode = true;
@@ -923,6 +937,12 @@ void i2cReceive(int howMany) {
       nextPiCmd = CMD_NONE;
       Serial.println("AWB menu: exit");
     }
+    if ((Command)i2cCommand == CMD_TARGET_EXIT) {
+      targetMode = false;
+      menuState = MENU_MAIN;
+      nextPiCmd = CMD_NONE;
+      Serial.println("Target menu: exit");
+    }
     if ((Command)i2cCommand == CMD_MENU_EXIT) {
       // If we're in a submenu, go back to main menu; otherwise exit completely
       if (menuState != MENU_IDLE && menuState != MENU_MAIN) {
@@ -931,6 +951,7 @@ void i2cReceive(int howMany) {
         updateMode = false;
         pairingMode = false;
         awbMode = false;
+        targetMode = false;
         logsMode = false;
         nextPiCmd = CMD_NONE;
         Serial.println("Menu: back to main (from Pi)");
