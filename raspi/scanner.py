@@ -821,6 +821,14 @@ def _start_update(tag: str):
     global update_in_progress
     update_in_progress = True
     logging.info("update: starting update to %s", tag)
+    # Delete MCU hex hash file so MCU firmware will be verified/flashed on next boot
+    # This ensures the MCU firmware matches the updated code
+    if os.path.exists(MCU_HEX_HASH_FILE):
+        try:
+            os.remove(MCU_HEX_HASH_FILE)
+            logging.info("update: deleted .mcu_hex_hash to force MCU firmware check on next boot")
+        except Exception as exc:
+            logging.warning("update: failed to delete .mcu_hex_hash: %s", exc)
     show_update_screen([f"Updating {tag}", "Please wait"])
     update_script = os.path.join(os.path.dirname(__file__), "ota-updating", "update.sh")
     try:
