@@ -885,7 +885,7 @@ def _awb_next(_args=None):
     _show_awb_selection()
 
 def _awb_confirm(_args=None):
-    global awb_mode, awb_stored_idx
+    global awb_mode, awb_stored_idx, menu_mode
     if not awb_mode:
         return
     logging.info("awb: confirmed %s", AWB_OPTIONS[awb_selected][0])
@@ -897,7 +897,11 @@ def _awb_confirm(_args=None):
     except Exception as exc:
         logging.warning("awb: failed to notify controller to exit AWB mode: %s", exc)
     _apply_camera_controls()
-    show_ready_to_scan()
+    # If we came from menu, go back to menu; otherwise show ready screen
+    if menu_mode:
+        _show_menu_screen()
+    else:
+        show_ready_to_scan()
 
 def _awb_cancel(_args=None):
     global awb_mode, menu_mode
