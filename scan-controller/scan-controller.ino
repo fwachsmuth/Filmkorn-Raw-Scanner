@@ -608,8 +608,8 @@ void handleMenuSystem() {
     }
   } else {
     // Handle submenu modes (update, pairing, awb, logs, unpair)
+    // Note: currentButton already set at start of handleMenuSystem() - don't call pollButtons() again!
     if (updateMode) {
-      currentButton = pollButtons();
       if (currentButton != prevButton) {
         prevButton = currentButton;
         switch (currentButton) {
@@ -648,7 +648,7 @@ void handleMenuSystem() {
     } else if (pairingMode) {
       dummyread = analogRead(BUTTONS_B_PIN);
       int pairingButtonsB = analogRead(BUTTONS_B_PIN);
-      currentButton = pollButtons();
+      // Note: currentButton already set at start of handleMenuSystem() - don't call pollButtons() again!
       if (pairingButtonsB > 990 || currentButton == STOP) {
         Serial.println("Pairing mode: stop pressed");
         menuState = MENU_MAIN;
@@ -668,7 +668,6 @@ void handleMenuSystem() {
         nextPiCmd = CMD_NONE;
       }
     } else if (awbMode) {
-      currentButton = pollButtons();
       if (currentButton != prevButton) {
         prevButton = currentButton;
         switch (currentButton) {
