@@ -2940,6 +2940,13 @@ def setup():
     sleep(1) # wait a bit here to avoid i2c IO Errors
     arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
 
+    # Reset Arduino menu state in case it was stuck in a menu from before restart
+    try:
+        tell_arduino(Command.MENU_EXIT)
+        logging.info("Reset Arduino menu state on startup")
+    except Exception as exc:
+        logging.warning("Failed to reset Arduino menu state: %s", exc)
+
     user_and_host = _read_user_and_host()
     host_path = _read_host_path()
     if not user_and_host or not host_path:
