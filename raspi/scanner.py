@@ -1124,14 +1124,21 @@ def _target_confirm(_args=None):
         storage_location = target_value
         logging.info("target: switched to manual mode, storage_location: %d", storage_location)
     
-    # Update lsyncd config
+    # Update lsyncd config (this may block if connection fails, but will respect shutting_down)
     switch_lsyncd_config(storage_location)
     
     # If we came from menu, go back to menu; otherwise show ready screen
+    # Note: show_ready_to_scan() will use the updated storage_location to show the correct screen
     if menu_mode:
         _show_menu_screen()
     else:
-        show_ready_to_scan()
+        # Explicitly show the correct ready screen based on storage_location
+        if storage_location == 1:
+            show_screen("ready-to-scan-local")
+        elif storage_location == 0:
+            show_screen("ready-to-scan-net")
+        else:
+            show_ready_to_scan()
 
 def _target_cancel(_args=None):
     global target_mode, menu_mode
@@ -2620,6 +2627,12 @@ def switch_lsyncd_config(storage_location: int) -> None:
         # Requires sudoers rule for pi to restart lsyncd without password.
         # subprocess.run(["sudo", "systemctl", "daemon-reload"], check=False)
         subprocess.run(["sudo", "systemctl", "restart", "filmkorn-lsyncd.service"], check=False) # TODO: try reload instead
+        # Show the appropriate ready screen after config switch
+        if not shutting_down and target_conf == LSYNCD_CONF_NET:
+            # For network target, show ready screen even if connectivity check is ongoing
+            # The error screens will be shown by the loop above if needed
+            if storage_location == 0:
+                show_screen("ready-to-scan-net")
     except Exception as e:
         logging.exception(f"lsyncd: failed to switch config to {target_conf}: {e}")
 
