@@ -108,6 +108,9 @@ pairing_exit_pending = False
 logs_mode = False
 logs_in_progress = False
 unpair_in_progress = False
+unpair_mode = False
+unpair_confirmation_mode = False
+unpair_confirmation_selected = 0  # 0 = No, 1 = Yes
 awb_mode = False
 awb_selected = 0
 awb_stored_idx = 2  # Cached stored AWB setting (default to Daylight)
@@ -186,16 +189,20 @@ class Command(enum.Enum):
     LOGS_ENTER = 23
     LOGS_EXIT = 24
     UNPAIR_ENTER = 25
-    AWB_ENTER = 26
-    AWB_PREV = 27
-    AWB_NEXT = 28
-    AWB_CONFIRM = 29
-    AWB_CANCEL = 30
-    MENU_ENTER = 31
-    MENU_EXIT = 32
-    MENU_PREV = 33
-    MENU_NEXT = 34
-    MENU_SELECT = 35
+    UNPAIR_PREV = 26
+    UNPAIR_NEXT = 27
+    UNPAIR_CONFIRM = 28
+    UNPAIR_CANCEL = 29
+    AWB_ENTER = 30
+    AWB_PREV = 31
+    AWB_NEXT = 32
+    AWB_CONFIRM = 33
+    AWB_CANCEL = 34
+    MENU_ENTER = 35
+    MENU_EXIT = 36
+    MENU_PREV = 37
+    MENU_NEXT = 38
+    MENU_SELECT = 39
 
     # Raspi to Arduino. Ths is handled by i2cReceive() on the Controller side.
     READY = 128
@@ -568,7 +575,7 @@ def _get_current_tag() -> Optional[str]:
     return result.stdout.strip() or None
 
 def _show_update_selection():
-    global current_screen, pending_overlay, overlay_ready, update_confirmation_mode, update_confirmation_selected, overlay_cache, preview_started
+    global current_screen, pending_overlay, overlay_ready, update_confirmation_mode, update_confirmation_selected, preview_started
     if update_confirmation_mode:
         # Show confirmation submenu
         lines = ["Are you sure?", "", ""]
@@ -827,7 +834,7 @@ def _get_current_awb_mode():
     return AWB_OPTIONS[idx][1]
 
 def _show_awb_selection():
-    global awb_selected, current_screen, pending_overlay, overlay_ready, overlay_cache, preview_started, awb_stored_idx
+    global awb_selected, current_screen, pending_overlay, overlay_ready, preview_started, awb_stored_idx
     # Show options in vertical list (like settings menu)
     lines = ["Preview White Balance", "", ""]
     for i, (label, _) in enumerate(AWB_OPTIONS):
@@ -1097,19 +1104,63 @@ def _enter_logs_mode():
             show_ready_to_scan()
 
 def _enter_unpair_mode():
-    global unpair_in_progress, last_status_screen
-    if unpair_in_progress:
+    global unpair_mode, unpair_confirmation_mode, unpair_confirmation_selected
+    logging.info("unpair: entering unpair confirmation mode")
+    unpair_mode = True
+    unpair_confirmation_mode = True
+    unpair_confirmation_selected = 0  # Default to "No"
+    _show_unpair_confirmation()
+
+def _show_unpair_confirmation():
+    global current_screen, pending_overlay, overlay_ready, preview_started
+    lines = ["Factory Reset?", "", ""]
+    lines.append("> No" if unpair_confirmation_selected == 0 else "  No")
+    lines.append("> Yes" if unpair_confirmation_selected == 1 else "  Yes")
+    lines.append("")
+    lines.append("This will unpair from client")
+    overlay = _build_menu_overlay(lines)
+    current_screen = "unpair_confirm"
+    pending_overlay = overlay
+    if not preview_started:
+        try:
+            camera_start()
+        except Exception as exc:
+            logging.error("Unpair confirm screen: failed to start preview: %s", exc)
+    overlay_ready = True
+    _apply_overlay_if_ready()
+    if pending_overlay is not None:
+        threading.Timer(0.2, _apply_overlay_if_ready).start()
+
+def _unpair_prev(_args=None):
+    global unpair_confirmation_selected
+    if not unpair_mode:
         return
-    if update_mode or pairing_mode or logs_mode or logs_in_progress:
-        logging.warning(
-            "unpair: skipped due to active mode update=%s pairing=%s logs=%s",
-            update_mode,
-            pairing_mode,
-            logs_mode,
-        )
+    unpair_confirmation_selected = (unpair_confirmation_selected - 1) % 2
+    logging.info("unpair: selected %s", "No" if unpair_confirmation_selected == 0 else "Yes")
+    _show_unpair_confirmation()
+
+def _unpair_next(_args=None):
+    global unpair_confirmation_selected
+    if not unpair_mode:
         return
+    unpair_confirmation_selected = (unpair_confirmation_selected + 1) % 2
+    logging.info("unpair: selected %s", "No" if unpair_confirmation_selected == 0 else "Yes")
+    _show_unpair_confirmation()
+
+def _unpair_confirm(_args=None):
+    global unpair_mode, unpair_confirmation_mode, unpair_in_progress
+    if not unpair_mode:
+        return
+    if unpair_confirmation_selected == 0:
+        # User selected "No" - go back to menu
+        logging.info("unpair: user selected No, returning to menu")
+        _unpair_cancel()
+        return
+    # User selected "Yes" - proceed with unpair
+    logging.info("unpair: user confirmed, proceeding with factory reset")
+    unpair_mode = False
+    unpair_confirmation_mode = False
     unpair_in_progress = True
-    logging.info("unpair: entering unpair mode")
     unpair_script = os.path.join(os.path.dirname(__file__), "pairing", "unpair-from-client.sh")
     if not os.path.exists(unpair_script):
         logging.error("unpair: script not found at %s", unpair_script)
@@ -1130,7 +1181,7 @@ def _enter_unpair_mode():
             logging.exception("unpair: failed to run script: %s", exc)
     show_screen("unpaired-from-client")
     time.sleep(5)
-    # If we came from menu, go back to menu; otherwise show ready screen
+    # Go back to menu or ready screen
     if menu_mode:
         _show_menu_screen()
     elif last_status_screen:
@@ -1138,6 +1189,18 @@ def _enter_unpair_mode():
     else:
         show_ready_to_scan()
     unpair_in_progress = False
+
+def _unpair_cancel(_args=None):
+    global unpair_mode, unpair_confirmation_mode
+    logging.info("unpair: canceled by user")
+    unpair_mode = False
+    unpair_confirmation_mode = False
+    clear_overlay()
+    # Return to menu if we came from there
+    if menu_mode:
+        _show_menu_screen()
+    else:
+        show_ready_to_scan()
 
 def _show_menu_screen():
     global current_screen, pending_overlay, idle_since, overlay_ready, menu_selected
@@ -1427,14 +1490,25 @@ def _exit_sleep_mode():
     overlay_ready = True
     overlay_retry_count = 0
     overlay_retry_timer = None
-    screen_to_show = current_screen
-    if screen_to_show in {"too-much-power", "no-usb3-drive"}:
-        screen_to_show = last_status_screen
-    if screen_to_show or last_status_screen:
-        screen_to_show = screen_to_show or last_status_screen
-        threading.Timer(0.5, show_screen, args=(screen_to_show,)).start()
+    # Restore appropriate screen after wake
+    if menu_mode:
+        # If we were in the menu, restore the menu screen
+        threading.Timer(0.5, _show_menu_screen).start()
+    elif update_mode:
+        threading.Timer(0.5, _show_update_selection).start()
+    elif awb_mode:
+        threading.Timer(0.5, _show_awb_selection).start()
+    elif unpair_mode:
+        threading.Timer(0.5, _show_unpair_confirmation).start()
     else:
-        threading.Timer(0.5, show_ready_to_scan).start()
+        screen_to_show = current_screen
+        if screen_to_show in {"too-much-power", "no-usb3-drive"}:
+            screen_to_show = last_status_screen
+        if screen_to_show or last_status_screen:
+            screen_to_show = screen_to_show or last_status_screen
+            threading.Timer(0.5, show_screen, args=(screen_to_show,)).start()
+        else:
+            threading.Timer(0.5, show_ready_to_scan).start()
     threading.Timer(1.0, _post_wake_checks).start()
     sleep_mode = False
     power_warning_active = False
@@ -2635,6 +2709,18 @@ def loop():
             return
         if command == Command.UNPAIR_ENTER:
             _enter_unpair_mode()
+            return
+        if unpair_mode:
+            if command == Command.UNPAIR_CANCEL:
+                _unpair_cancel(received[1:])
+                return
+            func = {
+                Command.UNPAIR_PREV: _unpair_prev,
+                Command.UNPAIR_NEXT: _unpair_next,
+                Command.UNPAIR_CONFIRM: _unpair_confirm,
+            }.get(command, None)
+            if func is not None:
+                func(received[1:])
             return
         if command == Command.UPDATE_ENTER:
             _enter_update_mode()

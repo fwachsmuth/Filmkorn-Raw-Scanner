@@ -79,6 +79,10 @@ enum Command
   CMD_LOGS_ENTER,
   CMD_LOGS_EXIT,
   CMD_UNPAIR_ENTER,
+  CMD_UNPAIR_PREV,
+  CMD_UNPAIR_NEXT,
+  CMD_UNPAIR_CONFIRM,
+  CMD_UNPAIR_CANCEL,
   CMD_AWB_ENTER,
   CMD_AWB_PREV,
   CMD_AWB_NEXT,
@@ -711,14 +715,36 @@ void handleMenuSystem() {
         }
       }
     } else if (menuState == MENU_UNPAIR) {
-      currentButton = pollButtons();
+      // Note: currentButton already set at start of handleMenuSystem() - don't call pollButtons() again!
       if (currentButton != prevButton) {
         prevButton = currentButton;
-        if (currentButton == RUNREV || currentButton == STOP) {
-          // Go back to main menu or exit
-          menuState = MENU_MAIN;
-          nextPiCmd = CMD_NONE;
-          Serial.println("Unpair: back to menu");
+        switch (currentButton) {
+          case REV1:
+            nextPiCmd = CMD_UNPAIR_PREV;
+            Serial.println("Unpair: prev");
+            break;
+          case FWD1:
+            nextPiCmd = CMD_UNPAIR_NEXT;
+            Serial.println("Unpair: next");
+            break;
+          case RUNFWD:
+            nextPiCmd = CMD_UNPAIR_CONFIRM;
+            Serial.println("Unpair: confirm");
+            break;
+          case RUNREV:
+            // Go back to main menu
+            menuState = MENU_MAIN;
+            nextPiCmd = CMD_UNPAIR_CANCEL;
+            Serial.println("Unpair: back to menu");
+            break;
+          case STOP:
+            // Exit menu completely
+            menuState = MENU_IDLE;
+            nextPiCmd = CMD_UNPAIR_CANCEL;
+            Serial.println("Unpair: exit menu");
+            break;
+          default:
+            break;
         }
       }
     }
