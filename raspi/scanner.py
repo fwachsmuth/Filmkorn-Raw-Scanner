@@ -571,12 +571,12 @@ def _build_menu_overlay(lines, button_labels=None):
     rgba[..., 3] = 255
     return rgba
 
-def show_update_screen(lines, footer_left=None, footer_right=None):
+def show_update_screen(lines, footer_left=None, footer_right=None, button_labels=None):
     global current_screen, pending_overlay, idle_since, overlay_ready
-    overlay_key = "update:" + "|".join(lines) + f"|{footer_left}|{footer_right}"
+    overlay_key = "update:" + "|".join(lines) + f"|{footer_left}|{footer_right}|{button_labels}"
     overlay = overlay_cache.get(overlay_key)
     if overlay is None:
-        overlay = _build_update_overlay(lines, footer_left=footer_left, footer_right=footer_right)
+        overlay = _build_update_overlay(lines, footer_left=footer_left, footer_right=footer_right, button_labels=button_labels)
         overlay_cache[overlay_key] = overlay
     current_screen = "update"
     idle_since = None
