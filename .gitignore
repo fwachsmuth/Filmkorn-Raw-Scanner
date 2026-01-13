@@ -61,3 +61,5 @@ host-computer/.scanner_installed
 images/
 *.img
 *.img.gz
+raspi/.awb_mode
+raspi/.mcu_hex_hash
