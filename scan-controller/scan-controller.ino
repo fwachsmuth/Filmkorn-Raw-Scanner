@@ -195,41 +195,6 @@ void setup() {
   lastFilmEndState = filmEndState;
 
   bootIgnoreUntil = millis() + 800;
-  dummyread = analogRead(BUTTONS_A_PIN);
-  int bootButtonsA = analogRead(BUTTONS_A_PIN);
-  dummyread = analogRead(BUTTONS_B_PIN);
-  int bootButtonsB = analogRead(BUTTONS_B_PIN);
-  Serial.print("Boot A0 ADC: ");
-  Serial.println(bootButtonsA);
-  Serial.print("Boot A1 ADC: ");
-  Serial.println(bootButtonsB);
-  bool bootStop = bootButtonsB > 900;
-  bool bootRunRevRunFwd = (bootButtonsA > 120 && bootButtonsA < 160) && (bootButtonsB > 120 && bootButtonsB < 160);
-  bool bootScan = (bootButtonsB > 30 && bootButtonsB < 70);
-  bool bootZoom = (bootButtonsA > 290 && bootButtonsA < 330);
-  bool bootLight = bootButtonsA > 990;
-  bool bootRunRev = (bootButtonsA > 120 && bootButtonsA < 160) && (bootButtonsB < 2);
-  if (bootScan) {
-    pairingMode = true;
-    pairingModeEnteredAt = millis();
-    nextPiCmd = CMD_PAIRING_ENTER;
-    Serial.println("Pairing mode: enter");
-  } else if (bootZoom) {
-    logsMode = true;
-    nextPiCmd = CMD_LOGS_ENTER;
-    Serial.println("Log dump: enter");
-  } else if (bootLight) {
-    awbMode = true;
-    nextPiCmd = CMD_AWB_ENTER;
-    Serial.println("AWB menu: enter");
-  } else if (bootRunRev) {
-    nextPiCmd = CMD_UNPAIR_ENTER;
-    Serial.println("Unpair: enter");
-  } else if (bootStop || bootRunRevRunFwd) {
-    updateMode = true;
-    nextPiCmd = CMD_UPDATE_ENTER;
-    Serial.println("Update mode: enter");
-  }
 
   // Stop the engines
   analogWrite(MOTOR_A_PIN, 0);

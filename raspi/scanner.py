@@ -575,11 +575,8 @@ def _show_update_selection():
         lines.append("> No" if update_confirmation_selected == 0 else "  No")
         lines.append("> Yes" if update_confirmation_selected == 1 else "  Yes")
         lines.append("")
-        overlay_key = f"update_confirm:{update_confirmation_selected}"
-        overlay = overlay_cache.get(overlay_key)
-        if overlay is None:
-            overlay = _build_menu_overlay(lines)
-            overlay_cache[overlay_key] = overlay
+        # Build fresh - only 2 options, very fast
+        overlay = _build_menu_overlay(lines)
         current_screen = "update_confirm"
         pending_overlay = overlay
         if not preview_started:
@@ -611,22 +608,8 @@ def _show_update_selection():
     if update_current_tag:
         lines.append(f"Current: {update_current_tag}")
     
-    overlay_key = f"update:{update_selected}"
-    overlay = overlay_cache.get(overlay_key)
-    if overlay is None:
-        # Build overlay in background to avoid blocking i2c polling
-        def _build_and_apply():
-            global pending_overlay, overlay_cache, overlay_ready
-            built_overlay = _build_menu_overlay(lines)
-            if built_overlay is not None:
-                overlay_cache[overlay_key] = built_overlay
-                pending_overlay = built_overlay
-                overlay_ready = True
-                _apply_overlay_if_ready()
-        threading.Thread(target=_build_and_apply, daemon=True).start()
-        # Use previous overlay as placeholder while building (shows previous selection briefly)
-        overlay = overlay_cache.get(f"update:{update_selected - 1}") or overlay_cache.get(f"update:{update_selected + 1}")
-        # If absolutely no overlay exists, we'll show nothing briefly until background build completes
+    # With only ~8 tags, overlay building is fast - build fresh each time
+    overlay = _build_menu_overlay(lines)
     current_screen = "update"
     pending_overlay = overlay
     if not preview_started:
@@ -855,22 +838,8 @@ def _show_awb_selection():
     stored_label = AWB_OPTIONS[awb_stored_idx][0]
     lines.append(f"Current: {stored_label}")
     
-    overlay_key = f"awb:{awb_selected}"
-    overlay = overlay_cache.get(overlay_key)
-    if overlay is None:
-        # Build overlay in background to avoid blocking i2c polling
-        def _build_and_apply():
-            global pending_overlay, overlay_cache, overlay_ready
-            built_overlay = _build_menu_overlay(lines)
-            if built_overlay is not None:
-                overlay_cache[overlay_key] = built_overlay
-                pending_overlay = built_overlay
-                overlay_ready = True
-                _apply_overlay_if_ready()
-        threading.Thread(target=_build_and_apply, daemon=True).start()
-        # Use previous overlay as placeholder while building (shows previous selection briefly)
-        overlay = overlay_cache.get(f"awb:{awb_selected - 1}") or overlay_cache.get(f"awb:{awb_selected + 1}")
-        # If absolutely no overlay exists, we'll show nothing briefly until background build completes
+    # With only 3 options, overlay building is fast - build fresh each time
+    overlay = _build_menu_overlay(lines)
     current_screen = "awb"
     pending_overlay = overlay
     if not preview_started:
@@ -1177,11 +1146,8 @@ def _show_menu_screen():
         prefix = "> " if i == menu_selected else "  "
         lines.append(prefix + item)
     lines.append("")  # Empty line after menu items
-    overlay_key = "menu:" + str(menu_selected)
-    overlay = overlay_cache.get(overlay_key)
-    if overlay is None:
-        overlay = _build_menu_overlay(lines)
-        overlay_cache[overlay_key] = overlay
+    # With only 5 items, overlay building is fast - build synchronously
+    overlay = _build_menu_overlay(lines)
     current_screen = "menu"
     idle_since = None
     pending_overlay = overlay
