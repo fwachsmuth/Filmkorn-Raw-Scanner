@@ -924,9 +924,21 @@ void i2cReceive(int howMany) {
       Serial.println("AWB menu: exit");
     }
     if ((Command)i2cCommand == CMD_MENU_EXIT) {
-      menuState = MENU_IDLE;
-      nextPiCmd = CMD_NONE;
-      Serial.println("Menu: exit (from Pi)");
+      // If we're in a submenu, go back to main menu; otherwise exit completely
+      if (menuState != MENU_IDLE && menuState != MENU_MAIN) {
+        menuState = MENU_MAIN;
+        // Clear submenu modes
+        updateMode = false;
+        pairingMode = false;
+        awbMode = false;
+        logsMode = false;
+        nextPiCmd = CMD_NONE;
+        Serial.println("Menu: back to main (from Pi)");
+      } else {
+        menuState = MENU_IDLE;
+        nextPiCmd = CMD_NONE;
+        Serial.println("Menu: exit (from Pi)");
+      }
     }
     // Don't set piIsReady if we aren't scanning anymore
     if ((Command)i2cCommand == CMD_READY && isScanning) {
@@ -974,6 +986,10 @@ void i2cRequest() {
     // If we just canceled update and menu is now IDLE, send MENU_EXIT next
     // so Python knows to exit menu mode
     nextPiCmd = CMD_MENU_EXIT;
+  } else if (cmdToSend == CMD_UNPAIR_CANCEL && menuState == MENU_MAIN) {
+    // If we just canceled unpair and menu is back to MAIN, clear the command
+    // so Python can continue navigating the main menu
+    nextPiCmd = CMD_NONE;
   } else {
     nextPiCmd = CMD_NONE;
   }

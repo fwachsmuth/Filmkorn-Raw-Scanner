@@ -1197,7 +1197,13 @@ def _unpair_cancel(_args=None):
     unpair_confirmation_mode = False
     clear_overlay()
     # Return to menu if we came from there
+    # Note: Arduino should have already changed state to MENU_MAIN when it sent CMD_UNPAIR_CANCEL
+    # But if we're canceling from Python (e.g., user selected "No"), tell Arduino to go back
     if menu_mode:
+        try:
+            tell_arduino(Command.MENU_EXIT)  # This will be handled as menu back, not full exit
+        except Exception as exc:
+            logging.warning("unpair: failed to notify controller: %s", exc)
         _show_menu_screen()
     else:
         show_ready_to_scan()
