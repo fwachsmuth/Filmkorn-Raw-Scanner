@@ -347,7 +347,7 @@ def show_screen(message):
     if message == "no-drive-connected" and not ready_screen_polling:
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
-def _build_update_overlay(lines, footer_left=None, footer_right=None):
+def _build_update_overlay(lines, footer_left=None, footer_right=None, button_labels=None):
     if preview_size is None:
         return None
     base = Image.new("RGBA", preview_size, (0, 0, 0, 255))
@@ -386,17 +386,33 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None):
             else:
                 x += draw.textsize(ch, font=font)[0]
 
+    # Calculate button label area height if labels are provided
+    button_area_height = 0
+    if button_labels:
+        try:
+            label_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
+        except OSError:
+            label_font = ImageFont.load_default()
+        if hasattr(draw, "textbbox"):
+            bbox = draw.textbbox((0, 0), "Test", font=label_font)
+            button_area_height = (bbox[3] - bbox[1]) + 20  # Add padding
+        else:
+            button_area_height = draw.textsize("Test", font=label_font)[1] + 20
+    
     metrics = []
     for line in lines:
         line_w, line_h = _measure_mixed(line)
         metrics.append((line, line_w, line_h))
     spacing = 10
     total_height = sum(h for _, _, h in metrics) + spacing * (len(metrics) - 1)
-    y = max(0, (preview_size[1] - total_height) // 2)
+    # Adjust vertical centering to account for button labels
+    available_height = preview_size[1] - button_area_height
+    y = max(0, (available_height - total_height) // 2)
     for line, w, h in metrics:
         x = max(0, (preview_size[0] - w) // 2)
         _draw_mixed(line, x, y)
         y += h + spacing
+    
     if footer_left or footer_right:
         margin = 16
         footer_h = 0
@@ -414,12 +430,37 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None):
             footer_right_w, _ = _measure_mixed(footer_right)
             footer_right_x = max(0, preview_size[0] - footer_right_w)
             _draw_mixed(footer_right, footer_right_x, footer_y)
+    
+    # Draw button labels at the bottom
+    if button_labels:
+        try:
+            label_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
+        except OSError:
+            label_font = ImageFont.load_default()
+        slot_width = preview_size[0] / 6
+        label_y = preview_size[1] - button_area_height + 10
+        for slot in range(1, 7):  # Slots 1-6
+            if slot in button_labels:
+                label_text = button_labels[slot]
+                # Center the label in its slot
+                if hasattr(draw, "textbbox"):
+                    bbox = draw.textbbox((0, 0), label_text, font=label_font)
+                    label_w = bbox[2] - bbox[0]
+                else:
+                    label_w = draw.textsize(label_text, font=label_font)[0]
+                label_x = (slot - 1) * slot_width + (slot_width - label_w) / 2
+                draw.text((label_x, label_y), label_text, font=label_font, fill=(255, 255, 255, 255))
+    
     rgba = np.array(base, dtype=np.uint8)
     rgba[..., 3] = 255
     return rgba
 
-def _build_menu_overlay(lines):
-    """Build a left-aligned menu overlay (similar to _build_update_overlay but left-aligned)"""
+def _build_menu_overlay(lines, button_labels=None):
+    """Build a left-aligned menu overlay with optional button labels at the bottom.
+    
+    button_labels: dict with keys 2-6 (slot numbers) mapping to label text.
+                   For example: {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+    """
     if preview_size is None:
         return None
     base = Image.new("RGBA", preview_size, (0, 0, 0, 255))
@@ -432,6 +473,10 @@ def _build_menu_overlay(lines):
         text_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28)
     except OSError:
         text_font = ImageFont.load_default()
+    try:
+        label_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
+    except OSError:
+        label_font = ImageFont.load_default()
     symbol_chars = {"\u23ea", "\u23e9", "\u23fa", "\u23f9"}
 
     def _measure_mixed(text: str):
@@ -458,18 +503,47 @@ def _build_menu_overlay(lines):
             else:
                 x += draw.textsize(ch, font=font)[0]
 
+    # Calculate button label area height if labels are provided
+    button_area_height = 0
+    if button_labels:
+        # Measure label height
+        if hasattr(draw, "textbbox"):
+            bbox = draw.textbbox((0, 0), "Test", font=label_font)
+            button_area_height = (bbox[3] - bbox[1]) + 20  # Add padding
+        else:
+            button_area_height = draw.textsize("Test", font=label_font)[1] + 20
+
     metrics = []
     for line in lines:
         line_w, line_h = _measure_mixed(line)
         metrics.append((line, line_w, line_h))
     spacing = 10
     total_height = sum(h for _, _, h in metrics) + spacing * (len(metrics) - 1)
-    y = max(0, (preview_size[1] - total_height) // 2)
+    # Adjust vertical centering to account for button labels
+    available_height = preview_size[1] - button_area_height
+    y = max(0, (available_height - total_height) // 2)
     left_margin = 20  # Left margin for menu alignment
     for line, w, h in metrics:
         x = left_margin  # Left-align instead of center
         _draw_mixed(line, x, y)
         y += h + spacing
+    
+    # Draw button labels at the bottom
+    if button_labels:
+        slot_width = preview_size[0] / 6
+        label_y = preview_size[1] - button_area_height + 10
+        for slot in range(1, 7):  # Slots 1-6
+            if slot in button_labels:
+                label_text = button_labels[slot]
+                # Center the label in its slot
+                if hasattr(draw, "textbbox"):
+                    bbox = draw.textbbox((0, 0), label_text, font=label_font)
+                    label_w = bbox[2] - bbox[0]
+                else:
+                    label_w = draw.textsize(label_text, font=label_font)[0]
+                label_x = (slot - 1) * slot_width + (slot_width - label_w) / 2
+                draw.text((label_x, label_y), label_text, font=label_font, fill=(255, 255, 255, 255))
+    
     rgba = np.array(base, dtype=np.uint8)
     rgba[..., 3] = 255
     return rgba
@@ -583,7 +657,9 @@ def _show_update_selection():
         lines.append("> Yes" if update_confirmation_selected == 1 else "  Yes")
         lines.append("")
         # Build fresh - only 2 options, very fast
-        overlay = _build_menu_overlay(lines)
+        # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
+        button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+        overlay = _build_menu_overlay(lines, button_labels=button_labels)
         current_screen = "update_confirm"
         pending_overlay = overlay
         if not preview_started:
@@ -616,7 +692,9 @@ def _show_update_selection():
         lines.append(f"Current: {update_current_tag}")
     
     # With only ~8 tags, overlay building is fast - build fresh each time
-    overlay = _build_menu_overlay(lines)
+    # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
+    button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+    overlay = _build_menu_overlay(lines, button_labels=button_labels)
     current_screen = "update"
     pending_overlay = overlay
     if not preview_started:
@@ -846,7 +924,9 @@ def _show_awb_selection():
     lines.append(f"Current: {stored_label}")
     
     # With only 3 options, overlay building is fast - build fresh each time
-    overlay = _build_menu_overlay(lines)
+    # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
+    button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+    overlay = _build_menu_overlay(lines, button_labels=button_labels)
     current_screen = "awb"
     pending_overlay = overlay
     if not preview_started:
@@ -1056,10 +1136,10 @@ def _enter_pairing_mode():
     code = f"{secrets.randbelow(1000000):06d}"
     expires_at = int(time.time()) + 120
     if not _enable_pairing_password(code, expires_at):
-        show_update_screen(["Pairing failed", "Could not enable SSH"])
+        show_update_screen(["Pairing failed", "Could not enable SSH"], button_labels={2: "Back"})
         return
     logging.info("pairing: otp code generated")
-    show_update_screen(["Pairing code", code, "This password expires in 2 minutes"])
+    show_update_screen(["Pairing code", code, "This password expires in 2 minutes"], button_labels={2: "Back"})
     threading.Timer(120.0, _exit_pairing_mode_screen).start()
 
 def _export_logs() -> str:
@@ -1122,7 +1202,9 @@ def _show_unpair_confirmation():
     lines.append("> Yes" if unpair_confirmation_selected == 1 else "  Yes")
     lines.append("")
     lines.append("This will unpair from client")
-    overlay = _build_menu_overlay(lines)
+    # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
+    button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+    overlay = _build_menu_overlay(lines, button_labels=button_labels)
     current_screen = "unpair_confirm"
     pending_overlay = overlay
     if not preview_started:
@@ -1231,7 +1313,9 @@ def _show_menu_screen():
         lines.append(prefix + display_item)
     lines.append("")  # Empty line after menu items
     # With only 5 items, overlay building is fast - build synchronously
-    overlay = _build_menu_overlay(lines)
+    # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
+    button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+    overlay = _build_menu_overlay(lines, button_labels=button_labels)
     current_screen = "menu"
     idle_since = None
     pending_overlay = overlay
