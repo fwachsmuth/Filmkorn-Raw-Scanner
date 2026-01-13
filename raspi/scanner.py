@@ -437,7 +437,10 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None, button_lab
             label_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
         except OSError:
             label_font = ImageFont.load_default()
-        slot_width = preview_size[0] / 6
+        # Make slots 10% smaller and center them
+        slot_width = (preview_size[0] / 6) * 0.9
+        total_width = slot_width * 6
+        start_x = (preview_size[0] - total_width) / 2
         label_y = preview_size[1] - button_area_height + 10
         for slot in range(1, 7):  # Slots 1-6
             if slot in button_labels:
@@ -448,7 +451,7 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None, button_lab
                     label_w = bbox[2] - bbox[0]
                 else:
                     label_w = draw.textsize(label_text, font=label_font)[0]
-                label_x = (slot - 1) * slot_width + (slot_width - label_w) / 2
+                label_x = start_x + (slot - 1) * slot_width + (slot_width - label_w) / 2
                 draw.text((label_x, label_y), label_text, font=label_font, fill=(255, 255, 255, 255))
     
     rgba = np.array(base, dtype=np.uint8)
@@ -530,7 +533,10 @@ def _build_menu_overlay(lines, button_labels=None):
     
     # Draw button labels at the bottom
     if button_labels:
-        slot_width = preview_size[0] / 6
+        # Make slots 10% smaller and center them
+        slot_width = (preview_size[0] / 6) * 0.9
+        total_width = slot_width * 6
+        start_x = (preview_size[0] - total_width) / 2
         label_y = preview_size[1] - button_area_height + 10
         for slot in range(1, 7):  # Slots 1-6
             if slot in button_labels:
@@ -541,7 +547,7 @@ def _build_menu_overlay(lines, button_labels=None):
                     label_w = bbox[2] - bbox[0]
                 else:
                     label_w = draw.textsize(label_text, font=label_font)[0]
-                label_x = (slot - 1) * slot_width + (slot_width - label_w) / 2
+                label_x = start_x + (slot - 1) * slot_width + (slot_width - label_w) / 2
                 draw.text((label_x, label_y), label_text, font=label_font, fill=(255, 255, 255, 255))
     
     rgba = np.array(base, dtype=np.uint8)
