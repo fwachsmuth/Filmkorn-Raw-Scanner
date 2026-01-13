@@ -437,8 +437,8 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None, button_lab
             label_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
         except OSError:
             label_font = ImageFont.load_default()
-        # Make slots 10% smaller and center them
-        slot_width = (preview_size[0] / 6) * 0.9
+        # Make slots 15% smaller and center them
+        slot_width = (preview_size[0] / 6) * 0.85
         total_width = slot_width * 6
         start_x = (preview_size[0] - total_width) / 2
         label_y = preview_size[1] - button_area_height + 10
@@ -533,8 +533,8 @@ def _build_menu_overlay(lines, button_labels=None):
     
     # Draw button labels at the bottom
     if button_labels:
-        # Make slots 10% smaller and center them
-        slot_width = (preview_size[0] / 6) * 0.9
+        # Make slots 15% smaller and center them
+        slot_width = (preview_size[0] / 6) * 0.85
         total_width = slot_width * 6
         start_x = (preview_size[0] - total_width) / 2
         label_y = preview_size[1] - button_area_height + 10
