@@ -1784,14 +1784,7 @@ def _stamp_logo(base_img: Image.Image) -> Image.Image:
     
     try:
         logo = Image.open(logo_path).convert("RGBA")
-        # Scale logo to a reasonable size (e.g., 10% of screen height, maintaining aspect ratio)
-        max_logo_height = int(preview_size[1] * 0.1) if preview_size else 100
-        if logo.size[1] > max_logo_height:
-            scale = max_logo_height / logo.size[1]
-            new_size = (int(logo.size[0] * scale), int(logo.size[1] * scale))
-            logo = logo.resize(new_size, Image.LANCZOS)
-        
-        # Position at top center (no margin)
+        # Use logo at 100% original size, positioned at top center (no margin)
         x = (base_img.size[0] - logo.size[0]) // 2  # Center horizontally
         y = 0  # At the very top
         position = (x, y)
