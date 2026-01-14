@@ -105,8 +105,7 @@ enum Command
   CMD_TELL_LOADSTATE = 130,
   CMD_AWB_EXIT = 131,
   CMD_TARGET_EXIT = 132,
-  CMD_TARGET_REENTER = 133,  // Re-enter target mode (used when returning from validation error)
-  CMD_MENU_ENTER_FROM_PI = 134  // Python tells Arduino to enter main menu
+  CMD_TARGET_REENTER = 133  // Re-enter target mode (used when returning from validation error)
 };
 
 enum ZoomMode {
@@ -981,28 +980,23 @@ void i2cReceive(int howMany) {
       Serial.println("Target menu: exit");
     }
     if ((Command)i2cCommand == CMD_TARGET_REENTER) {
-      targetMode = true;
-      // Ensure we're in a menu state (not IDLE) before entering target mode
+      // Python is telling us to enter target mode (e.g., due to network failure)
+      // This can be called from MENU_IDLE, so we need to enter menu mode first
       if (menuState == MENU_IDLE) {
         menuState = MENU_MAIN;
+        Serial.println("Target: entering menu mode first");
       }
+      targetMode = true;
       menuState = MENU_TARGET;
       nextPiCmd = CMD_NONE;
-      // Poll buttons immediately to sync state and prevent stale button presses
+      // Poll buttons immediately to sync state - this prevents any button that was
+      // pressed before entering menu mode from triggering actions
       currentButton = pollButtons();
-      prevButton = currentButton;  // Set prevButton to current to prevent immediate trigger
-      Serial.println("Target menu: re-enter");
-    }
-    if ((Command)i2cCommand == CMD_MENU_ENTER_FROM_PI) {
-      // Python is telling us to enter menu mode (e.g., due to network failure)
-      if (menuState == MENU_IDLE) {
-        menuState = MENU_MAIN;
-        nextPiCmd = CMD_NONE;
-        // Poll buttons immediately to sync state and prevent stale button presses
-        currentButton = pollButtons();
-        prevButton = currentButton;  // Set prevButton to current to prevent immediate trigger
-        Serial.println("Menu: enter (from Pi)");
-      }
+      prevButton = currentButton;
+      Serial.print("Target menu: re-enter (from Pi), menuState=");
+      Serial.print(menuState);
+      Serial.print(", targetMode=");
+      Serial.println(targetMode);
     }
     if ((Command)i2cCommand == CMD_MENU_EXIT) {
       // If we're in a submenu, go back to main menu; otherwise exit completely

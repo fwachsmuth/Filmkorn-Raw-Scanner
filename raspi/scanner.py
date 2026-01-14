@@ -230,7 +230,6 @@ class Command(enum.Enum):
     AWB_EXIT = 131
     TARGET_EXIT = 132
     TARGET_REENTER = 133  # Re-enter target mode (used when returning from validation error)
-    MENU_ENTER_FROM_PI = 134  # Python tells Arduino to enter main menu
 
 def process_is_running(contents: str) -> bool:
     try:
@@ -2798,28 +2797,14 @@ def switch_lsyncd_config(storage_location_param: int) -> None:
                         target_validation_error = True
                         target_validation_failures = failures
                         target_mode = True
-                        # Enter menu mode if not already in it
-                        if not menu_mode:
-                            menu_mode = True
-                            # First tell Arduino to enter main menu
-                            try:
-                                tell_arduino(Command.MENU_ENTER_FROM_PI)
-                                sleep(0.1)  # Give Arduino time to process
-                            except Exception as exc:
-                                logging.warning("lsyncd: failed to enter menu mode: %s", exc)
-                            # Then enter target mode
-                            try:
-                                tell_arduino(Command.TARGET_REENTER)
-                                sleep(0.1)  # Give Arduino time to process
-                            except Exception as exc:
-                                logging.warning("lsyncd: failed to enter target mode: %s", exc)
-                        else:
-                            # Already in menu mode, just re-enter target mode
-                            try:
-                                tell_arduino(Command.TARGET_REENTER)
-                                sleep(0.1)  # Give Arduino time to process
-                            except Exception as exc:
-                                logging.warning("lsyncd: failed to re-enter target mode: %s", exc)
+                        menu_mode = True  # We're entering menu mode
+                        # Tell Arduino to enter target mode (it will handle entering menu mode if needed)
+                        # This must complete before showing the menu, otherwise buttons won't work
+                        try:
+                            tell_arduino(Command.TARGET_REENTER)
+                            logging.info("lsyncd: sent TARGET_REENTER to Arduino, menu should be active now")
+                        except Exception as exc:
+                            logging.error("lsyncd: failed to enter target mode: %s", exc)
                         _show_target_validation_error()
                         return  # Don't proceed with lsyncd config
                     else:
