@@ -1188,7 +1188,7 @@ def _show_target_validation_error():
     """Show error screen with specific failed tests."""
     global current_screen, pending_overlay, overlay_ready, preview_started, target_validation_failures
     
-    lines = ["Host Validation Failed", ""]
+    lines = ["Could not write to Host", ""]
     
     if "config" in target_validation_failures:
         lines.append("No host configured")
