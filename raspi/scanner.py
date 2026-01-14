@@ -1095,19 +1095,29 @@ def _enter_target_mode():
     _show_target_selection()
 
 def _target_prev(_args=None):
-    global target_selected
+    global target_selected, target_validation_error, target_mode
     if not target_mode:
+        logging.warning("target: _target_prev called but target_mode is False")
+        return
+    # Ignore navigation when in validation error mode
+    if target_validation_error:
+        logging.debug("target: ignoring prev navigation in validation error mode")
         return
     target_selected = (target_selected - 1) % len(TARGET_OPTIONS)
-    logging.info("target: selected %s", TARGET_OPTIONS[target_selected][0])
+    logging.info("target: selected %s (prev)", TARGET_OPTIONS[target_selected][0])
     _show_target_selection()
 
 def _target_next(_args=None):
-    global target_selected
+    global target_selected, target_validation_error, target_mode
     if not target_mode:
+        logging.warning("target: _target_next called but target_mode is False")
+        return
+    # Ignore navigation when in validation error mode
+    if target_validation_error:
+        logging.debug("target: ignoring next navigation in validation error mode")
         return
     target_selected = (target_selected + 1) % len(TARGET_OPTIONS)
-    logging.info("target: selected %s", TARGET_OPTIONS[target_selected][0])
+    logging.info("target: selected %s (next)", TARGET_OPTIONS[target_selected][0])
     _show_target_selection()
 
 def _validate_host_target() -> list:
@@ -1219,6 +1229,9 @@ def _target_confirm(_args=None):
     if target_validation_error:
         target_validation_error = False
         target_validation_failures = []
+        # Ensure target_mode is still True (should be, but make it explicit)
+        target_mode = True
+        logging.info("target: returning to target selection from validation error (via confirm)")
         _show_target_selection()
         return
     
@@ -1288,6 +1301,9 @@ def _target_cancel(_args=None):
     if target_validation_error:
         target_validation_error = False
         target_validation_failures = []
+        # Ensure target_mode is still True (should be, but make it explicit)
+        target_mode = True
+        logging.info("target: returning to target selection from validation error")
         _show_target_selection()
         return
     
