@@ -346,19 +346,19 @@ def show_screen(message):
         if image.size != preview_size:
             scale = min(preview_size[0] / image.size[0], preview_size[1] / image.size[1])
             new_size = (int(image.size[0] * scale), int(image.size[1] * scale))
-        resized = image.resize(new_size, Image.LANCZOS)
-        canvas = Image.new("RGBA", preview_size, (0, 0, 0, 255))
-        offset = ((preview_size[0] - new_size[0]) // 2, (preview_size[1] - new_size[1]) // 2)
-        canvas.paste(resized, offset)
-        image = canvas
-    
-    # Stamp logo onto the image
-    image = _stamp_logo(image)
-    
-    rgba = np.array(image, dtype=np.uint8)
-    rgba[..., 3] = 255
-    overlay = rgba
-    overlay_cache[message_path] = overlay
+            resized = image.resize(new_size, Image.LANCZOS)
+            canvas = Image.new("RGBA", preview_size, (0, 0, 0, 255))
+            offset = ((preview_size[0] - new_size[0]) // 2, (preview_size[1] - new_size[1]) // 2)
+            canvas.paste(resized, offset)
+            image = canvas
+        
+        # Stamp logo onto the image
+        image = _stamp_logo(image)
+        
+        rgba = np.array(image, dtype=np.uint8)
+        rgba[..., 3] = 255
+        overlay = rgba
+        overlay_cache[message_path] = overlay
 
     current_screen = message
     if message in {"insert-film", "ready-to-scan", "ready-to-scan-local", "ready-to-scan-net", "no-usb3-drive", "no-drive-connected"}:
