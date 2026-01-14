@@ -104,7 +104,8 @@ enum Command
   CMD_TELL_INITVALUES = 129, // send film load state and exposure pot value (both only get send when they change)
   CMD_TELL_LOADSTATE = 130,
   CMD_AWB_EXIT = 131,
-  CMD_TARGET_EXIT = 132
+  CMD_TARGET_EXIT = 132,
+  CMD_TARGET_REENTER = 133  // Re-enter target mode (used when returning from validation error)
 };
 
 enum ZoomMode {
@@ -976,6 +977,12 @@ void i2cReceive(int howMany) {
       menuState = MENU_MAIN;
       nextPiCmd = CMD_NONE;
       Serial.println("Target menu: exit");
+    }
+    if ((Command)i2cCommand == CMD_TARGET_REENTER) {
+      targetMode = true;
+      menuState = MENU_TARGET;
+      nextPiCmd = CMD_NONE;
+      Serial.println("Target menu: re-enter");
     }
     if ((Command)i2cCommand == CMD_MENU_EXIT) {
       // If we're in a submenu, go back to main menu; otherwise exit completely

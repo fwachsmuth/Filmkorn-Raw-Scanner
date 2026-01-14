@@ -228,6 +228,7 @@ class Command(enum.Enum):
     TELL_LOADSTATE = 130
     AWB_EXIT = 131
     TARGET_EXIT = 132
+    TARGET_REENTER = 133  # Re-enter target mode (used when returning from validation error)
 
 def process_is_running(contents: str) -> bool:
     try:
@@ -1232,6 +1233,8 @@ def _target_confirm(_args=None):
         # Ensure target_mode is still True (should be, but make it explicit)
         target_mode = True
         logging.info("target: returning to target selection from validation error (via confirm)")
+        # Don't send any command to Arduino - it should still be in target mode
+        # The Arduino's targetMode flag should still be true
         _show_target_selection()
         return
     
@@ -1304,6 +1307,8 @@ def _target_cancel(_args=None):
         # Ensure target_mode is still True (should be, but make it explicit)
         target_mode = True
         logging.info("target: returning to target selection from validation error")
+        # Don't send TARGET_EXIT to Arduino - it should still be in target mode
+        # The Arduino's targetMode flag should still be true from when we entered
         _show_target_selection()
         return
     
@@ -3247,6 +3252,23 @@ def loop():
             _enter_target_mode()
             return
         if target_mode:
+            logging.debug("target: received command %s while target_mode is True", command)
+            # Special handling: if we're in validation error and receive CANCEL, 
+            # we need to re-enter target mode on Arduino since it cleared targetMode
+            if command == Command.TARGET_CANCEL and target_validation_error:
+                # User pressed Back from validation error - go back to target selection
+                # and tell Arduino to re-enter target mode
+                logging.info("target: received CANCEL while in validation error - re-entering target mode")
+                target_validation_error = False
+                target_validation_failures = []
+                target_mode = True
+                # Tell Arduino to re-enter target mode
+                try:
+                    tell_arduino(Command.TARGET_REENTER)
+                except Exception as exc:
+                    logging.warning("target: failed to tell Arduino to re-enter target mode: %s", exc)
+                _show_target_selection()
+                return
             func = {
                 Command.TARGET_PREV: _target_prev,
                 Command.TARGET_NEXT: _target_next,
@@ -3255,7 +3277,13 @@ def loop():
             }.get(command, None)
             if func is not None:
                 func(received[1:])
+            else:
+                logging.warning("target: received unknown command %s while in target_mode", command)
             return
+        else:
+            # If we receive target commands but target_mode is False, log it
+            if command in (Command.TARGET_PREV, Command.TARGET_NEXT, Command.TARGET_CONFIRM, Command.TARGET_CANCEL):
+                logging.warning("target: received %s but target_mode is False - state mismatch!", command)
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {
             Command.Z1_1: set_zoom_mode_1_1,
