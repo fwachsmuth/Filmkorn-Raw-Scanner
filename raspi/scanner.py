@@ -2755,6 +2755,7 @@ def switch_lsyncd_config(storage_location_param: int) -> None:
       - 0 => Net / remote target
     """
     global target_mode, target_validation_error, target_validation_failures, menu_mode, storage_location
+    global current_screen, pending_overlay, overlay_ready, preview_started
     # Use parameter value, but update global when we change it (e.g., GPIO5 mode)
     storage_location = storage_location_param
     target_conf = LSYNCD_CONF_LOCAL if storage_location == 1 else LSYNCD_CONF_NET
@@ -2824,7 +2825,6 @@ def switch_lsyncd_config(storage_location_param: int) -> None:
                         ]
                         button_labels = {}  # No buttons, user must flip switch
                         overlay = _build_menu_overlay(error_lines, button_labels=button_labels)
-                        global current_screen, pending_overlay, overlay_ready, preview_started
                         current_screen = "gpio5_host_error"
                         pending_overlay = overlay
                         if not preview_started:
