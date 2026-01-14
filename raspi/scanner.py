@@ -1197,11 +1197,14 @@ def _show_target_validation_error():
     else:
         # Show specific help messages based on which tests failed
         if "ping" in target_validation_failures:
-            lines.append("Check the network cable being plugged in")
+            lines.append("Check the network cable")
+            lines.append("being plugged in")
         if "ssh" in target_validation_failures:
-            lines.append("Check that 'Remote Login' is enabled")
+            lines.append("Check that 'Remote Login'")
+            lines.append("is enabled")
         if "write" in target_validation_failures:
-            lines.append("Check that 'Full Disk Access for remote users' is enabled")
+            lines.append("Check that 'Full Disk Access")
+            lines.append("for remote users' is enabled")
     
     # Button labels: only Back button
     button_labels = {2: "Back"}
