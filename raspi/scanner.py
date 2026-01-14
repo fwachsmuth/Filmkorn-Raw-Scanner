@@ -1211,7 +1211,7 @@ def _show_target_validation_error():
         threading.Timer(0.2, _apply_overlay_if_ready).start()
 
 def _target_confirm(_args=None):
-    global target_mode, target_stored_idx, menu_mode, storage_location, target_validation_error, target_validation_failures
+    global target_mode, target_stored_idx, target_selected, menu_mode, storage_location, target_validation_error, target_validation_failures
     if not target_mode:
         return
     
@@ -1224,6 +1224,9 @@ def _target_confirm(_args=None):
     
     logging.info("target: confirmed %s", TARGET_OPTIONS[target_selected][0])
     
+    # Store previous selection in case validation fails
+    previous_selected = target_stored_idx
+    
     # If selecting "Host Computer", validate first
     target_value = TARGET_OPTIONS[target_selected][1]
     if target_value == 0:  # Host Computer
@@ -1232,6 +1235,8 @@ def _target_confirm(_args=None):
         failures = _validate_host_target()
         if failures:
             logging.warning("target: validation failed: %s", failures)
+            # Restore previous selection
+            target_selected = previous_selected
             target_validation_error = True
             target_validation_failures = failures
             _show_target_validation_error()
