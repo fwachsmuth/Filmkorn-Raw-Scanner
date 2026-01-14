@@ -2804,17 +2804,20 @@ def switch_lsyncd_config(storage_location_param: int) -> None:
                             # First tell Arduino to enter main menu
                             try:
                                 tell_arduino(Command.MENU_ENTER_FROM_PI)
+                                sleep(0.1)  # Give Arduino time to process
                             except Exception as exc:
                                 logging.warning("lsyncd: failed to enter menu mode: %s", exc)
                             # Then enter target mode
                             try:
                                 tell_arduino(Command.TARGET_REENTER)
+                                sleep(0.1)  # Give Arduino time to process
                             except Exception as exc:
                                 logging.warning("lsyncd: failed to enter target mode: %s", exc)
                         else:
                             # Already in menu mode, just re-enter target mode
                             try:
                                 tell_arduino(Command.TARGET_REENTER)
+                                sleep(0.1)  # Give Arduino time to process
                             except Exception as exc:
                                 logging.warning("lsyncd: failed to re-enter target mode: %s", exc)
                         _show_target_validation_error()

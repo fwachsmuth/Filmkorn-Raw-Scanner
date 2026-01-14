@@ -982,8 +982,15 @@ void i2cReceive(int howMany) {
     }
     if ((Command)i2cCommand == CMD_TARGET_REENTER) {
       targetMode = true;
+      // Ensure we're in a menu state (not IDLE) before entering target mode
+      if (menuState == MENU_IDLE) {
+        menuState = MENU_MAIN;
+      }
       menuState = MENU_TARGET;
       nextPiCmd = CMD_NONE;
+      // Poll buttons immediately to sync state and prevent stale button presses
+      currentButton = pollButtons();
+      prevButton = currentButton;  // Set prevButton to current to prevent immediate trigger
       Serial.println("Target menu: re-enter");
     }
     if ((Command)i2cCommand == CMD_MENU_ENTER_FROM_PI) {
@@ -991,6 +998,9 @@ void i2cReceive(int howMany) {
       if (menuState == MENU_IDLE) {
         menuState = MENU_MAIN;
         nextPiCmd = CMD_NONE;
+        // Poll buttons immediately to sync state and prevent stale button presses
+        currentButton = pollButtons();
+        prevButton = currentButton;  // Set prevButton to current to prevent immediate trigger
         Serial.println("Menu: enter (from Pi)");
       }
     }
