@@ -2233,16 +2233,23 @@ def set_zoom_crop(x_frac: float, y_frac: float, w_frac: float, h_frac: float):
 # For things the Raspi tells (Ready to take next photo, give me value x).
 # In most cases, we are polling the Arduino, which owns flow control (but can't be master due to Raspi limitations)
 def tell_arduino(command: Command): 
-    global arduino, arduino_i2c_address
-    # Check if arduino is initialized
-    if 'arduino' not in globals() or arduino is None:
-        logging.error("tell_arduino: arduino not initialized yet")
+    # Check if arduino exists before trying to use it
+    try:
+        arduino_var = globals().get('arduino')
+        arduino_addr = globals().get('arduino_i2c_address')
+        if arduino_var is None or arduino_addr is None:
+            logging.warning("tell_arduino: arduino not initialized yet, skipping command %s", command)
+            return
+    except Exception:
+        logging.warning("tell_arduino: arduino not initialized yet, skipping command %s", command)
         return
+    
+    # Now we know arduino exists, use it
     max_retries = 5  # Set a max number of retries
     retry_delay = 0.1  # Initial delay between retries in seconds
     for attempt in range(max_retries):
         try:
-            arduino.write_byte(arduino_i2c_address, command.value)
+            arduino_var.write_byte(arduino_addr, command.value)
             return  # Success, exit the function
         except OSError as e:
             # Depending on kernel/driver, a NACK can surface as EREMOTEIO or EIO.
@@ -2793,9 +2800,12 @@ def switch_lsyncd_config(storage_location_param: int) -> None:
                         menu_mode = True  # We're entering menu mode
                         # Tell Arduino to enter target mode (it will handle entering menu mode if needed)
                         # This must complete before showing the menu, otherwise buttons won't work
+                        # Note: arduino might not be initialized yet if called during startup
                         try:
                             tell_arduino(Command.TARGET_REENTER)
                             logging.info("lsyncd: sent TARGET_REENTER to Arduino, menu should be active now")
+                        except (NameError, AttributeError) as exc:
+                            logging.warning("lsyncd: arduino not ready yet, will enter menu on next loop: %s", exc)
                         except Exception as exc:
                             logging.error("lsyncd: failed to enter target mode: %s", exc)
                         _show_target_validation_error()
