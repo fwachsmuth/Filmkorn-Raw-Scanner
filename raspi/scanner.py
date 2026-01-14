@@ -126,6 +126,8 @@ menu_selected = 0
 target_mode = False
 target_selected = 0
 target_stored_idx = 2  # Default to GPIO5 (auto mode)
+target_validation_error = False  # True when showing validation error screen
+target_validation_failures = []  # List of failed tests: "ping", "ssh", "write"
 TARGET_OPTIONS = [
     ("USB-Drive", 1),      # storage_location = 1
     ("Host Computer", 0),  # storage_location = 0
@@ -1108,21 +1110,145 @@ def _target_next(_args=None):
     logging.info("target: selected %s", TARGET_OPTIONS[target_selected][0])
     _show_target_selection()
 
+def _validate_host_target() -> list:
+    """Validate Host Computer target connectivity.
+    Returns list of failed tests: empty if all pass, otherwise ["ping"], ["ssh"], ["write"], or combinations.
+    """
+    failures = []
+    user_and_host = _read_user_and_host()
+    scan_destination = _read_scan_destination()
+    
+    if not user_and_host:
+        logging.warning("target: no host configured for validation")
+        failures.append("config")
+        return failures
+    
+    host = user_and_host.split("@", 1)[-1] if user_and_host else None
+    if not host:
+        failures.append("config")
+        return failures
+    
+    # Test 1: Ping
+    logging.info("target: validating ping to %s", host)
+    result = subprocess.run(
+        ["ping", "-c", "1", "-W", "2", host],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    if result.returncode != 0:
+        logging.warning("target: ping failed to %s", host)
+        failures.append("ping")
+        return failures  # No point testing further if ping fails
+    
+    # Test 2: SSH + Write (combined)
+    if scan_destination:
+        logging.info("target: validating write to %s:%s", user_and_host, scan_destination)
+        probe_path = os.path.join(scan_destination, ".filmkorn_write_test")
+        quoted_probe = shlex.quote(probe_path)
+        remote_cmd = f"touch {quoted_probe} && rm -f {quoted_probe}"
+        result = subprocess.run(
+            [
+                "ssh",
+                "-i",
+                "/home/pi/.ssh/id_filmkorn-scanner_ed25519",
+                "-o", "BatchMode=yes",
+                "-o", "ConnectTimeout=5",
+                user_and_host,
+                remote_cmd,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        if result.returncode != 0:
+            logging.warning("target: ssh/write test failed: %s", result.stderr.strip())
+            # Try to distinguish between SSH connection failure and write failure
+            # If we can't connect via SSH, mark as "ssh" failure
+            # If we can connect but can't write, mark as "write" failure
+            if "Connection" in result.stderr or "Could not resolve" in result.stderr or "Permission denied" in result.stderr:
+                failures.append("ssh")
+            else:
+                failures.append("write")
+    
+    return failures
+
+def _show_target_validation_error():
+    """Show error screen with specific failed tests."""
+    global current_screen, pending_overlay, overlay_ready, preview_started, target_validation_failures
+    
+    lines = ["Host Validation Failed", ""]
+    
+    if "config" in target_validation_failures:
+        lines.append("No host configured")
+        lines.append("Run pairing first")
+    else:
+        lines.append("Failed tests:")
+        if "ping" in target_validation_failures:
+            lines.append("  • Network (ping)")
+        if "ssh" in target_validation_failures:
+            lines.append("  • SSH connection")
+        if "write" in target_validation_failures:
+            lines.append("  • Write permission")
+    
+    lines.append("")
+    lines.append("Check host is on,")
+    lines.append("network is connected,")
+    lines.append("and path is writable")
+    
+    # Button labels: only Back button
+    button_labels = {2: "Back"}
+    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    current_screen = "target_validation_error"
+    pending_overlay = overlay
+    if not preview_started:
+        try:
+            camera_start()
+        except Exception as exc:
+            logging.error("Target validation error: failed to start preview: %s", exc)
+    overlay_ready = True
+    _apply_overlay_if_ready()
+    if pending_overlay is not None:
+        threading.Timer(0.2, _apply_overlay_if_ready).start()
+
 def _target_confirm(_args=None):
-    global target_mode, target_stored_idx, menu_mode, storage_location
+    global target_mode, target_stored_idx, menu_mode, storage_location, target_validation_error, target_validation_failures
     if not target_mode:
         return
+    
+    # If we're in validation error mode, just go back to target selection
+    if target_validation_error:
+        target_validation_error = False
+        target_validation_failures = []
+        _show_target_selection()
+        return
+    
     logging.info("target: confirmed %s", TARGET_OPTIONS[target_selected][0])
+    
+    # If selecting "Host Computer", validate first
+    target_value = TARGET_OPTIONS[target_selected][1]
+    if target_value == 0:  # Host Computer
+        logging.info("target: validating Host Computer connectivity...")
+        show_update_screen(["Checking host...", "Please wait"])
+        failures = _validate_host_target()
+        if failures:
+            logging.warning("target: validation failed: %s", failures)
+            target_validation_error = True
+            target_validation_failures = failures
+            _show_target_validation_error()
+            return  # Don't change target, stay in target_mode
+    
+    # Validation passed (or not needed), proceed with target change
     _save_target_setting(target_selected)
     target_stored_idx = target_selected  # Update cached stored index
     target_mode = False
+    target_validation_error = False
+    target_validation_failures = []
     try:
         tell_arduino(Command.TARGET_EXIT)
     except Exception as exc:
         logging.warning("target: failed to notify controller to exit target mode: %s", exc)
     
     # Apply the new target setting
-    target_value = TARGET_OPTIONS[target_selected][1]
     if target_value == 2:
         # GPIO5 mode - read from GPIO
         storage_location = GPIO.input(5)
@@ -1149,11 +1275,21 @@ def _target_confirm(_args=None):
             show_ready_to_scan()
 
 def _target_cancel(_args=None):
-    global target_mode, menu_mode
+    global target_mode, menu_mode, target_validation_error, target_validation_failures
     if not target_mode:
         return
+    
+    # If we're in validation error mode, go back to target selection
+    if target_validation_error:
+        target_validation_error = False
+        target_validation_failures = []
+        _show_target_selection()
+        return
+    
     logging.info("target: canceled by user")
     target_mode = False
+    target_validation_error = False
+    target_validation_failures = []
     try:
         tell_arduino(Command.TARGET_EXIT)
     except Exception as exc:
