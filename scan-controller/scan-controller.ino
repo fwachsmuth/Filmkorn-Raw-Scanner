@@ -105,7 +105,8 @@ enum Command
   CMD_TELL_LOADSTATE = 130,
   CMD_AWB_EXIT = 131,
   CMD_TARGET_EXIT = 132,
-  CMD_TARGET_REENTER = 133  // Re-enter target mode (used when returning from validation error)
+  CMD_TARGET_REENTER = 133,  // Re-enter target mode (used when returning from validation error)
+  CMD_MENU_ENTER_FROM_PI = 134  // Python tells Arduino to enter main menu
 };
 
 enum ZoomMode {
@@ -984,6 +985,14 @@ void i2cReceive(int howMany) {
       menuState = MENU_TARGET;
       nextPiCmd = CMD_NONE;
       Serial.println("Target menu: re-enter");
+    }
+    if ((Command)i2cCommand == CMD_MENU_ENTER_FROM_PI) {
+      // Python is telling us to enter menu mode (e.g., due to network failure)
+      if (menuState == MENU_IDLE) {
+        menuState = MENU_MAIN;
+        nextPiCmd = CMD_NONE;
+        Serial.println("Menu: enter (from Pi)");
+      }
     }
     if ((Command)i2cCommand == CMD_MENU_EXIT) {
       // If we're in a submenu, go back to main menu; otherwise exit completely
