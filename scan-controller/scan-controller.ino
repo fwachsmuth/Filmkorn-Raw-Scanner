@@ -576,8 +576,7 @@ void handleMenuSystem() {
           Serial.println(menuSelected);
           break;
         case RUNFWD:
-          // Enter selected menu item
-          nextPiCmd = CMD_MENU_SELECT;
+          // Enter selected menu item - go directly to submenu ENTER command
           Serial.print("Menu: entering item ");
           Serial.println(menuSelected);
           switch ((MenuItem)menuSelected) {
@@ -612,6 +611,8 @@ void handleMenuSystem() {
               nextPiCmd = CMD_UNPAIR_ENTER;
               break;
             default:
+              // If no specific submenu, send MENU_SELECT for Python to handle
+              nextPiCmd = CMD_MENU_SELECT;
               break;
           }
           break;

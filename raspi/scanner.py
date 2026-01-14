@@ -127,7 +127,8 @@ target_mode = False
 target_selected = 0
 target_stored_idx = 2  # Default to GPIO5 (auto mode)
 target_validation_error = False  # True when showing validation error screen
-target_validation_failures = []  # List of failed tests: "ping", "ssh", "write"
+target_validation_failures = []
+last_target_unknown_command = None  # Track last unknown command to avoid log spam  # List of failed tests: "ping", "ssh", "write"
 TARGET_OPTIONS = [
     ("USB-Drive", 1),      # storage_location = 1
     ("Host Computer", 0),  # storage_location = 0
@@ -3253,7 +3254,6 @@ def loop():
             _enter_target_mode()
             return
         if target_mode:
-            logging.debug("target: received command %s while target_mode is True", command)
             # Special handling: if we're in validation error and receive CANCEL, 
             # we need to re-enter target mode on Arduino since it cleared targetMode
             if command == Command.TARGET_CANCEL and target_validation_error:
@@ -3270,6 +3270,7 @@ def loop():
                     logging.warning("target: failed to tell Arduino to re-enter target mode: %s", exc)
                 _show_target_selection()
                 return
+            global last_target_unknown_command
             func = {
                 Command.TARGET_PREV: _target_prev,
                 Command.TARGET_NEXT: _target_next,
@@ -3277,9 +3278,14 @@ def loop():
                 Command.TARGET_CANCEL: _target_cancel,
             }.get(command, None)
             if func is not None:
+                # Reset tracking when we handle a known command
+                last_target_unknown_command = None
                 func(received[1:])
-            else:
-                logging.warning("target: received unknown command %s while in target_mode", command)
+            elif command != Command.IDLE:
+                # Only log unknown commands (not IDLE) and only when they change
+                if last_target_unknown_command != command:
+                    logging.warning("target: received unknown command %s (value %d) while in target_mode", command, command.value)
+                    last_target_unknown_command = command
             return
         else:
             # If we receive target commands but target_mode is False, log it
