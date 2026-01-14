@@ -1195,18 +1195,13 @@ def _show_target_validation_error():
         lines.append("No host configured")
         lines.append("Run pairing first")
     else:
-        lines.append("Failed tests:")
+        # Show specific help messages based on which tests failed
         if "ping" in target_validation_failures:
-            lines.append("  • Network (ping)")
+            lines.append("Check the network cable being plugged in")
         if "ssh" in target_validation_failures:
-            lines.append("  • SSH connection")
+            lines.append("Check that 'Remote Login' is enabled")
         if "write" in target_validation_failures:
-            lines.append("  • Write permission")
-    
-    lines.append("")
-    lines.append("Check host is on,")
-    lines.append("network is connected,")
-    lines.append("and path is writable")
+            lines.append("Check that 'Full Disk Access for remote users' is enabled")
     
     # Button labels: only Back button
     button_labels = {2: "Back"}
