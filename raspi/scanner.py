@@ -2747,13 +2747,16 @@ def _can_write_remote_path(user_and_host: str, scan_destination: str) -> bool:
         logging.info("lsyncd: remote write probe stderr: %s", result.stderr.strip())
     return result.returncode == 0
 
-def switch_lsyncd_config(storage_location: int) -> None:
+def switch_lsyncd_config(storage_location_param: int) -> None:
     """
     Switch lsyncd config via the lsyncd.active.conf symlink and restart lsyncd.
 
       - 1 => HDD / local USB (exFAT) target
       - 0 => Net / remote target
     """
+    global target_mode, target_validation_error, target_validation_failures, menu_mode, storage_location
+    # Use parameter value, but update global when we change it (e.g., GPIO5 mode)
+    storage_location = storage_location_param
     target_conf = LSYNCD_CONF_LOCAL if storage_location == 1 else LSYNCD_CONF_NET
     try:
         if target_conf == LSYNCD_CONF_LOCAL and not os.path.ismount("/mnt/usb"):
@@ -2778,29 +2781,73 @@ def switch_lsyncd_config(storage_location: int) -> None:
                     user_and_host,
                     scan_destination,
                 )
-                while not shutting_down:
-                    result = subprocess.run(
-                        ["ping", "-c", "1", "-W", "1", host],
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                    )
-                    logging.info("lsyncd: ping %s -> %s", host, result.returncode)
-                    if result.returncode != 0:
-                        if not shutting_down:
-                            show_screen("cannot-connect-to-paired-mac")
-                        sleep(1)
-                        continue
-                    if user_and_host and scan_destination:
-                        if _can_write_remote_path(user_and_host, scan_destination):
-                            break
-                        if not shutting_down:
-                            show_screen("target-dir-does-not-exist")
-                        sleep(1)
-                        continue
-                    break
-                if shutting_down:
-                    logging.info("lsyncd: aborting config switch due to shutdown")
-                    return
+                # Check if we're in preference mode (not GPIO5 mode)
+                target_setting = _load_target_setting()
+                is_preference_mode = (target_setting != 2)  # 2 = GPIO5 mode
+                
+                # Run validation tests (same as menu)
+                failures = _validate_host_target()
+                
+                if failures:
+                    # Host validation failed
+                    if is_preference_mode:
+                        # Preference mode: enter target menu and show error
+                        logging.warning("lsyncd: host validation failed in preference mode, entering target menu")
+                        target_validation_error = True
+                        target_validation_failures = failures
+                        target_mode = True
+                        # Enter menu mode if not already in it
+                        if not menu_mode:
+                            menu_mode = True
+                            try:
+                                tell_arduino(Command.MENU_ENTER)
+                            except Exception as exc:
+                                logging.warning("lsyncd: failed to enter menu mode: %s", exc)
+                            try:
+                                tell_arduino(Command.TARGET_ENTER)
+                            except Exception as exc:
+                                logging.warning("lsyncd: failed to enter target mode: %s", exc)
+                        _show_target_validation_error()
+                        return  # Don't proceed with lsyncd config
+                    else:
+                        # GPIO5 mode: show simple error message
+                        logging.warning("lsyncd: host validation failed in GPIO5 mode")
+                        error_lines = [
+                            "Host Computer Unreachable",
+                            "",
+                            "Please flip the target",
+                            "switch on GPIO5 to",
+                            "use USB-Drive instead",
+                            "",
+                            "Or fix network/host",
+                            "connectivity issues"
+                        ]
+                        button_labels = {}  # No buttons, user must flip switch
+                        overlay = _build_menu_overlay(error_lines, button_labels=button_labels)
+                        global current_screen, pending_overlay, overlay_ready, preview_started
+                        current_screen = "gpio5_host_error"
+                        pending_overlay = overlay
+                        if not preview_started:
+                            try:
+                                camera_start()
+                            except Exception as exc:
+                                logging.error("GPIO5 host error: failed to start preview: %s", exc)
+                        overlay_ready = True
+                        _apply_overlay_if_ready()
+                        # Wait for GPIO5 to change or shutdown
+                        while not shutting_down:
+                            new_storage_location = GPIO.input(5)
+                            if new_storage_location != storage_location:
+                                logging.info("lsyncd: GPIO5 changed from %d to %d, retrying", storage_location, new_storage_location)
+                                storage_location = new_storage_location  # Update global
+                                # Retry with new storage_location
+                                switch_lsyncd_config(storage_location)
+                                return
+                            sleep(1)
+                        return  # Don't proceed with lsyncd config
+                
+                # Validation passed, proceed with normal lsyncd config
+                logging.info("lsyncd: host validation passed, proceeding with config")
         _atomic_symlink(target_conf, LSYNCD_ACTIVE_CONF)
         logging.info(f"lsyncd: set active config -> {target_conf}")
         # Requires sudoers rule for pi to restart lsyncd without password.
