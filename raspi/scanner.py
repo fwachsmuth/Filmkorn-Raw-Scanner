@@ -2233,15 +2233,11 @@ def set_zoom_crop(x_frac: float, y_frac: float, w_frac: float, h_frac: float):
 # For things the Raspi tells (Ready to take next photo, give me value x).
 # In most cases, we are polling the Arduino, which owns flow control (but can't be master due to Raspi limitations)
 def tell_arduino(command: Command): 
-#     while True:
-#         try:
-#             arduino.write_byte(arduino_i2c_address, command.value)
-#             return
-#         except OSError as e:
-#             logging.warning("Got no I2C answer when telling the Arduino something.")
-#             if e.errno != errno.EREMOTEIO:
-#                 raise e
-#             sleep(0.1)
+    global arduino, arduino_i2c_address
+    # Check if arduino is initialized
+    if 'arduino' not in globals() or arduino is None:
+        logging.error("tell_arduino: arduino not initialized yet")
+        return
     max_retries = 5  # Set a max number of retries
     retry_delay = 0.1  # Initial delay between retries in seconds
     for attempt in range(max_retries):
@@ -2261,13 +2257,10 @@ def tell_arduino(command: Command):
 
 # For retrieving (multi-byte) answers to explicit tells
 def ask_arduino() -> Optional["list[int]"]:
-    # try:
-    #     return arduino.read_i2c_block_data(arduino_i2c_address, 0, 4)
-    # except OSError as e:
-    #     logging.debug("No I2C answer when polling Arduino. Probably busy right now?")
-    #     if e.errno != errno.EREMOTEIO:
-    #         raise e
-    #     sleep(0.1)
+    global arduino, arduino_i2c_address
+    # Check if arduino is initialized
+    if 'arduino' not in globals() or arduino is None:
+        return None
     max_retries = 5
     retry_delay = 0.1  # Start with 100ms delay
     for attempt in range(max_retries):
