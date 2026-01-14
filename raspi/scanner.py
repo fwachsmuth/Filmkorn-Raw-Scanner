@@ -127,8 +127,9 @@ target_mode = False
 target_selected = 0
 target_stored_idx = 2  # Default to GPIO5 (auto mode)
 target_validation_error = False  # True when showing validation error screen
-target_validation_failures = []
-last_target_unknown_command = None  # Track last unknown command to avoid log spam  # List of failed tests: "ping", "ssh", "write"
+target_validation_failures = []  # List of failed tests: "ping", "ssh", "write"
+last_target_unknown_command = None  # Track last unknown command to avoid log spam
+pending_menu_entry = False  # Flag to enter menu mode after arduino is initialized
 TARGET_OPTIONS = [
     ("USB-Drive", 1),      # storage_location = 1
     ("Host Computer", 0),  # storage_location = 0
@@ -2232,17 +2233,18 @@ def set_zoom_crop(x_frac: float, y_frac: float, w_frac: float, h_frac: float):
 
 # For things the Raspi tells (Ready to take next photo, give me value x).
 # In most cases, we are polling the Arduino, which owns flow control (but can't be master due to Raspi limitations)
-def tell_arduino(command: Command): 
+def tell_arduino(command: Command) -> bool:
+    """Send a command to Arduino via I2C. Returns True if sent successfully, False otherwise."""
     # Check if arduino exists before trying to use it
     try:
         arduino_var = globals().get('arduino')
         arduino_addr = globals().get('arduino_i2c_address')
         if arduino_var is None or arduino_addr is None:
             logging.warning("tell_arduino: arduino not initialized yet, skipping command %s", command)
-            return
+            return False
     except Exception:
         logging.warning("tell_arduino: arduino not initialized yet, skipping command %s", command)
-        return
+        return False
     
     # Now we know arduino exists, use it
     max_retries = 5  # Set a max number of retries
@@ -2250,7 +2252,7 @@ def tell_arduino(command: Command):
     for attempt in range(max_retries):
         try:
             arduino_var.write_byte(arduino_addr, command.value)
-            return  # Success, exit the function
+            return True  # Success
         except OSError as e:
             # Depending on kernel/driver, a NACK can surface as EREMOTEIO or EIO.
             if e.errno not in (errno.EREMOTEIO, errno.EIO, errno.ETIMEDOUT):
@@ -2261,6 +2263,7 @@ def tell_arduino(command: Command):
             sleep(retry_delay)
             retry_delay *= 2  # exponential backoff
     logging.error("Failed to communicate with Arduino after several attempts.")
+    return False
 
 # For retrieving (multi-byte) answers to explicit tells
 def ask_arduino() -> Optional["list[int]"]:
@@ -2801,13 +2804,14 @@ def switch_lsyncd_config(storage_location_param: int) -> None:
                         # Tell Arduino to enter target mode (it will handle entering menu mode if needed)
                         # This must complete before showing the menu, otherwise buttons won't work
                         # Note: arduino might not be initialized yet if called during startup
-                        try:
-                            tell_arduino(Command.TARGET_REENTER)
+                        # In that case, we'll set a flag and enter menu mode after arduino is ready
+                        global pending_menu_entry
+                        pending_menu_entry = True  # Flag to enter menu after arduino is ready
+                        if tell_arduino(Command.TARGET_REENTER):
+                            pending_menu_entry = False  # Success, clear flag
                             logging.info("lsyncd: sent TARGET_REENTER to Arduino, menu should be active now")
-                        except (NameError, AttributeError) as exc:
-                            logging.warning("lsyncd: arduino not ready yet, will enter menu on next loop: %s", exc)
-                        except Exception as exc:
-                            logging.error("lsyncd: failed to enter target mode: %s", exc)
+                        else:
+                            logging.info("lsyncd: arduino not ready yet, will enter menu after initialization")
                         _show_target_validation_error()
                         return  # Don't proceed with lsyncd config
                     else:
@@ -3185,11 +3189,22 @@ def setup():
     arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
 
     # Reset Arduino menu state in case it was stuck in a menu from before restart
-    try:
-        tell_arduino(Command.MENU_EXIT)
-        logging.info("Reset Arduino menu state on startup")
-    except Exception as exc:
-        logging.warning("Failed to reset Arduino menu state: %s", exc)
+    # But don't reset if we need to enter menu mode due to validation failure
+    global pending_menu_entry
+    if not pending_menu_entry:
+        try:
+            tell_arduino(Command.MENU_EXIT)
+            logging.info("Reset Arduino menu state on startup")
+        except Exception as exc:
+            logging.warning("Failed to reset Arduino menu state: %s", exc)
+    else:
+        # We need to enter menu mode - do it now that arduino is ready
+        if tell_arduino(Command.TARGET_REENTER):
+            pending_menu_entry = False
+            logging.info("Entered target menu mode after arduino initialization (due to validation failure)")
+        else:
+            logging.error("Failed to enter target menu mode after arduino initialization")
+            pending_menu_entry = False
 
     user_and_host = _read_user_and_host()
     host_path = _read_host_path()
