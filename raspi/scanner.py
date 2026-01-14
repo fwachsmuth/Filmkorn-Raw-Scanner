@@ -3161,6 +3161,7 @@ def setup():
     ssh_subprocess = None
 
 def loop():
+    global target_mode, target_validation_error, target_validation_failures
     if mcu_flash_in_progress:
         time.sleep(0.05)
         return
