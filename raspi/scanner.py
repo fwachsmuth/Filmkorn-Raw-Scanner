@@ -98,6 +98,7 @@ dmesg_since = None
 update_mode = False
 update_tags = []
 update_selected = 0
+update_scroll_offset = 0
 update_current_tag = None
 update_in_progress = False
 update_error = None
@@ -113,6 +114,7 @@ unpair_confirmation_mode = False
 unpair_confirmation_selected = 0  # 0 = No, 1 = Yes
 awb_mode = False
 awb_selected = 0
+awb_scroll_offset = 0
 awb_stored_idx = 2  # Cached stored AWB setting (default to Daylight)
 AWB_OPTIONS = [
     ("~3600K", controls.AwbModeEnum.Tungsten),
@@ -122,9 +124,11 @@ AWB_OPTIONS = [
 AWB_FILE = os.path.join(os.path.dirname(__file__), ".awb_mode")
 menu_mode = False
 menu_selected = 0
+menu_scroll_offset = 0
 # Scan target selection
 target_mode = False
 target_selected = 0
+target_scroll_offset = 0
 target_stored_idx = 2  # Default to GPIO5 (auto mode)
 target_validation_error = False  # True when showing validation error screen
 target_validation_failures = []  # List of failed tests: "ping", "ssh", "write"
@@ -373,7 +377,7 @@ def show_screen(message):
     if message == "no-drive-connected" and not ready_screen_polling:
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
-def _build_update_overlay(lines, footer_left=None, footer_right=None, button_labels=None):
+def _build_update_overlay(lines, footer_left=None, footer_right=None, button_labels=None, scroll_offset=0):
     if preview_size is None:
         return None
     base = Image.new("RGBA", preview_size, (0, 0, 0, 255))
@@ -412,6 +416,10 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None, button_lab
             else:
                 x += draw.textsize(ch, font=font)[0]
 
+    # Get logo height to avoid overlapping
+    logo_height = _get_logo_height()
+    logo_margin = 10  # Small margin below logo
+
     # Calculate button label area height if labels are provided
     button_area_height = 0
     if button_labels:
@@ -431,13 +439,40 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None, button_lab
         metrics.append((line, line_w, line_h))
     spacing = 10
     total_height = sum(h for _, _, h in metrics) + spacing * (len(metrics) - 1)
-    # Adjust vertical centering to account for button labels
-    available_height = preview_size[1] - button_area_height
-    y = max(0, (available_height - total_height) // 2)
-    for line, w, h in metrics:
-        x = max(0, (preview_size[0] - w) // 2)
-        _draw_mixed(line, x, y)
-        y += h + spacing
+    
+    # Calculate available height: screen - logo - button labels - footer space
+    footer_space = 40 if (footer_left or footer_right) else 0
+    available_height = preview_size[1] - logo_height - logo_margin - button_area_height - footer_space
+    
+    # Calculate how many lines fit on screen
+    if not metrics:
+        visible_metrics = []
+    else:
+        # Estimate lines that fit (using average line height)
+        avg_line_height = total_height / len(metrics) if metrics else 0
+        if avg_line_height > 0:
+            max_visible_lines = int(available_height / (avg_line_height + spacing))
+        else:
+            max_visible_lines = len(metrics)
+        
+        # Clamp scroll_offset
+        max_scroll = max(0, len(metrics) - max_visible_lines)
+        scroll_offset = max(0, min(scroll_offset, max_scroll))
+        
+        # Determine which lines to render
+        visible_metrics = metrics[scroll_offset:]
+    
+    # Start y position below logo
+    start_y = logo_height + logo_margin
+    y = start_y
+    for line, w, h in visible_metrics:
+        # Only draw if it fits in available space
+        if y + h <= preview_size[1] - button_area_height - footer_space:
+            x = max(0, (preview_size[0] - w) // 2)
+            _draw_mixed(line, x, y)
+            y += h + spacing
+        else:
+            break  # Stop if we've run out of space
     
     if footer_left or footer_right:
         margin = 16
@@ -487,11 +522,12 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None, button_lab
     rgba[..., 3] = 255
     return rgba
 
-def _build_menu_overlay(lines, button_labels=None):
+def _build_menu_overlay(lines, button_labels=None, scroll_offset=0):
     """Build a left-aligned menu overlay with optional button labels at the bottom.
     
     button_labels: dict with keys 2-6 (slot numbers) mapping to label text.
                    For example: {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+    scroll_offset: Number of lines to skip from the top (for scrolling)
     """
     if preview_size is None:
         return None
@@ -535,6 +571,10 @@ def _build_menu_overlay(lines, button_labels=None):
             else:
                 x += draw.textsize(ch, font=font)[0]
 
+    # Get logo height to avoid overlapping
+    logo_height = _get_logo_height()
+    logo_margin = 10  # Small margin below logo
+    
     # Calculate button label area height if labels are provided
     button_area_height = 0
     if button_labels:
@@ -545,20 +585,52 @@ def _build_menu_overlay(lines, button_labels=None):
         else:
             button_area_height = draw.textsize("Test", font=label_font)[1] + 20
 
+    # Calculate metrics for all lines
     metrics = []
     for line in lines:
         line_w, line_h = _measure_mixed(line)
         metrics.append((line, line_w, line_h))
+    
     spacing = 10
     total_height = sum(h for _, _, h in metrics) + spacing * (len(metrics) - 1)
-    # Adjust vertical centering to account for button labels
-    available_height = preview_size[1] - button_area_height
-    y = max(0, (available_height - total_height) // 2)
+    
+    # Calculate available height: screen - logo - button labels
+    available_height = preview_size[1] - logo_height - logo_margin - button_area_height
+    
+    # Start y position below logo
+    start_y = logo_height + logo_margin
+    
+    # Calculate how many lines fit on screen
+    if not metrics:
+        visible_metrics = []
+        visible_lines = 0
+    else:
+        # Estimate lines that fit (using average line height)
+        avg_line_height = total_height / len(metrics) if metrics else 0
+        if avg_line_height > 0:
+            max_visible_lines = int(available_height / (avg_line_height + spacing))
+        else:
+            max_visible_lines = len(metrics)
+        
+        # Clamp scroll_offset
+        max_scroll = max(0, len(metrics) - max_visible_lines)
+        scroll_offset = max(0, min(scroll_offset, max_scroll))
+        
+        # Determine which lines to render
+        visible_metrics = metrics[scroll_offset:]
+        visible_lines = len(visible_metrics)
+    
+    # Draw visible lines starting below logo
+    y = start_y
     left_margin = 20  # Left margin for menu alignment
-    for line, w, h in metrics:
-        x = left_margin  # Left-align instead of center
-        _draw_mixed(line, x, y)
-        y += h + spacing
+    for line, w, h in visible_metrics:
+        # Only draw if it fits in available space
+        if y + h <= preview_size[1] - button_area_height:
+            x = left_margin  # Left-align instead of center
+            _draw_mixed(line, x, y)
+            y += h + spacing
+        else:
+            break  # Stop if we've run out of space
     
     # Draw button labels at the bottom
     if button_labels:
@@ -687,7 +759,7 @@ def _get_current_tag() -> Optional[str]:
     return result.stdout.strip() or None
 
 def _show_update_selection():
-    global current_screen, pending_overlay, overlay_ready, update_confirmation_mode, update_confirmation_selected, preview_started
+    global current_screen, pending_overlay, overlay_ready, update_confirmation_mode, update_confirmation_selected, update_scroll_offset, preview_started
     if update_confirmation_mode:
         # Show confirmation submenu
         lines = ["Are you sure?", "", ""]
@@ -697,7 +769,7 @@ def _show_update_selection():
         # Build fresh - only 2 options, very fast
         # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
         button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
-        overlay = _build_menu_overlay(lines, button_labels=button_labels)
+        overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=0)
         current_screen = "update_confirm"
         pending_overlay = overlay
         if not preview_started:
@@ -729,10 +801,24 @@ def _show_update_selection():
     if update_current_tag:
         lines.append(f"Current: {update_current_tag}")
     
+    # Calculate scroll offset to keep selected item visible
+    selected_line_idx = 3 + update_selected  # 3 = title + 2 empty lines
+    logo_height = _get_logo_height()
+    button_area_height = 60
+    available_height = preview_size[1] - logo_height - 10 - button_area_height if preview_size else 400
+    estimated_line_height = 40
+    max_visible_lines = max(1, int(available_height / estimated_line_height))
+    
+    # Adjust scroll to keep selected item visible
+    if selected_line_idx < update_scroll_offset:
+        update_scroll_offset = max(0, selected_line_idx)
+    elif selected_line_idx >= update_scroll_offset + max_visible_lines:
+        update_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
+    
     # With only ~8 tags, overlay building is fast - build fresh each time
     # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
     button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
-    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=update_scroll_offset)
     current_screen = "update"
     pending_overlay = overlay
     if not preview_started:
@@ -958,7 +1044,7 @@ def _get_current_awb_mode():
     return AWB_OPTIONS[idx][1]
 
 def _show_awb_selection():
-    global awb_selected, current_screen, pending_overlay, overlay_ready, preview_started, awb_stored_idx
+    global awb_selected, awb_scroll_offset, current_screen, pending_overlay, overlay_ready, preview_started, awb_stored_idx
     # Show options in vertical list (like settings menu)
     lines = ["Preview White Balance", "", ""]
     for i, (label, _) in enumerate(AWB_OPTIONS):
@@ -969,10 +1055,24 @@ def _show_awb_selection():
     stored_label = AWB_OPTIONS[awb_stored_idx][0]
     lines.append(f"Current: {stored_label}")
     
+    # Calculate scroll offset to keep selected item visible
+    selected_line_idx = 3 + awb_selected  # 3 = title + 2 empty lines
+    logo_height = _get_logo_height()
+    button_area_height = 60
+    available_height = preview_size[1] - logo_height - 10 - button_area_height if preview_size else 400
+    estimated_line_height = 40
+    max_visible_lines = max(1, int(available_height / estimated_line_height))
+    
+    # Adjust scroll to keep selected item visible
+    if selected_line_idx < awb_scroll_offset:
+        awb_scroll_offset = max(0, selected_line_idx)
+    elif selected_line_idx >= awb_scroll_offset + max_visible_lines:
+        awb_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
+    
     # With only 3 options, overlay building is fast - build fresh each time
     # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
     button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
-    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=awb_scroll_offset)
     current_screen = "awb"
     pending_overlay = overlay
     if not preview_started:
@@ -1070,7 +1170,7 @@ def _save_target_setting(idx: int):
         logging.error("target: failed to save setting: %s", e)
 
 def _show_target_selection():
-    global target_selected, current_screen, pending_overlay, overlay_ready, preview_started, target_stored_idx
+    global target_selected, target_scroll_offset, current_screen, pending_overlay, overlay_ready, preview_started, target_stored_idx
     # Show options in vertical list (like settings menu)
     lines = ["Select Scan Target", "", ""]
     for i, (label, _) in enumerate(TARGET_OPTIONS):
@@ -1081,10 +1181,24 @@ def _show_target_selection():
     stored_label = TARGET_OPTIONS[target_stored_idx][0]
     lines.append(f"Current: {stored_label}")
     
+    # Calculate scroll offset to keep selected item visible
+    selected_line_idx = 3 + target_selected  # 3 = title + 2 empty lines
+    logo_height = _get_logo_height()
+    button_area_height = 60
+    available_height = preview_size[1] - logo_height - 10 - button_area_height if preview_size else 400
+    estimated_line_height = 40
+    max_visible_lines = max(1, int(available_height / estimated_line_height))
+    
+    # Adjust scroll to keep selected item visible
+    if selected_line_idx < target_scroll_offset:
+        target_scroll_offset = max(0, selected_line_idx)
+    elif selected_line_idx >= target_scroll_offset + max_visible_lines:
+        target_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
+    
     # With only 3 options, overlay building is fast - build fresh each time
     # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
     button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
-    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=target_scroll_offset)
     current_screen = "target"
     pending_overlay = overlay
     if not preview_started:
@@ -1651,7 +1765,7 @@ def _unpair_cancel(_args=None):
         show_ready_to_scan()
 
 def _show_menu_screen():
-    global current_screen, pending_overlay, idle_since, overlay_ready, menu_selected, awb_stored_idx, target_stored_idx
+    global current_screen, pending_overlay, idle_since, overlay_ready, menu_selected, menu_scroll_offset, awb_stored_idx, target_stored_idx
     # Ensure AWB setting is loaded (in case it changed)
     awb_stored_idx = _load_awb_setting()
     target_stored_idx = _load_target_setting()
@@ -1673,10 +1787,27 @@ def _show_menu_screen():
             display_item = item
         lines.append(prefix + display_item)
     lines.append("")  # Empty line after menu items
+    
+    # Calculate scroll offset to keep selected item visible
+    # Selected item index in lines (accounting for title + empty lines)
+    selected_line_idx = 3 + menu_selected  # 3 = "Settings Menu" + 2 empty lines
+    # Estimate visible lines (rough calculation, will be refined in _build_menu_overlay)
+    logo_height = _get_logo_height()
+    button_area_height = 60  # Approximate
+    available_height = preview_size[1] - logo_height - 10 - button_area_height if preview_size else 400
+    estimated_line_height = 40  # Approximate line height
+    max_visible_lines = max(1, int(available_height / estimated_line_height))
+    
+    # Adjust scroll to keep selected item visible
+    if selected_line_idx < menu_scroll_offset:
+        menu_scroll_offset = max(0, selected_line_idx)
+    elif selected_line_idx >= menu_scroll_offset + max_visible_lines:
+        menu_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
+    
     # With only 5 items, overlay building is fast - build synchronously
     # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
     button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
-    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=menu_scroll_offset)
     current_screen = "menu"
     idle_since = None
     pending_overlay = overlay
@@ -1771,6 +1902,17 @@ def clear_overlay():
     current_screen = None
     if overlay_ready:
         camera.set_overlay(None)
+
+def _get_logo_height() -> int:
+    """Get the height of the logo if it exists, otherwise return 0."""
+    logo_path = "controller-screens/logo.png"
+    if not os.path.exists(logo_path):
+        return 0
+    try:
+        logo = Image.open(logo_path)
+        return logo.size[1]
+    except Exception:
+        return 0
 
 def _stamp_logo(base_img: Image.Image) -> Image.Image:
     """Stamp a logo onto the base image if logo.png exists in controller-screens/.
