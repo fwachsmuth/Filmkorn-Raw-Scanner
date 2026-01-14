@@ -346,15 +346,19 @@ def show_screen(message):
         if image.size != preview_size:
             scale = min(preview_size[0] / image.size[0], preview_size[1] / image.size[1])
             new_size = (int(image.size[0] * scale), int(image.size[1] * scale))
-            resized = image.resize(new_size, Image.LANCZOS)
-            canvas = Image.new("RGBA", preview_size, (0, 0, 0, 255))
-            offset = ((preview_size[0] - new_size[0]) // 2, (preview_size[1] - new_size[1]) // 2)
-            canvas.paste(resized, offset)
-            image = canvas
-        rgba = np.array(image, dtype=np.uint8)
-        rgba[..., 3] = 255
-        overlay = rgba
-        overlay_cache[message_path] = overlay
+        resized = image.resize(new_size, Image.LANCZOS)
+        canvas = Image.new("RGBA", preview_size, (0, 0, 0, 255))
+        offset = ((preview_size[0] - new_size[0]) // 2, (preview_size[1] - new_size[1]) // 2)
+        canvas.paste(resized, offset)
+        image = canvas
+    
+    # Stamp logo onto the image
+    image = _stamp_logo(image)
+    
+    rgba = np.array(image, dtype=np.uint8)
+    rgba[..., 3] = 255
+    overlay = rgba
+    overlay_cache[message_path] = overlay
 
     current_screen = message
     if message in {"insert-film", "ready-to-scan", "ready-to-scan-local", "ready-to-scan-net", "no-usb3-drive", "no-drive-connected"}:
@@ -476,6 +480,9 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None, button_lab
                 label_x = start_x + (slot - 1) * slot_width + (slot_width - label_w) / 2
                 draw.text((label_x, label_y), label_text, font=label_font, fill=(255, 255, 255, 255))
     
+    # Stamp logo before converting to numpy
+    base = _stamp_logo(base)
+    
     rgba = np.array(base, dtype=np.uint8)
     rgba[..., 3] = 255
     return rgba
@@ -571,6 +578,9 @@ def _build_menu_overlay(lines, button_labels=None):
                     label_w = draw.textsize(label_text, font=label_font)[0]
                 label_x = start_x + (slot - 1) * slot_width + (slot_width - label_w) / 2
                 draw.text((label_x, label_y), label_text, font=label_font, fill=(255, 255, 255, 255))
+    
+    # Stamp logo before converting to numpy
+    base = _stamp_logo(base)
     
     rgba = np.array(base, dtype=np.uint8)
     rgba[..., 3] = 255
@@ -1762,6 +1772,37 @@ def clear_overlay():
     if overlay_ready:
         camera.set_overlay(None)
 
+def _stamp_logo(base_img: Image.Image) -> Image.Image:
+    """Stamp a logo onto the base image if logo.png exists in controller-screens/.
+    
+    The logo is placed at the top center (no margin).
+    If the logo doesn't exist, the image is returned unchanged.
+    """
+    logo_path = "controller-screens/logo.png"
+    if not os.path.exists(logo_path):
+        return base_img
+    
+    try:
+        logo = Image.open(logo_path).convert("RGBA")
+        # Scale logo to a reasonable size (e.g., 10% of screen height, maintaining aspect ratio)
+        max_logo_height = int(preview_size[1] * 0.1) if preview_size else 100
+        if logo.size[1] > max_logo_height:
+            scale = max_logo_height / logo.size[1]
+            new_size = (int(logo.size[0] * scale), int(logo.size[1] * scale))
+            logo = logo.resize(new_size, Image.LANCZOS)
+        
+        # Position at top center (no margin)
+        x = (base_img.size[0] - logo.size[0]) // 2  # Center horizontally
+        y = 0  # At the very top
+        position = (x, y)
+        
+        # Composite the logo onto the base image (handles transparency)
+        base_img.paste(logo, position, logo)
+    except Exception as e:
+        logging.warning(f"Failed to stamp logo: {e}")
+    
+    return base_img
+
 def _draw_text_badge(base_img, text: str, position: str):
     draw = ImageDraw.Draw(base_img)
     font = None
@@ -1844,6 +1885,10 @@ def _render_scan_overlay():
         _draw_text_badge(base_img, last_resolution_label, "bottom-center")
     if current_screen in STATUS_SCREENS and current_version_label:
         _draw_text_badge(base_img, current_version_label, "top-right")
+    
+    # Stamp logo before converting to numpy
+    base_img = _stamp_logo(base_img)
+    
     pending_overlay = np.array(base_img, dtype=np.uint8)
     _apply_overlay_if_ready()
 
