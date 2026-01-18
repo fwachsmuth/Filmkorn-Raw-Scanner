@@ -51,6 +51,7 @@ DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 FPS_AVG_WINDOW = 0  # 0 = all frames in scan, >0 = rolling window size
 USB_POWER_CHECK_INTERVAL_S = 30.0
 USB3_CHECK_INTERVAL_S = 5.0
+MCU_HEX_HASH_CACHE_ENABLED = False  # Enable/disable .mcu_hex_hash caching to skip verification
 
 SHUTTER_SPEED_RANGE = 300, 500_000  # 300µs to 0.5s. This defines the range of the exposure potentiometer
 EXPOSURE_VAL_FACTOR = math.log(SHUTTER_SPEED_RANGE[1] / SHUTTER_SPEED_RANGE[0]) / 1024
@@ -383,38 +384,31 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None, button_lab
     base = Image.new("RGBA", preview_size, (0, 0, 0, 255))
     draw = ImageDraw.Draw(base)
     try:
-        symbol_font = ImageFont.truetype("/usr/share/fonts/truetype/noto/NotoSansSymbols2-Regular.ttf", 28)
-    except OSError:
-        symbol_font = ImageFont.load_default()
-    try:
         text_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28)
     except OSError:
         text_font = ImageFont.load_default()
-    symbol_chars = {"\u23ea", "\u23e9", "\u23fa", "\u23f9"}
 
     def _measure_mixed(text: str):
         width = 0
         height = 0
         for ch in text:
-            font = symbol_font if ch in symbol_chars else text_font
             if hasattr(draw, "textbbox"):
-                bbox = draw.textbbox((0, 0), ch, font=font)
+                bbox = draw.textbbox((0, 0), ch, font=text_font)
                 w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
             else:
-                w, h = draw.textsize(ch, font=font)
+                w, h = draw.textsize(ch, font=text_font)
             width += w
             height = max(height, h)
         return width, height
 
     def _draw_mixed(text: str, x: int, y: int):
         for ch in text:
-            font = symbol_font if ch in symbol_chars else text_font
-            draw.text((x, y), ch, font=font, fill=(255, 255, 255, 255))
+            draw.text((x, y), ch, font=text_font, fill=(255, 255, 255, 255))
             if hasattr(draw, "textbbox"):
-                bbox = draw.textbbox((0, 0), ch, font=font)
+                bbox = draw.textbbox((0, 0), ch, font=text_font)
                 x += bbox[2] - bbox[0]
             else:
-                x += draw.textsize(ch, font=font)[0]
+                x += draw.textsize(ch, font=text_font)[0]
 
     # Get logo height to avoid overlapping
     logo_height = _get_logo_height()
@@ -2673,6 +2667,8 @@ def _compute_hex_hash() -> str:
 
 def _get_stored_hex_hash() -> str:
     """Get the stored hash of the last verified/flashed HEX file."""
+    if not MCU_HEX_HASH_CACHE_ENABLED:
+        return ""
     if os.path.isfile(MCU_HEX_HASH_FILE):
         try:
             with open(MCU_HEX_HASH_FILE, "r") as f:
@@ -2683,6 +2679,8 @@ def _get_stored_hex_hash() -> str:
 
 def _save_hex_hash(hex_hash: str):
     """Save the hash of the current HEX file."""
+    if not MCU_HEX_HASH_CACHE_ENABLED:
+        return
     try:
         with open(MCU_HEX_HASH_FILE, "w") as f:
             f.write(hex_hash)
