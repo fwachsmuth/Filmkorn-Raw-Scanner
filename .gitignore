@@ -63,3 +63,4 @@ images/
 *.img.gz
 raspi/.awb_mode
 raspi/.mcu_hex_hash
+raspi/.scan_target_mode
