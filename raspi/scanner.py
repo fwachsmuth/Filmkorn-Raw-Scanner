@@ -1956,10 +1956,8 @@ def _draw_text_badge(base_img, text: str, position: str, y_offset: int = 0):
         x = margin
     else:
         x = margin
-    if position == "top-left":
+    if position == "top-left" or position == "top-right":
         y = y_offset  # Start at actual top, no margin
-    elif position == "top-right":
-        y = margin + y_offset
     else:
         y = max(0, preview_size[1] - text_h - margin)
     draw.rectangle(
