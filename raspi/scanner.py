@@ -51,7 +51,7 @@ DISK_SPACE_ABORT_THRESHOLD = 30_000_000  # 30 MB
 FPS_AVG_WINDOW = 0  # 0 = all frames in scan, >0 = rolling window size
 USB_POWER_CHECK_INTERVAL_S = 30.0
 USB3_CHECK_INTERVAL_S = 5.0
-MCU_HEX_HASH_CACHE_ENABLED = False  # Enable/disable .mcu_hex_hash caching to skip verification
+MCU_HEX_HASH_CACHE_ENABLED = True  # Enable/disable .mcu_hex_hash caching to skip verification
 
 SHUTTER_SPEED_RANGE = 300, 500_000  # 300µs to 0.5s. This defines the range of the exposure potentiometer
 EXPOSURE_VAL_FACTOR = math.log(SHUTTER_SPEED_RANGE[1] / SHUTTER_SPEED_RANGE[0]) / 1024
