@@ -1932,7 +1932,7 @@ def _stamp_logo(base_img: Image.Image) -> Image.Image:
     
     return base_img
 
-def _draw_text_badge(base_img, text: str, position: str):
+def _draw_text_badge(base_img, text: str, position: str, y_offset: int = 0):
     draw = ImageDraw.Draw(base_img)
     font = None
     try:
@@ -1952,10 +1952,12 @@ def _draw_text_badge(base_img, text: str, position: str):
         x = max(0, (preview_size[0] - text_w) // 2)
     elif position == "top-right":
         x = max(0, preview_size[0] - text_w - margin)
+    elif position == "top-left":
+        x = margin
     else:
         x = margin
-    if position == "top-right":
-        y = margin
+    if position == "top-right" or position == "top-left":
+        y = margin + y_offset
     else:
         y = max(0, preview_size[1] - text_h - margin)
     draw.rectangle(
@@ -2004,14 +2006,18 @@ def _render_scan_overlay():
         base_img = Image.new("RGBA", preview_size, (0, 0, 0, 0))
     if last_fps_value is not None and state.scanning:
         _draw_text_badge(base_img, f"{last_fps_value:.1f} fps", "bottom-left")
-    if last_shutter_value is not None and show_shutter:
-        _draw_text_badge(base_img, _format_shutter_speed(last_shutter_value), "bottom-right")
+    # Draw resolution label and shutter speed in top-left, stacked vertically
+    top_left_y_offset = 0
     if (
         current_screen in STATUS_SCREENS
         and current_screen != "target-dir-does-not-exist"
         and last_resolution_label
     ):
-        _draw_text_badge(base_img, last_resolution_label, "bottom-center")
+        _draw_text_badge(base_img, last_resolution_label, "top-left", top_left_y_offset)
+        # Offset for next badge: approximate badge height (text ~20px + padding 24px) + spacing
+        top_left_y_offset = 44 + 8  # ~44px badge height + 8px spacing
+    if last_shutter_value is not None and show_shutter:
+        _draw_text_badge(base_img, _format_shutter_speed(last_shutter_value), "top-left", top_left_y_offset)
     if current_screen in STATUS_SCREENS and current_version_label:
         _draw_text_badge(base_img, current_version_label, "top-right")
     
