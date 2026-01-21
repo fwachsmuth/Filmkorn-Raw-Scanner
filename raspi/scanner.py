@@ -1944,7 +1944,7 @@ def _draw_text_badge(base_img, text: str, position: str, y_offset: int = 0):
         text_w, text_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
     else:
         text_w, text_h = draw.textsize(text, font=font)
-    pad = 12
+    pad = 0
     margin = 12
     if position == "bottom-right":
         x = max(0, preview_size[0] - text_w - margin)
@@ -2024,11 +2024,10 @@ def _render_scan_overlay():
             text_h = bbox[3] - bbox[1]
         else:
             text_h = draw.textsize(last_resolution_label, font=font)[1]
-        pad = 12  # Padding matches _draw_text_badge
-        badge_height = text_h + (pad * 2)  # text height + top padding + bottom padding
+        badge_height = text_h  # No padding, just text height
         _draw_text_badge(base_img, last_resolution_label, "top-left", top_left_y_offset)
-        # Offset for next badge: full badge height + minimal spacing
-        top_left_y_offset = badge_height + 2  # Full badge height + 2px spacing
+        # Offset for next badge: text height + minimal spacing
+        top_left_y_offset = badge_height + 2  # Text height + 2px spacing
     if last_shutter_value is not None and show_shutter:
         _draw_text_badge(base_img, _format_shutter_speed(last_shutter_value), "top-left", top_left_y_offset)
     if current_screen in STATUS_SCREENS and current_version_label:
