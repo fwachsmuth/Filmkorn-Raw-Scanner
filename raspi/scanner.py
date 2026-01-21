@@ -2014,8 +2014,8 @@ def _render_scan_overlay():
         and last_resolution_label
     ):
         _draw_text_badge(base_img, last_resolution_label, "top-left", top_left_y_offset)
-        # Offset for next badge: approximate badge height (text ~20px + padding 24px) + spacing
-        top_left_y_offset = 44 + 8  # ~44px badge height + 8px spacing
+        # Offset for next badge: approximate badge height (text ~20px + padding 24px) + minimal spacing
+        top_left_y_offset = 44 + 2  # ~44px badge height + 2px spacing
     if last_shutter_value is not None and show_shutter:
         _draw_text_badge(base_img, _format_shutter_speed(last_shutter_value), "top-left", top_left_y_offset)
     if current_screen in STATUS_SCREENS and current_version_label:
