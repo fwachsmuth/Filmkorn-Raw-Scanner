@@ -2,6 +2,7 @@
  * Controller for the Noris based Film Scanner
  */
 
+#include <avr/io.h>
 #include <Wire.h>
 
 const byte SLAVE_ADDRESS = 42; // Our i2c address here
@@ -185,11 +186,25 @@ Command nextPiCmd = CMD_NONE;
 ZoomMode zoomMode = Z1_1;
 
 void setup() {
+  // Capture reset cause before any init clears it; then clear MCUSR for next reset.
+  uint8_t mcusr = MCUSR;
+  MCUSR = 0;
+
   // Immediately disable lamp to prevent brief flash during boot
   pinMode(LAMP_PIN, OUTPUT);
   digitalWrite(LAMP_PIN, LOW);
 
   Serial.begin(115200);
+  Serial.print(F("BOOT MCUSR=0x"));
+  Serial.print(mcusr, HEX);
+  Serial.print(F(" PORF="));
+  Serial.print((mcusr & 0x01) ? 1 : 0);  /* power-on */
+  Serial.print(F(" EXTRF="));
+  Serial.print((mcusr & 0x02) ? 1 : 0);  /* external reset */
+  Serial.print(F(" BORF="));
+  Serial.print((mcusr & 0x04) ? 1 : 0);  /* brown-out */
+  Serial.print(F(" WDRF="));
+  Serial.println((mcusr & 0x08) ? 1 : 0);  /* watchdog */
 
   pinMode(BUTTONS_A_PIN, INPUT);
   pinMode(BUTTONS_B_PIN, INPUT);
