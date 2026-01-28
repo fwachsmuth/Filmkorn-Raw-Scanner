@@ -2034,8 +2034,9 @@ def _render_scan_overlay():
     if current_screen in STATUS_SCREENS and current_version_label:
         _draw_text_badge(base_img, current_version_label, "top-right")
     
-    # Stamp logo before converting to numpy
-    base_img = _stamp_logo(base_img)
+    # Stamp logo before converting to numpy (hide during scanning)
+    if not state.scanning:
+        base_img = _stamp_logo(base_img)
     
     pending_overlay = np.array(base_img, dtype=np.uint8)
     _apply_overlay_if_ready()
