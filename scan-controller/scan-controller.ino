@@ -185,7 +185,7 @@ MotorState motorState = STOPPED;
 Command nextPiCmd = CMD_NONE;
 ZoomMode zoomMode = Z1_1;
 
-void setup() {
+void setup() {  
   // Capture reset cause before any init clears it; then clear MCUSR for next reset.
   uint8_t mcusr = MCUSR;
   MCUSR = 0;
