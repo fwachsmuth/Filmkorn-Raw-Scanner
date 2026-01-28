@@ -38,6 +38,9 @@ SENSOR_BIT_DEPTH = 12
 # --- Controller MCU (ATmega328P) Power Switch ---
 UC_POWER_GPIO = 16  # GPIO16 (physical pin 36) enables µC power switch on the controller PCB
 UC_POWER_BOOT_DELAY_S = 0.5  # allow the ATmega328P to boot before first I2C transaction
+# Sleep button: hold this long to *enter* sleep (avoids false triggers from motor vibration).
+# Wake still uses 50 ms debounce.
+SLEEP_BUTTON_HOLD_ENTER_S = 2.0
 
 # lsyncd config switching
 LSYNCD_DIR = "/home/pi/Filmkorn-Raw-Scanner/raspi"
@@ -2077,9 +2080,9 @@ def clear_tty1():
     except Exception:
         pass
 
-def _enter_sleep_mode():
+def _enter_sleep_mode(reason: str = "button"):
     global sleep_mode, preview_started, camera_running, pairing_mode, current_screen, pairing_exit_pending
-    logging.info("Entering sleep mode")
+    logging.info("Entering sleep mode (reason=%s)", reason)
     if pairing_mode:
         logging.info("pairing: exiting pairing screen due to sleep")
         pairing_mode = False
@@ -2186,10 +2189,12 @@ def _poll_sleep_button(now: float) -> bool:
         last_sleep_button_change = now
     if last_sleep_button_state == 1:
         sleep_button_armed = True
+    hold_s = now - last_sleep_button_change
+    debounce_s = 0.05 if sleep_mode else SLEEP_BUTTON_HOLD_ENTER_S
     if (
         sleep_button_armed
         and last_sleep_button_state == 0
-        and (now - last_sleep_button_change) >= 0.05
+        and hold_s >= debounce_s
         and (now - last_sleep_toggle) >= 1.0
     ):
         sleep_button_armed = False
@@ -2198,8 +2203,8 @@ def _poll_sleep_button(now: float) -> bool:
             logging.info("Sleep button pressed; waking up")
             _exit_sleep_mode()
         else:
-            logging.info("Sleep button pressed; entering sleep mode")
-            _enter_sleep_mode()
+            logging.info("Sleep button pressed; entering sleep mode (hold %.1fs)", hold_s)
+            _enter_sleep_mode(reason="button")
         return True
     return button_state == 0
 
@@ -3629,7 +3634,7 @@ if __name__ == '__main__':
                     and (now - idle_since) >= 900.0
                     and current_screen != "too-much-power"
                 ):
-                    _enter_sleep_mode()
+                    _enter_sleep_mode(reason="idle")
                     idle_since = None
                     time.sleep(0.1)
                     continue
