@@ -38,9 +38,6 @@ SENSOR_BIT_DEPTH = 12
 # --- Controller MCU (ATmega328P) Power Switch ---
 UC_POWER_GPIO = 16  # GPIO16 (physical pin 36) enables µC power switch on the controller PCB
 UC_POWER_BOOT_DELAY_S = 0.5  # allow the ATmega328P to boot before first I2C transaction
-# Sleep button: hold this long to *enter* sleep (avoids false triggers from motor vibration).
-# Wake still uses 50 ms debounce.
-SLEEP_BUTTON_HOLD_ENTER_S = 2.0
 
 # lsyncd config switching
 LSYNCD_DIR = "/home/pi/Filmkorn-Raw-Scanner/raspi"
@@ -2080,9 +2077,9 @@ def clear_tty1():
     except Exception:
         pass
 
-def _enter_sleep_mode(reason: str = "button"):
+def _enter_sleep_mode():
     global sleep_mode, preview_started, camera_running, pairing_mode, current_screen, pairing_exit_pending
-    logging.info("Entering sleep mode (reason=%s)", reason)
+    logging.info("Entering sleep mode")
     if pairing_mode:
         logging.info("pairing: exiting pairing screen due to sleep")
         pairing_mode = False
@@ -2189,12 +2186,10 @@ def _poll_sleep_button(now: float) -> bool:
         last_sleep_button_change = now
     if last_sleep_button_state == 1:
         sleep_button_armed = True
-    hold_s = now - last_sleep_button_change
-    debounce_s = 0.05 if sleep_mode else SLEEP_BUTTON_HOLD_ENTER_S
     if (
         sleep_button_armed
         and last_sleep_button_state == 0
-        and hold_s >= debounce_s
+        and (now - last_sleep_button_change) >= 0.05
         and (now - last_sleep_toggle) >= 1.0
     ):
         sleep_button_armed = False
@@ -2203,8 +2198,8 @@ def _poll_sleep_button(now: float) -> bool:
             logging.info("Sleep button pressed; waking up")
             _exit_sleep_mode()
         else:
-            logging.info("Sleep button pressed; entering sleep mode (hold %.1fs)", hold_s)
-            _enter_sleep_mode(reason="button")
+            logging.info("Sleep button pressed; entering sleep mode")
+            _enter_sleep_mode()
         return True
     return button_state == 0
 
@@ -2467,8 +2462,10 @@ def ask_arduino() -> Optional["list[int]"]:
     # Check if arduino is initialized
     if 'arduino' not in globals() or arduino is None:
         return None
-    max_retries = 5
-    retry_delay = 0.1  # Start with 100ms delay
+    # Keep total retry block under ~0.5 s so we don't starve the camera pipeline.
+    # V4L2 dequeue timer is 1 s; blocking longer can cause "Camera frontend has timed out".
+    max_retries = 4
+    retry_delay = 0.07
     for attempt in range(max_retries):
         try:
             response = arduino.read_i2c_block_data(arduino_i2c_address, 0, 4)
@@ -2481,7 +2478,7 @@ def ask_arduino() -> Optional["list[int]"]:
                 f"Attempt {attempt + 1}: No I2C answer when polling Arduino. Probably busy right now (errno={e.errno})."
             )
             sleep(retry_delay)
-            retry_delay *= 2  # Exponential backoff
+            retry_delay *= 2  # Exponential backoff: 50, 100, 200 ms → ~350 ms total
     logging.error("Failed to read from Arduino after several attempts. Arduino might be rebooting?")
     return None  # or handle this case specifically?
 
@@ -3634,7 +3631,7 @@ if __name__ == '__main__':
                     and (now - idle_since) >= 900.0
                     and current_screen != "too-much-power"
                 ):
-                    _enter_sleep_mode(reason="idle")
+                    _enter_sleep_mode()
                     idle_since = None
                     time.sleep(0.1)
                     continue
