@@ -505,12 +505,18 @@ if [[ "${DRY_RUN}" == "false" ]]; then
     (
       cd "$img_dir"
       if [[ -n "${PISHRINK_CMD:-}" ]]; then
-        if ! bash -lc "$PISHRINK_CMD \"$fullsize_img\" \"$shrink_img\""; then
+        if bash -lc "$PISHRINK_CMD \"$fullsize_img\" \"$shrink_img\""; then
+          info "Compressing shrunk image with pigz -9 -k..."
+          pigz -9 -k "$shrink_img"
+        else
           manual_shrink_hint "$img_dir" "$fullsize_img" "$shrink_img"
         fi
       else
         # Mount images dir so the expanded .img is visible inside the container
-        if ! docker run --rm -it --privileged -v "$img_dir":/workdir -w /workdir pishrink "$fullsize_img" "$shrink_img"; then
+        if docker run --rm -it --privileged -v "$img_dir":/workdir -w /workdir pishrink "$fullsize_img" "$shrink_img"; then
+          info "Compressing shrunk image with pigz -9 -k..."
+          pigz -9 -k "$shrink_img"
+        else
           manual_shrink_hint "$img_dir" "$fullsize_img" "$shrink_img"
         fi
       fi
