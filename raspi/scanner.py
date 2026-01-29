@@ -19,6 +19,7 @@ import atexit
 import threading
 from collections import deque
 import re
+import shutil
 import RPi.GPIO as GPIO
 import logging
 
@@ -2902,6 +2903,42 @@ def _check_usb_filesystem() -> bool:
     # fsck exit codes: 0 = clean, 1 = errors corrected, 2+ = errors remain
     return fsck_result.returncode in (0, 1)
 
+
+def _is_paired() -> bool:
+    """True iff both .user_and_host and .host_path exist in the raspi dir."""
+    raspi_dir = os.path.dirname(os.path.abspath(__file__))
+    uah = os.path.join(raspi_dir, ".user_and_host")
+    hp = os.path.join(raspi_dir, ".host_path")
+    return os.path.isfile(uah) and os.path.isfile(hp)
+
+
+def _ensure_install_bundle_on_usb() -> None:
+    """When unpaired and /mnt/usb mounted, seed 'Install Remote Scanning' on USB if missing."""
+    if _is_paired():
+        return
+    if not os.path.ismount("/mnt/usb"):
+        return
+    dest_dir = os.path.join("/mnt/usb", "Install Remote Scanning")
+    if os.path.isdir(dest_dir):
+        return
+    host = os.path.join(repo_root, "host-computer")
+    helper_dest = os.path.join(dest_dir, "helper")
+    files = [
+        (os.path.join(host, "install_remote_scanning.sh"), dest_dir),
+        (os.path.join(host, "install_remote_scanning.command"), dest_dir),
+        (os.path.join(host, "helper", "pair.sh"), helper_dest),
+        (os.path.join(host, "helper", "set_scan_destination.sh"), helper_dest),
+    ]
+    try:
+        os.makedirs(dest_dir, exist_ok=True)
+        os.makedirs(helper_dest, exist_ok=True)
+        for src, dstdir in files:
+            shutil.copy2(src, dstdir)
+        logging.info("Installed Remote Scanning bundle at %s", dest_dir)
+    except Exception as exc:
+        logging.warning("Failed to install bundle on USB: %s", exc)
+
+
 def _find_usb_disk_name() -> Optional[str]:
     result = subprocess.run(
         ["lsblk", "-nr", "-o", "NAME,TYPE,RM,TRAN"],
@@ -3353,6 +3390,10 @@ def setup():
     # Check USB filesystem if in local storage mode
     if storage_location == 1 and os.path.ismount("/mnt/usb"):
         _check_usb_filesystem()
+
+    # Seed Install Remote Scanning bundle on USB when unpaired and USB mounted
+    if not _is_paired() and os.path.ismount("/mnt/usb"):
+        _ensure_install_bundle_on_usb()
 
     # Switch lsyncd to the right config for the selected storage target.
     switch_lsyncd_config(storage_location)
