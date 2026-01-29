@@ -53,7 +53,8 @@ KEEP_SSH=false
 KEEP_HOSTKEYS=false
 KEEP_HISTORY=false
 DRY_RUN=false
-PISHRINK_CMD="${PISHRINK_CMD:-docker run --rm -it --privileged -v \"$PWD\":/workdir -w /workdir/images pishrink}"
+# Default pishrink: docker with images dir mounted (img_dir is set later when we run it)
+PISHRINK_CMD="${PISHRINK_CMD:-}"
 
 usage() {
   cat <<EOF
@@ -503,8 +504,15 @@ if [[ "${DRY_RUN}" == "false" ]]; then
     info "Shrinking image to ${shrink_img}..."
     (
       cd "$img_dir"
-      if ! bash -lc "$PISHRINK_CMD \"$fullsize_img\" \"$shrink_img\""; then
-        manual_shrink_hint "$img_dir" "$fullsize_img" "$shrink_img"
+      if [[ -n "${PISHRINK_CMD:-}" ]]; then
+        if ! bash -lc "$PISHRINK_CMD \"$fullsize_img\" \"$shrink_img\""; then
+          manual_shrink_hint "$img_dir" "$fullsize_img" "$shrink_img"
+        fi
+      else
+        # Mount images dir so the expanded .img is visible inside the container
+        if ! docker run --rm -it --privileged -v "$img_dir":/workdir -w /workdir pishrink "$fullsize_img" "$shrink_img"; then
+          manual_shrink_hint "$img_dir" "$fullsize_img" "$shrink_img"
+        fi
       fi
     )
   else
