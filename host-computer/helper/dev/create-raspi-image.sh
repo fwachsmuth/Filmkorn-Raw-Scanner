@@ -152,7 +152,8 @@ else
   info "Preparing Raspberry Pi for imaging..."
 fi
 if [[ "${DRY_RUN}" == "false" ]]; then
-ssh "${USER}@${HOST}" "KEEP_SSH=${KEEP_SSH} KEEP_HOSTKEYS=${KEEP_HOSTKEYS} KEEP_HISTORY=${KEEP_HISTORY} ZERO_FILL=${ZERO_FILL} sudo bash -s" <<'EOF'
+# sudo -E preserves KEEP_SSH/ZERO_FILL etc.; without it sudo wipes env and ZERO_FILL becomes false
+ssh "${USER}@${HOST}" "KEEP_SSH=${KEEP_SSH} KEEP_HOSTKEYS=${KEEP_HOSTKEYS} KEEP_HISTORY=${KEEP_HISTORY} ZERO_FILL=${ZERO_FILL} sudo -E bash -s" <<'EOF'
 set -euo pipefail
 KEEP_SSH="${KEEP_SSH:-false}"
 KEEP_HOSTKEYS="${KEEP_HOSTKEYS:-false}"
@@ -321,13 +322,17 @@ sudo rm -rf /var/cache/apt/archives/* || true
 
 sudo rm -rf /tmp/* /var/tmp/* || true
 if [[ "${ZERO_FILL}" == "true" ]]; then
-  avail_kb="$(df -k / | awk 'NR==2{print $4}')"
+  avail_kb="$(df -k / | tail -1 | awk '{print $4}')"
   avail_kb="${avail_kb:-0}"
+  log "free space on /: ${avail_kb} KB (zero-fill needs >262144 KB)"
   if [[ "$avail_kb" -gt 262144 ]]; then
     count=$(( (avail_kb - 131072) / 1024 ))
     if [[ "$count" -gt 0 ]]; then
+      log "zero-filling ${count} MB of free space..."
       sudo dd if=/dev/zero of=/zero.fill bs=1M count="$count" status=progress || true
     fi
+  else
+    log "skipping zero-fill: not enough free space"
   fi
   sudo rm -f /zero.fill || true
 fi
