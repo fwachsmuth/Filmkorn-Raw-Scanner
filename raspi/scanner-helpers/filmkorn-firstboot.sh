@@ -24,6 +24,23 @@ echo "firstboot: ensuring ssh host keys"
 ssh-keygen -A || true
 systemctl enable --now ssh || true
 
+# Create swap file if it doesn't exist (imaging excludes /var/swap to reduce image size)
+SWAP_FILE="/var/swap"
+SWAP_SIZE_MB=2048
+if [ ! -f "$SWAP_FILE" ]; then
+  echo "firstboot: creating ${SWAP_SIZE_MB}MB swap file"
+  dd if=/dev/zero of="$SWAP_FILE" bs=1M count="$SWAP_SIZE_MB" status=progress || true
+  chmod 600 "$SWAP_FILE"
+  mkswap "$SWAP_FILE" || true
+  swapon "$SWAP_FILE" || true
+  # Ensure swap is enabled on boot (if not already in fstab)
+  if ! grep -q "^$SWAP_FILE" /etc/fstab; then
+    echo "$SWAP_FILE none swap sw 0 0" >> /etc/fstab
+  fi
+else
+  echo "firstboot: swap file already exists"
+fi
+
 touch "$MARKER_FILE"
 systemctl disable --now filmkorn-firstboot.service || true
 

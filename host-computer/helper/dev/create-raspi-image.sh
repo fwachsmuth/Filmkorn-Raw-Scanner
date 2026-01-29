@@ -217,9 +217,28 @@ restore_from_any() {
 
 cleanup_stash() {
   for base in "$STASH_DIR" "$STASH_RAMDISK" "$STASH_PERSIST"; do
-    sudo rm -f "$base"/imaging-*.tgz 2>/dev/null || true
+    sudo rm -f "$base"/imaging-*.tgz "$base"/imaging-swap-size 2>/dev/null || true
     sudo rmdir "$base" >/dev/null 2>&1 || true
   done
+}
+
+restore_swap() {
+  local swap_size_mb=""
+  for base in "$STASH_DIR" "$STASH_RAMDISK" "$STASH_PERSIST"; do
+    if [ -s "$base/imaging-swap-size" ]; then
+      swap_size_mb=$(cat "$base/imaging-swap-size")
+      break
+    fi
+  done
+  if [ -n "$swap_size_mb" ] && [ "$swap_size_mb" -gt 0 ] 2>/dev/null; then
+    log "restoring swap file: ${swap_size_mb} MB"
+    sudo dd if=/dev/zero of=/var/swap bs=1M count="$swap_size_mb" status=progress 2>&1 || true
+    sudo chmod 600 /var/swap
+    sudo mkswap /var/swap || true
+    sudo swapon /var/swap || true
+  else
+    log "no swap size stashed; skipping swap restore"
+  fi
 }
 
 restore_and_exit() {
@@ -233,6 +252,7 @@ restore_and_exit() {
     restore_from_any "imaging-hostkeys.tgz"
   fi
   restore_from_any "imaging-config.tgz"
+  restore_swap
   cleanup_stash
 }
 trap restore_and_exit ERR
@@ -311,6 +331,19 @@ if [ -s "$STASH_DIR/imaging-config.tgz" ]; then
   sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/lsyncd-to-host.conf || true
 else
   log "keeping host-specific config (stash missing)"
+fi
+
+# Stash swap file size and disable swap for imaging (will be restored after, recreated on first boot)
+if [ -f /var/swap ]; then
+  SWAP_SIZE_MB=$(( $(stat -c%s /var/swap 2>/dev/null || echo 0) / 1024 / 1024 ))
+  log "stashing swap size: ${SWAP_SIZE_MB} MB"
+  echo "$SWAP_SIZE_MB" > "$STASH_DIR/imaging-swap-size"
+  stash_copy "$STASH_DIR/imaging-swap-size"
+  log "disabling and removing swap for imaging"
+  sudo swapoff /var/swap 2>/dev/null || true
+  sudo rm -f /var/swap
+else
+  log "no /var/swap found; skipping swap stash"
 fi
 
 sudo journalctl --rotate || true
@@ -417,9 +450,28 @@ restore_from_any() {
 
 cleanup_stash() {
   for base in "$STASH_DIR" "$STASH_RAMDISK" "$STASH_PERSIST"; do
-    rm -f "$base"/imaging-*.tgz 2>/dev/null || true
+    rm -f "$base"/imaging-*.tgz "$base"/imaging-swap-size 2>/dev/null || true
     rmdir "$base" >/dev/null 2>&1 || true
   done
+}
+
+restore_swap() {
+  local swap_size_mb=""
+  for base in "$STASH_DIR" "$STASH_RAMDISK" "$STASH_PERSIST"; do
+    if [ -s "$base/imaging-swap-size" ]; then
+      swap_size_mb=$(cat "$base/imaging-swap-size")
+      break
+    fi
+  done
+  if [ -n "$swap_size_mb" ] && [ "$swap_size_mb" -gt 0 ] 2>/dev/null; then
+    log "restoring swap file: ${swap_size_mb} MB"
+    dd if=/dev/zero of=/var/swap bs=1M count="$swap_size_mb" status=progress 2>&1 || true
+    chmod 600 /var/swap
+    mkswap /var/swap || true
+    swapon /var/swap || true
+  else
+    log "no swap size stashed; skipping swap restore"
+  fi
 }
 
 restore_after_image() {
@@ -432,6 +484,7 @@ restore_after_image() {
   fi
   restore_from_any "imaging-history.tgz"
   restore_from_any "imaging-config.tgz"
+  restore_swap
   if [ -f "$LOG_FILE" ]; then
     cp -f "$LOG_FILE" /var/log/filmkorn-imaging.log 2>/dev/null || true
   fi
