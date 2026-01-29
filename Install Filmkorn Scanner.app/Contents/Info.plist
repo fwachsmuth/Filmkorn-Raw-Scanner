@@ -6,6 +6,8 @@
     <string>Install Filmkorn Scanner</string>
     <key>CFBundleDisplayName</key>
     <string>Install Filmkorn Scanner</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleIdentifier</key>
     <string>com.filmkorn.install-filmkorn-scanner</string>
     <key>CFBundleExecutable</key>
