@@ -30,7 +30,14 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HOST_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-SCAN_DESTINATION_FILE="${HOST_DIR}/.scan_destination"
+if [[ "$HOST_DIR" == *".app/Contents/Resources/install" ]]; then
+  CONFIG_DIR="${HOME}/Library/Application Support/Filmkorn Scanner"
+  mkdir -p "$CONFIG_DIR"
+  SCAN_DESTINATION_FILE="${CONFIG_DIR}/.scan_destination"
+  HOST_DIR="$CONFIG_DIR"
+else
+  SCAN_DESTINATION_FILE="${HOST_DIR}/.scan_destination"
+fi
 
 read -r -p "Proceed with unpairing this host and your scanner? [y/N] " confirm_unpair
 if [[ ! "${confirm_unpair:-}" =~ ^[Yy]$ ]]; then

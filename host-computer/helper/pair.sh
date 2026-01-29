@@ -100,9 +100,17 @@ if [ -f /proc/device-tree/model ] && grep -qi "raspberry pi" /proc/device-tree/m
 fi
 
 host_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-paired_file="${host_dir}/.paired"
-scan_destination_file="${host_dir}/.scan_destination"
-install_semaphore="${host_dir}/.scanner_installed"
+if [[ -n "${FILMKORN_CONFIG_DIR:-}" ]] || [[ "$host_dir" == *".app/Contents/Resources/install" ]]; then
+  _config="${FILMKORN_CONFIG_DIR:-${HOME}/Library/Application Support/Filmkorn Scanner}"
+  [[ -d "$_config" ]] || mkdir -p "$_config"
+  paired_file="${_config}/.paired"
+  scan_destination_file="${_config}/.scan_destination"
+  install_semaphore="${_config}/.scanner_installed"
+else
+  paired_file="${host_dir}/.paired"
+  scan_destination_file="${host_dir}/.scan_destination"
+  install_semaphore="${host_dir}/.scanner_installed"
+fi
 if [ "${BYPASS_INSTALL_SEMAPHORE:-0}" != "1" ] && [ ! -f "$install_semaphore" ]; then
   warn "Please run install_remote_scanning.sh once before attempting to pair with the scanner."
   exit 1

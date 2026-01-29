@@ -44,7 +44,13 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HOST_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-SCAN_DESTINATION_FILE="${HOST_DIR}/.scan_destination"
+if [[ -n "${FILMKORN_CONFIG_DIR:-}" ]] || [[ "$HOST_DIR" == *".app/Contents/Resources/install" ]]; then
+  _config="${FILMKORN_CONFIG_DIR:-${HOME}/Library/Application Support/Filmkorn Scanner}"
+  mkdir -p "$_config"
+  SCAN_DESTINATION_FILE="${_config}/.scan_destination"
+else
+  SCAN_DESTINATION_FILE="${HOST_DIR}/.scan_destination"
+fi
 
 if [ -f "$SCAN_DESTINATION_FILE" ]; then
   info "Currently configured Scan Destination:"

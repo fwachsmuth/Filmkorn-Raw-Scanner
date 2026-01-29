@@ -1,14 +1,22 @@
 #!/bin/bash
 set -euo pipefail
 
-HOST_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
-if [ -f "$HOST_DIR/host-computer/install_remote_scanning.command" ]; then
-  COMMAND_FILE="$HOST_DIR/host-computer/install_remote_scanning.command"
-elif [ -f "$HOST_DIR/install_remote_scanning.command" ]; then
-  COMMAND_FILE="$HOST_DIR/install_remote_scanning.command"
-else
-  echo "Missing install_remote_scanning.command (looked in host-computer/ and $HOST_DIR)"
-  exit 1
+BUNDLE="$(cd "$(dirname "$0")/../.." && pwd)"
+INSTALL_CMD="$BUNDLE/Contents/Resources/install/install_remote_scanning.command"
+if [ -f "$INSTALL_CMD" ]; then
+  open -a Terminal "$INSTALL_CMD"
+  exit 0
 fi
 
-open -a Terminal "$COMMAND_FILE"
+HOST_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
+if [ -f "$HOST_DIR/host-computer/install_remote_scanning.command" ]; then
+  open -a Terminal "$HOST_DIR/host-computer/install_remote_scanning.command"
+  exit 0
+fi
+if [ -f "$HOST_DIR/install_remote_scanning.command" ]; then
+  open -a Terminal "$HOST_DIR/install_remote_scanning.command"
+  exit 0
+fi
+
+echo "Missing install_remote_scanning.command (looked in app bundle, host-computer/ and $HOST_DIR)"
+exit 1

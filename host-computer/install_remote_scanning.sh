@@ -15,8 +15,16 @@
 #
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-INSTALL_SEMAPHORE="${SCRIPT_DIR}/.scanner_installed"
-PAIRED_FILE="${SCRIPT_DIR}/.paired"
+if [[ "$SCRIPT_DIR" == *".app/Contents/Resources/install" ]]; then
+  CONFIG_DIR="${HOME}/Library/Application Support/Filmkorn Scanner"
+  mkdir -p "$CONFIG_DIR"
+  INSTALL_SEMAPHORE="${CONFIG_DIR}/.scanner_installed"
+  PAIRED_FILE="${CONFIG_DIR}/.paired"
+  export FILMKORN_CONFIG_DIR="$CONFIG_DIR"
+else
+  INSTALL_SEMAPHORE="${SCRIPT_DIR}/.scanner_installed"
+  PAIRED_FILE="${SCRIPT_DIR}/.paired"
+fi
 
 # ---------- helpers ----------
 if [ -t 1 ]; then
@@ -250,8 +258,6 @@ if dseditgroup -o checkmember -m "$current_user" com.apple.access_ssh >/dev/null
 else
   warn "Remote Login access does not appear enabled for user: ${current_user}"
 fi
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [[ ! -f "$PAIRED_FILE" ]]; then
   warn "No paired Scanner detected yet (.paired missing)."

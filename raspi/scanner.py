@@ -2919,7 +2919,11 @@ def _is_paired() -> bool:
 
 
 def _ensure_install_bundle_on_usb() -> None:
-    """When unpaired and /mnt/usb mounted, seed 'Install Remote Scanning' on USB if missing."""
+    """When unpaired and /mnt/usb mounted, seed 'Install Remote Scanning' on USB if missing.
+
+    Copies only Install Filmkorn Scanner.app, with install scripts and helper
+    inside Contents/Resources/install/ so they are hidden in the bundle.
+    """
     if _is_paired():
         return
     if not os.path.ismount("/mnt/usb"):
@@ -2928,22 +2932,24 @@ def _ensure_install_bundle_on_usb() -> None:
     if os.path.isdir(dest_dir):
         return
     host = os.path.join(repo_root, "host-computer")
-    helper_dest = os.path.join(dest_dir, "helper")
     app_src = os.path.join(repo_root, "Install Filmkorn Scanner.app")
     app_dest = os.path.join(dest_dir, "Install Filmkorn Scanner.app")
-    files = [
-        (os.path.join(host, "install_remote_scanning.sh"), dest_dir),
-        (os.path.join(host, "install_remote_scanning.command"), dest_dir),
+    install_res = os.path.join(app_dest, "Contents", "Resources", "install")
+    helper_dest = os.path.join(install_res, "helper")
+    bundle_files = [
+        (os.path.join(host, "install_remote_scanning.sh"), install_res),
+        (os.path.join(host, "install_remote_scanning.command"), install_res),
         (os.path.join(host, "helper", "pair.sh"), helper_dest),
         (os.path.join(host, "helper", "set_scan_destination.sh"), helper_dest),
+        (os.path.join(host, "helper", "unpair.sh"), helper_dest),
     ]
     try:
         os.makedirs(dest_dir, exist_ok=True)
-        os.makedirs(helper_dest, exist_ok=True)
-        for src, dstdir in files:
-            shutil.copy2(src, dstdir)
         if os.path.isdir(app_src):
             shutil.copytree(app_src, app_dest)
+        os.makedirs(helper_dest, exist_ok=True)
+        for src, dstdir in bundle_files:
+            shutil.copy2(src, dstdir)
         logging.info("Installed Remote Scanning bundle at %s", dest_dir)
     except Exception as exc:
         logging.warning("Failed to install bundle on USB: %s", exc)
