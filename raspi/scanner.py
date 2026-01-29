@@ -2929,6 +2929,8 @@ def _ensure_install_bundle_on_usb() -> None:
         return
     host = os.path.join(repo_root, "host-computer")
     helper_dest = os.path.join(dest_dir, "helper")
+    app_src = os.path.join(repo_root, "Install Filmkorn Scanner.app")
+    app_dest = os.path.join(dest_dir, "Install Filmkorn Scanner.app")
     files = [
         (os.path.join(host, "install_remote_scanning.sh"), dest_dir),
         (os.path.join(host, "install_remote_scanning.command"), dest_dir),
@@ -2940,6 +2942,8 @@ def _ensure_install_bundle_on_usb() -> None:
         os.makedirs(helper_dest, exist_ok=True)
         for src, dstdir in files:
             shutil.copy2(src, dstdir)
+        if os.path.isdir(app_src):
+            shutil.copytree(app_src, app_dest)
         logging.info("Installed Remote Scanning bundle at %s", dest_dir)
     except Exception as exc:
         logging.warning("Failed to install bundle on USB: %s", exc)

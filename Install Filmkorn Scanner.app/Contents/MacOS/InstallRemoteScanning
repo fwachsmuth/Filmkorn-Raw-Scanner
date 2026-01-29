@@ -2,10 +2,12 @@
 set -euo pipefail
 
 HOST_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
-COMMAND_FILE="$HOST_DIR/host-computer/install_remote_scanning.command"
-
-if [ ! -f "$COMMAND_FILE" ]; then
-  echo "Missing $COMMAND_FILE"
+if [ -f "$HOST_DIR/host-computer/install_remote_scanning.command" ]; then
+  COMMAND_FILE="$HOST_DIR/host-computer/install_remote_scanning.command"
+elif [ -f "$HOST_DIR/install_remote_scanning.command" ]; then
+  COMMAND_FILE="$HOST_DIR/install_remote_scanning.command"
+else
+  echo "Missing install_remote_scanning.command (looked in host-computer/ and $HOST_DIR)"
   exit 1
 fi
 
