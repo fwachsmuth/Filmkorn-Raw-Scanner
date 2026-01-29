@@ -2923,18 +2923,18 @@ def _ensure_install_bundle_on_usb() -> None:
 
     Copies only Install Filmkorn Scanner.app, with install scripts and helper
     inside Contents/Resources/install/ so they are hidden in the bundle.
+    If the folder already exists but the app lacks install/, we add it (fixes old USBs).
     """
     if _is_paired():
         return
     if not os.path.ismount("/mnt/usb"):
         return
     dest_dir = os.path.join("/mnt/usb", "Install Remote Scanning")
-    if os.path.isdir(dest_dir):
-        return
     host = os.path.join(repo_root, "host-computer")
     app_src = os.path.join(repo_root, "Install Filmkorn Scanner.app")
     app_dest = os.path.join(dest_dir, "Install Filmkorn Scanner.app")
     install_res = os.path.join(app_dest, "Contents", "Resources", "install")
+    install_cmd = os.path.join(install_res, "install_remote_scanning.command")
     helper_dest = os.path.join(install_res, "helper")
     bundle_files = [
         (os.path.join(host, "install_remote_scanning.sh"), install_res),
@@ -2944,13 +2944,20 @@ def _ensure_install_bundle_on_usb() -> None:
         (os.path.join(host, "helper", "unpair.sh"), helper_dest),
     ]
     try:
-        os.makedirs(dest_dir, exist_ok=True)
-        if os.path.isdir(app_src):
-            shutil.copytree(app_src, app_dest)
-        os.makedirs(helper_dest, exist_ok=True)
-        for src, dstdir in bundle_files:
-            shutil.copy2(src, dstdir)
-        logging.info("Installed Remote Scanning bundle at %s", dest_dir)
+        if not os.path.isdir(dest_dir):
+            os.makedirs(dest_dir, exist_ok=True)
+            if os.path.isdir(app_src):
+                shutil.copytree(app_src, app_dest)
+            os.makedirs(helper_dest, exist_ok=True)
+            for src, dstdir in bundle_files:
+                shutil.copy2(src, dstdir)
+            logging.info("Installed Remote Scanning bundle at %s", dest_dir)
+            return
+        if os.path.isdir(app_dest) and not os.path.isfile(install_cmd):
+            os.makedirs(helper_dest, exist_ok=True)
+            for src, dstdir in bundle_files:
+                shutil.copy2(src, dstdir)
+            logging.info("Added install scripts into app at %s", app_dest)
     except Exception as exc:
         logging.warning("Failed to install bundle on USB: %s", exc)
 
