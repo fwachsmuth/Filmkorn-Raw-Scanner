@@ -97,6 +97,10 @@ last_usb_speed_check = 0.0
 power_warning_active = False
 usb3_warning_active = False
 dmesg_since = None
+
+# OTA updates: only consider tags that start with this prefix (e.g. "v" for v0.9.2). Use "" to allow any semver tag.
+OTA_TAG_PREFIX = "v"
+
 update_mode = False
 update_tags = []
 update_selected = 0
@@ -738,6 +742,8 @@ def _list_tags() -> list:
         )
         return []
     tags = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    if OTA_TAG_PREFIX:
+        tags = [t for t in tags if t.startswith(OTA_TAG_PREFIX)]
     tag_pattern = re.compile(r"^v?\d+\.\d+\.\d+(?:-[A-Za-z0-9._-]+)?$")
     filtered = [tag for tag in tags if tag_pattern.match(tag)]
     logging.info("update: found %d tags, %d installable", len(tags), len(filtered))
