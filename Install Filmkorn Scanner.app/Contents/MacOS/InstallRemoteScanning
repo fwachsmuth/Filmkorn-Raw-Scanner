@@ -1,22 +1,31 @@
 #!/bin/bash
 set -euo pipefail
 
+_fail() {
+  osascript -e "display dialog \"$1\" with title \"Install Filmkorn Scanner\" with icon stop buttons {\"OK\"} default button \"OK\"" 2>/dev/null || true
+  echo "$1" >&2
+  exit 1
+}
+
+_open_cmd() {
+  open "$1" || _fail "Could not open install script."
+}
+
 BUNDLE="$(cd "$(dirname "$0")/../.." && pwd)"
 INSTALL_CMD="$BUNDLE/Contents/Resources/install/install_remote_scanning.command"
 if [ -f "$INSTALL_CMD" ]; then
-  open -a Terminal "$INSTALL_CMD"
+  _open_cmd "$INSTALL_CMD"
   exit 0
 fi
 
 HOST_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 if [ -f "$HOST_DIR/host-computer/install_remote_scanning.command" ]; then
-  open -a Terminal "$HOST_DIR/host-computer/install_remote_scanning.command"
+  _open_cmd "$HOST_DIR/host-computer/install_remote_scanning.command"
   exit 0
 fi
 if [ -f "$HOST_DIR/install_remote_scanning.command" ]; then
-  open -a Terminal "$HOST_DIR/install_remote_scanning.command"
+  _open_cmd "$HOST_DIR/install_remote_scanning.command"
   exit 0
 fi
 
-echo "Missing install_remote_scanning.command (looked in app bundle, host-computer/ and $HOST_DIR)"
-exit 1
+_fail "Missing install_remote_scanning.command (looked in app bundle, host-computer/ and $HOST_DIR)"
