@@ -2938,10 +2938,10 @@ def _ensure_install_bundle_on_usb() -> None:
     if not os.path.ismount("/mnt/usb"):
         return
     usb_root = "/mnt/usb"
-    app_dest_name = "Pair Filmkorn-Scanner (Mac).app"
-    app_dest = os.path.join(usb_root, app_dest_name)
     host = os.path.join(repo_root, "host-computer")
-    app_src = os.path.join(repo_root, "host-computer", "helper", "Install Filmkorn Scanner.app")
+    app_name = "Pair Filmkorn-Scanner (Mac).app"
+    app_src = os.path.join(repo_root, "host-computer", "helper", app_name)
+    app_dest = os.path.join(usb_root, app_name)
     install_res = os.path.join(app_dest, "Contents", "Resources", "install")
     install_cmd = os.path.join(install_res, "install_remote_scanning.command")
     helper_dest = os.path.join(install_res, "helper")
@@ -2989,7 +2989,7 @@ def _ensure_install_bundle_on_usb() -> None:
                     pass
                 logging.info(
                     "Installed %s on USB%s",
-                    app_dest_name,
+                    app_name,
                     " (added install)" if not need_app else "",
                 )
             else:

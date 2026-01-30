@@ -12,7 +12,7 @@ if [[ "$(uname -s)" != "Darwin" ]]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-APP="${SCRIPT_DIR}/Install Filmkorn Scanner.app"
+APP="${SCRIPT_DIR}/Pair Filmkorn-Scanner (Mac).app"
 ICON_FILE="${APP}/Icon"$'\r'
 RESOURCES="${APP}/Contents/Resources"
 OUT="${RESOURCES}/AppIcon.icns"

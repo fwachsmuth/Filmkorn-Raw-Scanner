@@ -3,13 +3,13 @@
 <plist version="1.0">
   <dict>
     <key>CFBundleName</key>
-    <string>Install Filmkorn Scanner</string>
+    <string>Pair Filmkorn-Scanner (Mac)</string>
     <key>CFBundleDisplayName</key>
-    <string>Install Filmkorn Scanner</string>
+    <string>Pair Filmkorn-Scanner (Mac)</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>CFBundleIdentifier</key>
-    <string>com.filmkorn.install-filmkorn-scanner</string>
+    <string>com.filmkorn.pair-filmkorn-scanner</string>
     <key>CFBundleExecutable</key>
     <string>InstallRemoteScanning</string>
     <key>CFBundlePackageType</key>

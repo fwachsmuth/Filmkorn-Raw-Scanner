@@ -2,7 +2,7 @@
 set -euo pipefail
 
 _fail() {
-  osascript -e "display dialog \"$1\" with title \"Install Filmkorn Scanner\" with icon stop buttons {\"OK\"} default button \"OK\"" 2>/dev/null || true
+  osascript -e "display dialog \"$1\" with title \"Pair Filmkorn-Scanner (Mac)\" with icon stop buttons {\"OK\"} default button \"OK\"" 2>/dev/null || true
   echo "$1" >&2
   exit 1
 }
