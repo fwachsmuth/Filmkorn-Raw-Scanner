@@ -2941,7 +2941,7 @@ def _ensure_install_bundle_on_usb() -> None:
     app_dest_name = "Pair Filmkorn-Scanner (Mac).app"
     app_dest = os.path.join(usb_root, app_dest_name)
     host = os.path.join(repo_root, "host-computer")
-    app_src = os.path.join(repo_root, "Install Filmkorn Scanner.app")
+    app_src = os.path.join(repo_root, "host-computer", "helper", "Install Filmkorn Scanner.app")
     install_res = os.path.join(app_dest, "Contents", "Resources", "install")
     install_cmd = os.path.join(install_res, "install_remote_scanning.command")
     helper_dest = os.path.join(install_res, "helper")
