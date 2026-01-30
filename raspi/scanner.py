@@ -1994,6 +1994,7 @@ def _render_scan_overlay():
     if update_mode or pairing_mode:
         return
     show_shutter = state.scanning or current_screen in {
+        "insert-film",
         "ready-to-scan",
         "ready-to-scan-local",
         "ready-to-scan-net",
