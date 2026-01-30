@@ -2923,7 +2923,8 @@ def _ensure_install_bundle_on_usb() -> None:
 
     Copies only Install Filmkorn Scanner.app, with install scripts and helper
     inside Contents/Resources/install/ so they are hidden in the bundle.
-    If the folder already exists but the app lacks install/, we add it (fixes old USBs).
+    If the folder exists but the app is missing, we recreate it. If the app exists
+    but lacks install/, we add it (fixes old USBs).
     """
     if _is_paired():
         return
@@ -2944,20 +2945,22 @@ def _ensure_install_bundle_on_usb() -> None:
         (os.path.join(host, "helper", "unpair.sh"), helper_dest),
     ]
     try:
-        if not os.path.isdir(dest_dir):
-            os.makedirs(dest_dir, exist_ok=True)
-            if os.path.isdir(app_src):
-                shutil.copytree(app_src, app_dest)
-            os.makedirs(helper_dest, exist_ok=True)
-            for src, dstdir in bundle_files:
-                shutil.copy2(src, dstdir)
-            logging.info("Installed Remote Scanning bundle at %s", dest_dir)
+        os.makedirs(dest_dir, exist_ok=True)
+        need_app = not os.path.isdir(app_dest)
+        need_install = not os.path.isfile(install_cmd)
+        if not need_app and not need_install:
             return
-        if os.path.isdir(app_dest) and not os.path.isfile(install_cmd):
+        if need_app and os.path.isdir(app_src):
+            shutil.copytree(app_src, app_dest)
+        if need_install:
             os.makedirs(helper_dest, exist_ok=True)
             for src, dstdir in bundle_files:
                 shutil.copy2(src, dstdir)
-            logging.info("Added install scripts into app at %s", app_dest)
+            logging.info(
+                "Installed Remote Scanning bundle at %s%s",
+                dest_dir,
+                " (added install)" if not need_app else "",
+            )
     except Exception as exc:
         logging.warning("Failed to install bundle on USB: %s", exc)
 
