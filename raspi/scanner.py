@@ -2945,22 +2945,47 @@ def _ensure_install_bundle_on_usb() -> None:
         (os.path.join(host, "helper", "unpair.sh"), helper_dest),
     ]
     try:
+        if not os.path.isdir(app_src):
+            logging.warning(
+                "USB install bundle: app source missing at %s, skipping",
+                app_src,
+            )
+            return
+        for src, _ in bundle_files:
+            if not os.path.isfile(src):
+                logging.warning(
+                    "USB install bundle: script missing at %s, skipping",
+                    src,
+                )
+                return
         os.makedirs(dest_dir, exist_ok=True)
         need_app = not os.path.isdir(app_dest)
         need_install = not os.path.isfile(install_cmd)
         if not need_app and not need_install:
             return
-        if need_app and os.path.isdir(app_src):
+        if need_app:
             shutil.copytree(app_src, app_dest)
+            logging.info("USB install bundle: copied app to %s", app_dest)
         if need_install:
             os.makedirs(helper_dest, exist_ok=True)
             for src, dstdir in bundle_files:
                 shutil.copy2(src, dstdir)
-            logging.info(
-                "Installed Remote Scanning bundle at %s%s",
-                dest_dir,
-                " (added install)" if not need_app else "",
-            )
+                logging.debug("USB install bundle: copied %s -> %s", src, dstdir)
+            if os.path.isfile(install_cmd):
+                try:
+                    os.sync()
+                except OSError:
+                    pass
+                logging.info(
+                    "Installed Remote Scanning bundle at %s%s",
+                    dest_dir,
+                    " (added install)" if not need_app else "",
+                )
+            else:
+                logging.warning(
+                    "USB install bundle: install scripts copied but %s missing",
+                    install_cmd,
+                )
     except Exception as exc:
         logging.warning("Failed to install bundle on USB: %s", exc)
 
@@ -3417,12 +3442,14 @@ def setup():
     if storage_location == 1 and os.path.ismount("/mnt/usb"):
         _check_usb_filesystem()
 
-    # Seed Install Remote Scanning bundle on USB when unpaired and USB mounted
+    # Switch lsyncd to the right config for the selected storage target.
+    # When storage_location==1 and USB not mounted, this blocks until user plugs USB.
+    switch_lsyncd_config(storage_location)
+
+    # Seed Install Remote Scanning bundle on USB when unpaired and USB mounted.
+    # Run after switch_lsyncd_config so we see USB once it has been waited for.
     if not _is_paired() and os.path.ismount("/mnt/usb"):
         _ensure_install_bundle_on_usb()
-
-    # Switch lsyncd to the right config for the selected storage target.
-    switch_lsyncd_config(storage_location)
     # ---- Make sure we only run once, to avoid horrible crashes ¯\_(ツ)_/¯ 
     PID_FILE_PATH = "/tmp/scanner.pid"
     # log a pid
