@@ -2927,21 +2927,20 @@ def _ignore_app_metadata_for_usb(_dir: str, names: list) -> list:
 
 
 def _ensure_install_bundle_on_usb() -> None:
-    """When unpaired and /mnt/usb mounted, seed 'Install Remote Scanning' on USB if missing.
+    """When unpaired and /mnt/usb mounted, seed Pair Filmkorn-Scanner (Mac).app on USB if missing.
 
-    Copies only Install Filmkorn Scanner.app, with install scripts and helper
-    inside Contents/Resources/install/ so they are hidden in the bundle.
-    If the folder exists but the app is missing, we recreate it. If the app exists
-    but lacks install/, we add it (fixes old USBs).
+    Copies the app to USB root with install scripts and helper inside
+    Contents/Resources/install/. If the app exists but lacks install/, we add it (fixes old USBs).
     """
     if _is_paired():
         return
     if not os.path.ismount("/mnt/usb"):
         return
-    dest_dir = os.path.join("/mnt/usb", "Install Remote Scanning")
+    usb_root = "/mnt/usb"
+    app_dest_name = "Pair Filmkorn-Scanner (Mac).app"
+    app_dest = os.path.join(usb_root, app_dest_name)
     host = os.path.join(repo_root, "host-computer")
     app_src = os.path.join(repo_root, "Install Filmkorn Scanner.app")
-    app_dest = os.path.join(dest_dir, "Install Filmkorn Scanner.app")
     install_res = os.path.join(app_dest, "Contents", "Resources", "install")
     install_cmd = os.path.join(install_res, "install_remote_scanning.command")
     helper_dest = os.path.join(install_res, "helper")
@@ -2966,7 +2965,6 @@ def _ensure_install_bundle_on_usb() -> None:
                     src,
                 )
                 return
-        os.makedirs(dest_dir, exist_ok=True)
         need_app = not os.path.isdir(app_dest)
         need_install = not os.path.isfile(install_cmd)
         if not need_app and not need_install:
@@ -2989,8 +2987,8 @@ def _ensure_install_bundle_on_usb() -> None:
                 except OSError:
                     pass
                 logging.info(
-                    "Installed Remote Scanning bundle at %s%s",
-                    dest_dir,
+                    "Installed %s on USB%s",
+                    app_dest_name,
                     " (added install)" if not need_app else "",
                 )
             else:
