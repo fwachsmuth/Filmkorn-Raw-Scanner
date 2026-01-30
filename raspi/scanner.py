@@ -2918,6 +2918,14 @@ def _is_paired() -> bool:
     return os.path.isfile(uah) and os.path.isfile(hp)
 
 
+def _ignore_app_metadata_for_usb(_dir: str, names: list) -> list:
+    """Exclude macOS metadata when copying app to USB. Icon\\r is invalid on exFAT/FAT32."""
+    return [
+        n for n in names
+        if n == "Icon\r" or n.endswith("\r") or n == ".DS_Store"
+    ]
+
+
 def _ensure_install_bundle_on_usb() -> None:
     """When unpaired and /mnt/usb mounted, seed 'Install Remote Scanning' on USB if missing.
 
@@ -2964,7 +2972,11 @@ def _ensure_install_bundle_on_usb() -> None:
         if not need_app and not need_install:
             return
         if need_app:
-            shutil.copytree(app_src, app_dest)
+            shutil.copytree(
+                app_src,
+                app_dest,
+                ignore=_ignore_app_metadata_for_usb,
+            )
             logging.info("USB install bundle: copied app to %s", app_dest)
         if need_install:
             os.makedirs(helper_dest, exist_ok=True)
