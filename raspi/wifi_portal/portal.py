@@ -214,10 +214,16 @@ def connect_to_wifi(ssid: str, password: str) -> bool:
     
     # Run nmcli as user pi (NetworkManager refuses connect when invoked as root).
     # Use env without DBUS_SESSION_BUS_ADDRESS so nmcli uses system bus.
+    # Newer NetworkManager requires explicit key-mgmt or fails with
+    # "802-11-wireless-security.key-mgmt: property is missing".
     cmd = ["sudo", "-u", "pi", "nmcli", "dev", "wifi", "connect", ssid]
     if password:
         cmd.extend(["password", password])
     cmd.extend(["ifname", AP_INTERFACE])
+    if password:
+        cmd.extend(["--", "wifi-sec.key-mgmt", "wpa-psk"])
+    else:
+        cmd.extend(["--", "wifi-sec.key-mgmt", "none"])
     env = {k: v for k, v in os.environ.items() if k != "DBUS_SESSION_BUS_ADDRESS"}
     err_path = "/tmp/filmkorn-nmcli-connect.err"
     result = None
