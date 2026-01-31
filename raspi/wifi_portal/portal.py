@@ -274,7 +274,13 @@ def connect_to_wifi(ssid: str, password: str) -> bool:
         ["sudo", "-u", "pi", "nmcli", "connection", "delete", "id", ssid],
         capture_output=True, text=True, check=False
     )
-    write_err(f"delete result: {del_result.returncode} - {(del_result.stdout or del_result.stderr or '').strip()}")
+    # Exit code 10 = unknown connection (no profile to delete) - expected on first add
+    if del_result.returncode == 0:
+        write_err("delete result: 0 - existing profile removed")
+    elif del_result.returncode == 10:
+        write_err("delete result: 10 - no existing profile (ok)")
+    else:
+        write_err(f"delete result: {del_result.returncode} - {(del_result.stdout or del_result.stderr or '').strip()}")
     
     # Create a new connection profile with explicit settings
     # This avoids the "802-11-wireless-security.key-mgmt: property is missing" error

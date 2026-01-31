@@ -1637,19 +1637,39 @@ def _wifi_cancel(_args=None):
 
 def _reconnect_wifi(ssid: str):
     """Reconnect to a configured WiFi network using the existing NM profile."""
+    global current_screen, pending_overlay, overlay_ready
+    
+    # Show "connecting" message (reuse the portal's "waiting for files to sync" screen as a placeholder)
+    logging.info("wifi: attempting to reconnect to %s", ssid)
+    pending_overlay = "waiting-for-files-to-sync"
+    
+    # Give the UI thread time to update
+    time.sleep(0.5)
+    
     try:
+        # Run as pi user with system bus (same as portal)
         result = subprocess.run(
-            ["nmcli", "connection", "up", "id", ssid],
+            ["sudo", "-u", "pi", "nmcli", "connection", "up", "id", ssid],
             capture_output=True,
             text=True,
             timeout=30,
         )
         if result.returncode == 0:
-            logging.info("wifi: reconnected to %s", ssid)
+            logging.info("wifi: successfully reconnected to %s", ssid)
+            time.sleep(1)  # Brief pause to show completion
         else:
-            logging.warning("wifi: reconnect to %s failed: %s", ssid, (result.stderr or result.stdout or "").strip())
+            err = (result.stderr or result.stdout or "").strip()
+            logging.warning("wifi: reconnect to %s failed (exit %d): %s", ssid, result.returncode, err)
+            time.sleep(2)  # Show error state longer
+    except subprocess.TimeoutExpired:
+        logging.warning("wifi: reconnect to %s timed out", ssid)
+        time.sleep(2)
     except Exception as e:
         logging.warning("wifi: reconnect failed: %s", e)
+        time.sleep(2)
+    
+    # Clear overlay and return to WiFi menu
+    pending_overlay = None
     _show_wifi_menu()
 
 
