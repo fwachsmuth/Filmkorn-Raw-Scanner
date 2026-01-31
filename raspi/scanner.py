@@ -321,9 +321,11 @@ class State:
         # Check ethernet before scanning to host (storage_location == 0)
         # WiFi must not be used for file sync
         if storage_location == 0:
+            _wifi_radio_off()
             if not _is_ethernet_up():
                 logging.warning("start_scan: blocked - ethernet is down for host scanning")
                 _show_ethernet_warning()
+                _wifi_radio_on()
                 return
 
         self.raw_count = 0
@@ -349,6 +351,8 @@ class State:
         self.continue_dir = False
         self.scanning = False
         logging.info("Scanning stopped")
+        if storage_location == 0:
+            _wifi_radio_on()
         set_lamp_off()
         tell_arduino(Command.TELL_LOADSTATE)
         try:
@@ -1238,6 +1242,8 @@ def _enter_target_mode():
     global target_mode, target_selected, target_stored_idx
     logging.info("target: entering target selection menu")
     target_mode = True
+    # Turn WiFi off so host connectivity uses eth0 only (avoids asymmetric routing)
+    _wifi_radio_off()
     # Load and cache the stored setting once when entering menu
     target_stored_idx = _load_target_setting()
     target_selected = target_stored_idx
@@ -1413,6 +1419,7 @@ def _target_confirm(_args=None):
     target_mode = False
     target_validation_error = False
     target_validation_failures = []
+    _wifi_radio_on()
     try:
         tell_arduino(Command.TARGET_EXIT)
     except Exception as exc:
@@ -1465,6 +1472,7 @@ def _target_cancel(_args=None):
     target_mode = False
     target_validation_error = False
     target_validation_failures = []
+    _wifi_radio_on()
     try:
         tell_arduino(Command.TARGET_EXIT)
     except Exception as exc:
@@ -2308,6 +2316,30 @@ def _is_ethernet_up() -> bool:
     except Exception as e:
         logging.warning("ethernet: failed to check eth0 status: %s", e)
         return False
+
+
+def _wifi_radio_off():
+    """Turn WiFi radio off (avoids asymmetric routing when using eth0 for host sync)."""
+    try:
+        subprocess.run(
+            ["nmcli", "radio", "wifi", "off"],
+            capture_output=True, text=True, timeout=5, check=False
+        )
+        logging.info("wifi: radio turned off")
+    except Exception as e:
+        logging.warning("wifi: failed to turn radio off: %s", e)
+
+
+def _wifi_radio_on():
+    """Turn WiFi radio on (e.g. after host target/scan or at scanner start)."""
+    try:
+        subprocess.run(
+            ["nmcli", "radio", "wifi", "on"],
+            capture_output=True, text=True, timeout=5, check=False
+        )
+        logging.info("wifi: radio turned on")
+    except Exception as e:
+        logging.warning("wifi: failed to turn radio on: %s", e)
 
 
 def _show_ethernet_warning():
@@ -3809,6 +3841,8 @@ def setup():
     if current_version_label:
         logging.info("Version: %s", current_version_label)
 
+    # Ensure WiFi radio is on at scanner start (user may use captive portal, etc.)
+    _wifi_radio_on()
 
     # Set the GPIO mode to BCM
     GPIO.setmode(GPIO.BCM)
