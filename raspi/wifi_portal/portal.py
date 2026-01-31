@@ -87,8 +87,14 @@ def scan_wifi_networks() -> List[Dict]:
     """Scan for available WiFi networks using nmcli."""
     networks = []
     
+    # Check device state first
+    dev_result = run_cmd(["nmcli", "-t", "-f", "DEVICE,TYPE,STATE", "device"], check=False)
+    log.info("Device states: %s", dev_result.stdout.replace('\n', '; '))
+    
     # First, trigger a rescan
-    run_cmd(["nmcli", "dev", "wifi", "rescan"], check=False)
+    rescan_result = run_cmd(["nmcli", "dev", "wifi", "rescan"], check=False)
+    if rescan_result.returncode != 0:
+        log.warning("Rescan failed: %s", rescan_result.stderr or rescan_result.stdout)
     time.sleep(2)  # Wait for scan to complete
     
     # Get network list
@@ -96,8 +102,10 @@ def scan_wifi_networks() -> List[Dict]:
         "nmcli", "-t", "-f", "SSID,SIGNAL,SECURITY", "dev", "wifi", "list"
     ], check=False)
     
+    log.info("nmcli wifi list returned %d, output length: %d", result.returncode, len(result.stdout or ""))
+    
     if result.returncode != 0:
-        log.warning("nmcli wifi list failed, trying iwlist")
+        log.warning("nmcli wifi list failed: %s, trying iwlist", result.stderr or result.stdout)
         return scan_wifi_networks_iwlist()
     
     seen = set()
@@ -626,12 +634,30 @@ def main():
     signal.signal(signal.SIGINT, cleanup_and_exit)
     signal.signal(signal.SIGTERM, cleanup_and_exit)
     
+    # Ensure clean state before scanning - stop any leftover AP processes
+    log.info("Ensuring clean interface state before scan...")
+    run_cmd(["systemctl", "stop", "hostapd"], check=False)
+    run_cmd(["systemctl", "stop", "dnsmasq"], check=False)
+    run_cmd(["pkill", "-9", "hostapd"], check=False)
+    run_cmd(["pkill", "-9", "dnsmasq"], check=False)
+    
     # Scan for WiFi networks BEFORE starting the AP (wlan0 cannot scan while in AP mode)
-    log.info("Scanning for WiFi networks before starting AP...")
+    log.info("Preparing interface for WiFi scan...")
+    run_cmd(["nmcli", "radio", "wifi", "on"], check=False)
     run_cmd(["nmcli", "dev", "set", AP_INTERFACE, "managed", "yes"], check=False)
-    time.sleep(1)
+    run_cmd(["ip", "link", "set", AP_INTERFACE, "up"], check=False)
+    time.sleep(3)  # Wait for interface to stabilize
+    
+    log.info("Scanning for WiFi networks...")
     _cached_networks = scan_wifi_networks()
     log.info("Cached %d networks for portal", len(_cached_networks))
+    
+    # If no networks found, try again with longer wait
+    if not _cached_networks:
+        log.warning("No networks found on first scan, retrying...")
+        time.sleep(3)
+        _cached_networks = scan_wifi_networks()
+        log.info("Retry scan found %d networks", len(_cached_networks))
     
     # Start AP
     if not start_ap_services():
