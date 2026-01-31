@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Filmkorn Scanner WiFi Setup</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo img {
+            max-width: 200px;
+            height: auto;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #e94560;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-bottom: 25px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: #e94560;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 5px 10px;
+        }
+        
+        .refresh-btn:disabled {
+            opacity: 0.5;
+        }
+        
+        .network-list {
+            list-style: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .network-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .network-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .network-item.selected {
+            background: rgba(233, 69, 96, 0.3);
+            border: 1px solid #e94560;
+        }
+        
+        .network-info {
+            flex: 1;
+        }
+        
+        .network-ssid {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        
+        .network-security {
+            font-size: 0.8rem;
+            color: #a0a0a0;
+        }
+        
+        .signal-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 20px;
+            margin-left: 10px;
+        }
+        
+        .signal-bar {
+            width: 4px;
+            background: #444;
+            border-radius: 2px;
+        }
+        
+        .signal-bar.active {
+            background: #4ade80;
+        }
+        
+        .signal-bar:nth-child(1) { height: 6px; }
+        .signal-bar:nth-child(2) { height: 10px; }
+        .signal-bar:nth-child(3) { height: 14px; }
+        .signal-bar:nth-child(4) { height: 18px; }
+        
+        .password-section {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .password-section.visible {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #a0a0a0;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #e94560;
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            background: #d63d56;
+        }
+        
+        .btn-primary:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .status.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .status.success {
+            display: block;
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+        
+        .status.loading {
+            display: block;
+            background: rgba(255, 255, 255, 0.1);
+            color: #a0a0a0;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #a0a0a0;
+        }
+        
+        .lock-icon {
+            margin-left: 8px;
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="/logo.png" alt="Filmkorn Scanner">
+        </div>
+        
+        <h1>WiFi Setup</h1>
+        <p class="subtitle">Connect your scanner to a WiFi network</p>
+        
+        <div class="card">
+            <div class="card-title">
+                <span>Available Networks</span>
+                <button class="refresh-btn" onclick="scanNetworks()" id="refreshBtn">Refresh</button>
+            </div>
+            
+            <ul class="network-list" id="networkList">
+                <li class="empty-state">Scanning for networks...</li>
+            </ul>
+        </div>
+        
+        <div class="card password-section" id="passwordSection">
+            <div class="form-group">
+                <label>Selected Network: <strong id="selectedSSID"></strong></label>
+            </div>
+            <div class="form-group" id="passwordGroup">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter WiFi password" autocomplete="off">
+            </div>
+            <button class="btn btn-primary" onclick="connectToNetwork()" id="connectBtn">Connect</button>
+            
+            <div class="status" id="status"></div>
+        </div>
+    </div>
+    
+    <script>
+        let selectedNetwork = null;
+        let networks = [];
+        
+        function getSignalBars(signal) {
+            const bars = [
+                signal >= 20,
+                signal >= 40,
+                signal >= 60,
+                signal >= 80
+            ];
+            return bars.map(active => 
+                `<div class="signal-bar ${active ? 'active' : ''}"></div>`
+            ).join('');
+        }
+        
+        function renderNetworks() {
+            const list = document.getElementById('networkList');
+            
+            if (networks.length === 0) {
+                list.innerHTML = '<li class="empty-state">No networks found. Try refreshing.</li>';
+                return;
+            }
+            
+            list.innerHTML = networks.map((net, idx) => `
+                <li class="network-item ${selectedNetwork === idx ? 'selected' : ''}" 
+                    onclick="selectNetwork(${idx})">
+                    <div class="network-info">
+                        <div class="network-ssid">
+                            ${escapeHtml(net.ssid)}
+                            ${!net.open ? '<span class="lock-icon">&#128274;</span>' : ''}
+                        </div>
+                        <div class="network-security">${net.security || (net.open ? 'Open' : 'Secured')}</div>
+                    </div>
+                    <div class="signal-bars">${getSignalBars(net.signal)}</div>
+                </li>
+            `).join('');
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function selectNetwork(idx) {
+            selectedNetwork = idx;
+            const net = networks[idx];
+            
+            document.getElementById('selectedSSID').textContent = net.ssid;
+            document.getElementById('passwordSection').classList.add('visible');
+            
+            const passwordGroup = document.getElementById('passwordGroup');
+            if (net.open) {
+                passwordGroup.style.display = 'none';
+            } else {
+                passwordGroup.style.display = 'block';
+                document.getElementById('password').focus();
+            }
+            
+            document.getElementById('status').className = 'status';
+            document.getElementById('status').textContent = '';
+            
+            renderNetworks();
+        }
+        
+        async function scanNetworks() {
+            const btn = document.getElementById('refreshBtn');
+            btn.disabled = true;
+            btn.textContent = 'Scanning...';
+            
+            document.getElementById('networkList').innerHTML = 
+                '<li class="empty-state"><span class="spinner"></span>Scanning...</li>';
+            
+            try {
+                const response = await fetch('/scan');
+                networks = await response.json();
+                renderNetworks();
+            } catch (error) {
+                document.getElementById('networkList').innerHTML = 
+                    '<li class="empty-state">Error scanning. Try again.</li>';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Refresh';
+        }
+        
+        async function connectToNetwork() {
+            if (selectedNetwork === null) return;
+            
+            const net = networks[selectedNetwork];
+            const password = document.getElementById('password').value;
+            const status = document.getElementById('status');
+            const btn = document.getElementById('connectBtn');
+            
+            if (!net.open && !password) {
+                status.className = 'status error';
+                status.textContent = 'Please enter the password';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Connecting...';
+            status.className = 'status loading';
+            status.textContent = 'Connecting to ' + net.ssid + '...';
+            
+            try {
+                const response = await fetch('/connect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ssid: net.ssid,
+                        password: password
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    status.className = 'status success';
+                    status.textContent = 'Connected successfully! You can close this page.';
+                    btn.textContent = 'Connected';
+                    
+                    // Redirect to success page after delay
+                    setTimeout(() => {
+                        window.location.href = '/success';
+                    }, 2000);
+                } else {
+                    status.className = 'status error';
+                    status.textContent = result.error || 'Connection failed';
+                    btn.disabled = false;
+                    btn.textContent = 'Connect';
+                }
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = 'Connection error. The portal may have shut down.';
+                btn.disabled = false;
+                btn.textContent = 'Connect';
+            }
+        }
+        
+        // Initial scan
+        scanNetworks();
+        
+        // Auto-refresh every 10 seconds
+        setInterval(() => {
+            if (selectedNetwork === null) {
+                scanNetworks();
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

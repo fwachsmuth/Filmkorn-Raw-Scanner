@@ -146,11 +146,18 @@ TARGET_OPTIONS = [
     ("GPIO5", 2),          # storage_location = read from GPIO5
 ]
 TARGET_FILE = os.path.join(os.path.dirname(__file__), ".scan_target_mode")
+# WiFi setup mode
+wifi_mode = False
+wifi_selected = 0
+wifi_scroll_offset = 0
+wifi_portal_process = None  # Subprocess running the captive portal
+WIFI_NETWORKS_FILE = os.path.join(os.path.dirname(__file__), ".wifi_networks")
 MENU_ITEMS = [
     "Firmware Update",
     "Start Pairing",
     "Preview White Balance",
     "Select Scan Target",
+    "Setup Wifi",
     "Create Debug Log",
     "Factory Reset",
 ]
@@ -233,6 +240,11 @@ class Command(enum.Enum):
     MENU_PREV = 42
     MENU_NEXT = 43
     MENU_SELECT = 44
+    WIFI_ENTER = 45
+    WIFI_PREV = 46
+    WIFI_NEXT = 47
+    WIFI_CONFIRM = 48
+    WIFI_CANCEL = 49
 
     # Raspi to Arduino. Ths is handled by i2cReceive() on the Controller side.
     READY = 128
@@ -304,6 +316,14 @@ class State:
     def start_scan(self, arg_bytes=None):
         if self.continue_dir:
             return
+        
+        # Check ethernet before scanning to host (storage_location == 0)
+        # WiFi must not be used for file sync
+        if storage_location == 0:
+            if not _is_ethernet_up():
+                logging.warning("start_scan: blocked - ethernet is down for host scanning")
+                _show_ethernet_warning()
+                return
 
         self.raw_count = 0
         self.scanning = True
@@ -1266,15 +1286,15 @@ def _validate_host_target() -> list:
         failures.append("config")
         return failures
     
-    # Test 1: Ping
-    logging.info("target: validating ping to %s", host)
+    # Test 1: Ping (via eth0 only - WiFi must not be used for sync)
+    logging.info("target: validating ping to %s via eth0", host)
     result = subprocess.run(
-        ["ping", "-c", "1", "-W", "2", host],
+        ["ping", "-c", "1", "-W", "2", "-I", "eth0", host],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
     if result.returncode != 0:
-        logging.warning("target: ping failed to %s", host)
+        logging.warning("target: ping failed to %s via eth0", host)
         failures.append("ping")
         return failures  # No point testing further if ping fails
     
@@ -1291,6 +1311,7 @@ def _validate_host_target() -> list:
                 "/home/pi/.ssh/id_filmkorn-scanner_ed25519",
                 "-o", "BatchMode=yes",
                 "-o", "ConnectTimeout=5",
+                "-o", "BindInterface=eth0",
                 user_and_host,
                 remote_cmd,
             ],
@@ -1452,6 +1473,263 @@ def _target_cancel(_args=None):
         show_ready_to_scan()
 
 # --- End Scan Target Menu ---
+
+# --- WiFi Setup Menu ---
+
+def _load_wifi_networks() -> list:
+    """Load the stored WiFi networks from file. Returns list of dicts with 'ssid' and 'timestamp'."""
+    if os.path.exists(WIFI_NETWORKS_FILE):
+        try:
+            import json
+            with open(WIFI_NETWORKS_FILE, "r") as f:
+                data = json.load(f)
+                return data.get("networks", [])[:5]  # Limit to 5
+        except (ValueError, IOError) as e:
+            logging.error("wifi: failed to load networks: %s", e)
+    return []
+
+def _save_wifi_network(ssid: str):
+    """Save a WiFi network to the networks file, keeping only the last 5."""
+    import json
+    import time
+    networks = _load_wifi_networks()
+    # Remove existing entry for this SSID if present
+    networks = [n for n in networks if n.get("ssid") != ssid]
+    # Add new entry at the beginning
+    networks.insert(0, {"ssid": ssid, "timestamp": int(time.time())})
+    # Keep only the last 5
+    networks = networks[:5]
+    try:
+        with open(WIFI_NETWORKS_FILE, "w") as f:
+            json.dump({"networks": networks}, f)
+        logging.info("wifi: saved network %s", ssid)
+    except IOError as e:
+        logging.error("wifi: failed to save network: %s", e)
+
+def _show_wifi_menu():
+    """Display the WiFi setup menu with configured networks."""
+    global wifi_selected, wifi_scroll_offset, current_screen, pending_overlay, overlay_ready, preview_started
+    
+    networks = _load_wifi_networks()
+    lines = ["WiFi Setup", "", ""]
+    
+    # Menu options
+    menu_options = ["Start Setup (Captive Portal)"]
+    for net in networks:
+        menu_options.append(f"  {net.get('ssid', 'Unknown')}")
+    
+    for i, option in enumerate(menu_options):
+        prefix = "> " if i == wifi_selected else "  "
+        lines.append(prefix + option)
+    
+    lines.append("")
+    if networks:
+        lines.append("Configured networks shown above")
+    else:
+        lines.append("No WiFi networks configured")
+    
+    # Calculate scroll offset to keep selected item visible
+    selected_line_idx = 3 + wifi_selected
+    logo_height = _get_logo_height()
+    button_area_height = 60
+    available_height = preview_size[1] - logo_height - 10 - button_area_height if preview_size else 400
+    estimated_line_height = 40
+    max_visible_lines = max(1, int(available_height / estimated_line_height))
+    
+    if selected_line_idx < wifi_scroll_offset:
+        wifi_scroll_offset = max(0, selected_line_idx)
+    elif selected_line_idx >= wifi_scroll_offset + max_visible_lines:
+        wifi_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
+    
+    button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=wifi_scroll_offset)
+    current_screen = "wifi"
+    pending_overlay = overlay
+    if not preview_started:
+        logging.info("WiFi menu: starting preview for overlay")
+        try:
+            camera_start()
+        except Exception as exc:
+            logging.error("WiFi menu: failed to start preview: %s", exc)
+    overlay_ready = True
+    _apply_overlay_if_ready()
+    if pending_overlay is not None:
+        threading.Timer(0.2, _apply_overlay_if_ready).start()
+
+def _enter_wifi_mode():
+    """Enter the WiFi setup menu."""
+    global wifi_mode, wifi_selected, wifi_scroll_offset
+    logging.info("wifi: entering WiFi setup menu")
+    wifi_mode = True
+    wifi_selected = 0
+    wifi_scroll_offset = 0
+    _show_wifi_menu()
+
+def _wifi_prev(_args=None):
+    """Navigate up in the WiFi menu."""
+    global wifi_selected
+    if not wifi_mode:
+        return
+    networks = _load_wifi_networks()
+    menu_count = 1 + len(networks)  # "Start Setup" + configured networks
+    wifi_selected = (wifi_selected - 1 + menu_count) % menu_count
+    logging.info("wifi: selected item %d", wifi_selected)
+    _show_wifi_menu()
+
+def _wifi_next(_args=None):
+    """Navigate down in the WiFi menu."""
+    global wifi_selected
+    if not wifi_mode:
+        return
+    networks = _load_wifi_networks()
+    menu_count = 1 + len(networks)
+    wifi_selected = (wifi_selected + 1) % menu_count
+    logging.info("wifi: selected item %d", wifi_selected)
+    _show_wifi_menu()
+
+def _wifi_confirm(_args=None):
+    """Confirm selection in the WiFi menu."""
+    global wifi_mode, wifi_portal_process, menu_mode
+    if not wifi_mode:
+        return
+    
+    if wifi_selected == 0:
+        # Start captive portal setup
+        logging.info("wifi: starting captive portal setup")
+        _start_wifi_portal()
+    else:
+        # Selected a configured network - could show details or reconnect
+        networks = _load_wifi_networks()
+        if wifi_selected - 1 < len(networks):
+            ssid = networks[wifi_selected - 1].get("ssid", "Unknown")
+            logging.info("wifi: selected configured network: %s", ssid)
+            # For now, just show the menu again (could add reconnect functionality)
+            _show_wifi_menu()
+
+def _wifi_cancel(_args=None):
+    """Cancel and exit the WiFi menu."""
+    global wifi_mode, wifi_portal_process, menu_mode
+    if not wifi_mode:
+        return
+    
+    logging.info("wifi: canceled by user")
+    
+    # Stop portal if running
+    if wifi_portal_process is not None:
+        logging.info("wifi: stopping captive portal")
+        try:
+            wifi_portal_process.terminate()
+            wifi_portal_process.wait(timeout=5)
+        except Exception as e:
+            logging.warning("wifi: failed to stop portal cleanly: %s", e)
+            try:
+                wifi_portal_process.kill()
+            except:
+                pass
+        wifi_portal_process = None
+    
+    wifi_mode = False
+    
+    # If we came from menu, go back to menu; otherwise show ready screen
+    if menu_mode:
+        _show_menu_screen()
+    else:
+        show_ready_to_scan()
+
+def _start_wifi_portal():
+    """Start the WiFi captive portal subprocess."""
+    global wifi_portal_process, current_screen, pending_overlay, overlay_ready
+    
+    portal_script = os.path.join(os.path.dirname(__file__), "wifi_portal", "portal.py")
+    
+    if not os.path.exists(portal_script):
+        logging.error("wifi: portal script not found at %s", portal_script)
+        # Show error message
+        lines = ["WiFi Setup Error", "", "", "Portal not installed.", "", "Please update firmware."]
+        button_labels = {2: "Back"}
+        overlay = _build_menu_overlay(lines, button_labels=button_labels)
+        current_screen = "wifi-error"
+        pending_overlay = overlay
+        overlay_ready = True
+        _apply_overlay_if_ready()
+        return
+    
+    # Show "starting portal" screen
+    lines = [
+        "WiFi Setup",
+        "",
+        "",
+        "Starting captive portal...",
+        "",
+        "Connect to WiFi network:",
+        "  Filmkorn Scanner Setup",
+        "",
+        "Then open any website",
+        "to configure WiFi."
+    ]
+    button_labels = {2: "Cancel"}
+    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    current_screen = "wifi-portal"
+    pending_overlay = overlay
+    overlay_ready = True
+    _apply_overlay_if_ready()
+    
+    # Start portal as subprocess
+    try:
+        wifi_portal_process = subprocess.Popen(
+            ["sudo", "python3", portal_script],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True
+        )
+        logging.info("wifi: captive portal started with PID %d", wifi_portal_process.pid)
+        
+        # Start a thread to monitor the portal process
+        threading.Thread(target=_monitor_wifi_portal, daemon=True).start()
+    except Exception as e:
+        logging.error("wifi: failed to start captive portal: %s", e)
+        wifi_portal_process = None
+
+def _monitor_wifi_portal():
+    """Monitor the WiFi portal subprocess for completion."""
+    global wifi_portal_process, wifi_mode
+    
+    if wifi_portal_process is None:
+        return
+    
+    try:
+        # Read output and wait for completion
+        output, _ = wifi_portal_process.communicate(timeout=300)  # 5 minute timeout
+        return_code = wifi_portal_process.returncode
+        
+        logging.info("wifi: portal exited with code %d", return_code)
+        if output:
+            for line in output.strip().split('\n'):
+                logging.info("wifi portal: %s", line)
+        
+        if return_code == 0:
+            # Success - network was configured
+            logging.info("wifi: portal completed successfully")
+        else:
+            logging.warning("wifi: portal exited with error")
+        
+    except subprocess.TimeoutExpired:
+        logging.warning("wifi: portal timed out")
+        wifi_portal_process.kill()
+    except Exception as e:
+        logging.error("wifi: error monitoring portal: %s", e)
+    finally:
+        wifi_portal_process = None
+        
+        # Return to menu if still in wifi mode
+        if wifi_mode:
+            wifi_mode = False
+            if menu_mode:
+                _show_menu_screen()
+            else:
+                show_ready_to_scan()
+
+# --- End WiFi Setup Menu ---
 
 def _run_otp_scheduler() -> bool:
     candidates = [
@@ -1903,6 +2181,46 @@ def clear_overlay():
     current_screen = None
     if overlay_ready:
         camera.set_overlay(None)
+
+
+def _is_ethernet_up() -> bool:
+    """Check if eth0 has link and is UP."""
+    try:
+        result = subprocess.run(
+            ["ip", "link", "show", "eth0"],
+            capture_output=True, text=True, timeout=2
+        )
+        return "state UP" in result.stdout
+    except Exception as e:
+        logging.warning("ethernet: failed to check eth0 status: %s", e)
+        return False
+
+
+def _show_ethernet_warning():
+    """Show a warning that ethernet is not connected (required for host scanning)."""
+    global current_screen, pending_overlay, overlay_ready
+    logging.warning("ethernet: eth0 is not connected, cannot scan to host")
+    
+    lines = [
+        "Ethernet Required",
+        "",
+        "",
+        "Cannot scan to Host Computer",
+        "without ethernet connection.",
+        "",
+        "Please connect an ethernet",
+        "cable to the scanner.",
+        "",
+        "WiFi cannot be used for",
+        "file sync to host."
+    ]
+    button_labels = {2: "Back"}
+    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    current_screen = "ethernet-warning"
+    pending_overlay = overlay
+    overlay_ready = True
+    _apply_overlay_if_ready()
+
 
 def _get_logo_height() -> int:
     """Get the height of the logo if it exists, otherwise return 0."""
@@ -3030,6 +3348,7 @@ def _can_write_remote_path(user_and_host: str, scan_destination: str) -> bool:
             "ssh",
             "-i",
             "/home/pi/.ssh/id_filmkorn-scanner_ed25519",
+            "-o", "BindInterface=eth0",
             user_and_host,
             remote_cmd,
         ],
@@ -3656,6 +3975,19 @@ def loop():
             # If we receive target commands but target_mode is False, log it
             if command in (Command.TARGET_PREV, Command.TARGET_NEXT, Command.TARGET_CONFIRM, Command.TARGET_CANCEL):
                 logging.warning("target: received %s but target_mode is False - state mismatch!", command)
+        if command == Command.WIFI_ENTER:
+            _enter_wifi_mode()
+            return
+        if wifi_mode:
+            func = {
+                Command.WIFI_PREV: _wifi_prev,
+                Command.WIFI_NEXT: _wifi_next,
+                Command.WIFI_CONFIRM: _wifi_confirm,
+                Command.WIFI_CANCEL: _wifi_cancel,
+            }.get(command, None)
+            if func is not None:
+                func(received[1:])
+            return
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {
             Command.Z1_1: set_zoom_mode_1_1,

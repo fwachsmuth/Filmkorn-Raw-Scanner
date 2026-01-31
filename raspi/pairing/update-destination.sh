@@ -60,7 +60,7 @@ temp_conf="$(mktemp)"
 rawpath="${rawpath%/}"
 
 info "Validating host and path..."
-if ! ping -c 1 -W 1 "${userhost#*@}" >/dev/null 2>&1; then
+if ! ping -c 1 -W 1 -I eth0 "${userhost#*@}" >/dev/null 2>&1; then
   warn "🐧 Host ${userhost#*@} not reachable (ping failed). Did you enable Remote Login yet?"
   exit 1
 fi
@@ -68,6 +68,7 @@ if ! ssh -i /home/pi/.ssh/id_filmkorn-scanner_ed25519 \
   -o BatchMode=yes \
   -o ConnectTimeout=5 \
   -o StrictHostKeyChecking=accept-new \
+  -o BindInterface=eth0 \
   "${userhost}" \
   "mkdir -p \"${rawpath}\" && test -w \"${rawpath}\""
 then
@@ -86,6 +87,7 @@ if ! ssh -i /home/pi/.ssh/id_filmkorn-scanner_ed25519 \
   -o BatchMode=yes \
   -o ConnectTimeout=5 \
   -o StrictHostKeyChecking=accept-new \
+  -o BindInterface=eth0 \
   "${userhost}" \
   "/opt/homebrew/bin/rsync --version >/dev/null 2>&1"
 then
@@ -122,7 +124,8 @@ sync {
     }
   },
   ssh = {
-    identityFile = "/home/pi/.ssh/id_filmkorn-scanner_ed25519"
+    identityFile = "/home/pi/.ssh/id_filmkorn-scanner_ed25519",
+    _extra = {"-o", "BindInterface=eth0"}
   }
 }
 EOFCONFIGFILE

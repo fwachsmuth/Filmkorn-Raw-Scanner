@@ -99,6 +99,11 @@ enum Command
   CMD_MENU_PREV = 42,
   CMD_MENU_NEXT = 43,
   CMD_MENU_SELECT = 44,
+  CMD_WIFI_ENTER = 45,
+  CMD_WIFI_PREV = 46,
+  CMD_WIFI_NEXT = 47,
+  CMD_WIFI_CONFIRM = 48,
+  CMD_WIFI_CANCEL = 49,
 
   // Raspi to Arduino
   CMD_READY = 128,
@@ -122,6 +127,7 @@ enum MenuState {
   MENU_PAIRING,   // Pairing submenu
   MENU_AWB,       // White balance submenu
   MENU_TARGET,    // Scan target submenu
+  MENU_WIFI,      // WiFi setup submenu
   MENU_LOGS,      // Debug log submenu
   MENU_UNPAIR     // Factory reset submenu
 };
@@ -131,9 +137,10 @@ enum MenuItem {
   MENU_ITEM_PAIRING = 1,
   MENU_ITEM_AWB = 2,
   MENU_ITEM_TARGET = 3,
-  MENU_ITEM_LOGS = 4,
-  MENU_ITEM_UNPAIR = 5,
-  MENU_ITEM_COUNT = 6
+  MENU_ITEM_WIFI = 4,
+  MENU_ITEM_LOGS = 5,
+  MENU_ITEM_UNPAIR = 6,
+  MENU_ITEM_COUNT = 7
 };
 
 
@@ -164,6 +171,7 @@ bool pairingMode = false;
 bool logsMode = false;
 bool awbMode = false;
 bool targetMode = false;
+bool wifiMode = false;
 uint32_t pairingModeEnteredAt = 0;
 bool pairingCancelPending = false;
 uint32_t pairingCancelSentAt = 0;
@@ -616,6 +624,11 @@ void handleMenuSystem() {
               targetMode = true;
               nextPiCmd = CMD_TARGET_ENTER;
               break;
+            case MENU_ITEM_WIFI:
+              menuState = MENU_WIFI;
+              wifiMode = true;
+              nextPiCmd = CMD_WIFI_ENTER;
+              break;
             case MENU_ITEM_LOGS:
               menuState = MENU_LOGS;
               logsMode = true;
@@ -762,6 +775,40 @@ void handleMenuSystem() {
             targetMode = false;
             nextPiCmd = CMD_TARGET_CANCEL;
             Serial.println("Target: exit menu");
+            break;
+          default:
+            break;
+        }
+      }
+    } else if (wifiMode) {
+      if (currentButton != prevButton) {
+        prevButton = currentButton;
+        switch (currentButton) {
+          case RUNREV:
+            // Go back to main menu
+            menuState = MENU_MAIN;
+            wifiMode = false;
+            nextPiCmd = CMD_WIFI_CANCEL;
+            Serial.println("WiFi: back to menu");
+            break;
+          case REV1:
+            nextPiCmd = CMD_WIFI_PREV;
+            Serial.println("WiFi: prev");
+            break;
+          case FWD1:
+            nextPiCmd = CMD_WIFI_NEXT;
+            Serial.println("WiFi: next");
+            break;
+          case RUNFWD:
+            nextPiCmd = CMD_WIFI_CONFIRM;
+            Serial.println("WiFi: confirm");
+            break;
+          case STOP:
+            // Exit menu completely
+            menuState = MENU_IDLE;
+            wifiMode = false;
+            nextPiCmd = CMD_WIFI_CANCEL;
+            Serial.println("WiFi: exit menu");
             break;
           default:
             break;
