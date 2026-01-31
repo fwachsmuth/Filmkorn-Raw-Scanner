@@ -208,25 +208,46 @@ def connect_to_wifi(ssid: str, password: str) -> bool:
     # First, stop our AP services
     stop_ap_services()
     
-    # Give NetworkManager control of the interface
+    # Give NetworkManager control of the interface and time to take over wlan0
     run_cmd(["nmcli", "dev", "set", AP_INTERFACE, "managed", "yes"], check=False)
-    time.sleep(1)
+    time.sleep(5)  # wlan0 needs time to leave AP mode and be ready for client connect
     
-    # Try to connect. Run nmcli as user pi: NetworkManager typically refuses
-    # connection changes when invoked as root (D-Bus policy).
+    # Run nmcli as user pi (NetworkManager refuses connect when invoked as root).
+    # Use env without DBUS_SESSION_BUS_ADDRESS so nmcli uses system bus.
     cmd = ["sudo", "-u", "pi", "nmcli", "dev", "wifi", "connect", ssid]
     if password:
         cmd.extend(["password", password])
     cmd.extend(["ifname", AP_INTERFACE])
-    result = run_cmd(cmd, check=False)
+    env = {k: v for k, v in os.environ.items() if k != "DBUS_SESSION_BUS_ADDRESS"}
+    err_path = "/tmp/filmkorn-nmcli-connect.err"
+    result = None
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=False,
+            env=env,
+            timeout=60,
+        )
+        if result.stderr or result.stdout:
+            with open(err_path, "w") as f:
+                f.write(result.stdout or "")
+                if result.stderr:
+                    f.write(result.stderr)
+            log.info("nmcli output written to %s", err_path)
+    except subprocess.TimeoutExpired:
+        log.error("nmcli connect timed out after 60s")
+    except Exception as e:
+        log.exception("nmcli connect failed: %s", e)
     
-    if result.returncode == 0:
+    if result and result.returncode == 0:
         log.info(f"Successfully connected to {ssid}")
         save_wifi_network(ssid)
         return True
     else:
-        err = (result.stderr or result.stdout or "").strip()
-        log.error("Failed to connect: %s", err or f"exit code {result.returncode}")
+        err = (result.stderr or result.stdout or "").strip() if result else "timeout"
+        log.error("Failed to connect: %s (see %s)", err or f"exit code {getattr(result, 'returncode', '?')}", err_path)
         # Restart AP for another try
         start_ap_services()
         return False
