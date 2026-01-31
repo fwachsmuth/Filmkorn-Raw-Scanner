@@ -2112,6 +2112,7 @@ def _unpair_confirm(_args=None):
         AWB_FILE,           # .awb_mode
         TARGET_FILE,        # .scan_target_mode
         MCU_HEX_HASH_FILE,  # .mcu_hex_hash
+        WIFI_NETWORKS_FILE, # .wifi_networks
         ".user_and_host",
         ".scan_destination",
         ".host_path",
