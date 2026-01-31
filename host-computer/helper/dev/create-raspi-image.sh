@@ -47,6 +47,8 @@ manual_shrink_hint() {
 
 HOST="filmkorn-scanner.local"
 USER="pi"
+# Keep connection alive during long imaging; fail fast on connect
+SSH_OPTS=(-o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=6)
 OUTPUT=""
 ZERO_FILL=true
 KEEP_SSH=false
@@ -154,7 +156,7 @@ else
 fi
 if [[ "${DRY_RUN}" == "false" ]]; then
 # sudo -E preserves KEEP_SSH/ZERO_FILL etc.; without it sudo wipes env and ZERO_FILL becomes false
-ssh "${USER}@${HOST}" "KEEP_SSH=${KEEP_SSH} KEEP_HOSTKEYS=${KEEP_HOSTKEYS} KEEP_HISTORY=${KEEP_HISTORY} ZERO_FILL=${ZERO_FILL} sudo -E bash -s" <<'EOF'
+ssh "${SSH_OPTS[@]}" "${USER}@${HOST}" "KEEP_SSH=${KEEP_SSH} KEEP_HOSTKEYS=${KEEP_HOSTKEYS} KEEP_HISTORY=${KEEP_HISTORY} ZERO_FILL=${ZERO_FILL} sudo -E bash -s" <<'EOF'
 set -euo pipefail
 KEEP_SSH="${KEEP_SSH:-false}"
 KEEP_HOSTKEYS="${KEEP_HOSTKEYS:-false}"
@@ -382,7 +384,7 @@ if [[ "${DRY_RUN}" == "true" ]]; then
   info "Dry run: would install first-boot tasks (auto-resize)"
 else
   info "Installing first-boot tasks (auto-resize)..."
-  if ! ssh "${USER}@${HOST}" "sudo bash -s" <<'EOF'
+  if ! ssh "${SSH_OPTS[@]}" "${USER}@${HOST}" "sudo bash -s" <<'EOF'
 set -euo pipefail
 sudo install -m 0755 /home/pi/Filmkorn-Raw-Scanner/raspi/scanner-helpers/filmkorn-firstboot.sh /usr/local/sbin/filmkorn-firstboot.sh
 sudo install -m 0644 /home/pi/Filmkorn-Raw-Scanner/raspi/systemd/filmkorn-firstboot.service /etc/systemd/system/filmkorn-firstboot.service
@@ -392,7 +394,7 @@ sudo systemctl enable filmkorn-firstboot.service
 EOF
   then
     warn "First-boot install failed; restoring stashed files..."
-    ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; for f in /run/filmkorn-imaging/imaging-*.tgz; do [ -f \"\$f\" ] || continue; tar -xzf \"\$f\" -C / 2>/dev/null || true; rm -f \"\$f\"; done; rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true'" || true
+    ssh "${SSH_OPTS[@]}" "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; for f in /run/filmkorn-imaging/imaging-*.tgz; do [ -f \"\$f\" ] || continue; tar -xzf \"\$f\" -C / 2>/dev/null || true; rm -f \"\$f\"; done; rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true'" || true
     exit 1
   fi
 fi
@@ -401,7 +403,7 @@ if [[ "${DRY_RUN}" == "true" ]]; then
   info "Dry run: would stream image to $OUTPUT"
 else
   info "Creating compressed image: $OUTPUT"
-  if ! ssh "${USER}@${HOST}" "KEEP_SSH=${KEEP_SSH} KEEP_HOSTKEYS=${KEEP_HOSTKEYS} sudo bash -s" <<'EOF' > "$OUTPUT"
+  if ! ssh "${SSH_OPTS[@]}" "${USER}@${HOST}" "KEEP_SSH=${KEEP_SSH} KEEP_HOSTKEYS=${KEEP_HOSTKEYS} sudo bash -s" <<'EOF' > "$OUTPUT"
 set -euo pipefail
 KEEP_SSH="${KEEP_SSH:-false}"
 KEEP_HOSTKEYS="${KEEP_HOSTKEYS:-false}"
@@ -541,7 +543,7 @@ dd if=/dev/mmcblk0 bs=4M status=progress | gzip -1
 EOF
   then
     warn "Imaging failed; restoring stashed files..."
-    ssh "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; for f in /run/filmkorn-imaging/imaging-*.tgz; do [ -f \"\$f\" ] || continue; tar -xzf \"\$f\" -C / 2>/dev/null || true; rm -f \"\$f\"; done; rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true'" || true
+    ssh "${SSH_OPTS[@]}" "${USER}@${HOST}" "sudo bash -c 'set -euo pipefail; for f in /run/filmkorn-imaging/imaging-*.tgz; do [ -f \"\$f\" ] || continue; tar -xzf \"\$f\" -C / 2>/dev/null || true; rm -f \"\$f\"; done; rmdir /run/filmkorn-imaging >/dev/null 2>&1 || true'" || true
     exit 1
   fi
 fi
