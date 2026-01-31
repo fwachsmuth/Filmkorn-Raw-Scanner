@@ -1287,17 +1287,18 @@ def _validate_host_target() -> list:
         failures.append("config")
         return failures
     
-    # Test 1: Ping (via eth0 only - WiFi must not be used for sync)
+    # Test 1: Ping (via eth0 only - sync must use ethernet, not WiFi)
     logging.info("target: validating ping to %s via eth0", host)
-    result = subprocess.run(
+    ping_result = subprocess.run(
         ["ping", "-c", "1", "-W", "2", "-I", "eth0", host],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    if result.returncode != 0:
-        logging.warning("target: ping failed to %s via eth0", host)
+    if ping_result.returncode != 0:
+        logging.warning("target: ping failed to %s via eth0 (connect scanner via ethernet cable to same network as host)", host)
         failures.append("ping")
         return failures  # No point testing further if ping fails
+    logging.info("target: ping to %s via eth0 OK", host)
     
     # Test 2: SSH + Write (combined)
     if scan_destination:
@@ -1321,11 +1322,12 @@ def _validate_host_target() -> list:
             text=True,
         )
         if result.returncode != 0:
-            logging.warning("target: ssh/write test failed: %s", result.stderr.strip())
+            stderr = result.stderr.strip()
+            logging.warning("target: ssh/write test failed: %s", stderr)
             # Try to distinguish between SSH connection failure and write failure
             # If we can't connect via SSH, mark as "ssh" failure
             # If we can connect but can't write, mark as "write" failure
-            if "Connection" in result.stderr or "Could not resolve" in result.stderr or "Permission denied" in result.stderr:
+            if "Connection" in stderr or "Could not resolve" in stderr or "Permission denied" in stderr:
                 failures.append("ssh")
             else:
                 failures.append("write")
@@ -1344,11 +1346,11 @@ def _show_target_validation_error():
     else:
         # Show specific help messages based on which tests failed
         if "ping" in target_validation_failures:
-            lines.append("Check the network cable")
-            lines.append("being plugged in")
+            lines.append("Connect scanner via ethernet")
+            lines.append("cable to same network as host")
         if "ssh" in target_validation_failures:
-            lines.append("Check that 'Remote Login'")
-            lines.append("is enabled")
+            lines.append("On Mac: enable Remote Login")
+            lines.append("(Sharing) and allow firewall")
         if "write" in target_validation_failures:
             lines.append("Check that 'Full Disk Access")
             lines.append("for remote users' is enabled")
