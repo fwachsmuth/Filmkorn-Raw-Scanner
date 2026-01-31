@@ -111,7 +111,8 @@ enum Command
   CMD_TELL_LOADSTATE = 130,
   CMD_AWB_EXIT = 131,
   CMD_TARGET_EXIT = 132,
-  CMD_TARGET_REENTER = 133  // Re-enter target mode (used when returning from validation error)
+  CMD_TARGET_REENTER = 133,  // Re-enter target mode (used when returning from validation error)
+  CMD_WIFI_EXIT = 134
 };
 
 enum ZoomMode {
@@ -1040,6 +1041,12 @@ void i2cReceive(int howMany) {
       menuState = MENU_MAIN;
       nextPiCmd = CMD_NONE;
       Serial.println("Target menu: exit");
+    }
+    if ((Command)i2cCommand == CMD_WIFI_EXIT) {
+      wifiMode = false;
+      menuState = MENU_MAIN;
+      nextPiCmd = CMD_NONE;
+      Serial.println("WiFi menu: exit");
     }
     if ((Command)i2cCommand == CMD_TARGET_REENTER) {
       // Python is telling us to enter target mode (e.g., due to network failure)

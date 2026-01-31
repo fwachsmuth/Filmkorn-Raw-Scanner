@@ -245,6 +245,7 @@ class Command(enum.Enum):
     WIFI_NEXT = 47
     WIFI_CONFIRM = 48
     WIFI_CANCEL = 49
+    WIFI_EXIT = 134
 
     # Raspi to Arduino. Ths is handled by i2cReceive() on the Controller side.
     READY = 128
@@ -1644,15 +1645,28 @@ def _wifi_cancel(_args=None):
 
 def _reconnect_wifi(ssid: str):
     """Reconnect to a configured WiFi network using the existing NM profile."""
-    global current_screen, pending_overlay, overlay_ready
+    global current_screen, pending_overlay, overlay_ready, wifi_mode, preview_started
     
-    # Show "connecting" message (reuse the portal's "waiting for files to sync" screen as a placeholder)
     logging.info("wifi: attempting to reconnect to %s", ssid)
-    pending_overlay = "waiting-for-files-to-sync"
     
-    # Give the UI thread time to update
-    time.sleep(0.5)
+    # Show "Connecting..." overlay
+    lines = [
+        "WiFi",
+        "",
+        "",
+        f"Connecting to:",
+        f"  {ssid}",
+        "",
+        "Please wait...",
+    ]
+    button_labels = {}  # No buttons during connection
+    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    current_screen = "wifi-connecting"
+    pending_overlay = overlay
+    overlay_ready = True
+    _apply_overlay_if_ready()
     
+    success = False
     try:
         # Run as pi user with system bus (same as portal)
         result = subprocess.run(
@@ -1663,21 +1677,62 @@ def _reconnect_wifi(ssid: str):
         )
         if result.returncode == 0:
             logging.info("wifi: successfully reconnected to %s", ssid)
-            time.sleep(1)  # Brief pause to show completion
+            success = True
         else:
             err = (result.stderr or result.stdout or "").strip()
             logging.warning("wifi: reconnect to %s failed (exit %d): %s", ssid, result.returncode, err)
-            time.sleep(2)  # Show error state longer
     except subprocess.TimeoutExpired:
         logging.warning("wifi: reconnect to %s timed out", ssid)
-        time.sleep(2)
     except Exception as e:
         logging.warning("wifi: reconnect failed: %s", e)
-        time.sleep(2)
     
-    # Clear overlay and return to WiFi menu
-    pending_overlay = None
-    _show_wifi_menu()
+    if success:
+        # Show brief success message
+        lines = [
+            "WiFi",
+            "",
+            "",
+            f"Connected to:",
+            f"  {ssid}",
+            "",
+            "",
+        ]
+        overlay = _build_menu_overlay(lines, button_labels={})
+        pending_overlay = overlay
+        overlay_ready = True
+        _apply_overlay_if_ready()
+        time.sleep(2)
+        
+        # Exit WiFi menu and return to main menu or ready screen
+        wifi_mode = False
+        try:
+            tell_arduino(Command.WIFI_EXIT)
+        except Exception as exc:
+            logging.warning("wifi: failed to notify controller to exit WiFi mode: %s", exc)
+        if menu_mode:
+            _show_menu_screen()
+        else:
+            show_ready_to_scan()
+    else:
+        # Show error and return to WiFi menu so user can try again
+        lines = [
+            "WiFi",
+            "",
+            "",
+            "Connection failed!",
+            "",
+            f"Could not connect to:",
+            f"  {ssid}",
+        ]
+        button_labels = {6: "OK"}
+        overlay = _build_menu_overlay(lines, button_labels=button_labels)
+        pending_overlay = overlay
+        overlay_ready = True
+        _apply_overlay_if_ready()
+        time.sleep(3)
+        
+        # Return to WiFi menu
+        _show_wifi_menu()
 
 
 def _start_wifi_portal():
@@ -1766,17 +1821,22 @@ def _monitor_wifi_portal():
         logging.info("wifi: portal monitor cleanup, wifi_mode=%s, portal_exit_code=%d, menu_mode=%s", 
                      wifi_mode, portal_exit_code, menu_mode)
         if wifi_mode:
-            # On success, show WiFi submenu so user sees the configured network(s)
-            if portal_exit_code == 0 and menu_mode:
-                logging.info("wifi: portal succeeded, showing WiFi menu")
-                _show_wifi_menu()
-            else:
-                logging.info("wifi: portal cancelled/failed, returning to main menu")
+            if portal_exit_code == 0:
+                # Success - exit WiFi menu and return to main menu
+                logging.info("wifi: portal succeeded, exiting WiFi mode")
                 wifi_mode = False
+                try:
+                    tell_arduino(Command.WIFI_EXIT)
+                except Exception as exc:
+                    logging.warning("wifi: failed to notify controller to exit WiFi mode: %s", exc)
                 if menu_mode:
                     _show_menu_screen()
                 else:
                     show_ready_to_scan()
+            else:
+                # Failed/cancelled - return to WiFi submenu so user can try again
+                logging.info("wifi: portal cancelled/failed, returning to WiFi menu")
+                _show_wifi_menu()
         else:
             logging.warning("wifi: portal monitor - wifi_mode was False")
 
