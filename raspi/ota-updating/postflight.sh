@@ -33,6 +33,16 @@ if [ -d "$WIFI_PORTAL_DIR" ]; then
     fi
 fi
 
+# --- Polkit: allow pi to control NetworkManager (for WiFi captive portal) ---
+# Without this, nmcli run as pi fails with "Not authorized to control networking".
+
+POLKIT_RULE_SRC="${REPO_ROOT}/raspi/systemd/50-filmkorn-network-manager.rules"
+POLKIT_RULE_DST="/etc/polkit-1/rules.d/50-filmkorn-network-manager.rules"
+if [ -f "$POLKIT_RULE_SRC" ]; then
+    log "postflight: installing Polkit rule for NetworkManager (WiFi portal)"
+    install -m 0644 "$POLKIT_RULE_SRC" "$POLKIT_RULE_DST"
+fi
+
 # --- NetworkManager Configuration ---
 
 # Ensure NetworkManager is managing wlan0 (required for WiFi setup to work)

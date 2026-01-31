@@ -115,5 +115,12 @@ sudo systemctl daemon-reload
 sudo systemctl enable filmkorn-otp-schedule.service
 sudo systemctl restart filmkorn-otp-schedule.service || true
 
+###
+### Polkit: allow pi to control NetworkManager (for WiFi captive portal)
+###
+echo "Installing Polkit rule for NetworkManager (WiFi portal)"
+sudo install -m 0644 "${SCRIPT_DIR}/50-filmkorn-network-manager.rules" \
+  /etc/polkit-1/rules.d/50-filmkorn-network-manager.rules
+
 echo
 echo "All services installed and restarted where applicable."

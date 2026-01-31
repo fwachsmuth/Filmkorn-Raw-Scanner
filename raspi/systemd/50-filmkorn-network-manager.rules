@@ -1,0 +1,9 @@
+// Allow user pi to control NetworkManager without an interactive session.
+// Required for the WiFi captive portal (nmcli runs as pi via sudo -u pi)
+// when the portal is started by the scanner (root); otherwise PolicyKit
+// rejects with "Not authorized to control networking".
+polkit.addRule(function(action, subject) {
+    if (action.id.indexOf("org.freedesktop.NetworkManager.") === 0 && subject.user === "pi") {
+        return polkit.Result.YES;
+    }
+});
