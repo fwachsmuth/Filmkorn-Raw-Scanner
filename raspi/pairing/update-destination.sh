@@ -59,16 +59,17 @@ host_path_path="${repo_root}/raspi/.host_path"
 temp_conf="$(mktemp)"
 rawpath="${rawpath%/}"
 
+# Validate host reachability and path (use default route so pairing works over WiFi or ethernet).
+# Actual sync (lsyncd) is still bound to eth0 only; scanner will require ethernet when scanning to host.
 info "Validating host and path..."
-if ! ping -c 1 -W 1 -I eth0 "${userhost#*@}" >/dev/null 2>&1; then
+if ! ping -c 1 -W 2 "${userhost#*@}" >/dev/null 2>&1; then
   warn "🐧 Host ${userhost#*@} not reachable (ping failed). Did you enable Remote Login yet?"
   exit 1
 fi
 if ! ssh -i /home/pi/.ssh/id_filmkorn-scanner_ed25519 \
   -o BatchMode=yes \
-  -o ConnectTimeout=5 \
+  -o ConnectTimeout=10 \
   -o StrictHostKeyChecking=accept-new \
-  -o BindInterface=eth0 \
   "${userhost}" \
   "mkdir -p \"${rawpath}\" && test -w \"${rawpath}\""
 then
@@ -85,9 +86,8 @@ fi
 info "🐧 Checking remote rsync path..."
 if ! ssh -i /home/pi/.ssh/id_filmkorn-scanner_ed25519 \
   -o BatchMode=yes \
-  -o ConnectTimeout=5 \
+  -o ConnectTimeout=10 \
   -o StrictHostKeyChecking=accept-new \
-  -o BindInterface=eth0 \
   "${userhost}" \
   "/opt/homebrew/bin/rsync --version >/dev/null 2>&1"
 then
