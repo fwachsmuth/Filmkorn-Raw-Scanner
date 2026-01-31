@@ -1,11 +1,23 @@
 .vs*
 __pycache__/
+
+# dotfiles for pairing and configuration
 .paired
 .scan_destination
 .user_and_host
 .host_path
+
+# dotfiles for scanner configuration
+raspi/.awb_mode
+raspi/.mcu_hex_hash
+raspi/.scan_target_mode
+raspi/.wifi_networks
+
+# log files
 nohup.out
 TODO.md
+
+
 raspi/lsyncd.conf
 raspi/lsyncd-to-host.conf
 raspi/scanner.log
@@ -61,6 +73,4 @@ host-computer/.scanner_installed
 images/
 *.img
 *.img.gz
-raspi/.awb_mode
-raspi/.mcu_hex_hash
-raspi/.scan_target_mode
+
