@@ -212,25 +212,21 @@ def connect_to_wifi(ssid: str, password: str) -> bool:
     run_cmd(["nmcli", "dev", "set", AP_INTERFACE, "managed", "yes"], check=False)
     time.sleep(1)
     
-    # Try to connect
+    # Try to connect. Run nmcli as user pi: NetworkManager typically refuses
+    # connection changes when invoked as root (D-Bus policy).
+    cmd = ["sudo", "-u", "pi", "nmcli", "dev", "wifi", "connect", ssid]
     if password:
-        result = run_cmd([
-            "nmcli", "dev", "wifi", "connect", ssid,
-            "password", password,
-            "ifname", AP_INTERFACE
-        ], check=False)
-    else:
-        result = run_cmd([
-            "nmcli", "dev", "wifi", "connect", ssid,
-            "ifname", AP_INTERFACE
-        ], check=False)
+        cmd.extend(["password", password])
+    cmd.extend(["ifname", AP_INTERFACE])
+    result = run_cmd(cmd, check=False)
     
     if result.returncode == 0:
         log.info(f"Successfully connected to {ssid}")
         save_wifi_network(ssid)
         return True
     else:
-        log.error(f"Failed to connect: {result.stderr}")
+        err = (result.stderr or result.stdout or "").strip()
+        log.error("Failed to connect: %s", err or f"exit code {result.returncode}")
         # Restart AP for another try
         start_ap_services()
         return False
