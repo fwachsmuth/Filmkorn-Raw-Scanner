@@ -63,6 +63,8 @@ hostapd_proc: Optional[subprocess.Popen] = None
 dnsmasq_proc: Optional[subprocess.Popen] = None
 original_nm_managed: bool = True
 configured_ssid: Optional[str] = None
+# Cached scan from before AP start (wlan0 cannot scan while in AP mode)
+_cached_networks: List[Dict] = []
 
 
 def run_cmd(cmd: List[str], check: bool = True, capture: bool = True) -> subprocess.CompletedProcess:
@@ -374,10 +376,10 @@ def index():
 
 
 @app.route('/scan')
-def scan():
-    """Scan for WiFi networks."""
-    networks = scan_wifi_networks()
-    return jsonify(networks)
+def scan_route():
+    """Return cached WiFi networks (scan was done before AP start; wlan0 cannot scan in AP mode)."""
+    global _cached_networks
+    return jsonify(_cached_networks)
 
 
 @app.route('/connect', methods=['POST'])
@@ -457,6 +459,8 @@ def shutdown():
 
 def main():
     """Main entry point."""
+    global _cached_networks
+    
     # Check for root
     if os.geteuid() != 0:
         print("This script must be run as root (sudo)")
@@ -465,6 +469,13 @@ def main():
     # Set up signal handlers
     signal.signal(signal.SIGINT, cleanup_and_exit)
     signal.signal(signal.SIGTERM, cleanup_and_exit)
+    
+    # Scan for WiFi networks BEFORE starting the AP (wlan0 cannot scan while in AP mode)
+    log.info("Scanning for WiFi networks before starting AP...")
+    run_cmd(["nmcli", "dev", "set", AP_INTERFACE, "managed", "yes"], check=False)
+    time.sleep(1)
+    _cached_networks = scan_wifi_networks()
+    log.info("Cached %d networks for portal", len(_cached_networks))
     
     # Start AP
     if not start_ap_services():

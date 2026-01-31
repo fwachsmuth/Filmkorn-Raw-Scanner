@@ -60,22 +60,6 @@
         .card-title {
             font-size: 1rem;
             margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .refresh-btn {
-            background: none;
-            border: none;
-            color: #e94560;
-            cursor: pointer;
-            font-size: 0.9rem;
-            padding: 5px 10px;
-        }
-        
-        .refresh-btn:disabled {
-            opacity: 0.5;
         }
         
         .network-list {
@@ -266,11 +250,10 @@
         <div class="card">
             <div class="card-title">
                 <span>Available Networks</span>
-                <button class="refresh-btn" onclick="scanNetworks()" id="refreshBtn">Refresh</button>
             </div>
             
             <ul class="network-list" id="networkList">
-                <li class="empty-state">Scanning for networks...</li>
+                <li class="empty-state">Loading networks...</li>
             </ul>
         </div>
         
@@ -308,7 +291,7 @@
             const list = document.getElementById('networkList');
             
             if (networks.length === 0) {
-                list.innerHTML = '<li class="empty-state">No networks found. Try refreshing.</li>';
+                list.innerHTML = '<li class="empty-state">No networks found.</li>';
                 return;
             }
             
@@ -354,25 +337,15 @@
             renderNetworks();
         }
         
-        async function scanNetworks() {
-            const btn = document.getElementById('refreshBtn');
-            btn.disabled = true;
-            btn.textContent = 'Scanning...';
-            
-            document.getElementById('networkList').innerHTML = 
-                '<li class="empty-state"><span class="spinner"></span>Scanning...</li>';
-            
+        async function loadNetworks() {
             try {
                 const response = await fetch('/scan');
                 networks = await response.json();
                 renderNetworks();
             } catch (error) {
                 document.getElementById('networkList').innerHTML = 
-                    '<li class="empty-state">Error scanning. Try again.</li>';
+                    '<li class="empty-state">Error loading networks.</li>';
             }
-            
-            btn.disabled = false;
-            btn.textContent = 'Refresh';
         }
         
         async function connectToNetwork() {
@@ -429,15 +402,8 @@
             }
         }
         
-        // Initial scan
-        scanNetworks();
-        
-        // Auto-refresh every 10 seconds
-        setInterval(() => {
-            if (selectedNetwork === null) {
-                scanNetworks();
-            }
-        }, 10000);
+        // Load cached networks (scanned before AP started)
+        loadNetworks();
     </script>
 </body>
 </html>
