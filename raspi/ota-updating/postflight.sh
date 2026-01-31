@@ -59,6 +59,27 @@ for svc in hostapd dnsmasq; do
     fi
 done
 
+# --- Patch existing lsyncd-to-host.conf to bind SSH to eth0 ---
+# Existing paired systems may have been created before BindInterface=eth0 was added.
+# Patch the config so file sync uses ethernet only, not WiFi.
+
+LSYNCD_NET_CONF="${REPO_ROOT}/raspi/lsyncd-to-host.conf"
+if [ -f "$LSYNCD_NET_CONF" ]; then
+    if ! grep -q 'BindInterface=eth0\|BindAddress=eth0' "$LSYNCD_NET_CONF" 2>/dev/null; then
+        log "postflight: patching lsyncd-to-host.conf to bind SSH to eth0"
+        # Add comma after identityFile line and add _extra with BindInterface
+        sed -i.bak \
+            -e '/identityFile = "\/home\/pi\/.ssh\/id_filmkorn-scanner_ed25519"$/s/"$/",/' \
+            -e '/identityFile = "\/home\/pi\/.ssh\/id_filmkorn-scanner_ed25519",$/a\
+    _extra = {"-o", "BindInterface=eth0"}' \
+            "$LSYNCD_NET_CONF"
+        rm -f "${LSYNCD_NET_CONF}.bak"
+        # Restart lsyncd so it picks up the patched config
+        systemctl restart filmkorn-lsyncd.service 2>/dev/null || true
+        log "postflight: lsyncd-to-host.conf patched, filmkorn-lsyncd restarted"
+    fi
+fi
+
 # --- Cleanup old configurations ---
 
 # Remove any stale captive portal temp files
