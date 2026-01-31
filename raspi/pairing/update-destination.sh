@@ -59,6 +59,14 @@ host_path_path="${repo_root}/raspi/.host_path"
 temp_conf="$(mktemp)"
 rawpath="${rawpath%/}"
 
+# Turn WiFi off during pairing validation so host connectivity uses eth0 only; restore on exit
+wifi_restore() {
+  sudo nmcli radio wifi on 2>/dev/null || true
+}
+trap wifi_restore EXIT
+info "Turning WiFi off for validation..."
+sudo nmcli radio wifi off 2>/dev/null || true
+
 # Validate host reachability and path (use default route so pairing works over WiFi or ethernet).
 # Actual sync (lsyncd) is still bound to eth0 only; scanner will require ethernet when scanning to host.
 info "Validating host and path..."
