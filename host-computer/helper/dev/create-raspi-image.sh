@@ -318,6 +318,8 @@ log "stashing host-specific config"
 sudo tar -czf "$STASH_DIR/imaging-config.tgz" --ignore-failed-read \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.user_and_host \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.scan_destination \
+  /home/pi/Filmkorn-Raw-Scanner/raspi/.host_path \
+  /home/pi/Filmkorn-Raw-Scanner/raspi/.wifi_networks \
   /home/pi/Filmkorn-Raw-Scanner/raspi/lsyncd-to-host.conf \
   2>/dev/null || true
 if [ ! -s "$STASH_DIR/imaging-config.tgz" ]; then
@@ -328,6 +330,8 @@ stash_copy "$STASH_DIR/imaging-config.tgz"
 if [ -s "$STASH_DIR/imaging-config.tgz" ]; then
   sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.user_and_host || true
   sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.scan_destination || true
+  sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.host_path || true
+  sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.wifi_networks || true
   sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/lsyncd-to-host.conf || true
 else
   log "keeping host-specific config (stash missing)"
