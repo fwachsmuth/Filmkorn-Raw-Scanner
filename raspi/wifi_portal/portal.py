@@ -423,6 +423,13 @@ def connect():
     
     if success:
         configured_ssid = ssid
+        # Exit portal after a short delay so the scanner's monitor can show the WiFi menu.
+        # AP is already down so the browser may not receive this response; exit anyway.
+        def exit_after_delay():
+            time.sleep(2)
+            cleanup_and_exit(0)
+        import threading
+        threading.Thread(target=exit_after_delay, daemon=True).start()
         return jsonify({"success": True, "message": f"Connected to {ssid}"})
     else:
         return jsonify({"success": False, "error": "Connection failed. Check password."})

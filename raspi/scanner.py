@@ -1598,13 +1598,12 @@ def _wifi_confirm(_args=None):
         logging.info("wifi: starting captive portal setup")
         _start_wifi_portal()
     else:
-        # Selected a configured network - could show details or reconnect
+        # Selected a configured network - reconnect using existing NM profile
         networks = _load_wifi_networks()
         if wifi_selected - 1 < len(networks):
             ssid = networks[wifi_selected - 1].get("ssid", "Unknown")
-            logging.info("wifi: selected configured network: %s", ssid)
-            # For now, just show the menu again (could add reconnect functionality)
-            _show_wifi_menu()
+            logging.info("wifi: reconnecting to configured network: %s", ssid)
+            _reconnect_wifi(ssid)
 
 def _wifi_cancel(_args=None):
     """Cancel and exit the WiFi menu."""
@@ -1635,6 +1634,24 @@ def _wifi_cancel(_args=None):
         _show_menu_screen()
     else:
         show_ready_to_scan()
+
+def _reconnect_wifi(ssid: str):
+    """Reconnect to a configured WiFi network using the existing NM profile."""
+    try:
+        result = subprocess.run(
+            ["nmcli", "connection", "up", "id", ssid],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if result.returncode == 0:
+            logging.info("wifi: reconnected to %s", ssid)
+        else:
+            logging.warning("wifi: reconnect to %s failed: %s", ssid, (result.stderr or result.stdout or "").strip())
+    except Exception as e:
+        logging.warning("wifi: reconnect failed: %s", e)
+    _show_wifi_menu()
+
 
 def _start_wifi_portal():
     """Start the WiFi captive portal subprocess."""

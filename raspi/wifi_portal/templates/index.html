@@ -383,11 +383,7 @@
                     status.className = 'status success';
                     status.textContent = 'Connected successfully! You can close this page.';
                     btn.textContent = 'Connected';
-                    
-                    // Redirect to success page after delay
-                    setTimeout(() => {
-                        window.location.href = '/success';
-                    }, 2000);
+                    // No redirect: AP is torn down so /success is unreachable; message is enough.
                 } else {
                     status.className = 'status error';
                     status.textContent = result.error || 'Connection failed';
