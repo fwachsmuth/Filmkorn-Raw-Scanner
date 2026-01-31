@@ -202,58 +202,93 @@ def save_wifi_network(ssid: str):
 
 
 def connect_to_wifi(ssid: str, password: str) -> bool:
-    """Connect to a WiFi network using NetworkManager."""
+    """Connect to a WiFi network using NetworkManager.
+    
+    Uses nmcli connection add + nmcli connection up instead of nmcli dev wifi connect,
+    because newer NetworkManager versions require explicit key-mgmt which isn't
+    supported via 'dev wifi connect' on all distros.
+    """
     log.info(f"Attempting to connect to: {ssid}")
+    err_path = "/tmp/filmkorn-nmcli-connect.err"
+    
+    def write_err(msg: str):
+        with open(err_path, "a") as f:
+            f.write(msg + "\n")
+        log.info("nmcli: %s", msg)
+    
+    # Clear previous error log
+    with open(err_path, "w") as f:
+        f.write(f"=== connect_to_wifi({ssid}) ===\n")
     
     # First, stop our AP services
     stop_ap_services()
     
     # Give NetworkManager control of the interface and time to take over wlan0
+    write_err("Setting wlan0 to managed...")
     run_cmd(["nmcli", "dev", "set", AP_INTERFACE, "managed", "yes"], check=False)
     time.sleep(5)  # wlan0 needs time to leave AP mode and be ready for client connect
     
-    # Run nmcli as user pi (NetworkManager refuses connect when invoked as root).
-    # Use env without DBUS_SESSION_BUS_ADDRESS so nmcli uses system bus.
-    # Newer NetworkManager requires explicit key-mgmt or fails with
-    # "802-11-wireless-security.key-mgmt: property is missing".
-    cmd = ["sudo", "-u", "pi", "nmcli", "dev", "wifi", "connect", ssid]
-    if password:
-        cmd.extend(["password", password])
-    cmd.extend(["ifname", AP_INTERFACE])
-    if password:
-        cmd.extend(["--", "wifi-sec.key-mgmt", "wpa-psk"])
-    else:
-        cmd.extend(["--", "wifi-sec.key-mgmt", "none"])
-    env = {k: v for k, v in os.environ.items() if k != "DBUS_SESSION_BUS_ADDRESS"}
-    err_path = "/tmp/filmkorn-nmcli-connect.err"
-    result = None
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=False,
-            env=env,
-            timeout=60,
-        )
-        if result.stderr or result.stdout:
-            with open(err_path, "w") as f:
-                f.write(result.stdout or "")
-                if result.stderr:
-                    f.write(result.stderr)
-            log.info("nmcli output written to %s", err_path)
-    except subprocess.TimeoutExpired:
-        log.error("nmcli connect timed out after 60s")
-    except Exception as e:
-        log.exception("nmcli connect failed: %s", e)
+    # Delete any existing connection profile for this SSID (to avoid duplicates)
+    write_err(f"Deleting any existing profile for '{ssid}'...")
+    del_result = subprocess.run(
+        ["sudo", "-u", "pi", "nmcli", "connection", "delete", "id", ssid],
+        capture_output=True, text=True, check=False
+    )
+    write_err(f"delete result: {del_result.returncode} - {(del_result.stdout or del_result.stderr or '').strip()}")
     
-    if result and result.returncode == 0:
+    # Create a new connection profile with explicit settings
+    # This avoids the "802-11-wireless-security.key-mgmt: property is missing" error
+    write_err(f"Creating connection profile for '{ssid}'...")
+    if password:
+        add_cmd = [
+            "sudo", "-u", "pi", "nmcli", "connection", "add",
+            "type", "wifi",
+            "con-name", ssid,
+            "ssid", ssid,
+            "ifname", AP_INTERFACE,
+            "wifi-sec.key-mgmt", "wpa-psk",
+            "wifi-sec.psk", password,
+        ]
+    else:
+        add_cmd = [
+            "sudo", "-u", "pi", "nmcli", "connection", "add",
+            "type", "wifi",
+            "con-name", ssid,
+            "ssid", ssid,
+            "ifname", AP_INTERFACE,
+        ]
+    
+    write_err(f"Running: {' '.join(add_cmd[:10])}...")  # Don't log password
+    add_result = subprocess.run(add_cmd, capture_output=True, text=True, check=False, timeout=30)
+    write_err(f"add result: {add_result.returncode} - {(add_result.stdout or add_result.stderr or '').strip()}")
+    
+    if add_result.returncode != 0:
+        log.error("Failed to create connection profile: %s", (add_result.stderr or add_result.stdout or "").strip())
+        start_ap_services()
+        return False
+    
+    # Activate the connection
+    write_err(f"Activating connection '{ssid}'...")
+    up_result = subprocess.run(
+        ["sudo", "-u", "pi", "nmcli", "connection", "up", "id", ssid],
+        capture_output=True, text=True, check=False, timeout=60
+    )
+    write_err(f"up result: {up_result.returncode} - {(up_result.stdout or up_result.stderr or '').strip()}")
+    
+    if up_result.returncode == 0:
         log.info(f"Successfully connected to {ssid}")
+        write_err("SUCCESS!")
         save_wifi_network(ssid)
         return True
     else:
-        err = (result.stderr or result.stdout or "").strip() if result else "timeout"
-        log.error("Failed to connect: %s (see %s)", err or f"exit code {getattr(result, 'returncode', '?')}", err_path)
+        err = (up_result.stderr or up_result.stdout or "").strip()
+        log.error("Failed to activate connection: %s (see %s)", err, err_path)
+        write_err(f"FAILED: {err}")
+        # Clean up the profile we just created
+        subprocess.run(
+            ["sudo", "-u", "pi", "nmcli", "connection", "delete", "id", ssid],
+            capture_output=True, text=True, check=False
+        )
         # Restart AP for another try
         start_ap_services()
         return False
