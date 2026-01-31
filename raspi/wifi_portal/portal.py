@@ -214,19 +214,51 @@ def connect_to_wifi(ssid: str, password: str) -> bool:
     def write_err(msg: str):
         with open(err_path, "a") as f:
             f.write(msg + "\n")
+            f.flush()
         log.info("nmcli: %s", msg)
     
     # Clear previous error log
     with open(err_path, "w") as f:
         f.write(f"=== connect_to_wifi({ssid}) ===\n")
+        f.flush()
     
     # First, stop our AP services
+    write_err("Stopping AP services...")
     stop_ap_services()
     
     # Give NetworkManager control of the interface and time to take over wlan0
     write_err("Setting wlan0 to managed...")
     run_cmd(["nmcli", "dev", "set", AP_INTERFACE, "managed", "yes"], check=False)
-    time.sleep(5)  # wlan0 needs time to leave AP mode and be ready for client connect
+    
+    # Disconnect any active connection on wlan0 first
+    write_err("Disconnecting any active connection on wlan0...")
+    subprocess.run(
+        ["nmcli", "dev", "disconnect", AP_INTERFACE],
+        capture_output=True, text=True, check=False
+    )
+    
+    # Ensure radio is on
+    write_err("Ensuring WiFi radio is enabled...")
+    subprocess.run(["nmcli", "radio", "wifi", "on"], capture_output=True, text=True, check=False)
+    
+    # Bring interface up explicitly
+    write_err("Bringing interface up...")
+    subprocess.run(["ip", "link", "set", AP_INTERFACE, "up"], capture_output=True, text=True, check=False)
+    
+    # Wait for interface to stabilize
+    write_err("Waiting for interface to stabilize (8s)...")
+    time.sleep(8)  # wlan0 needs time to leave AP mode and be ready for client connect
+    
+    # Log current state
+    try:
+        dev_show = subprocess.run(
+            ["nmcli", "-t", "dev", "show", AP_INTERFACE],
+            capture_output=True, text=True, check=False, timeout=5
+        )
+        state_line = [l for l in dev_show.stdout.split('\n') if 'STATE' in l or 'CONNECTION' in l]
+        write_err(f"Interface state: {'; '.join(state_line)}")
+    except Exception as e:
+        write_err(f"Could not get interface state: {e}")
     
     # Delete any existing connection profile for this SSID (to avoid duplicates)
     write_err(f"Deleting any existing profile for '{ssid}'...")
@@ -259,21 +291,72 @@ def connect_to_wifi(ssid: str, password: str) -> bool:
         ]
     
     write_err(f"Running: {' '.join(add_cmd[:10])}...")  # Don't log password
-    add_result = subprocess.run(add_cmd, capture_output=True, text=True, check=False, timeout=30)
-    write_err(f"add result: {add_result.returncode} - {(add_result.stdout or add_result.stderr or '').strip()}")
+    try:
+        add_result = subprocess.run(add_cmd, capture_output=True, text=True, check=False, timeout=30)
+        write_err(f"add result: {add_result.returncode} - {(add_result.stdout or add_result.stderr or '').strip()}")
+    except subprocess.TimeoutExpired:
+        write_err("add TIMEOUT after 30s")
+        start_ap_services()
+        return False
+    except Exception as e:
+        write_err(f"add EXCEPTION: {e}")
+        start_ap_services()
+        return False
     
     if add_result.returncode != 0:
         log.error("Failed to create connection profile: %s", (add_result.stderr or add_result.stdout or "").strip())
         start_ap_services()
         return False
     
+    # Log device state before attempting connection
+    write_err("Checking device state before connection up...")
+    try:
+        dev_status = subprocess.run(
+            ["nmcli", "-t", "-f", "DEVICE,TYPE,STATE", "device"],
+            capture_output=True, text=True, check=False, timeout=10
+        )
+        write_err(f"device status:\n{dev_status.stdout.strip()}")
+    except Exception as e:
+        write_err(f"device status error: {e}")
+    
     # Activate the connection
     write_err(f"Activating connection '{ssid}'...")
-    up_result = subprocess.run(
-        ["sudo", "-u", "pi", "nmcli", "connection", "up", "id", ssid],
-        capture_output=True, text=True, check=False, timeout=60
-    )
-    write_err(f"up result: {up_result.returncode} - {(up_result.stdout or up_result.stderr or '').strip()}")
+    try:
+        up_result = subprocess.run(
+            ["sudo", "-u", "pi", "nmcli", "connection", "up", "id", ssid],
+            capture_output=True, text=True, check=False, timeout=60
+        )
+        write_err(f"up result: {up_result.returncode} - {(up_result.stdout or up_result.stderr or '').strip()}")
+    except subprocess.TimeoutExpired:
+        write_err("up TIMEOUT after 60s - connection may still be pending")
+        # Check if we connected despite timeout
+        try:
+            conn_check = subprocess.run(
+                ["nmcli", "-t", "-f", "NAME,DEVICE", "connection", "show", "--active"],
+                capture_output=True, text=True, check=False, timeout=10
+            )
+            write_err(f"active connections after timeout:\n{conn_check.stdout.strip()}")
+            if ssid in conn_check.stdout:
+                write_err("Connection appears active despite timeout - SUCCESS!")
+                save_wifi_network(ssid)
+                return True
+        except Exception:
+            pass
+        write_err("FAILED: timeout and connection not active")
+        subprocess.run(
+            ["sudo", "-u", "pi", "nmcli", "connection", "delete", "id", ssid],
+            capture_output=True, text=True, check=False
+        )
+        start_ap_services()
+        return False
+    except Exception as e:
+        write_err(f"up EXCEPTION: {e}")
+        subprocess.run(
+            ["sudo", "-u", "pi", "nmcli", "connection", "delete", "id", ssid],
+            capture_output=True, text=True, check=False
+        )
+        start_ap_services()
+        return False
     
     if up_result.returncode == 0:
         log.info(f"Successfully connected to {ssid}")
