@@ -166,14 +166,14 @@ def scan_wifi_networks_iwlist() -> List[Dict]:
 
 
 def save_wifi_network(ssid: str):
-    """Save a WiFi network to the networks file."""
+    """Save a WiFi network to the networks file. Chown to pi:pi so scanner (running as pi) can read it."""
     networks = []
     if os.path.exists(WIFI_NETWORKS_FILE):
         try:
             with open(WIFI_NETWORKS_FILE, "r") as f:
                 data = json.load(f)
                 networks = data.get("networks", [])
-        except:
+        except Exception:
             pass
     
     # Remove existing entry for this SSID
@@ -188,6 +188,14 @@ def save_wifi_network(ssid: str):
     try:
         with open(WIFI_NETWORKS_FILE, "w") as f:
             json.dump({"networks": networks}, f)
+        # Portal runs as root; scanner runs as pi. Make file readable by pi.
+        try:
+            import pwd
+            pw = pwd.getpwnam("pi")
+            os.chown(WIFI_NETWORKS_FILE, pw.pw_uid, pw.pw_gid)
+            os.chmod(WIFI_NETWORKS_FILE, 0o644)
+        except Exception as e:
+            log.warning("Could not chown %s to pi: %s", WIFI_NETWORKS_FILE, e)
         log.info(f"Saved WiFi network: {ssid}")
     except Exception as e:
         log.error(f"Failed to save network: {e}")

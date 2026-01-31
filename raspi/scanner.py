@@ -1697,22 +1697,19 @@ def _monitor_wifi_portal():
     if wifi_portal_process is None:
         return
     
+    portal_exit_code = -1
     try:
         # Read output and wait for completion
         output, _ = wifi_portal_process.communicate(timeout=300)  # 5 minute timeout
-        return_code = wifi_portal_process.returncode
+        portal_exit_code = wifi_portal_process.returncode
         
-        logging.info("wifi: portal exited with code %d", return_code)
+        logging.info("wifi: portal exited with code %d", portal_exit_code)
         if output:
             for line in output.strip().split('\n'):
                 logging.info("wifi portal: %s", line)
         
-        if return_code == 0:
-            # Success - network was configured
+        if portal_exit_code == 0:
             logging.info("wifi: portal completed successfully")
-        else:
-            logging.warning("wifi: portal exited with error")
-        
     except subprocess.TimeoutExpired:
         logging.warning("wifi: portal timed out")
         wifi_portal_process.kill()
@@ -1723,11 +1720,15 @@ def _monitor_wifi_portal():
         
         # Return to menu if still in wifi mode
         if wifi_mode:
-            wifi_mode = False
-            if menu_mode:
-                _show_menu_screen()
+            # On success, show WiFi submenu so user sees the configured network(s)
+            if portal_exit_code == 0 and menu_mode:
+                _show_wifi_menu()
             else:
-                show_ready_to_scan()
+                wifi_mode = False
+                if menu_mode:
+                    _show_menu_screen()
+                else:
+                    show_ready_to_scan()
 
 # --- End WiFi Setup Menu ---
 
