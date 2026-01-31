@@ -1545,6 +1545,8 @@ def _show_wifi_menu():
     overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=wifi_scroll_offset)
     current_screen = "wifi"
     pending_overlay = overlay
+    logging.info("wifi: showing menu with %d options, selected=%d, preview_started=%s", 
+                 len(menu_options), wifi_selected, preview_started)
     if not preview_started:
         logging.info("WiFi menu: starting preview for overlay")
         try:
@@ -1590,7 +1592,9 @@ def _wifi_next(_args=None):
 def _wifi_confirm(_args=None):
     """Confirm selection in the WiFi menu."""
     global wifi_mode, wifi_portal_process, menu_mode
+    logging.info("wifi: _wifi_confirm called, wifi_mode=%s, wifi_selected=%d", wifi_mode, wifi_selected)
     if not wifi_mode:
+        logging.warning("wifi: _wifi_confirm called but wifi_mode is False")
         return
     
     if wifi_selected == 0:
@@ -1600,10 +1604,13 @@ def _wifi_confirm(_args=None):
     else:
         # Selected a configured network - reconnect using existing NM profile
         networks = _load_wifi_networks()
+        logging.info("wifi: selected item %d, networks count=%d", wifi_selected, len(networks))
         if wifi_selected - 1 < len(networks):
             ssid = networks[wifi_selected - 1].get("ssid", "Unknown")
             logging.info("wifi: reconnecting to configured network: %s", ssid)
             _reconnect_wifi(ssid)
+        else:
+            logging.warning("wifi: wifi_selected %d out of range (networks: %d)", wifi_selected, len(networks))
 
 def _wifi_cancel(_args=None):
     """Cancel and exit the WiFi menu."""
@@ -1756,16 +1763,22 @@ def _monitor_wifi_portal():
         wifi_portal_process = None
         
         # Return to menu if still in wifi mode
+        logging.info("wifi: portal monitor cleanup, wifi_mode=%s, portal_exit_code=%d, menu_mode=%s", 
+                     wifi_mode, portal_exit_code, menu_mode)
         if wifi_mode:
             # On success, show WiFi submenu so user sees the configured network(s)
             if portal_exit_code == 0 and menu_mode:
+                logging.info("wifi: portal succeeded, showing WiFi menu")
                 _show_wifi_menu()
             else:
+                logging.info("wifi: portal cancelled/failed, returning to main menu")
                 wifi_mode = False
                 if menu_mode:
                     _show_menu_screen()
                 else:
                     show_ready_to_scan()
+        else:
+            logging.warning("wifi: portal monitor - wifi_mode was False")
 
 # --- End WiFi Setup Menu ---
 
@@ -4016,15 +4029,19 @@ def loop():
         if command == Command.WIFI_ENTER:
             _enter_wifi_mode()
             return
-        if wifi_mode:
-            func = {
-                Command.WIFI_PREV: _wifi_prev,
-                Command.WIFI_NEXT: _wifi_next,
-                Command.WIFI_CONFIRM: _wifi_confirm,
-                Command.WIFI_CANCEL: _wifi_cancel,
-            }.get(command, None)
-            if func is not None:
-                func(received[1:])
+        if command in (Command.WIFI_PREV, Command.WIFI_NEXT, Command.WIFI_CONFIRM, Command.WIFI_CANCEL):
+            logging.info("wifi: received %s, wifi_mode=%s", command, wifi_mode)
+            if wifi_mode:
+                func = {
+                    Command.WIFI_PREV: _wifi_prev,
+                    Command.WIFI_NEXT: _wifi_next,
+                    Command.WIFI_CONFIRM: _wifi_confirm,
+                    Command.WIFI_CANCEL: _wifi_cancel,
+                }.get(command, None)
+                if func is not None:
+                    func(received[1:])
+            else:
+                logging.warning("wifi: received %s but wifi_mode is False - state mismatch!", command)
             return
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {

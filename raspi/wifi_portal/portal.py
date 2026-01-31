@@ -525,9 +525,13 @@ def stop_ap_services():
 
 def cleanup_and_exit(signum=None, frame=None):
     """Clean up and exit."""
-    log.info("Cleaning up...")
+    log.info("Cleaning up... (configured_ssid=%s)", configured_ssid)
     stop_ap_services()
-    sys.exit(0 if configured_ssid else 1)
+    exit_code = 0 if configured_ssid else 1
+    log.info("Exiting with code %d", exit_code)
+    # Use os._exit() to forcefully terminate even from a daemon thread
+    # sys.exit() only terminates the calling thread, not the whole process
+    os._exit(exit_code)
 
 
 # Flask routes
