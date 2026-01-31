@@ -116,6 +116,13 @@ journalctl -b -o short-iso --no-pager > "${tmpdir}/journalctl-boot.log"
   echo
   echo "Kernel warnings:"
   dmesg --level=err,warn || true
+  if [ -f /tmp/filmkorn-nmcli-connect.err ]; then
+    echo
+    echo "WiFi captive portal / nmcli connect log:"
+    echo "---"
+    cat /tmp/filmkorn-nmcli-connect.err
+    echo "---"
+  fi
 } > "${tmpdir}/system-info.txt"
 
 (cd "$tmpdir" && zip -q -r "$outfile" .)
