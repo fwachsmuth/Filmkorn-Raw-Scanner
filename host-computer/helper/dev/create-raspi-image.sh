@@ -124,8 +124,9 @@ if ! command -v gzip >/dev/null 2>&1; then
 fi
 
 info "Before continuing, please:"
-info "- open a separate SSH session to ${USER}@${HOST} and keep it open for recovery"
+info "- open a separate SSH session (or two) to ${USER}@${HOST} and keep it open for recovery"
 info "- connect USB drive to retain a safety copy of your ssh stuff and the history"
+info "- make sure the scannes target is set to USB-Drive, so that you keep the stashed files on the USB drive"
 info "- make sure that new hex files were built (run ./raspi/dev/ino-update.sh)"
 info "- commit the new hex files"
 info "- consider to tag your current commit"
