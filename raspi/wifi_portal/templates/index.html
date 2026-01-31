@@ -160,6 +160,43 @@
             border-color: #e94560;
         }
         
+        .password-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: stretch;
+        }
+        
+        .password-input-wrap input {
+            flex: 1;
+            padding-right: 48px;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: #a0a0a0;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .password-toggle:hover {
+            color: #e94560;
+        }
+        
+        .password-toggle:focus {
+            outline: none;
+        }
+        
         .btn {
             width: 100%;
             padding: 14px;
@@ -263,7 +300,10 @@
             </div>
             <div class="form-group" id="passwordGroup">
                 <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Enter WiFi password" autocomplete="off">
+                <div class="password-input-wrap">
+                    <input type="password" id="password" placeholder="Enter WiFi password" autocomplete="off">
+                    <button type="button" class="password-toggle" id="passwordToggle" onclick="togglePasswordVisibility()" title="Show password" aria-label="Show password">&#128065;</button>
+                </div>
             </div>
             <button class="btn btn-primary" onclick="connectToNetwork()" id="connectBtn">Connect</button>
             
@@ -314,6 +354,22 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+        
+        function togglePasswordVisibility() {
+            const input = document.getElementById('password');
+            const btn = document.getElementById('passwordToggle');
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = 'Hide';
+                btn.title = 'Hide password';
+                btn.setAttribute('aria-label', 'Hide password');
+            } else {
+                input.type = 'password';
+                btn.textContent = '\uD83D\uDC41';
+                btn.title = 'Show password';
+                btn.setAttribute('aria-label', 'Show password');
+            }
         }
         
         function selectNetwork(idx) {
