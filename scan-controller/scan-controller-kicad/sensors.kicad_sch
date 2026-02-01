@@ -5305,7 +5305,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Peacemans_Teile:R_0402_1005Metric-noref"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 107.315 114.3 0)
 			(effects
 				(font
@@ -5332,7 +5332,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C25792"
+		(property "LCSC" "C25819"
 			(at 107.315 114.3 0)
 			(effects
 				(font
@@ -6207,7 +6207,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Peacemans_Teile:R_0402_1005Metric-noref"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 90.805 68.58 0)
 			(effects
 				(font
@@ -6234,7 +6234,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C25076"
+		(property "LCSC" "C22775"
 			(at 90.805 68.58 0)
 			(effects
 				(font
@@ -7268,7 +7268,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Peacemans_Teile:R_0402_1005Metric-noref"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 106.045 68.58 0)
 			(effects
 				(font
@@ -7295,7 +7295,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C25792"
+		(property "LCSC" "C25819"
 			(at 106.045 68.58 0)
 			(effects
 				(font
@@ -7524,7 +7524,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Peacemans_Teile:R_0402_1005Metric-noref"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 92.075 114.3 0)
 			(effects
 				(font
@@ -7551,7 +7551,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C25076"
+		(property "LCSC" "C22775"
 			(at 92.075 114.3 0)
 			(effects
 				(font
