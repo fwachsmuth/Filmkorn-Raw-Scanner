@@ -133,6 +133,7 @@ info "- make sure that new hex files were built (run ./raspi/dev/ino-update.sh)"
 info "- commit the new hex files"
 info "- consider to tag your current commit"
 info "- pull the tag and any remaining changes"
+info "- start Docker Desktop and make sure it is running"
 read -r -p "Press Enter to continue once you are ready: " confirm_ssh
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
