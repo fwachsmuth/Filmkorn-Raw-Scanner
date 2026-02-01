@@ -3862,12 +3862,6 @@
 		(uuid "1b2baca6-3a61-4598-b780-eaec23740bbf")
 	)
 	(junction
-		(at 227.965 123.19)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "20dbd583-3e84-4b66-bef4-a8d0e68e9dd8")
-	)
-	(junction
 		(at 237.49 46.355)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3884,6 +3878,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "3686316f-dd42-4868-8404-7ac993bfd57e")
+	)
+	(junction
+		(at 228.6 129.54)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "37d493e8-adaa-468e-8b64-c5964005c2a7")
 	)
 	(junction
 		(at 156.21 83.82)
@@ -4126,12 +4126,6 @@
 		(uuid "d0d3d484-054e-4fc5-b1a0-e6388db265a7")
 	)
 	(junction
-		(at 227.965 129.54)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "d75bfae1-cb52-4fa8-9417-22ae04c55410")
-	)
-	(junction
 		(at 208.915 118.11)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4186,12 +4180,6 @@
 		(uuid "ee4eaa1a-a439-46ae-a975-23035f9d77b9")
 	)
 	(junction
-		(at 227.965 118.11)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f06947ee-8780-4a0c-b7e9-eeff26f20845")
-	)
-	(junction
 		(at 219.075 139.7)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4203,8 +4191,14 @@
 		(color 0 0 0 0)
 		(uuid "fa7c2c24-1c27-4ef4-9fa6-33864c15132b")
 	)
+	(junction
+		(at 228.6 118.11)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "fb121aa3-0bc4-4211-bbcf-bcbb9b8ea7e1")
+	)
 	(no_connect
-		(at 227.965 120.65)
+		(at 231.14 120.65)
 		(uuid "f69f97aa-632c-475c-ac97-593cf28bef3a")
 	)
 	(wire
@@ -4216,6 +4210,16 @@
 			(type default)
 		)
 		(uuid "0421bf08-bfb7-461e-8ea1-89082d1bcb46")
+	)
+	(wire
+		(pts
+			(xy 231.14 118.11) (xy 228.6 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0606d013-a715-4c6e-affd-af5836cdf365")
 	)
 	(wire
 		(pts
@@ -4289,7 +4293,7 @@
 	)
 	(wire
 		(pts
-			(xy 227.965 111.125) (xy 227.965 118.11)
+			(xy 228.6 111.76) (xy 228.6 118.11)
 		)
 		(stroke
 			(width 0)
@@ -4899,7 +4903,7 @@
 	)
 	(wire
 		(pts
-			(xy 226.06 118.11) (xy 227.965 118.11)
+			(xy 226.06 118.11) (xy 228.6 118.11)
 		)
 		(stroke
 			(width 0)
@@ -5179,16 +5183,6 @@
 	)
 	(wire
 		(pts
-			(xy 227.965 123.19) (xy 227.965 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8108bfba-4c77-4f7d-b7cc-5f460d76b477")
-	)
-	(wire
-		(pts
 			(xy 147.955 40.64) (xy 147.955 39.37)
 		)
 		(stroke
@@ -5269,7 +5263,7 @@
 	)
 	(wire
 		(pts
-			(xy 227.965 122.555) (xy 227.965 123.19)
+			(xy 228.6 123.19) (xy 228.6 129.54)
 		)
 		(stroke
 			(width 0)
@@ -5469,7 +5463,7 @@
 	)
 	(wire
 		(pts
-			(xy 227.965 129.54) (xy 227.965 139.7)
+			(xy 228.6 129.54) (xy 228.6 139.7)
 		)
 		(stroke
 			(width 0)
@@ -5676,16 +5670,6 @@
 			(type default)
 		)
 		(uuid "cc0a20e2-2de9-43a1-83c0-e975914b9678")
-	)
-	(wire
-		(pts
-			(xy 228.6 111.125) (xy 227.965 111.125)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cd9cf3ff-979e-4952-aee9-eef1732c97df")
 	)
 	(wire
 		(pts
@@ -5959,7 +5943,7 @@
 	)
 	(wire
 		(pts
-			(xy 227.965 139.7) (xy 219.075 139.7)
+			(xy 228.6 139.7) (xy 219.075 139.7)
 		)
 		(stroke
 			(width 0)
@@ -5986,6 +5970,16 @@
 			(type default)
 		)
 		(uuid "f4e03ace-f62a-47e6-b027-3f8e1ddd7a86")
+	)
+	(wire
+		(pts
+			(xy 228.6 123.19) (xy 231.14 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f6098b6d-911e-4f76-83eb-c95dbcc6709d")
 	)
 	(wire
 		(pts
@@ -6658,7 +6652,7 @@
 	)
 	(symbol
 		(lib_id "easyeda2kicad:KF141R-2.54-3P")
-		(at 233.045 120.65 0)
+		(at 236.22 120.65 0)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -6667,7 +6661,7 @@
 		(dnp no)
 		(uuid "185ff876-c273-405c-91b5-a4d9f0d1f5ce")
 		(property "Reference" "CN3"
-			(at 231.775 127 0)
+			(at 234.95 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6676,7 +6670,7 @@
 			)
 		)
 		(property "Value" "Fan"
-			(at 232.41 114.3 0)
+			(at 235.585 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6685,7 +6679,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:CONN-TH_3P-P2.54_DIBO_DB141R-2.54-3P"
-			(at 233.045 110.49 0)
+			(at 236.22 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6694,7 +6688,7 @@
 			)
 		)
 		(property "Datasheet" "https://lcsc.com/product-detail/New-Quadratic-Unclassified-Data_Cixi-Kefa-Elec-KF141R-2-54-3P_C475125.html"
-			(at 233.045 107.95 0)
+			(at 236.22 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6703,7 +6697,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 233.045 120.65 0)
+			(at 236.22 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6712,7 +6706,7 @@
 			)
 		)
 		(property "LCSC Part" ""
-			(at 233.045 105.41 0)
+			(at 236.22 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6721,7 +6715,7 @@
 			)
 		)
 		(property "LCSC" "C2898755"
-			(at 233.045 120.65 0)
+			(at 236.22 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6730,7 +6724,7 @@
 			)
 		)
 		(property "Inventory" ""
-			(at 233.045 120.65 0)
+			(at 236.22 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6739,7 +6733,7 @@
 			)
 		)
 		(property "Sim.Device" "C475125"
-			(at 233.045 120.65 0)
+			(at 236.22 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7482,7 +7476,7 @@
 	)
 	(symbol
 		(lib_id "Peacemans_Teile:TestPoint_named")
-		(at 227.965 129.54 270)
+		(at 228.6 129.54 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7490,7 +7484,7 @@
 		(dnp no)
 		(uuid "3f7e3a73-9084-4514-a7fe-4ab292e6de6e")
 		(property "Reference" "TP17"
-			(at 234.823 129.54 0)
+			(at 235.458 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7499,7 +7493,7 @@
 			)
 		)
 		(property "Value" "TestPoint"
-			(at 233.045 129.54 0)
+			(at 233.68 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7508,7 +7502,7 @@
 			)
 		)
 		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
-			(at 227.965 134.62 0)
+			(at 228.6 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7517,7 +7511,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 227.965 134.62 0)
+			(at 228.6 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7526,7 +7520,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 227.965 129.54 0)
+			(at 228.6 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7535,11 +7529,12 @@
 			)
 		)
 		(property "TP_Label" "Fan -"
-			(at 233.045 131.445 90)
+			(at 233.68 131.445 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -10048,7 +10043,7 @@
 	)
 	(symbol
 		(lib_id "Peacemans_Teile:TestPoint_named")
-		(at 228.6 111.125 270)
+		(at 228.6 111.76 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -10056,7 +10051,7 @@
 		(dnp no)
 		(uuid "b51b372c-d769-49db-9dff-f1617d137f39")
 		(property "Reference" "TP18"
-			(at 235.458 111.125 0)
+			(at 235.458 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10065,7 +10060,7 @@
 			)
 		)
 		(property "Value" "TestPoint"
-			(at 233.68 111.125 0)
+			(at 233.68 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10074,7 +10069,7 @@
 			)
 		)
 		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
-			(at 228.6 116.205 0)
+			(at 228.6 116.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10083,7 +10078,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 228.6 116.205 0)
+			(at 228.6 116.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10092,7 +10087,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 228.6 111.125 0)
+			(at 228.6 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10101,11 +10096,12 @@
 			)
 		)
 		(property "TP_Label" "Fan +"
-			(at 232.918 109.093 90)
+			(at 232.918 109.728 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(pin "1"

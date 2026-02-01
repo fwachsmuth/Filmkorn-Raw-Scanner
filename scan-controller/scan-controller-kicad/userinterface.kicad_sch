@@ -6179,7 +6179,7 @@
 				)
 			)
 		)
-		(property "Footprint" "easyeda2kicad:SW-TH_SS-12F23-G040"
+		(property "Footprint" "easyeda2kicad:SW-TH_5P-P4.70_SS-12D11-G040"
 			(at 221.615 41.275 0)
 			(effects
 				(font
