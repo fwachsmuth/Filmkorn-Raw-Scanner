@@ -8876,7 +8876,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Peacemans_Footprints:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
+		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
 			(at 53.975 24.13 0)
 			(effects
 				(font
@@ -9365,7 +9365,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Peacemans_Footprints:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
+		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
 			(at 86.995 127 0)
 			(effects
 				(font
@@ -9504,7 +9504,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Peacemans_Footprints:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
+		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
 			(at 83.185 99.06 0)
 			(effects
 				(font
@@ -9580,7 +9580,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Peacemans_Footprints:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
+		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
 			(at 81.915 118.11 0)
 			(effects
 				(font
@@ -10643,7 +10643,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Peacemans_Footprints:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
+		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
 			(at 204.47 80.01 0)
 			(effects
 				(font
@@ -10719,7 +10719,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Peacemans_Footprints:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
+		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
 			(at 88.265 104.14 0)
 			(effects
 				(font
@@ -10946,7 +10946,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Peacemans_Footprints:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
+		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
 			(at 169.545 143.51 0)
 			(effects
 				(font
@@ -11394,7 +11394,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Peacemans_Footprints:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
+		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
 			(at 167.64 87.63 0)
 			(effects
 				(font
@@ -11469,7 +11469,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Peacemans_Footprints:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
+		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
 			(at 57.15 41.91 0)
 			(effects
 				(font
@@ -11965,7 +11965,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Peacemans_Footprints:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
+		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
 			(at 93.345 96.52 0)
 			(effects
 				(font

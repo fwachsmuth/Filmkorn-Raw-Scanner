@@ -466,7 +466,8 @@
   "libraries": {
     "pinned_footprint_libs": [
       "Peacemans_Footprints",
-      "easyeda2kicad"
+      "easyeda2kicad",
+      "Peacemans_Teile"
     ],
     "pinned_symbol_libs": [
       "Peacemans_Teile",
