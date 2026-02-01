@@ -40,7 +40,6 @@ enum MotorState {
 #define FILM_END_PIN    3
 #define MOTOR_B_PIN     5 // PWM
 #define MOTOR_A_PIN     6 // PWM
-#define TRIGGER_PIN     7
 #define FAN_PIN         8
 #define LAMP_PIN        9
 // #define LED_PIN         unused
@@ -224,7 +223,6 @@ void setup() {
   // pinMode(LED_PIN, OUTPUT);
   pinMode(MOTOR_A_PIN, OUTPUT);
   pinMode(MOTOR_B_PIN, OUTPUT);
-  pinMode(TRIGGER_PIN, OUTPUT);
   pinMode(EYE_PIN, INPUT);
   pinMode(FILM_END_PIN, INPUT);
 
