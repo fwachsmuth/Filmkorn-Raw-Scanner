@@ -2728,7 +2728,7 @@
 		(uuid "555fe3cd-b08d-4659-a878-06b541faa002")
 	)
 	(junction
-		(at 172.72 78.105)
+		(at 170.18 81.28)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "601246bd-6bb5-41ce-a1f9-7e62ac2baae1")
@@ -2782,7 +2782,7 @@
 		(uuid "bd891d4e-cc02-41ab-a0c8-09299382247a")
 	)
 	(junction
-		(at 172.72 67.945)
+		(at 170.18 71.12)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "bf2ac019-2b38-4896-acac-97eda89403ed")
@@ -2837,13 +2837,23 @@
 	)
 	(wire
 		(pts
-			(xy 184.15 78.105) (xy 172.72 78.105)
+			(xy 181.61 81.28) (xy 170.18 81.28)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "025703c3-b668-427c-a0c5-def8bf0a2d07")
+	)
+	(wire
+		(pts
+			(xy 217.17 78.74) (xy 217.17 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0679413b-2a09-4162-9788-c81afe2c70a6")
 	)
 	(wire
 		(pts
@@ -2957,6 +2967,16 @@
 	)
 	(wire
 		(pts
+			(xy 217.17 71.12) (xy 217.17 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "227292db-a73c-4b3b-add2-e45cc7b263cc")
+	)
+	(wire
+		(pts
 			(xy 180.975 104.14) (xy 180.975 107.315)
 		)
 		(stroke
@@ -2987,6 +3007,16 @@
 	)
 	(wire
 		(pts
+			(xy 213.36 71.12) (xy 217.17 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2c393719-097d-474c-b3f2-a6d38fbfee2a")
+	)
+	(wire
+		(pts
 			(xy 111.125 132.08) (xy 111.125 133.35)
 		)
 		(stroke
@@ -2994,6 +3024,16 @@
 			(type default)
 		)
 		(uuid "2cf2e59e-2171-4458-81a3-0fd880142711")
+	)
+	(wire
+		(pts
+			(xy 205.74 81.28) (xy 205.74 82.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3276f811-c35b-4687-beb2-cd66ee5bf8b8")
 	)
 	(wire
 		(pts
@@ -3017,7 +3057,7 @@
 	)
 	(wire
 		(pts
-			(xy 184.15 67.945) (xy 184.15 70.485)
+			(xy 181.61 71.12) (xy 181.61 73.66)
 		)
 		(stroke
 			(width 0)
@@ -3057,7 +3097,7 @@
 	)
 	(wire
 		(pts
-			(xy 184.15 75.565) (xy 184.15 78.105)
+			(xy 181.61 78.74) (xy 181.61 81.28)
 		)
 		(stroke
 			(width 0)
@@ -3147,7 +3187,7 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 67.945) (xy 172.72 70.485)
+			(xy 170.18 71.12) (xy 170.18 73.66)
 		)
 		(stroke
 			(width 0)
@@ -3227,7 +3267,7 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 64.77) (xy 172.72 67.945)
+			(xy 170.18 67.945) (xy 170.18 71.12)
 		)
 		(stroke
 			(width 0)
@@ -3267,7 +3307,7 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 67.945) (xy 175.26 67.945)
+			(xy 170.18 71.12) (xy 172.72 71.12)
 		)
 		(stroke
 			(width 0)
@@ -3294,6 +3334,16 @@
 			(type default)
 		)
 		(uuid "82f99365-e7c1-4e70-a88a-39d2d2ec2aa6")
+	)
+	(wire
+		(pts
+			(xy 217.17 81.28) (xy 205.74 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "84c854d3-8fa4-4ef0-8075-c94ccc2fb4ad")
 	)
 	(wire
 		(pts
@@ -3407,7 +3457,7 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 78.105) (xy 172.72 79.375)
+			(xy 170.18 81.28) (xy 170.18 82.55)
 		)
 		(stroke
 			(width 0)
@@ -3437,7 +3487,17 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 75.565) (xy 172.72 78.105)
+			(xy 205.74 71.12) (xy 208.28 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b01327d3-deea-402c-8d04-dea69ade71ae")
+	)
+	(wire
+		(pts
+			(xy 170.18 78.74) (xy 170.18 81.28)
 		)
 		(stroke
 			(width 0)
@@ -3467,7 +3527,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 67.945) (xy 184.15 67.945)
+			(xy 177.8 71.12) (xy 181.61 71.12)
 		)
 		(stroke
 			(width 0)
@@ -3494,6 +3554,16 @@
 			(type default)
 		)
 		(uuid "ba326a02-826f-4701-86db-0c9f73b87b90")
+	)
+	(wire
+		(pts
+			(xy 205.74 67.945) (xy 205.74 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bd0044bb-6887-4146-af2f-3f0d6cea07cc")
 	)
 	(wire
 		(pts
@@ -3707,7 +3777,7 @@
 	)
 	(global_label "3.3V-uC"
 		(shape input)
-		(at 172.72 64.77 180)
+		(at 170.18 67.945 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3717,7 +3787,7 @@
 		)
 		(uuid "22a807d3-489d-422f-9065-eef3f34403c5")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 161.631 64.77 0)
+			(at 159.091 67.945 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3762,6 +3832,28 @@
 		(uuid "6bbc9831-41d5-402e-b2d8-576d87463f39")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 100.036 106.045 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "3.3V-RPi"
+		(shape input)
+		(at 205.74 67.945 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "854bddae-9836-4b0d-8316-43383a93c725")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 193.9252 67.945 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4338,7 +4430,7 @@
 	)
 	(symbol
 		(lib_id "Device:C_Small")
-		(at 172.72 73.025 0)
+		(at 170.18 76.2 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4346,7 +4438,7 @@
 		(dnp no)
 		(uuid "38cbf30c-4de4-4930-be25-d64d5a07d4a4")
 		(property "Reference" "C13"
-			(at 175.26 73.025 0)
+			(at 172.72 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4355,7 +4447,7 @@
 			)
 		)
 		(property "Value" "100n"
-			(at 173.99 75.565 0)
+			(at 171.45 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4364,7 +4456,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 172.72 73.025 0)
+			(at 170.18 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4373,7 +4465,7 @@
 			)
 		)
 		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21B104KCFNNNE_C28233.pdf"
-			(at 172.72 73.025 0)
+			(at 170.18 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4382,7 +4474,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 172.72 73.025 0)
+			(at 170.18 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4391,7 +4483,7 @@
 			)
 		)
 		(property "LCSC" "C28233"
-			(at 172.72 73.025 0)
+			(at 170.18 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4400,7 +4492,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 172.72 73.025 0)
+			(at 170.18 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4864,6 +4956,93 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R_Small")
+		(at 210.82 71.12 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "655066e8-9e05-4fab-bf81-ee03dece1b6f")
+		(property "Reference" "R38"
+			(at 209.55 66.04 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "3K3"
+			(at 208.28 68.58 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 210.82 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 210.82 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 210.82 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C26010"
+			(at 210.82 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Inventory" "B"
+			(at 210.82 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9a0d1d9f-567d-490b-8ebe-8b9df6c0f079")
+		)
+		(pin "2"
+			(uuid "fc5fc4f1-b097-4257-9ced-4dbb8a420092")
+		)
+		(instances
+			(project "scan-controller-kicad"
+				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/486b6b54-3904-49a9-9b52-9c586c7b0887"
+					(reference "R38")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_name "B3F-5000_sm_4")
 		(lib_id "easyeda2kicad:B3F-5000_sm")
 		(at 118.745 118.11 0)
@@ -5221,7 +5400,7 @@
 	)
 	(symbol
 		(lib_id "Device:LED_Small")
-		(at 184.15 73.025 90)
+		(at 181.61 76.2 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5229,7 +5408,7 @@
 		(dnp no)
 		(uuid "82e372d1-24cd-48af-bc1c-86fcda3acd2a")
 		(property "Reference" "D1"
-			(at 186.69 73.025 90)
+			(at 184.15 76.2 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5237,7 +5416,7 @@
 			)
 		)
 		(property "Value" "Power (gr)"
-			(at 187.96 75.565 90)
+			(at 185.42 78.74 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5245,7 +5424,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0805_2012Metric"
-			(at 184.15 73.025 90)
+			(at 181.61 76.2 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5254,7 +5433,7 @@
 			)
 		)
 		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/1806151820_Hubei-KENTO-Elec-KT-0805G_C2297.pdf"
-			(at 184.15 73.025 90)
+			(at 181.61 76.2 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5263,7 +5442,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 184.15 73.025 0)
+			(at 181.61 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5272,7 +5451,7 @@
 			)
 		)
 		(property "LCSC" "C2297"
-			(at 184.15 73.025 0)
+			(at 181.61 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5281,7 +5460,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 184.15 73.025 0)
+			(at 181.61 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5371,7 +5550,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDD")
-		(at 172.72 79.375 0)
+		(at 170.18 82.55 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5379,7 +5558,7 @@
 		(dnp no)
 		(uuid "8e5f5eb3-55dd-40b2-82bd-b25e6a6685c1")
 		(property "Reference" "#PWR018"
-			(at 172.72 85.725 0)
+			(at 170.18 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5388,7 +5567,7 @@
 			)
 		)
 		(property "Value" "GNDD"
-			(at 172.72 83.185 0)
+			(at 170.18 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5397,7 +5576,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 172.72 79.375 0)
+			(at 170.18 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5406,7 +5585,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 172.72 79.375 0)
+			(at 170.18 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5415,7 +5594,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 172.72 79.375 0)
+			(at 170.18 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5430,6 +5609,91 @@
 			(project "scan-controller-kicad"
 				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/486b6b54-3904-49a9-9b52-9c586c7b0887"
 					(reference "#PWR018")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED_Small")
+		(at 217.17 76.2 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8ea75190-5a12-40a8-adfc-1e6e173bc28f")
+		(property "Reference" "D11"
+			(at 215.265 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Raspi Power"
+			(at 219.964 76.454 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0805_2012Metric"
+			(at 217.17 76.2 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Foshan-NationStar-Optoelectronics-NCD0805R1_C84256.pdf"
+			(at 217.17 76.2 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 217.17 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C84256"
+			(at 217.17 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Inventory" "B"
+			(at 217.17 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a245ba4a-523b-4c55-97e5-1e7be6ec0e48")
+		)
+		(pin "2"
+			(uuid "14bab840-f5e0-47a8-8e61-fc69bfc6573b")
+		)
+		(instances
+			(project "scan-controller-kicad"
+				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/486b6b54-3904-49a9-9b52-9c586c7b0887"
+					(reference "D11")
 					(unit 1)
 				)
 			)
@@ -6599,7 +6863,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 177.8 67.945 270)
+		(at 175.26 71.12 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6607,7 +6871,7 @@
 		(dnp no)
 		(uuid "de6c5908-7540-4856-b270-8617c74ca91f")
 		(property "Reference" "R7"
-			(at 176.53 62.865 90)
+			(at 173.99 66.04 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6616,7 +6880,7 @@
 			)
 		)
 		(property "Value" "3K3"
-			(at 175.26 65.405 90)
+			(at 172.72 68.58 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6625,7 +6889,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 177.8 67.945 0)
+			(at 175.26 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6634,7 +6898,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 177.8 67.945 0)
+			(at 175.26 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6643,7 +6907,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 177.8 67.945 0)
+			(at 175.26 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6652,7 +6916,7 @@
 			)
 		)
 		(property "LCSC" "C26010"
-			(at 177.8 67.945 0)
+			(at 175.26 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6661,7 +6925,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 177.8 67.945 0)
+			(at 175.26 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6780,6 +7044,72 @@
 			(project "scan-controller-kicad"
 				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/486b6b54-3904-49a9-9b52-9c586c7b0887"
 					(reference "SW6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GNDD")
+		(at 205.74 82.55 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "e69d6eac-67a9-4e1a-91d5-3077ed05dd03")
+		(property "Reference" "#PWR036"
+			(at 205.74 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GNDD"
+			(at 205.74 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 205.74 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 205.74 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 205.74 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "83f78ca9-e74b-4b9b-a85b-49f6e244a779")
+		)
+		(instances
+			(project "scan-controller-kicad"
+				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/486b6b54-3904-49a9-9b52-9c586c7b0887"
+					(reference "#PWR036")
 					(unit 1)
 				)
 			)
