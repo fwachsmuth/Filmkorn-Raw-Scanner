@@ -2987,7 +2987,7 @@
 		(uuid "04e33285-bbe3-432d-9b0e-7066ba8dd762")
 	)
 	(junction
-		(at 149.225 119.38)
+		(at 147.32 119.38)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "0ad412a9-d723-478d-8d19-5f4419651909")
@@ -2999,7 +2999,7 @@
 		(uuid "0dcf531e-31e8-45c7-86b2-1dd0be6c8fdf")
 	)
 	(junction
-		(at 175.895 119.38)
+		(at 176.53 119.38)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "0ea7e4fc-2238-4ed4-bb0d-f6276aa7aa74")
@@ -3011,7 +3011,7 @@
 		(uuid "229f4c6f-dc81-4615-8d25-6d07d3409df0")
 	)
 	(junction
-		(at 183.515 119.38)
+		(at 184.15 119.38)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "232f0eec-e689-454f-89fe-42617dcb1f17")
@@ -3023,7 +3023,13 @@
 		(uuid "2bdc2d64-d689-4984-b3ee-d54c6a8d4818")
 	)
 	(junction
-		(at 158.115 130.81)
+		(at 161.29 130.81)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "40ed0e12-45cf-4226-ab31-4a9f58c25253")
+	)
+	(junction
+		(at 156.21 130.81)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "45912bc6-1d50-4f22-8e60-9d2ad79d8838")
@@ -3047,6 +3053,12 @@
 		(uuid "75c470ca-d7d8-4648-abd5-c5b87f0cc0b7")
 	)
 	(junction
+		(at 161.29 119.38)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8391fc6c-b93b-4fc8-89c1-c630f0546881")
+	)
+	(junction
 		(at 148.59 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3059,13 +3071,13 @@
 		(uuid "8ea7b634-dd2d-4f97-b71b-6057f51ac5bd")
 	)
 	(junction
-		(at 158.115 111.76)
+		(at 156.21 111.76)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "a4212f29-81cd-4cf1-9e09-48144e89b34d")
 	)
 	(junction
-		(at 158.115 119.38)
+		(at 156.21 119.38)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "a5b3b947-d8b4-488e-8887-236c95444665")
@@ -3188,7 +3200,7 @@
 	)
 	(wire
 		(pts
-			(xy 158.115 108.585) (xy 158.115 111.76)
+			(xy 156.21 108.585) (xy 156.21 111.76)
 		)
 		(stroke
 			(width 0)
@@ -3248,7 +3260,7 @@
 	)
 	(wire
 		(pts
-			(xy 149.225 119.38) (xy 149.225 125.73)
+			(xy 147.32 119.38) (xy 147.32 125.73)
 		)
 		(stroke
 			(width 0)
@@ -3288,7 +3300,7 @@
 	)
 	(wire
 		(pts
-			(xy 146.685 111.76) (xy 146.685 116.84)
+			(xy 144.78 111.76) (xy 144.78 116.84)
 		)
 		(stroke
 			(width 0)
@@ -3318,7 +3330,7 @@
 	)
 	(wire
 		(pts
-			(xy 146.685 119.38) (xy 149.225 119.38)
+			(xy 144.78 119.38) (xy 147.32 119.38)
 		)
 		(stroke
 			(width 0)
@@ -3328,7 +3340,7 @@
 	)
 	(wire
 		(pts
-			(xy 175.895 119.38) (xy 175.895 121.285)
+			(xy 176.53 119.38) (xy 176.53 121.285)
 		)
 		(stroke
 			(width 0)
@@ -3358,7 +3370,7 @@
 	)
 	(wire
 		(pts
-			(xy 158.115 111.76) (xy 158.115 113.03)
+			(xy 156.21 111.76) (xy 156.21 113.03)
 		)
 		(stroke
 			(width 0)
@@ -3378,7 +3390,7 @@
 	)
 	(wire
 		(pts
-			(xy 146.685 130.81) (xy 158.115 130.81)
+			(xy 144.78 130.81) (xy 156.21 130.81)
 		)
 		(stroke
 			(width 0)
@@ -3418,13 +3430,23 @@
 	)
 	(wire
 		(pts
-			(xy 175.895 116.205) (xy 175.895 119.38)
+			(xy 176.53 116.205) (xy 176.53 119.38)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "67058c00-9e68-4d00-91c2-81313af735e3")
+	)
+	(wire
+		(pts
+			(xy 161.29 128.27) (xy 161.29 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "69fccb63-55b4-4c37-8a65-bd855423b399")
 	)
 	(wire
 		(pts
@@ -3438,7 +3460,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.975 106.68) (xy 185.42 106.68)
+			(xy 181.61 106.68) (xy 186.055 106.68)
 		)
 		(stroke
 			(width 0)
@@ -3548,7 +3570,7 @@
 	)
 	(wire
 		(pts
-			(xy 158.115 119.38) (xy 160.655 119.38)
+			(xy 156.21 119.38) (xy 161.29 119.38)
 		)
 		(stroke
 			(width 0)
@@ -3568,7 +3590,7 @@
 	)
 	(wire
 		(pts
-			(xy 183.515 119.38) (xy 184.785 119.38)
+			(xy 184.15 119.38) (xy 185.42 119.38)
 		)
 		(stroke
 			(width 0)
@@ -3588,7 +3610,7 @@
 	)
 	(wire
 		(pts
-			(xy 150.495 119.38) (xy 149.225 119.38)
+			(xy 148.59 119.38) (xy 147.32 119.38)
 		)
 		(stroke
 			(width 0)
@@ -3608,7 +3630,7 @@
 	)
 	(wire
 		(pts
-			(xy 158.115 119.38) (xy 158.115 118.11)
+			(xy 156.21 119.38) (xy 156.21 118.11)
 		)
 		(stroke
 			(width 0)
@@ -3628,7 +3650,7 @@
 	)
 	(wire
 		(pts
-			(xy 183.515 123.19) (xy 183.515 119.38)
+			(xy 184.15 123.19) (xy 184.15 119.38)
 		)
 		(stroke
 			(width 0)
@@ -3668,7 +3690,7 @@
 	)
 	(wire
 		(pts
-			(xy 158.115 130.81) (xy 183.515 130.81)
+			(xy 156.21 130.81) (xy 161.29 130.81)
 		)
 		(stroke
 			(width 0)
@@ -3678,7 +3700,7 @@
 	)
 	(wire
 		(pts
-			(xy 182.245 119.38) (xy 183.515 119.38)
+			(xy 182.88 119.38) (xy 184.15 119.38)
 		)
 		(stroke
 			(width 0)
@@ -3708,7 +3730,7 @@
 	)
 	(wire
 		(pts
-			(xy 149.225 125.73) (xy 150.495 125.73)
+			(xy 147.32 125.73) (xy 148.59 125.73)
 		)
 		(stroke
 			(width 0)
@@ -3718,7 +3740,7 @@
 	)
 	(wire
 		(pts
-			(xy 200.025 119.38) (xy 201.295 119.38)
+			(xy 200.66 119.38) (xy 201.93 119.38)
 		)
 		(stroke
 			(width 0)
@@ -3728,7 +3750,7 @@
 	)
 	(wire
 		(pts
-			(xy 146.685 111.76) (xy 158.115 111.76)
+			(xy 144.78 111.76) (xy 156.21 111.76)
 		)
 		(stroke
 			(width 0)
@@ -3738,7 +3760,7 @@
 	)
 	(wire
 		(pts
-			(xy 158.115 130.81) (xy 158.115 132.08)
+			(xy 156.21 130.81) (xy 156.21 132.08)
 		)
 		(stroke
 			(width 0)
@@ -3755,6 +3777,16 @@
 			(type default)
 		)
 		(uuid "af962dd4-bd8e-4d67-a38d-ef5ed1820b20")
+	)
+	(wire
+		(pts
+			(xy 161.29 130.81) (xy 184.15 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b1e2d905-72da-42ee-8194-13d48e93daaf")
 	)
 	(wire
 		(pts
@@ -3818,7 +3850,7 @@
 	)
 	(wire
 		(pts
-			(xy 146.685 121.92) (xy 146.685 130.81)
+			(xy 144.78 121.92) (xy 144.78 130.81)
 		)
 		(stroke
 			(width 0)
@@ -3828,7 +3860,7 @@
 	)
 	(wire
 		(pts
-			(xy 175.895 106.68) (xy 175.895 111.125)
+			(xy 176.53 106.68) (xy 176.53 111.125)
 		)
 		(stroke
 			(width 0)
@@ -3838,7 +3870,7 @@
 	)
 	(wire
 		(pts
-			(xy 185.42 106.68) (xy 185.42 107.95)
+			(xy 186.055 106.68) (xy 186.055 107.95)
 		)
 		(stroke
 			(width 0)
@@ -3868,7 +3900,17 @@
 	)
 	(wire
 		(pts
-			(xy 158.115 120.65) (xy 158.115 119.38)
+			(xy 161.29 119.38) (xy 161.29 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c88c04e3-7d1d-4980-9e09-ec88a90cdbf1")
+	)
+	(wire
+		(pts
+			(xy 156.21 120.65) (xy 156.21 119.38)
 		)
 		(stroke
 			(width 0)
@@ -3908,7 +3950,7 @@
 	)
 	(wire
 		(pts
-			(xy 183.515 128.27) (xy 183.515 130.81)
+			(xy 184.15 128.27) (xy 184.15 130.81)
 		)
 		(stroke
 			(width 0)
@@ -3928,7 +3970,7 @@
 	)
 	(wire
 		(pts
-			(xy 175.895 119.38) (xy 177.165 119.38)
+			(xy 176.53 119.38) (xy 177.8 119.38)
 		)
 		(stroke
 			(width 0)
@@ -3948,7 +3990,7 @@
 	)
 	(wire
 		(pts
-			(xy 155.575 119.38) (xy 158.115 119.38)
+			(xy 153.67 119.38) (xy 156.21 119.38)
 		)
 		(stroke
 			(width 0)
@@ -4030,7 +4072,7 @@
 	)
 	(global_label "3.3V-uC"
 		(shape input)
-		(at 158.115 108.585 0)
+		(at 156.21 108.585 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4040,7 +4082,7 @@
 		)
 		(uuid "873ffe59-7d67-4192-8039-cad27873db23")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 169.204 108.585 0)
+			(at 167.299 108.585 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4074,7 +4116,7 @@
 	)
 	(hierarchical_label "Film End"
 		(shape input)
-		(at 201.295 119.38 0)
+		(at 201.93 119.38 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4161,7 +4203,7 @@
 	)
 	(symbol
 		(lib_id "Device:LED_Small")
-		(at 178.435 106.68 180)
+		(at 179.07 106.68 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4169,7 +4211,7 @@
 		(dnp no)
 		(uuid "056127fd-7a31-4b8c-9535-815cc4a328be")
 		(property "Reference" "D3"
-			(at 180.975 108.585 0)
+			(at 181.61 108.585 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4177,7 +4219,7 @@
 			)
 		)
 		(property "Value" "No Film (re)"
-			(at 181.61 104.775 0)
+			(at 182.245 104.775 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4185,7 +4227,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0805_2012Metric"
-			(at 178.435 106.68 90)
+			(at 179.07 106.68 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4194,7 +4236,7 @@
 			)
 		)
 		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Foshan-NationStar-Optoelectronics-NCD0805R1_C84256.pdf"
-			(at 178.435 106.68 90)
+			(at 179.07 106.68 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4203,7 +4245,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 178.435 106.68 0)
+			(at 179.07 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4212,7 +4254,7 @@
 			)
 		)
 		(property "LCSC" "C84256"
-			(at 178.435 106.68 0)
+			(at 179.07 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4221,7 +4263,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 178.435 106.68 0)
+			(at 179.07 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4541,7 +4583,7 @@
 	)
 	(symbol
 		(lib_id "Device:C_Small")
-		(at 183.515 125.73 0)
+		(at 184.15 125.73 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4549,7 +4591,7 @@
 		(dnp no)
 		(uuid "2ce95088-1234-4c28-ad57-66d6f63d65bf")
 		(property "Reference" "C22"
-			(at 186.055 125.73 0)
+			(at 186.69 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4558,7 +4600,7 @@
 			)
 		)
 		(property "Value" "100n"
-			(at 186.055 128.27 0)
+			(at 186.69 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4567,7 +4609,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 183.515 125.73 0)
+			(at 184.15 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4576,7 +4618,7 @@
 			)
 		)
 		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21B104KCFNNNE_C28233.pdf"
-			(at 183.515 125.73 0)
+			(at 184.15 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4585,7 +4627,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 183.515 125.73 0)
+			(at 184.15 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4594,7 +4636,7 @@
 			)
 		)
 		(property "LCSC" "C28233"
-			(at 183.515 125.73 0)
+			(at 184.15 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4603,7 +4645,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 183.515 125.73 0)
+			(at 184.15 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4805,6 +4847,93 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:C_Small")
+		(at 161.29 125.73 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "35c3ac72-44ef-4a9f-a4ef-fb0f5906f8ea")
+		(property "Reference" "C31"
+			(at 163.83 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100n"
+			(at 163.83 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 161.29 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21B104KCFNNNE_C28233.pdf"
+			(at 161.29 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 161.29 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C28233"
+			(at 161.29 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Inventory" "B"
+			(at 161.29 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "03cbb9f4-601a-49df-9e7f-1ac7be759f4a")
+		)
+		(pin "2"
+			(uuid "a2992e17-900d-41bc-91ce-83fe373878a8")
+		)
+		(instances
+			(project "scan-controller-kicad"
+				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/32afee9c-f78c-4810-b9e6-48288995c3da"
+					(reference "C31")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "74xx:74HC14")
 		(at 167.64 73.66 0)
 		(unit 1)
@@ -4927,7 +5056,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 158.115 115.57 180)
+		(at 156.21 115.57 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4935,7 +5064,7 @@
 		(dnp no)
 		(uuid "4689c621-f010-4b9f-8f7b-3537362a030f")
 		(property "Reference" "R30"
-			(at 159.6136 114.4016 0)
+			(at 157.7086 114.4016 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4944,7 +5073,7 @@
 			)
 		)
 		(property "Value" "3K"
-			(at 159.6136 116.713 0)
+			(at 157.7086 116.713 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4953,7 +5082,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 158.115 115.57 0)
+			(at 156.21 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4962,7 +5091,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 158.115 115.57 0)
+			(at 156.21 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4971,7 +5100,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 158.115 115.57 0)
+			(at 156.21 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4980,7 +5109,7 @@
 			)
 		)
 		(property "LCSC" "C17661"
-			(at 158.115 115.57 0)
+			(at 156.21 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4989,7 +5118,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 158.115 115.57 0)
+			(at 156.21 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5194,7 +5323,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74HC14")
-		(at 168.275 119.38 0)
+		(at 168.91 119.38 0)
 		(unit 3)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5202,7 +5331,7 @@
 		(dnp no)
 		(uuid "50cc5075-c130-46fd-bb8d-bd93344b64c4")
 		(property "Reference" "U9"
-			(at 169.545 122.555 0)
+			(at 170.18 122.555 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5210,7 +5339,7 @@
 			)
 		)
 		(property "Value" "74LVC14"
-			(at 170.815 114.935 0)
+			(at 171.45 114.935 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5218,7 +5347,7 @@
 			)
 		)
 		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
-			(at 168.275 119.38 0)
+			(at 168.91 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5227,7 +5356,7 @@
 			)
 		)
 		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Nexperia-74LVC14AD-118_C6065.pdf"
-			(at 168.275 119.38 0)
+			(at 168.91 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5236,7 +5365,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 168.275 119.38 0)
+			(at 168.91 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5245,7 +5374,7 @@
 			)
 		)
 		(property "LCSC" "C6065"
-			(at 168.275 119.38 0)
+			(at 168.91 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5254,7 +5383,7 @@
 			)
 		)
 		(property "Inventory" "E"
-			(at 168.275 119.38 0)
+			(at 168.91 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5415,7 +5544,7 @@
 	)
 	(symbol
 		(lib_id "Peacemans_Teile:TestPoint_named")
-		(at 175.895 121.285 180)
+		(at 176.53 121.285 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5423,7 +5552,7 @@
 		(dnp no)
 		(uuid "544f2f66-9b34-4d58-8372-c8d82f512e6a")
 		(property "Reference" "TP3"
-			(at 177.8 126.365 0)
+			(at 178.435 126.365 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5432,7 +5561,7 @@
 			)
 		)
 		(property "Value" "Film End"
-			(at 182.88 127.635 0)
+			(at 183.515 127.635 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5442,7 +5571,7 @@
 			)
 		)
 		(property "Footprint" "Peacemans_Footprints:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
-			(at 170.815 121.285 0)
+			(at 171.45 121.285 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5451,7 +5580,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 170.815 121.285 0)
+			(at 171.45 121.285 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5460,7 +5589,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 175.895 121.285 0)
+			(at 176.53 121.285 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5469,7 +5598,7 @@
 			)
 		)
 		(property "TP_Label" "No Film"
-			(at 175.26 128.27 0)
+			(at 175.895 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5849,7 +5978,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 179.705 119.38 90)
+		(at 180.34 119.38 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5857,7 +5986,7 @@
 		(dnp no)
 		(uuid "625d4ee5-c102-4de3-93fa-ad56dfab2ea7")
 		(property "Reference" "R27"
-			(at 179.705 116.84 90)
+			(at 180.34 116.84 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5865,7 +5994,7 @@
 			)
 		)
 		(property "Value" "3K3"
-			(at 179.705 121.92 90)
+			(at 180.34 121.92 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5873,7 +6002,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 179.705 119.38 0)
+			(at 180.34 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5882,7 +6011,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 179.705 119.38 0)
+			(at 180.34 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5891,7 +6020,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 179.705 119.38 0)
+			(at 180.34 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5900,7 +6029,7 @@
 			)
 		)
 		(property "LCSC" "C26010"
-			(at 179.705 119.38 0)
+			(at 180.34 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5909,7 +6038,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 179.705 119.38 0)
+			(at 180.34 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6086,7 +6215,7 @@
 	)
 	(symbol
 		(lib_id "Transistor_BJT:BC847")
-		(at 155.575 125.73 0)
+		(at 153.67 125.73 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6094,7 +6223,7 @@
 		(dnp no)
 		(uuid "748837fe-c1a2-4ae5-bf4c-2bc67f467a59")
 		(property "Reference" "Q6"
-			(at 160.4264 124.5616 0)
+			(at 149.606 127.508 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6103,7 +6232,7 @@
 			)
 		)
 		(property "Value" "SS8050"
-			(at 160.4264 126.873 0)
+			(at 146.558 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6112,7 +6241,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 160.655 127.635 0)
+			(at 158.75 127.635 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6123,7 +6252,7 @@
 			)
 		)
 		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2303221100_Jiangsu-Changjing-Electronics-Technology-Co---Ltd--SS8050_C2150.pdf"
-			(at 155.575 125.73 0)
+			(at 153.67 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6133,7 +6262,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 155.575 125.73 0)
+			(at 153.67 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6142,7 +6271,7 @@
 			)
 		)
 		(property "LCSC" "C2150"
-			(at 155.575 125.73 0)
+			(at 153.67 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6151,7 +6280,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 155.575 125.73 0)
+			(at 153.67 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6245,7 +6374,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDD")
-		(at 158.115 132.08 0)
+		(at 156.21 132.08 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6253,7 +6382,7 @@
 		(dnp no)
 		(uuid "803245d0-1f75-4346-b7b6-ca0f3149999e")
 		(property "Reference" "#PWR026"
-			(at 158.115 138.43 0)
+			(at 156.21 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6262,7 +6391,7 @@
 			)
 		)
 		(property "Value" "GNDD"
-			(at 158.115 135.89 0)
+			(at 156.21 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6270,7 +6399,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 158.115 132.08 0)
+			(at 156.21 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6279,7 +6408,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 158.115 132.08 0)
+			(at 156.21 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6288,7 +6417,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 158.115 132.08 0)
+			(at 156.21 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6310,7 +6439,7 @@
 	)
 	(symbol
 		(lib_id "easyeda2kicad:KF141R-2.54-3P")
-		(at 141.605 119.38 180)
+		(at 139.7 119.38 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6318,7 +6447,7 @@
 		(dnp no)
 		(uuid "8e0ecc29-e852-4eb9-ade9-f51b5f2e2d33")
 		(property "Reference" "CN5"
-			(at 142.875 125.73 0)
+			(at 140.97 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6327,7 +6456,7 @@
 			)
 		)
 		(property "Value" "Film End Eye"
-			(at 144.145 128.27 0)
+			(at 142.24 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6336,7 +6465,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:CONN-TH_3P-P2.54_DIBO_DB141R-2.54-3P"
-			(at 141.605 109.22 0)
+			(at 139.7 109.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6345,7 +6474,7 @@
 			)
 		)
 		(property "Datasheet" "https://lcsc.com/product-detail/New-Quadratic-Unclassified-Data_Cixi-Kefa-Elec-KF141R-2-54-3P_C475125.html"
-			(at 141.605 106.68 0)
+			(at 139.7 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6354,7 +6483,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 141.605 119.38 0)
+			(at 139.7 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6363,7 +6492,7 @@
 			)
 		)
 		(property "LCSC Part" ""
-			(at 141.605 104.14 0)
+			(at 139.7 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6372,7 +6501,7 @@
 			)
 		)
 		(property "LCSC" "C2898755"
-			(at 141.605 119.38 0)
+			(at 139.7 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6381,7 +6510,7 @@
 			)
 		)
 		(property "Inventory" ""
-			(at 141.605 119.38 0)
+			(at 139.7 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6390,7 +6519,7 @@
 			)
 		)
 		(property "Sim.Device" "C475125"
-			(at 141.605 119.38 0)
+			(at 139.7 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6483,7 +6612,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 153.035 119.38 90)
+		(at 151.13 119.38 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6491,7 +6620,7 @@
 		(dnp no)
 		(uuid "a0449305-fea6-4ee2-a8c5-992c70c74b4e")
 		(property "Reference" "R31"
-			(at 153.035 116.84 90)
+			(at 151.13 116.84 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6499,7 +6628,7 @@
 			)
 		)
 		(property "Value" "470K"
-			(at 153.035 121.92 90)
+			(at 151.13 121.92 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6507,7 +6636,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 153.035 119.38 0)
+			(at 151.13 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6516,7 +6645,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 153.035 119.38 0)
+			(at 151.13 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6525,7 +6654,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 153.035 119.38 0)
+			(at 151.13 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6534,7 +6663,7 @@
 			)
 		)
 		(property "LCSC" "C17709"
-			(at 153.035 119.38 0)
+			(at 151.13 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6543,7 +6672,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 153.035 119.38 0)
+			(at 151.13 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6568,7 +6697,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 175.895 113.665 0)
+		(at 176.53 113.665 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6576,7 +6705,7 @@
 		(dnp no)
 		(uuid "a92eb50b-d972-44db-9dea-9b9616238ec9")
 		(property "Reference" "R11"
-			(at 177.165 112.395 0)
+			(at 177.8 112.395 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6585,7 +6714,7 @@
 			)
 		)
 		(property "Value" "300R"
-			(at 177.165 114.3 0)
+			(at 177.8 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6594,7 +6723,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 175.895 113.665 0)
+			(at 176.53 113.665 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6603,7 +6732,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 175.895 113.665 0)
+			(at 176.53 113.665 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6612,7 +6741,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 175.895 113.665 0)
+			(at 176.53 113.665 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6621,7 +6750,7 @@
 			)
 		)
 		(property "LCSC" "C17617"
-			(at 175.895 113.665 0)
+			(at 176.53 113.665 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6630,7 +6759,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 175.895 113.665 0)
+			(at 176.53 113.665 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7100,7 +7229,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDD")
-		(at 185.42 107.95 0)
+		(at 186.055 107.95 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7108,7 +7237,7 @@
 		(dnp no)
 		(uuid "c18cc501-0eb7-46fe-91d1-8c97e288763a")
 		(property "Reference" "#PWR020"
-			(at 185.42 114.3 0)
+			(at 186.055 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7117,7 +7246,7 @@
 			)
 		)
 		(property "Value" "GNDD"
-			(at 185.42 111.76 0)
+			(at 186.055 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7125,7 +7254,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 185.42 107.95 0)
+			(at 186.055 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7134,7 +7263,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 185.42 107.95 0)
+			(at 186.055 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7143,7 +7272,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 185.42 107.95 0)
+			(at 186.055 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7418,7 +7547,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74HC14")
-		(at 192.405 119.38 0)
+		(at 193.04 119.38 0)
 		(unit 4)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7426,7 +7555,7 @@
 		(dnp no)
 		(uuid "f07e5336-d648-456c-ae69-165ae6354e21")
 		(property "Reference" "U9"
-			(at 194.31 122.555 0)
+			(at 194.945 122.555 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7434,7 +7563,7 @@
 			)
 		)
 		(property "Value" "74LVC14"
-			(at 195.58 115.57 0)
+			(at 196.215 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7442,7 +7571,7 @@
 			)
 		)
 		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
-			(at 192.405 119.38 0)
+			(at 193.04 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7451,7 +7580,7 @@
 			)
 		)
 		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Nexperia-74LVC14AD-118_C6065.pdf"
-			(at 192.405 119.38 0)
+			(at 193.04 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7460,7 +7589,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 192.405 119.38 0)
+			(at 193.04 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7469,7 +7598,7 @@
 			)
 		)
 		(property "LCSC" "C6065"
-			(at 192.405 119.38 0)
+			(at 193.04 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7478,7 +7607,7 @@
 			)
 		)
 		(property "Inventory" "E"
-			(at 192.405 119.38 0)
+			(at 193.04 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
