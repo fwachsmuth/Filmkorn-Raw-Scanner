@@ -6792,7 +6792,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "47K"
+		(property "Value" "10K"
 			(at 163.195 52.07 0)
 			(effects
 				(font
@@ -6828,7 +6828,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C17713"
+		(property "LCSC" "C17414"
 			(at 168.91 50.165 0)
 			(effects
 				(font
@@ -7220,7 +7220,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "47K"
+		(property "Value" "10K"
 			(at 163.195 35.56 0)
 			(effects
 				(font
@@ -7256,7 +7256,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C17713"
+		(property "LCSC" "C17414"
 			(at 168.91 33.655 0)
 			(effects
 				(font
