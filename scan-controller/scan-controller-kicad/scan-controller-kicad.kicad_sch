@@ -4956,6 +4956,12 @@
 		(uuid "6201b55b-c438-4749-a332-6ceea7ff78e3")
 	)
 	(junction
+		(at 87.63 132.08)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "62369143-9b3d-499b-98e4-31461bf95d0d")
+	)
+	(junction
 		(at 46.355 24.13)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5837,7 +5843,7 @@
 	)
 	(wire
 		(pts
-			(xy 86.995 132.08) (xy 97.155 132.08)
+			(xy 86.995 132.08) (xy 87.63 132.08)
 		)
 		(stroke
 			(width 0)
@@ -6527,6 +6533,16 @@
 	)
 	(wire
 		(pts
+			(xy 87.63 132.08) (xy 97.155 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c706dd2a-5e55-42a8-8187-6ad3e3a0627e")
+	)
+	(wire
+		(pts
 			(xy 34.925 24.13) (xy 46.355 24.13)
 		)
 		(stroke
@@ -6624,6 +6640,16 @@
 			(type default)
 		)
 		(uuid "d3dd7cdb-b730-487d-804d-99150ba318ef")
+	)
+	(wire
+		(pts
+			(xy 87.63 135.89) (xy 87.63 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d4829ac2-1a70-4d87-85db-0b0086892792")
 	)
 	(wire
 		(pts
@@ -6744,6 +6770,16 @@
 			(type default)
 		)
 		(uuid "e300709f-6c72-488d-a598-efcbd6d3af54")
+	)
+	(wire
+		(pts
+			(xy 82.55 135.89) (xy 87.63 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e43685b5-b113-471f-b70d-d2fac17fddef")
 	)
 	(wire
 		(pts
@@ -7014,6 +7050,16 @@
 			(justify right bottom)
 		)
 		(uuid "2d7cd6ac-f72c-49f8-8abc-9d0f2cba59d7")
+	)
+	(label "GPIO6"
+		(at 82.55 135.89 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "344bd5ed-fa57-4450-bb27-553b1ec9a901")
 	)
 	(label "GPIO5"
 		(at 88.265 129.54 180)
