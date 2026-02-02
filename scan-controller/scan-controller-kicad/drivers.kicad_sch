@@ -3880,12 +3880,6 @@
 		(uuid "3686316f-dd42-4868-8404-7ac993bfd57e")
 	)
 	(junction
-		(at 228.6 129.54)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "37d493e8-adaa-468e-8b64-c5964005c2a7")
-	)
-	(junction
 		(at 156.21 83.82)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4191,12 +4185,6 @@
 		(color 0 0 0 0)
 		(uuid "fa7c2c24-1c27-4ef4-9fa6-33864c15132b")
 	)
-	(junction
-		(at 228.6 118.11)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "fb121aa3-0bc4-4211-bbcf-bcbb9b8ea7e1")
-	)
 	(no_connect
 		(at 231.14 120.65)
 		(uuid "f69f97aa-632c-475c-ac97-593cf28bef3a")
@@ -4213,7 +4201,7 @@
 	)
 	(wire
 		(pts
-			(xy 231.14 118.11) (xy 228.6 118.11)
+			(xy 226.06 118.11) (xy 231.14 118.11)
 		)
 		(stroke
 			(width 0)
@@ -4290,16 +4278,6 @@
 			(type default)
 		)
 		(uuid "0c48e386-0d4e-4cea-8dc2-1a3034a0c697")
-	)
-	(wire
-		(pts
-			(xy 228.6 111.76) (xy 228.6 118.11)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0c91b872-4a5c-464a-b2bf-c3f907f99506")
 	)
 	(wire
 		(pts
@@ -4903,16 +4881,6 @@
 	)
 	(wire
 		(pts
-			(xy 226.06 118.11) (xy 228.6 118.11)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5db1f527-2de7-4852-a3bd-6a621aedd6bd")
-	)
-	(wire
-		(pts
 			(xy 182.245 78.105) (xy 182.245 83.82)
 		)
 		(stroke
@@ -5263,16 +5231,6 @@
 	)
 	(wire
 		(pts
-			(xy 228.6 123.19) (xy 228.6 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8b1dd898-55da-4e4c-9642-d950a05a25f1")
-	)
-	(wire
-		(pts
 			(xy 246.38 94.615) (xy 246.38 99.06)
 		)
 		(stroke
@@ -5463,7 +5421,7 @@
 	)
 	(wire
 		(pts
-			(xy 228.6 129.54) (xy 228.6 139.7)
+			(xy 228.6 123.19) (xy 228.6 139.7)
 		)
 		(stroke
 			(width 0)
@@ -7469,81 +7427,6 @@
 			(project "scan-controller-kicad"
 				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
 					(reference "R10")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Peacemans_Teile:TestPoint_named")
-		(at 228.6 129.54 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "3f7e3a73-9084-4514-a7fe-4ab292e6de6e")
-		(property "Reference" "TP17"
-			(at 235.458 129.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "TestPoint"
-			(at 233.68 129.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
-			(at 228.6 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 228.6 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 228.6 129.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "TP_Label" "Fan -"
-			(at 233.68 131.445 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "41001912-651b-40bd-9f48-1da43bf94fb5")
-		)
-		(instances
-			(project "scan-controller-kicad"
-				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-					(reference "TP17")
 					(unit 1)
 				)
 			)
@@ -10036,81 +9919,6 @@
 			(project "scan-controller-kicad"
 				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
 					(reference "U10")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Peacemans_Teile:TestPoint_named")
-		(at 228.6 111.76 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "b51b372c-d769-49db-9dff-f1617d137f39")
-		(property "Reference" "TP18"
-			(at 235.458 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "TestPoint"
-			(at 233.68 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
-			(at 228.6 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 228.6 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 228.6 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "TP_Label" "Fan +"
-			(at 232.918 109.728 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "f82f36b0-5d56-4993-929e-c65571e5abd9")
-		)
-		(instances
-			(project "scan-controller-kicad"
-				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9/f199f7c1-4da9-41da-ae5e-c136f90f6de6"
-					(reference "TP18")
 					(unit 1)
 				)
 			)
