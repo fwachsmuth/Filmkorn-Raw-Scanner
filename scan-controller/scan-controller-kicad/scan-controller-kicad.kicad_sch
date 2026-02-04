@@ -10507,7 +10507,7 @@
 				)
 			)
 		)
-		(property "Value" "47K"
+		(property "Value" "10K"
 			(at 60.96 33.02 0)
 			(effects
 				(font
@@ -10515,7 +10515,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 57.785 31.75 0)
 			(effects
 				(font
@@ -10524,7 +10524,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8579705876598476800"
 			(at 57.785 31.75 0)
 			(effects
 				(font
@@ -10542,7 +10542,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C17713"
+		(property "LCSC" "C17902"
 			(at 57.785 31.75 0)
 			(effects
 				(font
