@@ -48,6 +48,7 @@ enum MotorState {
 #define SINGLE_STEP_POT A2
 #define CONT_RUN_POT    A3
 #define EXPOSURE_POT    A6
+#define REV_PIN         A7   // Board revision: voltage divider 10k to GND, R51 (VCC to A7) per revision
 
 enum Command
 {
@@ -186,6 +187,42 @@ const uint32_t STOP_LONG_PRESS_MS = 3000;  // 3 seconds
 
 volatile bool piIsReady = false;
 
+/*
+ * Board revision is encoded on A7 via voltage divider: 10 kOhm to GND, R51 (VCC to A7) per revision.
+ * 3.3 V reference. If A7 is floating (no R51), readings are unstable → report Rev. D.
+ * E24 values for R51 per revision (Rev E = first released):
+ *   Rev E: 0 R (short), F: 330 R, G: 1.1 k, H: 2.0 k, I: 3.0 k, J: 4.3 k, K: 5.6 k, L: 7.5 k,
+ *   M: 10 k, N: 13 k, O: 18 k, P: 24 k, Q: 33 k, R: 56 k, Rev S: not populated (open).
+ */
+void readAndPrintBoardRevision() {
+  const int numSamples = 8;
+  const int maxSpread = 120;   // if (max - min) > this, consider A7 floating
+  dummyread = analogRead(EXPOSURE_POT);
+  int v0 = analogRead(REV_PIN);
+  int sum = v0;
+  int vmin = v0, vmax = v0;
+  for (int i = 1; i < numSamples; i++) {
+    dummyread = analogRead(REV_PIN);
+    int v = analogRead(REV_PIN);
+    sum += v;
+    if (v < vmin) vmin = v;
+    if (v > vmax) vmax = v;
+  }
+  int mean = sum / numSamples;
+  if (vmax - vmin > maxSpread) {
+    Serial.println(F("Rev. D (floating)"));
+    return;
+  }
+  // 15 bands: E (highest ADC) .. S (lowest). Thresholds are lower bounds for each rev.
+  static const uint16_t revThresholds[] = { 970, 905, 840, 775, 710, 645, 580, 515, 450, 385, 320, 255, 190, 125, 60 };
+  const char revLetters[] = { 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S' };
+  int rev = 0;
+  while (rev < 14 && mean < (int)revThresholds[rev + 1])
+    rev++;
+  Serial.print(F("Rev. "));
+  Serial.println(revLetters[rev]);
+}
+
 ControlButton currentButton = NONE;
 ControlButton prevButton = NONE;
 uint8_t currentMotor = 0;
@@ -225,6 +262,7 @@ void setup() {
   pinMode(MOTOR_B_PIN, OUTPUT);
   pinMode(EYE_PIN, INPUT);
   pinMode(FILM_END_PIN, INPUT);
+  pinMode(REV_PIN, INPUT);
 
   // Initialize film end state to current value to prevent spurious state change detection
   filmEndState = digitalRead(FILM_END_PIN);
@@ -241,6 +279,8 @@ void setup() {
   Wire.begin(SLAVE_ADDRESS);
   Wire.onReceive(i2cReceive);
   Wire.onRequest(i2cRequest);
+
+  readAndPrintBoardRevision();
 }
 
 void loop() {
