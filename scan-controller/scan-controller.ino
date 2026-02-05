@@ -310,7 +310,7 @@ void loop() {
         // Button just pressed - start timing
         stopButtonPressed = true;
         stopButtonPressedAt = millis();
-        Serial.println("Menu: STOP button pressed, timing...");
+        Serial.println(F("Menu: STOP button pressed, timing..."));
       } else {
         // Button still held - check if long enough
         uint32_t pressDuration = millis() - stopButtonPressedAt;
@@ -322,7 +322,7 @@ void loop() {
           prevButton = NONE;  // Reset prevButton so menu navigation works
           currentButton = NONE;  // Reset currentButton
           nextPiCmd = CMD_MENU_ENTER;
-          Serial.println("Menu: enter (long press STOP)");
+          Serial.println(F("Menu: enter (long press STOP)"));
           return;
         }
       }
@@ -331,9 +331,9 @@ void loop() {
       if (stopButtonPressed) {
         // Button was pressed but released before long-press threshold
         uint32_t pressDuration = millis() - stopButtonPressedAt;
-        Serial.print("Menu: STOP released after ");
+        Serial.print(F("Menu: STOP released after "));
         Serial.print(pressDuration);
-        Serial.println(" ms (too short)");
+        Serial.println(F(" ms (too short)"));
         // Reset button state so pollButtons() can detect the release and handle it normally
         stopButtonPressed = false;
         // Reset prevButton so the button release can be detected by normal handler
@@ -353,7 +353,7 @@ void loop() {
       int pairingButtonsB = analogRead(BUTTONS_B_PIN);
       currentButton = pollButtons();
       if (pairingButtonsB > 990 || currentButton == STOP) {
-        Serial.println("Pairing mode: stop pressed");
+        Serial.println(F("Pairing mode: stop pressed"));
         pairingMode = false;
         pairingCancelPending = true;
         pairingCancelSentAt = millis();
@@ -428,7 +428,7 @@ void loop() {
         {
           // Film end confirmed - start countdown to scan film remainder
           scanExtraFrames = 25;
-          Serial.println("Film ended - scanning 25 extra frames");
+          Serial.println(F("Film ended - scanning 25 extra frames"));
         }
       }
     }
@@ -442,7 +442,7 @@ void loop() {
       scanExtraFrames--;
       if (scanExtraFrames == 0)
       {
-        Serial.println("Extra frames done - stopping scan, ejecting film");
+        Serial.println(F("Extra frames done - stopping scan, ejecting film"));
         stopScanning();
         filmEjectAdvances = 15;  // start eject phase
         motorFWD1();  // start first eject advance
@@ -470,7 +470,7 @@ void loop() {
     }
     else
     {
-      Serial.println("Film eject complete");
+      Serial.println(F("Film eject complete"));
     }
   }
 
@@ -502,7 +502,7 @@ void loop() {
           } else {
             // We're timing a long-press, but user released before threshold
             // The long-press handler will reset stopButtonPressed, so next press will work
-            Serial.println("STOP: ignoring (long-press timing)");
+            Serial.println(F("STOP: ignoring (long-press timing)"));
           }
           break;
         case ZOOM:
@@ -517,24 +517,24 @@ void loop() {
           if (motorState == FWD)
             stopBriefly();
           motorState = REV;
-          Serial.print("Motor: << at Speed ");
+          Serial.print(F("Motor: << at Speed "));
           Serial.println(fps18MotorPower);
           motorRev();
           break;
         case REV1:
           if (motorState != STOPPED || singleStepInProgress) {
-            Serial.println("Motor not stopped.");
+            Serial.println(F("Motor not stopped."));
           } else {
-            Serial.print("< at Speed ");
+            Serial.print(F("< at Speed "));
             Serial.println(singleStepMotorPower);
             motorREV1();
           }
           break;
         case FWD1:
           if (motorState != STOPPED || singleStepInProgress) {
-            Serial.println("Motor not stopped.");
+            Serial.println(F("Motor not stopped."));
           } else {
-            Serial.print("> at Speed ");
+            Serial.print(F("> at Speed "));
             Serial.println(singleStepMotorPower);
             motorFWD1();
           }
@@ -544,7 +544,7 @@ void loop() {
             stopBriefly();
           }
           motorState = FWD;
-          Serial.print("Motor: >> at Speed ");
+          Serial.print(F("Motor: >> at Speed "));
           Serial.println(fps18MotorPower);
           motorFwd();
           break;
@@ -580,7 +580,7 @@ void readExposurePot() {
   if (abs(lastSentExposurePot - newExposurePot) >= 8) {
     exposurePot = newExposurePot;
     lastSentExposurePot = newExposurePot;
-    Serial.print("New Exposure Setting: ");
+    Serial.print(F("New Exposure Setting: "));
     Serial.println(exposurePot);
     nextPiCmd = CMD_SET_EXP;
   }
@@ -597,7 +597,7 @@ void readFilmEndSensor() {
     if (filmEndLowPending && (millis() - filmEndLowSince) >= 500) {
       // Stop motor if running continuously (RUNFWD/RUNREV) and film was inserted
       if (motorState == FWD || motorState == REV) {
-        Serial.println("Film ended during continuous run - stopping");
+        Serial.println(F("Film ended during continuous run - stopping"));
         stopMotor();
       }
       nextPiCmd = CMD_SHOW_INSERT_FILM;
@@ -617,9 +617,9 @@ void handleMenuSystem() {
   if (menuState == MENU_MAIN) {
     // Main menu navigation
     if (currentButton != prevButton) {
-      Serial.print("Menu: button changed from ");
+      Serial.print(F("Menu: button changed from "));
       Serial.print(prevButton);
-      Serial.print(" to ");
+      Serial.print(F(" to "));
       Serial.println(currentButton);
       prevButton = currentButton;
       switch (currentButton) {
@@ -627,19 +627,19 @@ void handleMenuSystem() {
           // Navigate up (wrap around)
           menuSelected = (menuSelected - 1 + MENU_ITEM_COUNT) % MENU_ITEM_COUNT;
           nextPiCmd = CMD_MENU_PREV;
-          Serial.print("Menu: selected item ");
+          Serial.print(F("Menu: selected item "));
           Serial.println(menuSelected);
           break;
         case FWD1:
           // Navigate down (wrap around)
           menuSelected = (menuSelected + 1) % MENU_ITEM_COUNT;
           nextPiCmd = CMD_MENU_NEXT;
-          Serial.print("Menu: selected item ");
+          Serial.print(F("Menu: selected item "));
           Serial.println(menuSelected);
           break;
         case RUNFWD:
           // Enter selected menu item - go directly to submenu ENTER command
-          Serial.print("Menu: entering item ");
+          Serial.print(F("Menu: entering item "));
           Serial.println(menuSelected);
           switch ((MenuItem)menuSelected) {
             case MENU_ITEM_UPDATE:
@@ -687,7 +687,7 @@ void handleMenuSystem() {
           // Exit menu
           menuState = MENU_IDLE;
           nextPiCmd = CMD_MENU_EXIT;
-          Serial.println("Menu: exit");
+          Serial.println(F("Menu: exit"));
           break;
         default:
           break;
@@ -705,26 +705,26 @@ void handleMenuSystem() {
             menuState = MENU_MAIN;
             updateMode = false;
             nextPiCmd = CMD_UPDATE_CANCEL;
-            Serial.println("Update: back to menu");
+            Serial.println(F("Update: back to menu"));
             break;
           case REV1:
             nextPiCmd = CMD_UPDATE_PREV;
-            Serial.println("Update: prev");
+            Serial.println(F("Update: prev"));
             break;
           case FWD1:
             nextPiCmd = CMD_UPDATE_NEXT;
-            Serial.println("Update: next");
+            Serial.println(F("Update: next"));
             break;
           case RUNFWD:
             nextPiCmd = CMD_UPDATE_CONFIRM;
-            Serial.println("Update: confirm");
+            Serial.println(F("Update: confirm"));
             break;
           case STOP:
             // Exit menu completely
             menuState = MENU_IDLE;
             updateMode = false;
             nextPiCmd = CMD_UPDATE_CANCEL;
-            Serial.println("Update: exit menu");
+            Serial.println(F("Update: exit menu"));
             // Note: Python will need to detect menu exit via menuState change
             // We'll send CMD_MENU_EXIT on next i2c request if menuState is IDLE
             break;
@@ -737,7 +737,7 @@ void handleMenuSystem() {
       int pairingButtonsB = analogRead(BUTTONS_B_PIN);
       // Note: currentButton already set at start of handleMenuSystem() - don't call pollButtons() again!
       if (pairingButtonsB > 990 || currentButton == STOP) {
-        Serial.println("Pairing mode: stop pressed");
+        Serial.println(F("Pairing mode: stop pressed"));
         menuState = MENU_MAIN;
         pairingMode = false;
         pairingCancelPending = true;
@@ -748,7 +748,7 @@ void handleMenuSystem() {
         menuState = MENU_MAIN;
         pairingMode = false;
         nextPiCmd = CMD_PAIRING_CANCEL;
-        Serial.println("Pairing: back to menu");
+        Serial.println(F("Pairing: back to menu"));
       } else if ((millis() - pairingModeEnteredAt) > 130000) {
         menuState = MENU_MAIN;
         pairingMode = false;
@@ -763,7 +763,7 @@ void handleMenuSystem() {
             menuState = MENU_MAIN;
             awbMode = false;
             nextPiCmd = CMD_AWB_CANCEL;
-            Serial.println("AWB: back to menu");
+            Serial.println(F("AWB: back to menu"));
             break;
           case REV1:
             nextPiCmd = CMD_AWB_PREV;
@@ -779,7 +779,7 @@ void handleMenuSystem() {
             menuState = MENU_IDLE;
             awbMode = false;
             nextPiCmd = CMD_AWB_CANCEL;
-            Serial.println("AWB: exit menu");
+            Serial.println(F("AWB: exit menu"));
             break;
           default:
             break;
@@ -794,26 +794,26 @@ void handleMenuSystem() {
             menuState = MENU_MAIN;
             targetMode = false;
             nextPiCmd = CMD_TARGET_CANCEL;
-            Serial.println("Target: back to menu");
+            Serial.println(F("Target: back to menu"));
             break;
           case REV1:
             nextPiCmd = CMD_TARGET_PREV;
-            Serial.println("Target: prev");
+            Serial.println(F("Target: prev"));
             break;
           case FWD1:
             nextPiCmd = CMD_TARGET_NEXT;
-            Serial.println("Target: next");
+            Serial.println(F("Target: next"));
             break;
           case RUNFWD:
             nextPiCmd = CMD_TARGET_CONFIRM;
-            Serial.println("Target: confirm");
+            Serial.println(F("Target: confirm"));
             break;
           case STOP:
             // Exit menu completely
             menuState = MENU_IDLE;
             targetMode = false;
             nextPiCmd = CMD_TARGET_CANCEL;
-            Serial.println("Target: exit menu");
+            Serial.println(F("Target: exit menu"));
             break;
           default:
             break;
@@ -828,26 +828,26 @@ void handleMenuSystem() {
             menuState = MENU_MAIN;
             wifiMode = false;
             nextPiCmd = CMD_WIFI_CANCEL;
-            Serial.println("WiFi: back to menu");
+            Serial.println(F("WiFi: back to menu"));
             break;
           case REV1:
             nextPiCmd = CMD_WIFI_PREV;
-            Serial.println("WiFi: prev");
+            Serial.println(F("WiFi: prev"));
             break;
           case FWD1:
             nextPiCmd = CMD_WIFI_NEXT;
-            Serial.println("WiFi: next");
+            Serial.println(F("WiFi: next"));
             break;
           case RUNFWD:
             nextPiCmd = CMD_WIFI_CONFIRM;
-            Serial.println("WiFi: confirm");
+            Serial.println(F("WiFi: confirm"));
             break;
           case STOP:
             // Exit menu completely
             menuState = MENU_IDLE;
             wifiMode = false;
             nextPiCmd = CMD_WIFI_CANCEL;
-            Serial.println("WiFi: exit menu");
+            Serial.println(F("WiFi: exit menu"));
             break;
           default:
             break;
@@ -862,7 +862,7 @@ void handleMenuSystem() {
           menuState = MENU_MAIN;
           logsMode = false;
           nextPiCmd = CMD_LOGS_EXIT;
-          Serial.println("Logs: back to menu");
+          Serial.println(F("Logs: back to menu"));
         }
       }
     } else if (menuState == MENU_UNPAIR) {
@@ -872,27 +872,27 @@ void handleMenuSystem() {
         switch (currentButton) {
           case REV1:
             nextPiCmd = CMD_UNPAIR_PREV;
-            Serial.println("Unpair: prev");
+            Serial.println(F("Unpair: prev"));
             break;
           case FWD1:
             nextPiCmd = CMD_UNPAIR_NEXT;
-            Serial.println("Unpair: next");
+            Serial.println(F("Unpair: next"));
             break;
           case RUNFWD:
             nextPiCmd = CMD_UNPAIR_CONFIRM;
-            Serial.println("Unpair: confirm");
+            Serial.println(F("Unpair: confirm"));
             break;
           case RUNREV:
             // Go back to main menu
             menuState = MENU_MAIN;
             nextPiCmd = CMD_UNPAIR_CANCEL;
-            Serial.println("Unpair: back to menu");
+            Serial.println(F("Unpair: back to menu"));
             break;
           case STOP:
             // Exit menu completely
             menuState = MENU_IDLE;
             nextPiCmd = CMD_UNPAIR_CANCEL;
-            Serial.println("Unpair: exit menu");
+            Serial.println(F("Unpair: exit menu"));
             break;
           default:
             break;
@@ -907,7 +907,7 @@ void stopMotor() {
   // ...
   motorState = STOPPED;
   singleStepInProgress = false;
-  Serial.println("Motor: Stop");
+  Serial.println(F("Motor: Stop"));
 
   // Enable the below three lines if breaking makes sense
 
@@ -921,7 +921,7 @@ void stopMotor() {
 void stopBriefly() {
   // This makes direct direction changes less harsh
   stopMotor();
-  Serial.println("(Briefly...)");
+  Serial.println(F("(Briefly...)"));
   delay(250);
 }
 
@@ -933,7 +933,7 @@ void setLampMode(bool mode) {
     setZoomMode(Z1_1);
 
   lampMode = mode;
-  Serial.print("Lamp mode: ");
+  Serial.print(F("Lamp mode: "));
   Serial.println(lampMode);
 
   if (lampMode) {
@@ -953,10 +953,10 @@ void setZoomMode(ZoomMode mode) {
     setLampMode(true);
 
   zoomMode = mode;
-  Serial.print("Zoom mode: ");
+  Serial.print(F("Zoom mode: "));
   Serial.print(zoomMode);
-  Serial.print(". Telling Raspi to zoom ");
-  Serial.println((zoomMode == Z1_1) ? "out" : "in");
+  Serial.print(F(". Telling Raspi to zoom "));
+  Serial.println(zoomMode == Z1_1 ? F("out") : F("in"));
 }
 
 void motorFWD1() {
@@ -1072,26 +1072,26 @@ void i2cReceive(int howMany) {
       awbMode = false;
       menuState = MENU_MAIN;
       nextPiCmd = CMD_NONE;
-      Serial.println("AWB menu: exit");
+      Serial.println(F("AWB menu: exit"));
     }
     if ((Command)i2cCommand == CMD_TARGET_EXIT) {
       targetMode = false;
       menuState = MENU_MAIN;
       nextPiCmd = CMD_NONE;
-      Serial.println("Target menu: exit");
+      Serial.println(F("Target menu: exit"));
     }
     if ((Command)i2cCommand == CMD_WIFI_EXIT) {
       wifiMode = false;
       menuState = MENU_MAIN;
       nextPiCmd = CMD_NONE;
-      Serial.println("WiFi menu: exit");
+      Serial.println(F("WiFi menu: exit"));
     }
     if ((Command)i2cCommand == CMD_TARGET_REENTER) {
       // Python is telling us to enter target mode (e.g., due to network failure)
       // This can be called from MENU_IDLE, so we need to enter menu mode first
       if (menuState == MENU_IDLE) {
         menuState = MENU_MAIN;
-        Serial.println("Target: entering menu mode first");
+        Serial.println(F("Target: entering menu mode first"));
       }
       targetMode = true;
       menuState = MENU_TARGET;
@@ -1100,9 +1100,9 @@ void i2cReceive(int howMany) {
       // pressed before entering menu mode from triggering actions
       currentButton = pollButtons();
       prevButton = currentButton;
-      Serial.print("Target menu: re-enter (from Pi), menuState=");
+      Serial.print(F("Target menu: re-enter (from Pi), menuState="));
       Serial.print(menuState);
-      Serial.print(", targetMode=");
+      Serial.print(F(", targetMode="));
       Serial.println(targetMode);
     }
     if ((Command)i2cCommand == CMD_MENU_EXIT) {
@@ -1116,11 +1116,11 @@ void i2cReceive(int howMany) {
         targetMode = false;
         logsMode = false;
         nextPiCmd = CMD_NONE;
-        Serial.println("Menu: back to main (from Pi)");
+        Serial.println(F("Menu: back to main (from Pi)"));
       } else {
         menuState = MENU_IDLE;
         nextPiCmd = CMD_NONE;
-        Serial.println("Menu: exit (from Pi)");
+        Serial.println(F("Menu: exit (from Pi)"));
       }
     }
     // Don't set piIsReady if we aren't scanning anymore
@@ -1132,9 +1132,9 @@ void i2cReceive(int howMany) {
       filmLoadState = digitalRead(FILM_END_PIN);
       dummyread = analogRead(EXPOSURE_POT);
       exposurePot = analogRead(EXPOSURE_POT);
-      Serial.print("Current Film load state: ");
+      Serial.print(F("Current Film load state: "));
       Serial.println(filmLoadState);
-      Serial.print("Current Exposure Setting: ");
+      Serial.print(F("Current Exposure Setting: "));
       Serial.println(exposurePot);
       nextPiCmd = CMD_SET_INITVALUES;
     }
@@ -1153,7 +1153,7 @@ void i2cRequest() {
 
   // Special case when the exposure pot was changed
   if (cmdToSend == CMD_SET_EXP) {
-    Serial.println("Sending new Exposure Time value.");
+    Serial.println(F("Sending new Exposure Time value."));
     Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
   }
 
