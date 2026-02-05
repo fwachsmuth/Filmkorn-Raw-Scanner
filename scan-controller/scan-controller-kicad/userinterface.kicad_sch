@@ -5,1510 +5,6 @@
 	(uuid "cd1b73e7-2a7d-41b2-b5aa-f10f6c5171e1")
 	(paper "A4")
 	(lib_symbols
-		(symbol "B3F-5000_sm_1"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "SW"
-				(at -1.27 3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "B3F-5000_sm"
-				(at -1.27 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH"
-				(at 0 -10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-				(at 0 -12.7 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "LCSC Part" "C93156"
-				(at 0 -15.24 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "B3F-5000_sm_1_0_1"
-				(polyline
-					(pts
-						(xy -1.27 1.27) (xy 1.27 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center -1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 1.27) (xy 0 -1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "B3F-5000_sm_1_1_1"
-				(pin no_connect line
-					(at -3.81 0 0)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at 3.81 0 180)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "B3F-5000_sm_2"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "SW"
-				(at -1.27 3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "B3F-5000_sm"
-				(at -1.27 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH"
-				(at 0 -10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-				(at 0 -12.7 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "LCSC Part" "C93156"
-				(at 0 -15.24 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "B3F-5000_sm_2_0_1"
-				(polyline
-					(pts
-						(xy -1.27 1.27) (xy 1.27 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center -1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 1.27) (xy 0 -1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "B3F-5000_sm_2_1_1"
-				(pin no_connect line
-					(at -3.81 0 0)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at 3.81 0 180)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "B3F-5000_sm_3"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "SW"
-				(at -1.27 3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "B3F-5000_sm"
-				(at -1.27 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH"
-				(at 0 -10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-				(at 0 -12.7 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "LCSC Part" "C93156"
-				(at 0 -15.24 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "B3F-5000_sm_3_0_1"
-				(polyline
-					(pts
-						(xy -1.27 1.27) (xy 1.27 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center -1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 1.27) (xy 0 -1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "B3F-5000_sm_3_1_1"
-				(pin no_connect line
-					(at -3.81 0 0)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at 3.81 0 180)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "B3F-5000_sm_4"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "SW"
-				(at -1.27 3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "B3F-5000_sm"
-				(at -1.27 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH"
-				(at 0 -10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-				(at 0 -12.7 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "LCSC Part" "C93156"
-				(at 0 -15.24 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "B3F-5000_sm_4_0_1"
-				(polyline
-					(pts
-						(xy -1.27 1.27) (xy 1.27 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center -1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 1.27) (xy 0 -1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "B3F-5000_sm_4_1_1"
-				(pin no_connect line
-					(at -3.81 0 0)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at 3.81 0 180)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "B3F-5000_sm_5"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "SW"
-				(at -1.27 3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "B3F-5000_sm"
-				(at -1.27 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH"
-				(at 0 -10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-				(at 0 -12.7 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "LCSC Part" "C93156"
-				(at 0 -15.24 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "B3F-5000_sm_5_0_1"
-				(polyline
-					(pts
-						(xy -1.27 1.27) (xy 1.27 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center -1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 1.27) (xy 0 -1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "B3F-5000_sm_5_1_1"
-				(pin no_connect line
-					(at -3.81 0 0)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at 3.81 0 180)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "B3F-5000_sm_6"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "SW"
-				(at -1.27 3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "B3F-5000_sm"
-				(at -1.27 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH"
-				(at 0 -10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-				(at 0 -12.7 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "LCSC Part" "C93156"
-				(at 0 -15.24 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "B3F-5000_sm_6_0_1"
-				(polyline
-					(pts
-						(xy -1.27 1.27) (xy 1.27 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center -1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 1.27) (xy 0 -1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "B3F-5000_sm_6_1_1"
-				(pin no_connect line
-					(at -3.81 0 0)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at 3.81 0 180)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "B3F-5000_sm_7"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "SW"
-				(at -1.27 3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "B3F-5000_sm"
-				(at -1.27 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH"
-				(at 0 -10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-				(at 0 -12.7 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "LCSC Part" "C93156"
-				(at 0 -15.24 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "B3F-5000_sm_7_0_1"
-				(polyline
-					(pts
-						(xy -1.27 1.27) (xy 1.27 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center -1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 1.27) (xy 0 -1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "B3F-5000_sm_7_1_1"
-				(pin no_connect line
-					(at -3.81 0 0)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at 3.81 0 180)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "B3F-5000_sm_8"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "SW"
-				(at -1.27 3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "B3F-5000_sm"
-				(at -1.27 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH"
-				(at 0 -10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-				(at 0 -12.7 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "LCSC Part" "C93156"
-				(at 0 -15.24 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "B3F-5000_sm_8_0_1"
-				(polyline
-					(pts
-						(xy -1.27 1.27) (xy 1.27 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center -1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 1.27) (xy 0 -1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 1.02 0)
-					(radius 0.25)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "B3F-5000_sm_8_1_1"
-				(pin no_connect line
-					(at -3.81 0 0)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at 3.81 0 180)
-					(length 2.54)
-					(hide yes)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Connector_Generic:Conn_01x03"
 			(pin_names
 				(offset 1.016)
@@ -1876,6 +372,15 @@
 					(hide yes)
 				)
 			)
+			(property "Sim.Pins" "1=K 2=A"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
 			(property "ki_keywords" "LED diode light-emitting-diode"
 				(at 0 0 0)
 				(effects
@@ -2160,21 +665,19 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "R"
-				(at 0.762 0.508 0)
+				(at 0 0 90)
 				(effects
 					(font
-						(size 1.27 1.27)
+						(size 1.016 1.016)
 					)
-					(justify left)
 				)
 			)
 			(property "Value" "R_Small"
-				(at 0.762 -1.016 0)
+				(at 1.778 0 90)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left)
 				)
 			)
 			(property "Footprint" ""
@@ -2367,7 +870,7 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "SW"
-				(at 0 4.318 0)
+				(at 0 5.08 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -2392,7 +895,7 @@
 				)
 			)
 			(property "Datasheet" "~"
-				(at 0 0 0)
+				(at 0 -7.62 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -2418,10 +921,10 @@
 					(hide yes)
 				)
 			)
-			(symbol "SW_SPDT_0_0"
+			(symbol "SW_SPDT_0_1"
 				(circle
 					(center -2.032 0)
-					(radius 0.508)
+					(radius 0.4572)
 					(stroke
 						(width 0)
 						(type default)
@@ -2430,22 +933,9 @@
 						(type none)
 					)
 				)
-				(circle
-					(center 2.032 -2.54)
-					(radius 0.508)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "SW_SPDT_0_1"
 				(polyline
 					(pts
-						(xy -1.524 0.254) (xy 1.651 2.286)
+						(xy -1.651 0.254) (xy 1.651 2.286)
 					)
 					(stroke
 						(width 0)
@@ -2457,7 +947,18 @@
 				)
 				(circle
 					(center 2.032 2.54)
-					(radius 0.508)
+					(radius 0.4572)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 -2.54)
+					(radius 0.4572)
 					(stroke
 						(width 0)
 						(type default)
@@ -2468,6 +969,17 @@
 				)
 			)
 			(symbol "SW_SPDT_1_1"
+				(rectangle
+					(start -3.175 3.81)
+					(end 3.175 -3.81)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
 				(pin passive line
 					(at -5.08 0 0)
 					(length 2.54)
@@ -2743,10 +1255,200 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "easyeda2kicad:B3F-5000_sm"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "SW"
+				(at -1.27 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "B3F-5000_sm"
+				(at -1.27 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH-small"
+				(at 0 -10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
+				(at 0 -12.7 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "LCSC Part" "C93156"
+				(at 0 -15.24 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "B3F-5000_sm_0_1"
+				(polyline
+					(pts
+						(xy -1.27 1.27) (xy 1.27 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center -1.02 0)
+					(radius 0.25)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 1.27) (xy 0 -1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 1.02 0)
+					(radius 0.25)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "B3F-5000_sm_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "power:GNDD"
 			(power)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
 				(offset 0)
+				(hide yes)
 			)
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -2833,8 +1535,7 @@
 				(pin power_in line
 					(at 0 0 270)
 					(length 0)
-					(hide yes)
-					(name "GNDD"
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2854,43 +1555,55 @@
 		)
 	)
 	(junction
-		(at 126.365 133.35)
+		(at 127 133.35)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "0f2d9ff0-53da-4e89-af57-c2c2ee43071f")
 	)
 	(junction
-		(at 180.975 130.81)
+		(at 181.61 130.81)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "11830221-6ebd-428c-bf99-96b74deb724b")
 	)
 	(junction
-		(at 169.545 55.245)
+		(at 168.91 30.48)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "1a99e8e9-4615-44c0-91ea-ffa56450ef68")
+		(uuid "1924e468-36a7-4288-9df3-b40f3a0de222")
 	)
 	(junction
-		(at 126.365 110.49)
+		(at 127 110.49)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "2564e699-b32d-4f9d-b63b-48e9dda67167")
 	)
 	(junction
-		(at 126.365 118.11)
+		(at 127 118.11)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "2f6e89e5-c1f2-43be-9426-d181cc50bd95")
 	)
 	(junction
-		(at 110.49 80.645)
+		(at 168.91 55.88)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "34bdd65c-618f-4f92-9182-8112f83ed99a")
+	)
+	(junction
+		(at 110.49 81.28)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "51b32276-8e53-4c05-96ac-780af1eb43e3")
 	)
 	(junction
-		(at 125.73 80.645)
+		(at 110.49 66.04)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "52f5fc54-0b8a-4ef2-b9c9-5f2598422918")
+	)
+	(junction
+		(at 127 81.28)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "555fe3cd-b08d-4659-a878-06b541faa002")
@@ -2902,55 +1615,61 @@
 		(uuid "601246bd-6bb5-41ce-a1f9-7e62ac2baae1")
 	)
 	(junction
-		(at 216.535 29.845)
+		(at 215.9 30.48)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "6233cf9d-fd03-47e2-9d8a-8f59320743c9")
+		(uuid "606c8933-eb66-4e8d-8a99-ddec30da05c8")
 	)
 	(junction
-		(at 125.73 88.265)
+		(at 127 88.9)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "6fcb8e99-c92b-4355-b24c-e8f7067b0bf4")
 	)
 	(junction
-		(at 125.73 65.405)
+		(at 127 66.04)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "70acd226-fbd5-45eb-9b66-c2ee7206d912")
 	)
 	(junction
-		(at 111.125 140.97)
+		(at 110.49 140.97)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "767ce2fb-3333-41cf-826a-281b85e9540d")
 	)
 	(junction
-		(at 110.49 95.885)
+		(at 110.49 96.52)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7d69df37-3465-48ef-bb29-a954af7feb57")
 	)
 	(junction
-		(at 110.49 88.265)
+		(at 110.49 88.9)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "8d6ab97c-2888-4d71-b62a-2616022cf934")
 	)
 	(junction
-		(at 110.49 65.405)
+		(at 182.88 41.91)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "af483d8c-b09f-40fd-afb0-fabd0873b864")
+		(uuid "a6f1cbde-d92d-42a3-a443-1b5995718a22")
 	)
 	(junction
-		(at 110.49 73.025)
+		(at 181.61 106.68)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b211397c-cc54-41bd-84ce-d4727736defb")
+	)
+	(junction
+		(at 110.49 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b489da2e-bd77-4e2e-bde3-ce91a477f34e")
 	)
 	(junction
-		(at 111.125 133.35)
+		(at 110.49 133.35)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "bd891d4e-cc02-41ab-a0c8-09299382247a")
@@ -2962,64 +1681,56 @@
 		(uuid "bf2ac019-2b38-4896-acac-97eda89403ed")
 	)
 	(junction
-		(at 181.61 41.275)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "c35b98eb-dd33-40c5-8b6b-1f736686202e")
-	)
-	(junction
-		(at 111.125 125.73)
+		(at 110.49 125.73)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "c470afb6-a741-4628-b796-c1168236cb9e")
 	)
 	(junction
-		(at 111.125 110.49)
+		(at 110.49 110.49)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ca864e41-7074-4167-a586-de3704921dfe")
 	)
 	(junction
-		(at 126.365 125.73)
+		(at 127 125.73)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "cd8a55c6-fe08-4f95-b50b-b56f99e24b80")
 	)
 	(junction
-		(at 169.545 29.845)
+		(at 229.87 40.64)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "d75d4840-a209-4aa6-b917-105cd63afac7")
+		(uuid "d11ac989-a830-461e-a3df-48cb60c37e32")
 	)
 	(junction
-		(at 228.6 41.275)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "e567b787-316b-4a98-b0e9-cff0a13d677b")
-	)
-	(junction
-		(at 111.125 118.11)
+		(at 110.49 118.11)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "e5c15ac5-dfd7-427c-bdbd-e836c690027b")
 	)
 	(junction
-		(at 180.975 107.315)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "e9792200-c38d-41e7-9a5f-1eeab3a2a07a")
-	)
-	(junction
-		(at 216.535 55.245)
+		(at 215.9 55.88)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f4d986dc-8fa0-4987-afb9-3b4992a405ed")
 	)
 	(junction
-		(at 125.73 73.025)
+		(at 127 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "fd12479f-45a0-4115-ae60-4d575b8e4e00")
+	)
+	(wire
+		(pts
+			(xy 121.92 66.04) (xy 127 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "00c2e1ae-b4c5-4534-bad0-e1559c9940b5")
 	)
 	(wire
 		(pts
@@ -3033,6 +1744,16 @@
 	)
 	(wire
 		(pts
+			(xy 180.34 104.14) (xy 181.61 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "042c9f67-a046-4056-9ef5-41655e44f83c")
+	)
+	(wire
+		(pts
 			(xy 217.17 78.74) (xy 217.17 81.28)
 		)
 		(stroke
@@ -3043,7 +1764,7 @@
 	)
 	(wire
 		(pts
-			(xy 163.195 130.81) (xy 180.975 130.81)
+			(xy 163.83 130.81) (xy 181.61 130.81)
 		)
 		(stroke
 			(width 0)
@@ -3053,7 +1774,7 @@
 	)
 	(wire
 		(pts
-			(xy 229.87 55.245) (xy 229.87 52.07)
+			(xy 231.14 55.88) (xy 231.14 52.07)
 		)
 		(stroke
 			(width 0)
@@ -3063,17 +1784,7 @@
 	)
 	(wire
 		(pts
-			(xy 169.545 43.815) (xy 169.545 48.26)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0f1e764e-c016-4d02-bad2-2c5a1307a3a5")
-	)
-	(wire
-		(pts
-			(xy 163.195 107.315) (xy 163.195 109.855)
+			(xy 163.83 106.68) (xy 163.83 109.22)
 		)
 		(stroke
 			(width 0)
@@ -3083,7 +1794,17 @@
 	)
 	(wire
 		(pts
-			(xy 111.125 125.73) (xy 111.125 127)
+			(xy 168.91 36.83) (xy 168.91 39.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1046e56d-3ce9-44a7-ac09-0579e1869081")
+	)
+	(wire
+		(pts
+			(xy 110.49 125.73) (xy 110.49 127)
 		)
 		(stroke
 			(width 0)
@@ -3093,17 +1814,17 @@
 	)
 	(wire
 		(pts
-			(xy 228.6 41.275) (xy 229.87 41.275)
+			(xy 110.49 96.52) (xy 127 96.52)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "136c034f-2a46-4754-8c6d-7fdee75f5a60")
+		(uuid "12d1bc9f-408c-4a0a-9f2b-2e01051c5f77")
 	)
 	(wire
 		(pts
-			(xy 110.49 80.645) (xy 110.49 81.915)
+			(xy 110.49 81.28) (xy 110.49 82.55)
 		)
 		(stroke
 			(width 0)
@@ -3113,7 +1834,7 @@
 	)
 	(wire
 		(pts
-			(xy 122.555 133.35) (xy 126.365 133.35)
+			(xy 123.19 133.35) (xy 127 133.35)
 		)
 		(stroke
 			(width 0)
@@ -3123,7 +1844,17 @@
 	)
 	(wire
 		(pts
-			(xy 114.3 39.37) (xy 114.3 45.085)
+			(xy 168.91 53.34) (xy 168.91 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1720663e-3840-4a94-b49b-13c549290025")
+	)
+	(wire
+		(pts
+			(xy 116.84 39.37) (xy 116.84 44.45)
 		)
 		(stroke
 			(width 0)
@@ -3133,7 +1864,7 @@
 	)
 	(wire
 		(pts
-			(xy 111.125 133.35) (xy 114.935 133.35)
+			(xy 110.49 133.35) (xy 115.57 133.35)
 		)
 		(stroke
 			(width 0)
@@ -3143,17 +1874,17 @@
 	)
 	(wire
 		(pts
-			(xy 216.535 53.34) (xy 216.535 55.245)
+			(xy 121.92 88.9) (xy 127 88.9)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "19eeb952-ee1f-43ce-9141-a6591b5fd072")
+		(uuid "19ff4559-c6bb-428f-946b-2dbd217a61ff")
 	)
 	(wire
 		(pts
-			(xy 163.195 114.935) (xy 163.195 130.81)
+			(xy 163.83 114.3) (xy 163.83 130.81)
 		)
 		(stroke
 			(width 0)
@@ -3163,7 +1894,7 @@
 	)
 	(wire
 		(pts
-			(xy 216.535 43.815) (xy 216.535 48.26)
+			(xy 215.9 43.18) (xy 215.9 48.26)
 		)
 		(stroke
 			(width 0)
@@ -3173,7 +1904,17 @@
 	)
 	(wire
 		(pts
-			(xy 126.365 133.35) (xy 126.365 134.62)
+			(xy 229.87 49.53) (xy 231.14 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1d539c62-a008-49ee-a41a-77a13e921477")
+	)
+	(wire
+		(pts
+			(xy 127 133.35) (xy 127 134.62)
 		)
 		(stroke
 			(width 0)
@@ -3183,7 +1924,7 @@
 	)
 	(wire
 		(pts
-			(xy 122.555 118.11) (xy 126.365 118.11)
+			(xy 123.19 118.11) (xy 127 118.11)
 		)
 		(stroke
 			(width 0)
@@ -3203,17 +1944,17 @@
 	)
 	(wire
 		(pts
-			(xy 180.975 104.14) (xy 180.975 107.315)
+			(xy 215.9 53.34) (xy 215.9 55.88)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "236a5e3a-15ae-4e87-b9fd-4eac53a5374a")
+		(uuid "240f112b-5197-4cfe-9bbf-d1235abdda18")
 	)
 	(wire
 		(pts
-			(xy 110.49 80.645) (xy 114.3 80.645)
+			(xy 110.49 81.28) (xy 114.3 81.28)
 		)
 		(stroke
 			(width 0)
@@ -3223,7 +1964,7 @@
 	)
 	(wire
 		(pts
-			(xy 227.33 46.99) (xy 227.33 29.845)
+			(xy 227.33 46.99) (xy 227.33 30.48)
 		)
 		(stroke
 			(width 0)
@@ -3233,7 +1974,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.975 130.81) (xy 200.025 130.81)
+			(xy 181.61 130.81) (xy 200.66 130.81)
 		)
 		(stroke
 			(width 0)
@@ -3253,7 +1994,7 @@
 	)
 	(wire
 		(pts
-			(xy 111.125 132.08) (xy 111.125 133.35)
+			(xy 110.49 132.08) (xy 110.49 133.35)
 		)
 		(stroke
 			(width 0)
@@ -3273,7 +2014,7 @@
 	)
 	(wire
 		(pts
-			(xy 111.125 106.045) (xy 111.125 110.49)
+			(xy 110.49 105.41) (xy 110.49 110.49)
 		)
 		(stroke
 			(width 0)
@@ -3283,23 +2024,13 @@
 	)
 	(wire
 		(pts
-			(xy 111.125 110.49) (xy 111.125 111.76)
+			(xy 110.49 110.49) (xy 110.49 111.76)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "3488f6c6-dbce-4fae-9c36-170cca0e4dd6")
-	)
-	(wire
-		(pts
-			(xy 216.535 29.845) (xy 216.535 31.75)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3b753919-e435-495f-bd10-8db19aa22226")
 	)
 	(wire
 		(pts
@@ -3313,17 +2044,17 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 61.595) (xy 110.49 65.405)
+			(xy 110.49 66.04) (xy 114.3 66.04)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "4144ce6f-66b1-4910-b263-49d8048de5d0")
+		(uuid "41d18303-978b-4907-81cf-0eb66684d3fe")
 	)
 	(wire
 		(pts
-			(xy 111.125 139.7) (xy 111.125 140.97)
+			(xy 110.49 139.7) (xy 110.49 140.97)
 		)
 		(stroke
 			(width 0)
@@ -3333,7 +2064,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 86.995) (xy 110.49 88.265)
+			(xy 110.49 87.63) (xy 110.49 88.9)
 		)
 		(stroke
 			(width 0)
@@ -3353,27 +2084,17 @@
 	)
 	(wire
 		(pts
-			(xy 121.92 80.645) (xy 125.73 80.645)
+			(xy 121.92 81.28) (xy 127 81.28)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "4ad749c0-e102-46bf-9f7d-6570fb19051c")
+		(uuid "4e44cb3c-ab9c-4bb6-9f3b-57ded1b75875")
 	)
 	(wire
 		(pts
-			(xy 227.33 29.845) (xy 216.535 29.845)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4dd9a8dd-1b30-473d-94ba-6ddf7a8a5b46")
-	)
-	(wire
-		(pts
-			(xy 200.025 128.27) (xy 200.025 130.81)
+			(xy 200.66 128.27) (xy 200.66 130.81)
 		)
 		(stroke
 			(width 0)
@@ -3383,17 +2104,17 @@
 	)
 	(wire
 		(pts
-			(xy 121.92 88.265) (xy 125.73 88.265)
+			(xy 167.64 111.76) (xy 167.64 113.03)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "56368684-eef2-47eb-898a-9ba98877b6b4")
+		(uuid "54db5c6a-dcce-4213-984c-d30f117a1689")
 	)
 	(wire
 		(pts
-			(xy 111.125 118.11) (xy 114.935 118.11)
+			(xy 110.49 118.11) (xy 115.57 118.11)
 		)
 		(stroke
 			(width 0)
@@ -3403,7 +2124,7 @@
 	)
 	(wire
 		(pts
-			(xy 125.73 88.265) (xy 125.73 89.535)
+			(xy 127 88.9) (xy 127 90.17)
 		)
 		(stroke
 			(width 0)
@@ -3413,33 +2134,13 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 73.025) (xy 110.49 74.295)
+			(xy 110.49 73.66) (xy 110.49 74.93)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "594fe7cd-040c-45b3-88e8-2dd6b7c2c0d8")
-	)
-	(wire
-		(pts
-			(xy 110.49 95.885) (xy 125.73 95.885)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "597f36f5-ab73-4466-8acf-51c91222ab9f")
-	)
-	(wire
-		(pts
-			(xy 114.3 39.37) (xy 116.84 39.37)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5c52df75-d39b-46d4-8efd-cd961907fe7e")
 	)
 	(wire
 		(pts
@@ -3453,7 +2154,17 @@
 	)
 	(wire
 		(pts
-			(xy 126.365 139.7) (xy 126.365 140.97)
+			(xy 179.07 41.91) (xy 182.88 41.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5d1a5107-48ad-4406-b8f7-7093ab8264a8")
+	)
+	(wire
+		(pts
+			(xy 127 139.7) (xy 127 140.97)
 		)
 		(stroke
 			(width 0)
@@ -3463,27 +2174,7 @@
 	)
 	(wire
 		(pts
-			(xy 216.535 27.94) (xy 216.535 29.845)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5f92be52-1113-4676-bafe-f40993325f3c")
-	)
-	(wire
-		(pts
-			(xy 169.545 55.245) (xy 182.88 55.245)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6070ac7e-95c7-4a71-a111-4fa5151460b8")
-	)
-	(wire
-		(pts
-			(xy 202.565 125.73) (xy 203.835 125.73)
+			(xy 203.2 125.73) (xy 204.47 125.73)
 		)
 		(stroke
 			(width 0)
@@ -3493,7 +2184,7 @@
 	)
 	(wire
 		(pts
-			(xy 182.88 55.245) (xy 182.88 52.07)
+			(xy 184.15 55.88) (xy 184.15 52.07)
 		)
 		(stroke
 			(width 0)
@@ -3503,17 +2194,17 @@
 	)
 	(wire
 		(pts
-			(xy 121.92 65.405) (xy 125.73 65.405)
+			(xy 215.9 27.94) (xy 215.9 30.48)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "67d4c814-87de-42bc-b72b-d89686b24fd6")
+		(uuid "66ea54b7-1b09-45a6-a595-ec7487cc1eb0")
 	)
 	(wire
 		(pts
-			(xy 183.515 119.38) (xy 184.15 119.38)
+			(xy 184.15 119.38) (xy 185.42 119.38)
 		)
 		(stroke
 			(width 0)
@@ -3523,7 +2214,7 @@
 	)
 	(wire
 		(pts
-			(xy 126.365 110.49) (xy 132.08 110.49)
+			(xy 127 110.49) (xy 133.35 110.49)
 		)
 		(stroke
 			(width 0)
@@ -3533,17 +2224,7 @@
 	)
 	(wire
 		(pts
-			(xy 229.87 49.53) (xy 228.6 49.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6e93a59f-282f-4428-90e3-04701f4d54b1")
-	)
-	(wire
-		(pts
-			(xy 170.18 67.945) (xy 170.18 71.12)
+			(xy 170.18 68.58) (xy 170.18 71.12)
 		)
 		(stroke
 			(width 0)
@@ -3553,17 +2234,7 @@
 	)
 	(wire
 		(pts
-			(xy 169.545 36.83) (xy 169.545 38.735)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "71e58921-fad1-4596-b0a8-82f3e434ef93")
-	)
-	(wire
-		(pts
-			(xy 110.49 88.265) (xy 110.49 89.535)
+			(xy 110.49 88.9) (xy 110.49 90.17)
 		)
 		(stroke
 			(width 0)
@@ -3573,7 +2244,27 @@
 	)
 	(wire
 		(pts
-			(xy 111.125 140.97) (xy 126.365 140.97)
+			(xy 110.49 66.04) (xy 110.49 67.31)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "736788f4-b49c-44ae-b2d1-5315bbf98a89")
+	)
+	(wire
+		(pts
+			(xy 168.91 55.88) (xy 184.15 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "754cd2c8-1fff-4d12-a140-bb6e793ffb58")
+	)
+	(wire
+		(pts
+			(xy 110.49 140.97) (xy 127 140.97)
 		)
 		(stroke
 			(width 0)
@@ -3593,7 +2284,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.975 121.92) (xy 180.975 130.81)
+			(xy 181.61 121.92) (xy 181.61 130.81)
 		)
 		(stroke
 			(width 0)
@@ -3603,7 +2294,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.975 107.315) (xy 200.025 107.315)
+			(xy 181.61 106.68) (xy 200.66 106.68)
 		)
 		(stroke
 			(width 0)
@@ -3623,7 +2314,7 @@
 	)
 	(wire
 		(pts
-			(xy 226.695 41.275) (xy 228.6 41.275)
+			(xy 226.06 40.64) (xy 229.87 40.64)
 		)
 		(stroke
 			(width 0)
@@ -3633,7 +2324,7 @@
 	)
 	(wire
 		(pts
-			(xy 126.365 110.49) (xy 126.365 118.11)
+			(xy 127 110.49) (xy 127 118.11)
 		)
 		(stroke
 			(width 0)
@@ -3643,7 +2334,7 @@
 	)
 	(wire
 		(pts
-			(xy 200.025 107.315) (xy 200.025 123.19)
+			(xy 200.66 106.68) (xy 200.66 123.19)
 		)
 		(stroke
 			(width 0)
@@ -3653,7 +2344,7 @@
 	)
 	(wire
 		(pts
-			(xy 111.125 124.46) (xy 111.125 125.73)
+			(xy 110.49 124.46) (xy 110.49 125.73)
 		)
 		(stroke
 			(width 0)
@@ -3663,7 +2354,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 88.265) (xy 114.3 88.265)
+			(xy 110.49 88.9) (xy 114.3 88.9)
 		)
 		(stroke
 			(width 0)
@@ -3673,7 +2364,7 @@
 	)
 	(wire
 		(pts
-			(xy 111.125 110.49) (xy 114.935 110.49)
+			(xy 110.49 110.49) (xy 115.57 110.49)
 		)
 		(stroke
 			(width 0)
@@ -3683,7 +2374,7 @@
 	)
 	(wire
 		(pts
-			(xy 169.545 27.94) (xy 169.545 29.845)
+			(xy 168.91 27.94) (xy 168.91 30.48)
 		)
 		(stroke
 			(width 0)
@@ -3693,7 +2384,7 @@
 	)
 	(wire
 		(pts
-			(xy 216.535 36.83) (xy 216.535 38.735)
+			(xy 215.9 36.83) (xy 215.9 38.1)
 		)
 		(stroke
 			(width 0)
@@ -3703,7 +2394,7 @@
 	)
 	(wire
 		(pts
-			(xy 182.88 46.99) (xy 180.34 46.99)
+			(xy 184.15 46.99) (xy 180.34 46.99)
 		)
 		(stroke
 			(width 0)
@@ -3713,7 +2404,7 @@
 	)
 	(wire
 		(pts
-			(xy 111.125 116.84) (xy 111.125 118.11)
+			(xy 110.49 116.84) (xy 110.49 118.11)
 		)
 		(stroke
 			(width 0)
@@ -3723,7 +2414,7 @@
 	)
 	(wire
 		(pts
-			(xy 169.545 29.845) (xy 169.545 31.75)
+			(xy 168.91 30.48) (xy 168.91 31.75)
 		)
 		(stroke
 			(width 0)
@@ -3733,17 +2424,17 @@
 	)
 	(wire
 		(pts
-			(xy 228.6 49.53) (xy 228.6 41.275)
+			(xy 181.61 104.14) (xy 181.61 106.68)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "9e7c0f76-802f-47db-9e4a-3b569f368704")
+		(uuid "98de8d61-f59f-4a0f-a241-46d7c1969b37")
 	)
 	(wire
 		(pts
-			(xy 110.49 79.375) (xy 110.49 80.645)
+			(xy 110.49 80.01) (xy 110.49 81.28)
 		)
 		(stroke
 			(width 0)
@@ -3753,7 +2444,7 @@
 	)
 	(wire
 		(pts
-			(xy 111.125 133.35) (xy 111.125 134.62)
+			(xy 110.49 133.35) (xy 110.49 134.62)
 		)
 		(stroke
 			(width 0)
@@ -3773,23 +2464,13 @@
 	)
 	(wire
 		(pts
-			(xy 165.735 112.395) (xy 167.005 112.395)
+			(xy 166.37 111.76) (xy 167.64 111.76)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "aba86acb-f9fd-4216-ace5-5fda11f5e718")
-	)
-	(wire
-		(pts
-			(xy 180.975 107.315) (xy 180.975 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ae14d4ed-faa6-4abb-a268-30dc1776b907")
 	)
 	(wire
 		(pts
@@ -3813,7 +2494,7 @@
 	)
 	(wire
 		(pts
-			(xy 122.555 125.73) (xy 126.365 125.73)
+			(xy 123.19 125.73) (xy 127 125.73)
 		)
 		(stroke
 			(width 0)
@@ -3823,7 +2504,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 94.615) (xy 110.49 95.885)
+			(xy 110.49 95.25) (xy 110.49 96.52)
 		)
 		(stroke
 			(width 0)
@@ -3843,7 +2524,7 @@
 	)
 	(wire
 		(pts
-			(xy 122.555 110.49) (xy 126.365 110.49)
+			(xy 123.19 110.49) (xy 127 110.49)
 		)
 		(stroke
 			(width 0)
@@ -3853,7 +2534,17 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 71.755) (xy 110.49 73.025)
+			(xy 121.92 73.66) (xy 127 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b9844caf-beed-471c-8041-b19455304868")
+	)
+	(wire
+		(pts
+			(xy 110.49 72.39) (xy 110.49 73.66)
 		)
 		(stroke
 			(width 0)
@@ -3863,7 +2554,7 @@
 	)
 	(wire
 		(pts
-			(xy 205.74 67.945) (xy 205.74 71.12)
+			(xy 205.74 68.58) (xy 205.74 71.12)
 		)
 		(stroke
 			(width 0)
@@ -3873,7 +2564,17 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 65.405) (xy 110.49 66.675)
+			(xy 215.9 30.48) (xy 215.9 31.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "be4a2116-446f-4605-b749-2ef7428a227a")
+	)
+	(wire
+		(pts
+			(xy 110.49 62.23) (xy 110.49 66.04)
 		)
 		(stroke
 			(width 0)
@@ -3883,17 +2584,7 @@
 	)
 	(wire
 		(pts
-			(xy 121.92 73.025) (xy 125.73 73.025)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c839b741-6338-4a78-83e1-26852e81ca5f")
-	)
-	(wire
-		(pts
-			(xy 125.73 80.645) (xy 125.73 88.265)
+			(xy 127 81.28) (xy 127 88.9)
 		)
 		(stroke
 			(width 0)
@@ -3903,7 +2594,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 46.99) (xy 180.34 29.845)
+			(xy 180.34 30.48) (xy 180.34 46.99)
 		)
 		(stroke
 			(width 0)
@@ -3913,17 +2604,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 29.845) (xy 169.545 29.845)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cf707833-dabd-460e-a074-591bba089961")
-	)
-	(wire
-		(pts
-			(xy 163.195 107.315) (xy 180.975 107.315)
+			(xy 163.83 106.68) (xy 181.61 106.68)
 		)
 		(stroke
 			(width 0)
@@ -3933,7 +2614,7 @@
 	)
 	(wire
 		(pts
-			(xy 182.88 49.53) (xy 181.61 49.53)
+			(xy 184.15 49.53) (xy 182.88 49.53)
 		)
 		(stroke
 			(width 0)
@@ -3943,7 +2624,7 @@
 	)
 	(wire
 		(pts
-			(xy 125.73 65.405) (xy 125.73 73.025)
+			(xy 127 66.04) (xy 127 73.66)
 		)
 		(stroke
 			(width 0)
@@ -3953,17 +2634,7 @@
 	)
 	(wire
 		(pts
-			(xy 169.545 53.34) (xy 169.545 55.245)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d200a336-f01f-40fc-81c4-d39b46b70a62")
-	)
-	(wire
-		(pts
-			(xy 216.535 55.245) (xy 229.87 55.245)
+			(xy 215.9 55.88) (xy 231.14 55.88)
 		)
 		(stroke
 			(width 0)
@@ -3973,27 +2644,27 @@
 	)
 	(wire
 		(pts
-			(xy 181.61 41.275) (xy 182.88 41.275)
+			(xy 182.88 41.91) (xy 184.15 41.91)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d49496fb-9a2c-4601-942e-47a4e8616375")
+		(uuid "d2a70a61-85cf-44e3-a19a-c3312dee55b1")
 	)
 	(wire
 		(pts
-			(xy 179.705 41.275) (xy 181.61 41.275)
+			(xy 215.9 30.48) (xy 227.33 30.48)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d57d35bb-0c63-49ac-a92d-f6095aa7475f")
+		(uuid "d639d336-7ff6-4da9-b864-0aed96c54df3")
 	)
 	(wire
 		(pts
-			(xy 125.73 94.615) (xy 125.73 95.885)
+			(xy 127 95.25) (xy 127 96.52)
 		)
 		(stroke
 			(width 0)
@@ -4003,7 +2674,17 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 73.025) (xy 114.3 73.025)
+			(xy 229.87 40.64) (xy 232.41 40.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "de9e9cb0-d08d-4404-b4ad-903bebc93828")
+	)
+	(wire
+		(pts
+			(xy 110.49 73.66) (xy 114.3 73.66)
 		)
 		(stroke
 			(width 0)
@@ -4013,7 +2694,7 @@
 	)
 	(wire
 		(pts
-			(xy 126.365 118.11) (xy 126.365 125.73)
+			(xy 127 118.11) (xy 127 125.73)
 		)
 		(stroke
 			(width 0)
@@ -4023,7 +2704,7 @@
 	)
 	(wire
 		(pts
-			(xy 229.87 46.99) (xy 227.33 46.99)
+			(xy 231.14 46.99) (xy 227.33 46.99)
 		)
 		(stroke
 			(width 0)
@@ -4033,7 +2714,27 @@
 	)
 	(wire
 		(pts
-			(xy 181.61 49.53) (xy 181.61 41.275)
+			(xy 168.91 44.45) (xy 168.91 48.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ef529413-1d1f-4ee1-9e95-f140309f6652")
+	)
+	(wire
+		(pts
+			(xy 168.91 30.48) (xy 180.34 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "efc56ac7-f671-4bc0-a27a-ac00f0cc8986")
+	)
+	(wire
+		(pts
+			(xy 182.88 49.53) (xy 182.88 41.91)
 		)
 		(stroke
 			(width 0)
@@ -4043,17 +2744,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 65.405) (xy 114.3 65.405)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f3baa3cb-6a8f-442c-ae52-4907705a9906")
-	)
-	(wire
-		(pts
-			(xy 125.73 73.025) (xy 125.73 80.645)
+			(xy 127 73.66) (xy 127 81.28)
 		)
 		(stroke
 			(width 0)
@@ -4063,7 +2754,7 @@
 	)
 	(wire
 		(pts
-			(xy 125.73 65.405) (xy 130.81 65.405)
+			(xy 127 66.04) (xy 132.08 66.04)
 		)
 		(stroke
 			(width 0)
@@ -4073,7 +2764,7 @@
 	)
 	(wire
 		(pts
-			(xy 111.125 125.73) (xy 114.935 125.73)
+			(xy 110.49 125.73) (xy 115.57 125.73)
 		)
 		(stroke
 			(width 0)
@@ -4083,7 +2774,17 @@
 	)
 	(wire
 		(pts
-			(xy 126.365 125.73) (xy 126.365 133.35)
+			(xy 229.87 40.64) (xy 229.87 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f9cc2109-4400-4eed-8ebe-16d55f8e5f82")
+	)
+	(wire
+		(pts
+			(xy 127 125.73) (xy 127 133.35)
 		)
 		(stroke
 			(width 0)
@@ -4093,7 +2794,17 @@
 	)
 	(wire
 		(pts
-			(xy 111.125 118.11) (xy 111.125 119.38)
+			(xy 181.61 106.68) (xy 181.61 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fda42d50-7f97-4040-a93f-bc83a4c56b3a")
+	)
+	(wire
+		(pts
+			(xy 110.49 118.11) (xy 110.49 119.38)
 		)
 		(stroke
 			(width 0)
@@ -4103,7 +2814,7 @@
 	)
 	(global_label "3.3V-uC"
 		(shape input)
-		(at 170.18 67.945 180)
+		(at 170.18 68.58 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4113,7 +2824,7 @@
 		)
 		(uuid "22a807d3-489d-422f-9065-eef3f34403c5")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 159.091 67.945 0)
+			(at 159.091 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4125,7 +2836,7 @@
 	)
 	(global_label "3.3V-uC"
 		(shape input)
-		(at 216.535 27.94 180)
+		(at 215.9 27.94 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4135,7 +2846,7 @@
 		)
 		(uuid "3da648ef-a6e2-49f9-ad8b-dc2b09f68008")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 205.446 27.94 0)
+			(at 204.811 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4147,7 +2858,7 @@
 	)
 	(global_label "3.3V-uC"
 		(shape input)
-		(at 169.545 27.94 180)
+		(at 168.91 27.94 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4157,7 +2868,7 @@
 		)
 		(uuid "5dbf5614-9b37-447a-a428-7ef10f82a649")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 158.456 27.94 0)
+			(at 157.821 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4169,7 +2880,7 @@
 	)
 	(global_label "3.3V-uC"
 		(shape input)
-		(at 111.125 106.045 180)
+		(at 110.49 105.41 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4179,7 +2890,7 @@
 		)
 		(uuid "6bbc9831-41d5-402e-b2d8-576d87463f39")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 100.036 106.045 0)
+			(at 99.401 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4191,7 +2902,7 @@
 	)
 	(global_label "3.3V-RPi"
 		(shape input)
-		(at 205.74 67.945 180)
+		(at 205.74 68.58 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4201,7 +2912,7 @@
 		)
 		(uuid "854bddae-9836-4b0d-8316-43383a93c725")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 193.9252 67.945 0)
+			(at 193.9252 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4213,7 +2924,7 @@
 	)
 	(global_label "3.3V-uC"
 		(shape input)
-		(at 180.975 104.14 180)
+		(at 180.34 104.14 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4223,7 +2934,7 @@
 		)
 		(uuid "ceb807ac-0260-4060-b2a4-625b971c6dfd")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 169.886 104.14 0)
+			(at 169.251 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4235,7 +2946,7 @@
 	)
 	(global_label "3.3V-uC"
 		(shape input)
-		(at 110.49 61.595 180)
+		(at 110.49 62.23 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4245,7 +2956,7 @@
 		)
 		(uuid "f46e2755-bc90-4dbc-b984-2ba61c1f6f7e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 99.401 61.595 0)
+			(at 99.401 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4257,7 +2968,7 @@
 	)
 	(hierarchical_label "Shutter Speed"
 		(shape input)
-		(at 203.835 125.73 0)
+		(at 204.47 125.73 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4268,7 +2979,7 @@
 	)
 	(hierarchical_label "Keys 1"
 		(shape input)
-		(at 130.81 65.405 0)
+		(at 132.08 66.04 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4279,7 +2990,7 @@
 	)
 	(hierarchical_label "Keys 2"
 		(shape input)
-		(at 132.08 110.49 0)
+		(at 133.35 110.49 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4290,7 +3001,7 @@
 	)
 	(hierarchical_label "Resolution"
 		(shape input)
-		(at 182.88 41.275 0)
+		(at 184.15 41.91 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4301,7 +3012,7 @@
 	)
 	(hierarchical_label "Target"
 		(shape input)
-		(at 229.87 41.275 0)
+		(at 232.41 40.64 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4312,7 +3023,7 @@
 	)
 	(hierarchical_label "Step Speed"
 		(shape input)
-		(at 167.005 112.395 0)
+		(at 167.64 113.03 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4334,7 +3045,7 @@
 	)
 	(hierarchical_label "Run Speed"
 		(shape input)
-		(at 184.15 119.38 0)
+		(at 185.42 119.38 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4344,9 +3055,8 @@
 		(uuid "fe36c931-affe-48e3-9ea5-00bdab2f1da3")
 	)
 	(symbol
-		(lib_name "B3F-5000_sm_1")
 		(lib_id "easyeda2kicad:B3F-5000_sm")
-		(at 118.11 65.405 0)
+		(at 118.11 66.04 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4354,7 +3064,7 @@
 		(dnp no)
 		(uuid "0cb525a6-5ebf-4616-b9fb-b44a31a4b527")
 		(property "Reference" "SW4"
-			(at 122.555 63.5 0)
+			(at 123.825 64.135 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4362,7 +3072,7 @@
 			)
 		)
 		(property "Value" "Lamp"
-			(at 118.11 67.31 0)
+			(at 118.11 67.945 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4370,7 +3080,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH-small"
-			(at 118.11 75.565 0)
+			(at 118.11 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4379,7 +3089,7 @@
 			)
 		)
 		(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-			(at 118.11 78.105 0)
+			(at 118.11 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4388,7 +3098,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 118.11 65.405 0)
+			(at 118.11 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4396,8 +3106,8 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part" ""
-			(at 118.11 80.645 0)
+		(property "LCSC Part" "C93156"
+			(at 118.11 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4406,7 +3116,7 @@
 			)
 		)
 		(property "LCSC" "C93156"
-			(at 118.11 65.405 0)
+			(at 118.11 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4415,7 +3125,7 @@
 			)
 		)
 		(property "Inventory" "E"
-			(at 118.11 65.405 0)
+			(at 118.11 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4446,7 +3156,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Potentiometer_Small")
-		(at 200.025 125.73 0)
+		(at 200.66 125.73 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4454,7 +3164,7 @@
 		(dnp no)
 		(uuid "1226998a-7773-4483-87d4-6240e62c0602")
 		(property "Reference" "RV2"
-			(at 204.47 128.905 0)
+			(at 205.105 128.905 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4463,7 +3173,7 @@
 			)
 		)
 		(property "Value" "10K"
-			(at 198.755 125.73 0)
+			(at 199.39 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4472,7 +3182,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:RES-ADJ-TH_3P-L10.0-W10.0-P2.50-L"
-			(at 200.025 125.73 0)
+			(at 200.66 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4480,8 +3190,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/1811071811_BOCHEN-Chengdu-Guosheng-Tech-3296W-1-103_C118954.pdf"
-			(at 200.025 125.73 0)
+		(property "Datasheet" "~"
+			(at 200.66 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4489,8 +3199,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 200.025 125.73 0)
+		(property "Description" "Potentiometer"
+			(at 200.66 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4499,7 +3209,7 @@
 			)
 		)
 		(property "LCSC" "C118954"
-			(at 200.025 125.73 0)
+			(at 200.66 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4508,7 +3218,7 @@
 			)
 		)
 		(property "Inventory" "E"
-			(at 200.025 125.73 0)
+			(at 200.66 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4535,9 +3245,8 @@
 		)
 	)
 	(symbol
-		(lib_name "B3F-5000_sm_6")
 		(lib_id "easyeda2kicad:B3F-5000_sm")
-		(at 118.11 88.265 0)
+		(at 118.11 88.9 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4545,7 +3254,7 @@
 		(dnp no)
 		(uuid "14bf0906-71ed-48a2-b670-4523cdbca66d")
 		(property "Reference" "SW8"
-			(at 122.555 86.36 0)
+			(at 123.825 86.995 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4553,7 +3262,7 @@
 			)
 		)
 		(property "Value" "<"
-			(at 118.11 90.17 0)
+			(at 118.11 90.805 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4561,7 +3270,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH-small"
-			(at 118.11 98.425 0)
+			(at 118.11 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4570,7 +3279,7 @@
 			)
 		)
 		(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-			(at 118.11 100.965 0)
+			(at 118.11 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4579,7 +3288,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 118.11 88.265 0)
+			(at 118.11 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4587,8 +3296,8 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part" ""
-			(at 118.11 103.505 0)
+		(property "LCSC Part" "C93156"
+			(at 118.11 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4597,7 +3306,7 @@
 			)
 		)
 		(property "LCSC" "C93156"
-			(at 118.11 88.265 0)
+			(at 118.11 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4606,7 +3315,7 @@
 			)
 		)
 		(property "Inventory" ""
-			(at 118.11 88.265 0)
+			(at 118.11 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4701,7 +3410,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDD")
-		(at 110.49 95.885 0)
+		(at 110.49 96.52 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4709,7 +3418,7 @@
 		(dnp no)
 		(uuid "24ab96b6-e6f1-4d25-abc6-d38d8a038163")
 		(property "Reference" "#PWR015"
-			(at 110.49 102.235 0)
+			(at 110.49 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4718,7 +3427,7 @@
 			)
 		)
 		(property "Value" "GNDD"
-			(at 110.49 99.695 0)
+			(at 110.49 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4726,7 +3435,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 110.49 95.885 0)
+			(at 110.49 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4735,7 +3444,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 110.49 95.885 0)
+			(at 110.49 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4743,8 +3452,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 110.49 95.885 0)
+		(property "Description" "Power symbol creates a global label with name \"GNDD\" , digital ground"
+			(at 110.49 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4830,7 +3539,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 111.125 137.16 0)
+		(at 110.49 137.16 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4838,7 +3547,7 @@
 		(dnp no)
 		(uuid "2e27505e-40e3-47f0-bfc8-097cef9be8f3")
 		(property "Reference" "R40"
-			(at 106.045 135.89 0)
+			(at 105.41 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4847,7 +3556,7 @@
 			)
 		)
 		(property "Value" "10K"
-			(at 106.045 138.43 0)
+			(at 105.41 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4856,7 +3565,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 111.125 137.16 0)
+			(at 110.49 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4865,7 +3574,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 111.125 137.16 0)
+			(at 110.49 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4873,8 +3582,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 111.125 137.16 0)
+		(property "Description" "Resistor, small symbol"
+			(at 110.49 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4883,7 +3592,7 @@
 			)
 		)
 		(property "LCSC" "C17414"
-			(at 111.125 137.16 0)
+			(at 110.49 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4892,7 +3601,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 111.125 137.16 0)
+			(at 110.49 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5004,7 +3713,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 111.125 114.3 0)
+		(at 110.49 114.3 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5012,7 +3721,7 @@
 		(dnp no)
 		(uuid "4064e2d2-f432-49a9-8270-57f9112650be")
 		(property "Reference" "R32"
-			(at 106.045 113.03 0)
+			(at 105.41 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5021,7 +3730,7 @@
 			)
 		)
 		(property "Value" "100K"
-			(at 104.775 115.57 0)
+			(at 104.14 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5030,7 +3739,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 111.125 114.3 0)
+			(at 110.49 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5039,7 +3748,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 111.125 114.3 0)
+			(at 110.49 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5047,8 +3756,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 111.125 114.3 0)
+		(property "Description" "Resistor, small symbol"
+			(at 110.49 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5057,7 +3766,7 @@
 			)
 		)
 		(property "LCSC" "C149504"
-			(at 111.125 114.3 0)
+			(at 110.49 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5066,7 +3775,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 111.125 114.3 0)
+			(at 110.49 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5201,7 +3910,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x03")
-		(at 234.95 49.53 0)
+		(at 236.22 49.53 0)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -5210,7 +3919,7 @@
 		(dnp no)
 		(uuid "4afc523f-cfeb-445f-8c27-4dd9fbe4e25e")
 		(property "Reference" "J8"
-			(at 233.68 54.61 0)
+			(at 234.95 54.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5219,7 +3928,7 @@
 			)
 		)
 		(property "Value" "Target"
-			(at 237.49 49.53 0)
+			(at 238.76 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5228,7 +3937,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
-			(at 234.95 49.53 0)
+			(at 236.22 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5237,7 +3946,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 234.95 49.53 0)
+			(at 236.22 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5246,7 +3955,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 234.95 49.53 0)
+			(at 236.22 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5255,7 +3964,7 @@
 			)
 		)
 		(property "LCSC" ""
-			(at 234.95 49.53 0)
+			(at 236.22 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5264,7 +3973,7 @@
 			)
 		)
 		(property "Inventory" ""
-			(at 234.95 49.53 0)
+			(at 236.22 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5292,7 +4001,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Potentiometer_Small")
-		(at 163.195 112.395 0)
+		(at 163.83 111.76 0)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -5301,7 +4010,7 @@
 		(dnp no)
 		(uuid "4cca786c-8610-4d79-8014-90da746bad2a")
 		(property "Reference" "RV5"
-			(at 167.64 109.22 0)
+			(at 168.275 108.585 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5310,7 +4019,7 @@
 			)
 		)
 		(property "Value" "10K"
-			(at 161.925 112.395 0)
+			(at 162.56 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5319,7 +4028,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:RES-TH_RK09K1110A0J_short"
-			(at 163.195 112.395 0)
+			(at 163.83 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5327,8 +4036,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_ALPSALPINE-RK09K1130AP5_C470295.pdf"
-			(at 163.195 112.395 0)
+		(property "Datasheet" "~"
+			(at 163.83 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5336,8 +4045,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 163.195 112.395 0)
+		(property "Description" "Potentiometer"
+			(at 163.83 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5346,7 +4055,7 @@
 			)
 		)
 		(property "LCSC" "C209767"
-			(at 163.195 112.395 0)
+			(at 163.83 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5355,7 +4064,7 @@
 			)
 		)
 		(property "Inventory" "E"
-			(at 163.195 112.395 0)
+			(at 163.83 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5447,7 +4156,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDD")
-		(at 111.125 140.97 0)
+		(at 110.49 140.97 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5455,7 +4164,7 @@
 		(dnp no)
 		(uuid "545567ae-3b41-4eed-9843-655a3e1392c8")
 		(property "Reference" "#PWR016"
-			(at 111.125 147.32 0)
+			(at 110.49 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5464,7 +4173,7 @@
 			)
 		)
 		(property "Value" "GNDD"
-			(at 111.125 144.78 0)
+			(at 110.49 144.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5472,7 +4181,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 111.125 140.97 0)
+			(at 110.49 140.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5481,7 +4190,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 111.125 140.97 0)
+			(at 110.49 140.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5489,8 +4198,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 111.125 140.97 0)
+		(property "Description" "Power symbol creates a global label with name \"GNDD\" , digital ground"
+			(at 110.49 140.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5512,7 +4221,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 110.49 76.835 0)
+		(at 110.49 77.47 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5520,7 +4229,7 @@
 		(dnp no)
 		(uuid "6130bf81-00c0-4b93-9939-363070164f4a")
 		(property "Reference" "R25"
-			(at 105.41 75.565 0)
+			(at 105.41 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5529,7 +4238,7 @@
 			)
 		)
 		(property "Value" "47K"
-			(at 105.41 78.105 0)
+			(at 105.41 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5538,7 +4247,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 110.49 76.835 0)
+			(at 110.49 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5547,7 +4256,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 110.49 76.835 0)
+			(at 110.49 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5555,8 +4264,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 110.49 76.835 0)
+		(property "Description" "Resistor, small symbol"
+			(at 110.49 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5565,7 +4274,7 @@
 			)
 		)
 		(property "LCSC" "C17713"
-			(at 110.49 76.835 0)
+			(at 110.49 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5574,7 +4283,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 110.49 76.835 0)
+			(at 110.49 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5642,7 +4351,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, small symbol"
 			(at 210.82 71.12 0)
 			(effects
 				(font
@@ -5685,9 +4394,8 @@
 		)
 	)
 	(symbol
-		(lib_name "B3F-5000_sm_4")
 		(lib_id "easyeda2kicad:B3F-5000_sm")
-		(at 118.745 118.11 0)
+		(at 119.38 118.11 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5695,7 +4403,7 @@
 		(dnp no)
 		(uuid "6c5e9a2f-9579-4a93-8064-eca0b64192fe")
 		(property "Reference" "SW9"
-			(at 123.19 116.205 0)
+			(at 123.825 116.205 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5703,7 +4411,7 @@
 			)
 		)
 		(property "Value" ">"
-			(at 118.745 120.015 0)
+			(at 119.38 120.015 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5711,7 +4419,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH-small"
-			(at 118.745 128.27 0)
+			(at 119.38 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5720,7 +4428,7 @@
 			)
 		)
 		(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-			(at 118.745 130.81 0)
+			(at 119.38 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5729,7 +4437,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 118.745 118.11 0)
+			(at 119.38 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5737,8 +4445,8 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part" ""
-			(at 118.745 133.35 0)
+		(property "LCSC Part" "C93156"
+			(at 119.38 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5747,7 +4455,7 @@
 			)
 		)
 		(property "LCSC" "C93156"
-			(at 118.745 118.11 0)
+			(at 119.38 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5756,7 +4464,7 @@
 			)
 		)
 		(property "Inventory" ""
-			(at 118.745 118.11 0)
+			(at 119.38 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5787,7 +4495,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDD")
-		(at 169.545 55.245 0)
+		(at 168.91 55.88 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -5796,7 +4504,7 @@
 		(dnp no)
 		(uuid "6ecfc07f-b83f-48e5-b2e4-ae6b8d295fff")
 		(property "Reference" "#PWR033"
-			(at 169.545 61.595 0)
+			(at 168.91 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5805,7 +4513,7 @@
 			)
 		)
 		(property "Value" "GNDD"
-			(at 169.545 59.055 0)
+			(at 168.91 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5814,7 +4522,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 169.545 55.245 0)
+			(at 168.91 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5823,7 +4531,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 169.545 55.245 0)
+			(at 168.91 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5831,8 +4539,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 169.545 55.245 0)
+		(property "Description" "Power symbol creates a global label with name \"GNDD\" , digital ground"
+			(at 168.91 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5854,7 +4562,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 216.535 34.29 0)
+		(at 215.9 34.29 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5862,7 +4570,7 @@
 		(dnp no)
 		(uuid "7ae8196d-28d1-4203-b87a-fa3994874522")
 		(property "Reference" "R44"
-			(at 210.82 33.655 0)
+			(at 210.185 33.655 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5871,7 +4579,7 @@
 			)
 		)
 		(property "Value" "10K"
-			(at 210.82 36.195 0)
+			(at 210.185 36.195 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5880,7 +4588,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 216.535 34.29 0)
+			(at 215.9 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5889,7 +4597,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 216.535 34.29 0)
+			(at 215.9 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5897,8 +4605,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 216.535 34.29 0)
+		(property "Description" "Resistor, small symbol"
+			(at 215.9 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5907,7 +4615,7 @@
 			)
 		)
 		(property "LCSC" "C17414"
-			(at 216.535 34.29 0)
+			(at 215.9 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5916,7 +4624,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 216.535 34.29 0)
+			(at 215.9 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5941,7 +4649,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 110.49 69.215 0)
+		(at 110.49 69.85 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5949,7 +4657,7 @@
 		(dnp no)
 		(uuid "7d3678aa-a14b-4641-a1d5-e01438003a36")
 		(property "Reference" "R21"
-			(at 105.41 67.945 0)
+			(at 105.41 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5958,7 +4666,7 @@
 			)
 		)
 		(property "Value" "100K"
-			(at 104.14 70.485 0)
+			(at 104.14 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5967,7 +4675,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 110.49 69.215 0)
+			(at 110.49 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5976,7 +4684,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 110.49 69.215 0)
+			(at 110.49 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5984,8 +4692,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 110.49 69.215 0)
+		(property "Description" "Resistor, small symbol"
+			(at 110.49 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5994,7 +4702,7 @@
 			)
 		)
 		(property "LCSC" "C149504"
-			(at 110.49 69.215 0)
+			(at 110.49 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6003,7 +4711,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 110.49 69.215 0)
+			(at 110.49 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6027,9 +4735,8 @@
 		)
 	)
 	(symbol
-		(lib_name "B3F-5000_sm_5")
 		(lib_id "easyeda2kicad:B3F-5000_sm")
-		(at 118.745 133.35 0)
+		(at 119.38 133.35 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6037,7 +4744,7 @@
 		(dnp no)
 		(uuid "8188e11c-1290-4664-b203-3439358ef8cf")
 		(property "Reference" "SW11"
-			(at 123.19 131.445 0)
+			(at 123.825 131.445 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6045,7 +4752,7 @@
 			)
 		)
 		(property "Value" "Rec"
-			(at 118.745 135.255 0)
+			(at 119.38 135.255 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6053,7 +4760,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH-small"
-			(at 118.745 143.51 0)
+			(at 119.38 143.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6062,7 +4769,7 @@
 			)
 		)
 		(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-			(at 118.745 146.05 0)
+			(at 119.38 146.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6071,7 +4778,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 118.745 133.35 0)
+			(at 119.38 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6079,8 +4786,8 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part" ""
-			(at 118.745 148.59 0)
+		(property "LCSC Part" "C93156"
+			(at 119.38 148.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6089,7 +4796,7 @@
 			)
 		)
 		(property "LCSC" "C93156"
-			(at 118.745 133.35 0)
+			(at 119.38 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6098,7 +4805,7 @@
 			)
 		)
 		(property "Inventory" ""
-			(at 118.745 133.35 0)
+			(at 119.38 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6161,7 +4868,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/1806151820_Hubei-KENTO-Elec-KT-0805G_C2297.pdf"
+		(property "Datasheet" "~"
 			(at 181.61 76.2 90)
 			(effects
 				(font
@@ -6170,7 +4877,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Light emitting diode, small symbol"
 			(at 181.61 76.2 0)
 			(effects
 				(font
@@ -6197,6 +4904,15 @@
 				(hide yes)
 			)
 		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 181.61 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "01728301-38f6-411b-9c93-a4a5cabdc54c")
 		)
@@ -6214,7 +4930,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDD")
-		(at 114.3 45.085 0)
+		(at 116.84 44.45 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6222,7 +4938,7 @@
 		(dnp no)
 		(uuid "8609817c-3e30-46ce-8639-11a34582d572")
 		(property "Reference" "#PWR017"
-			(at 114.3 51.435 0)
+			(at 116.84 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6231,7 +4947,7 @@
 			)
 		)
 		(property "Value" "GNDD"
-			(at 114.3 48.895 0)
+			(at 116.84 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6239,7 +4955,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 114.3 45.085 0)
+			(at 116.84 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6248,7 +4964,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 114.3 45.085 0)
+			(at 116.84 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6256,8 +4972,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 114.3 45.085 0)
+		(property "Description" "Power symbol creates a global label with name \"GNDD\" , digital ground"
+			(at 116.84 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6322,7 +5038,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"GNDD\" , digital ground"
 			(at 170.18 82.55 0)
 			(effects
 				(font
@@ -6377,7 +5093,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Foshan-NationStar-Optoelectronics-NCD0805R1_C84256.pdf"
+		(property "Datasheet" "~"
 			(at 217.17 76.2 90)
 			(effects
 				(font
@@ -6386,7 +5102,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Light emitting diode, small symbol"
 			(at 217.17 76.2 0)
 			(effects
 				(font
@@ -6413,6 +5129,15 @@
 				(hide yes)
 			)
 		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 217.17 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "a245ba4a-523b-4c55-97e5-1e7be6ec0e48")
 		)
@@ -6430,7 +5155,7 @@
 	)
 	(symbol
 		(lib_id "Switch:SW_SPDT")
-		(at 221.615 41.275 0)
+		(at 220.98 40.64 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -6439,7 +5164,7 @@
 		(dnp no)
 		(uuid "9da8cb7d-d94c-417d-a8a0-d23cbcaa1871")
 		(property "Reference" "SW12"
-			(at 222.885 44.069 0)
+			(at 222.25 43.434 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6447,7 +5172,7 @@
 			)
 		)
 		(property "Value" "Target"
-			(at 222.123 46.101 0)
+			(at 221.488 45.466 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6455,7 +5180,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:SW-TH_5P-P4.70_SS-12D11-G040"
-			(at 221.615 41.275 0)
+			(at 220.98 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6463,8 +5188,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8602925046717968384"
-			(at 221.615 41.275 0)
+		(property "Datasheet" "~"
+			(at 220.98 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6472,8 +5197,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 221.615 41.275 0)
+		(property "Description" "Switch, single pole double throw"
+			(at 220.98 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6482,7 +5207,7 @@
 			)
 		)
 		(property "LCSC" "C17179527"
-			(at 221.615 41.275 0)
+			(at 220.98 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6491,7 +5216,7 @@
 			)
 		)
 		(property "Inventory" "E"
-			(at 221.615 41.275 0)
+			(at 220.98 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6519,7 +5244,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 216.535 50.8 0)
+		(at 215.9 50.8 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6527,7 +5252,7 @@
 		(dnp no)
 		(uuid "a24b1963-5fa7-4153-9d51-830fb6b329dd")
 		(property "Reference" "R45"
-			(at 210.82 50.165 0)
+			(at 210.185 50.165 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6536,7 +5261,7 @@
 			)
 		)
 		(property "Value" "10K"
-			(at 210.82 52.705 0)
+			(at 210.185 52.705 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6545,7 +5270,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 216.535 50.8 0)
+			(at 215.9 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6554,7 +5279,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 216.535 50.8 0)
+			(at 215.9 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6562,8 +5287,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 216.535 50.8 0)
+		(property "Description" "Resistor, small symbol"
+			(at 215.9 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6572,7 +5297,7 @@
 			)
 		)
 		(property "LCSC" "C17414"
-			(at 216.535 50.8 0)
+			(at 215.9 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6581,7 +5306,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 216.535 50.8 0)
+			(at 215.9 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6606,7 +5331,7 @@
 	)
 	(symbol
 		(lib_id "Switch:SW_SPDT")
-		(at 174.625 41.275 0)
+		(at 173.99 41.91 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -6615,7 +5340,7 @@
 		(dnp no)
 		(uuid "a27640ee-f0f0-4855-bf57-f2b4f0e38531")
 		(property "Reference" "SW2"
-			(at 175.895 44.069 0)
+			(at 175.26 44.704 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6623,7 +5348,7 @@
 			)
 		)
 		(property "Value" "Resolution"
-			(at 175.133 46.101 0)
+			(at 174.498 46.736 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6631,7 +5356,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:SW-TH_5P-P4.70_SS-12D11-G040"
-			(at 174.625 41.275 0)
+			(at 173.99 41.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6639,8 +5364,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8602925046717968384"
-			(at 174.625 41.275 0)
+		(property "Datasheet" "~"
+			(at 173.99 41.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6648,8 +5373,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 174.625 41.275 0)
+		(property "Description" "Switch, single pole double throw"
+			(at 173.99 41.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6658,7 +5383,7 @@
 			)
 		)
 		(property "LCSC" "C17179527"
-			(at 174.625 41.275 0)
+			(at 173.99 41.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6667,7 +5392,7 @@
 			)
 		)
 		(property "Inventory" "E"
-			(at 174.625 41.275 0)
+			(at 173.99 41.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6695,7 +5420,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 111.125 129.54 0)
+		(at 110.49 129.54 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6703,7 +5428,7 @@
 		(dnp no)
 		(uuid "a326f305-32e4-4c64-beb6-cdc6c37ae01f")
 		(property "Reference" "R37"
-			(at 106.045 128.27 0)
+			(at 105.41 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6712,7 +5437,7 @@
 			)
 		)
 		(property "Value" "22K"
-			(at 106.045 130.81 0)
+			(at 105.41 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6721,7 +5446,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 111.125 129.54 0)
+			(at 110.49 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6730,7 +5455,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 111.125 129.54 0)
+			(at 110.49 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6738,8 +5463,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 111.125 129.54 0)
+		(property "Description" "Resistor, small symbol"
+			(at 110.49 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6748,7 +5473,7 @@
 			)
 		)
 		(property "LCSC" "C17560"
-			(at 111.125 129.54 0)
+			(at 110.49 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6757,7 +5482,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 111.125 129.54 0)
+			(at 110.49 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6781,9 +5506,8 @@
 		)
 	)
 	(symbol
-		(lib_name "B3F-5000_sm_2")
 		(lib_id "easyeda2kicad:B3F-5000_sm")
-		(at 118.11 80.645 0)
+		(at 118.11 81.28 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6791,7 +5515,7 @@
 		(dnp no)
 		(uuid "a5f88141-623c-4014-8039-331245966e11")
 		(property "Reference" "SW5"
-			(at 122.555 78.74 0)
+			(at 123.825 79.375 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6799,7 +5523,7 @@
 			)
 		)
 		(property "Value" "<<"
-			(at 118.11 82.55 0)
+			(at 118.11 83.185 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6807,7 +5531,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH-small"
-			(at 118.11 90.805 0)
+			(at 118.11 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6816,7 +5540,7 @@
 			)
 		)
 		(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-			(at 118.11 93.345 0)
+			(at 118.11 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6825,7 +5549,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 118.11 80.645 0)
+			(at 118.11 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6833,8 +5557,8 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part" ""
-			(at 118.11 95.885 0)
+		(property "LCSC Part" "C93156"
+			(at 118.11 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6843,7 +5567,7 @@
 			)
 		)
 		(property "LCSC" "C93156"
-			(at 118.11 80.645 0)
+			(at 118.11 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6852,7 +5576,7 @@
 			)
 		)
 		(property "Inventory" ""
-			(at 118.11 80.645 0)
+			(at 118.11 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6883,7 +5607,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDD")
-		(at 216.535 55.245 0)
+		(at 215.9 55.88 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -6892,7 +5616,7 @@
 		(dnp no)
 		(uuid "a8d4f3b8-3e3d-480b-8cb5-d81c9319674a")
 		(property "Reference" "#PWR037"
-			(at 216.535 61.595 0)
+			(at 215.9 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6901,7 +5625,7 @@
 			)
 		)
 		(property "Value" "GNDD"
-			(at 216.535 59.055 0)
+			(at 215.9 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6910,7 +5634,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 216.535 55.245 0)
+			(at 215.9 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6919,7 +5643,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 216.535 55.245 0)
+			(at 215.9 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6927,8 +5651,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 216.535 55.245 0)
+		(property "Description" "Power symbol creates a global label with name \"GNDD\" , digital ground"
+			(at 215.9 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6949,9 +5673,8 @@
 		)
 	)
 	(symbol
-		(lib_name "B3F-5000_sm_3")
 		(lib_id "easyeda2kicad:B3F-5000_sm")
-		(at 118.745 125.73 0)
+		(at 119.38 125.73 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6959,7 +5682,7 @@
 		(dnp no)
 		(uuid "b17a955a-6dd0-4843-9ed4-7c213369544a")
 		(property "Reference" "SW10"
-			(at 123.19 123.825 0)
+			(at 123.825 123.825 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6967,7 +5690,7 @@
 			)
 		)
 		(property "Value" ">>"
-			(at 118.745 127.635 0)
+			(at 119.38 127.635 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6975,7 +5698,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH-small"
-			(at 118.745 135.89 0)
+			(at 119.38 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6984,7 +5707,7 @@
 			)
 		)
 		(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-			(at 118.745 138.43 0)
+			(at 119.38 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6993,7 +5716,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 118.745 125.73 0)
+			(at 119.38 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7001,8 +5724,8 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part" ""
-			(at 118.745 140.97 0)
+		(property "LCSC Part" "C93156"
+			(at 119.38 140.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7011,7 +5734,7 @@
 			)
 		)
 		(property "LCSC" "C93156"
-			(at 118.745 125.73 0)
+			(at 119.38 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7020,7 +5743,7 @@
 			)
 		)
 		(property "Inventory" ""
-			(at 118.745 125.73 0)
+			(at 119.38 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7051,7 +5774,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 126.365 137.16 0)
+		(at 127 137.16 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7059,7 +5782,7 @@
 		(dnp no)
 		(uuid "bb7c12de-0f10-4d78-9acc-957e0d829d77")
 		(property "Reference" "R13"
-			(at 127.635 135.89 0)
+			(at 128.27 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7068,7 +5791,7 @@
 			)
 		)
 		(property "Value" "100K"
-			(at 127.635 138.43 0)
+			(at 128.27 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7077,7 +5800,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 126.365 137.16 0)
+			(at 127 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7086,7 +5809,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 126.365 137.16 0)
+			(at 127 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7094,8 +5817,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 126.365 137.16 0)
+		(property "Description" "Resistor, small symbol"
+			(at 127 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7104,7 +5827,7 @@
 			)
 		)
 		(property "LCSC" "C149504"
-			(at 126.365 137.16 0)
+			(at 127 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7113,7 +5836,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 126.365 137.16 0)
+			(at 127 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7138,7 +5861,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDD")
-		(at 180.975 130.81 0)
+		(at 181.61 130.81 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7146,7 +5869,7 @@
 		(dnp no)
 		(uuid "c209c675-0a1a-4dda-a6b1-0f3f5b8fac6d")
 		(property "Reference" "#PWR019"
-			(at 180.975 137.16 0)
+			(at 181.61 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7155,7 +5878,7 @@
 			)
 		)
 		(property "Value" "GNDD"
-			(at 180.975 134.62 0)
+			(at 181.61 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7163,7 +5886,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 180.975 130.81 0)
+			(at 181.61 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7172,7 +5895,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 180.975 130.81 0)
+			(at 181.61 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7180,8 +5903,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 180.975 130.81 0)
+		(property "Description" "Power symbol creates a global label with name \"GNDD\" , digital ground"
+			(at 181.61 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7203,7 +5926,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 110.49 92.075 0)
+		(at 110.49 92.71 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7211,7 +5934,7 @@
 		(dnp no)
 		(uuid "c497d06f-9c33-42f4-a36e-7213988ac969")
 		(property "Reference" "R35"
-			(at 105.41 90.805 0)
+			(at 105.41 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7220,7 +5943,7 @@
 			)
 		)
 		(property "Value" "10K"
-			(at 105.41 93.345 0)
+			(at 105.41 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7229,7 +5952,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 110.49 92.075 0)
+			(at 110.49 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7238,7 +5961,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 110.49 92.075 0)
+			(at 110.49 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7246,8 +5969,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 110.49 92.075 0)
+		(property "Description" "Resistor, small symbol"
+			(at 110.49 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7256,7 +5979,7 @@
 			)
 		)
 		(property "LCSC" "C17414"
-			(at 110.49 92.075 0)
+			(at 110.49 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7265,7 +5988,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 110.49 92.075 0)
+			(at 110.49 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7290,7 +6013,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x03")
-		(at 187.96 49.53 0)
+		(at 189.23 49.53 0)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -7299,7 +6022,7 @@
 		(dnp no)
 		(uuid "ca5eb76d-5815-4938-b0be-34eecdb247c3")
 		(property "Reference" "J4"
-			(at 186.69 54.61 0)
+			(at 187.96 54.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7308,7 +6031,7 @@
 			)
 		)
 		(property "Value" "Resolution"
-			(at 190.5 49.53 0)
+			(at 191.77 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7317,7 +6040,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
-			(at 187.96 49.53 0)
+			(at 189.23 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7326,7 +6049,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 187.96 49.53 0)
+			(at 189.23 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7335,7 +6058,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 187.96 49.53 0)
+			(at 189.23 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7344,7 +6067,7 @@
 			)
 		)
 		(property "LCSC" ""
-			(at 187.96 49.53 0)
+			(at 189.23 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7353,7 +6076,7 @@
 			)
 		)
 		(property "Inventory" ""
-			(at 187.96 49.53 0)
+			(at 189.23 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7381,7 +6104,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 110.49 84.455 0)
+		(at 110.49 85.09 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7389,7 +6112,7 @@
 		(dnp no)
 		(uuid "cbe3f591-d2bc-4561-acae-c2d912ed93c1")
 		(property "Reference" "R28"
-			(at 105.41 83.185 0)
+			(at 105.41 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7398,7 +6121,7 @@
 			)
 		)
 		(property "Value" "22K"
-			(at 105.41 85.725 0)
+			(at 105.41 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7407,7 +6130,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 110.49 84.455 0)
+			(at 110.49 85.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7416,7 +6139,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 110.49 84.455 0)
+			(at 110.49 85.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7424,8 +6147,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 110.49 84.455 0)
+		(property "Description" "Resistor, small symbol"
+			(at 110.49 85.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7434,7 +6157,7 @@
 			)
 		)
 		(property "LCSC" "C17560"
-			(at 110.49 84.455 0)
+			(at 110.49 85.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7443,7 +6166,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 110.49 84.455 0)
+			(at 110.49 85.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7468,7 +6191,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 111.125 121.92 0)
+		(at 110.49 121.92 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7476,7 +6199,7 @@
 		(dnp no)
 		(uuid "d00dc849-b6f9-41d6-99fa-b6a52805186a")
 		(property "Reference" "R39"
-			(at 106.045 120.65 0)
+			(at 105.41 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7485,7 +6208,7 @@
 			)
 		)
 		(property "Value" "47K"
-			(at 106.045 123.19 0)
+			(at 105.41 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7494,7 +6217,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 111.125 121.92 0)
+			(at 110.49 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7503,7 +6226,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 111.125 121.92 0)
+			(at 110.49 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7511,8 +6234,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 111.125 121.92 0)
+		(property "Description" "Resistor, small symbol"
+			(at 110.49 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7521,7 +6244,7 @@
 			)
 		)
 		(property "LCSC" "C17713"
-			(at 111.125 121.92 0)
+			(at 110.49 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7530,7 +6253,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 111.125 121.92 0)
+			(at 110.49 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7555,7 +6278,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Potentiometer_Small")
-		(at 180.975 119.38 0)
+		(at 181.61 119.38 0)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -7564,7 +6287,7 @@
 		(dnp no)
 		(uuid "d5e8d601-de18-47b7-a9d2-40003d8d87de")
 		(property "Reference" "RV4"
-			(at 185.42 116.205 0)
+			(at 186.055 116.205 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7573,7 +6296,7 @@
 			)
 		)
 		(property "Value" "10K"
-			(at 179.705 119.38 0)
+			(at 180.34 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7582,7 +6305,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:RES-TH_RK09K1110A0J_short"
-			(at 180.975 119.38 0)
+			(at 181.61 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7590,8 +6313,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_ALPSALPINE-RK09K1130AP5_C470295.pdf"
-			(at 180.975 119.38 0)
+		(property "Datasheet" "~"
+			(at 181.61 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7599,8 +6322,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 180.975 119.38 0)
+		(property "Description" "Potentiometer"
+			(at 181.61 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7609,7 +6332,7 @@
 			)
 		)
 		(property "LCSC" "C209767"
-			(at 180.975 119.38 0)
+			(at 181.61 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7618,7 +6341,7 @@
 			)
 		)
 		(property "Inventory" "E"
-			(at 180.975 119.38 0)
+			(at 181.61 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7645,9 +6368,8 @@
 		)
 	)
 	(symbol
-		(lib_name "B3F-5000_sm_8")
 		(lib_id "easyeda2kicad:B3F-5000_sm")
-		(at 118.745 110.49 0)
+		(at 119.38 110.49 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7655,7 +6377,7 @@
 		(dnp no)
 		(uuid "db91f12c-208d-4375-b097-0c06926f72fa")
 		(property "Reference" "SW7"
-			(at 123.19 108.585 0)
+			(at 123.825 108.585 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7663,7 +6385,7 @@
 			)
 		)
 		(property "Value" "Stop"
-			(at 118.745 112.395 0)
+			(at 119.38 112.395 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7671,7 +6393,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH-small"
-			(at 118.745 120.65 0)
+			(at 119.38 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7680,7 +6402,7 @@
 			)
 		)
 		(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-			(at 118.745 123.19 0)
+			(at 119.38 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7689,7 +6411,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 118.745 110.49 0)
+			(at 119.38 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7697,8 +6419,8 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part" ""
-			(at 118.745 125.73 0)
+		(property "LCSC Part" "C93156"
+			(at 119.38 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7707,7 +6429,7 @@
 			)
 		)
 		(property "LCSC" "C93156"
-			(at 118.745 110.49 0)
+			(at 119.38 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7716,7 +6438,7 @@
 			)
 		)
 		(property "Inventory" ""
-			(at 118.745 110.49 0)
+			(at 119.38 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7747,7 +6469,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 169.545 50.8 0)
+		(at 168.91 50.8 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7755,7 +6477,7 @@
 		(dnp no)
 		(uuid "dce1bcb6-e295-4854-a1c8-4621d8cbd21b")
 		(property "Reference" "R2"
-			(at 163.83 50.165 0)
+			(at 163.195 50.165 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7764,7 +6486,7 @@
 			)
 		)
 		(property "Value" "10K"
-			(at 163.83 52.705 0)
+			(at 163.195 52.705 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7773,7 +6495,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 169.545 50.8 0)
+			(at 168.91 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7782,7 +6504,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 169.545 50.8 0)
+			(at 168.91 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7790,8 +6512,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 169.545 50.8 0)
+		(property "Description" "Resistor, small symbol"
+			(at 168.91 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7800,7 +6522,7 @@
 			)
 		)
 		(property "LCSC" "C17414"
-			(at 169.545 50.8 0)
+			(at 168.91 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7809,7 +6531,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 169.545 50.8 0)
+			(at 168.91 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7941,7 +6663,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, small symbol"
 			(at 175.26 71.12 0)
 			(effects
 				(font
@@ -7984,9 +6706,8 @@
 		)
 	)
 	(symbol
-		(lib_name "B3F-5000_sm_7")
 		(lib_id "easyeda2kicad:B3F-5000_sm")
-		(at 118.11 73.025 0)
+		(at 118.11 73.66 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7994,7 +6715,7 @@
 		(dnp no)
 		(uuid "e172a987-31d2-4a10-84d0-df1e5d087a90")
 		(property "Reference" "SW6"
-			(at 122.555 71.12 0)
+			(at 123.825 71.755 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8002,7 +6723,7 @@
 			)
 		)
 		(property "Value" "Zoom"
-			(at 118.11 74.93 0)
+			(at 118.11 75.565 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8010,7 +6731,7 @@
 			)
 		)
 		(property "Footprint" "easyeda2kicad:KEY-TH_4P-L12.0-W12.0-P5.0-LS12.5-EH-small"
-			(at 118.11 83.185 0)
+			(at 118.11 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8019,7 +6740,7 @@
 			)
 		)
 		(property "Datasheet" "https://lcsc.com/product-detail/Others_Omron-Electronics_B3F-5000_Omron-Electronics-B3F-5000_C93156.html"
-			(at 118.11 85.725 0)
+			(at 118.11 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8028,7 +6749,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 118.11 73.025 0)
+			(at 118.11 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8036,8 +6757,8 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part" ""
-			(at 118.11 88.265 0)
+		(property "LCSC Part" "C93156"
+			(at 118.11 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8046,7 +6767,7 @@
 			)
 		)
 		(property "LCSC" "C93156"
-			(at 118.11 73.025 0)
+			(at 118.11 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8055,7 +6776,7 @@
 			)
 		)
 		(property "Inventory" ""
-			(at 118.11 73.025 0)
+			(at 118.11 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8129,7 +6850,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"GNDD\" , digital ground"
 			(at 205.74 82.55 0)
 			(effects
 				(font
@@ -8152,7 +6873,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 125.73 92.075 0)
+		(at 127 92.71 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8160,7 +6881,7 @@
 		(dnp no)
 		(uuid "ec335c3e-d772-4593-9086-e384d92f59c4")
 		(property "Reference" "R23"
-			(at 127 90.805 0)
+			(at 128.27 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8169,7 +6890,7 @@
 			)
 		)
 		(property "Value" "100K"
-			(at 127 93.345 0)
+			(at 128.27 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8178,7 +6899,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 125.73 92.075 0)
+			(at 127 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8187,7 +6908,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 125.73 92.075 0)
+			(at 127 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8195,8 +6916,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 125.73 92.075 0)
+		(property "Description" "Resistor, small symbol"
+			(at 127 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8205,7 +6926,7 @@
 			)
 		)
 		(property "LCSC" "C149504"
-			(at 125.73 92.075 0)
+			(at 127 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8214,7 +6935,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 125.73 92.075 0)
+			(at 127 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8239,7 +6960,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 169.545 34.29 0)
+		(at 168.91 34.29 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8247,7 +6968,7 @@
 		(dnp no)
 		(uuid "f6fd2958-e393-4cd5-824a-c08f9e053f46")
 		(property "Reference" "R4"
-			(at 163.83 33.655 0)
+			(at 163.195 33.655 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8256,7 +6977,7 @@
 			)
 		)
 		(property "Value" "10K"
-			(at 163.83 36.195 0)
+			(at 163.195 36.195 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8265,7 +6986,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 169.545 34.29 0)
+			(at 168.91 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8274,7 +6995,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 169.545 34.29 0)
+			(at 168.91 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8282,8 +7003,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 169.545 34.29 0)
+		(property "Description" "Resistor, small symbol"
+			(at 168.91 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8292,7 +7013,7 @@
 			)
 		)
 		(property "LCSC" "C17414"
-			(at 169.545 34.29 0)
+			(at 168.91 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8301,7 +7022,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 169.545 34.29 0)
+			(at 168.91 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
