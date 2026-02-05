@@ -6864,7 +6864,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2208091830_ROQANG-RVT1H471M1213_C90272.pdf"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8589039600370769920"
 			(at 214.63 46.99 0)
 			(effects
 				(font
@@ -6873,7 +6873,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "470u 63V"
 			(at 214.63 46.99 0)
 			(effects
 				(font
@@ -6882,7 +6882,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C90272"
+		(property "LCSC" "C487135"
 			(at 214.63 46.99 0)
 			(effects
 				(font
@@ -7375,7 +7375,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
 			(at 207.01 40.64 0)
 			(effects
 				(font
@@ -7384,7 +7384,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2310251059_Murata-Electronics-GRM21BR61H106KE43L_C440198.pdf"
+		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2209061730_PSA-Prosperity-Dielectrics-FS32X106K101EGG_C5156756.pdf"
 			(at 207.01 40.64 0)
 			(effects
 				(font
@@ -7393,7 +7393,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "10u 100V X7R"
 			(at 207.01 40.64 0)
 			(effects
 				(font
@@ -7402,7 +7402,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C440198"
+		(property "LCSC" "C5156756"
 			(at 207.01 40.64 0)
 			(effects
 				(font
@@ -7462,7 +7462,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
 			(at 157.48 87.63 0)
 			(effects
 				(font
@@ -7471,7 +7471,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21A106KAYNNNE_C15850.pdf"
+		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2209061730_PSA-Prosperity-Dielectrics-FS32X106K101EGG_C5156756.pdf"
 			(at 157.48 87.63 0)
 			(effects
 				(font
@@ -7480,7 +7480,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "10u 100V X7R"
 			(at 157.48 87.63 0)
 			(effects
 				(font
@@ -7489,7 +7489,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C15850"
+		(property "LCSC" "C5156756"
 			(at 157.48 87.63 0)
 			(effects
 				(font
@@ -7809,7 +7809,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 109.22 53.34 0)
 			(effects
 				(font
@@ -7818,7 +7818,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL05B104KO5NNNC_C1525.pdf"
+		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21B104KCFNNNE_C28233.pdf"
 			(at 109.22 53.34 0)
 			(effects
 				(font
@@ -7827,7 +7827,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 109.22 53.34 0)
 			(effects
 				(font
@@ -7836,7 +7836,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C1525"
+		(property "LCSC" "C28233"
 			(at 109.22 53.34 0)
 			(effects
 				(font
@@ -9180,7 +9180,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "22u 63V"
 			(at 43.18 96.52 0)
 			(effects
 				(font
@@ -9258,7 +9258,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21B104KCFNNNE_C28233.pdf"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8586178583719260160"
 			(at 276.86 55.88 0)
 			(effects
 				(font
@@ -9267,7 +9267,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 1nF X7R"
 			(at 276.86 55.88 0)
 			(effects
 				(font
@@ -9276,7 +9276,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C15177"
 			(at 276.86 55.88 0)
 			(effects
 				(font
@@ -9504,7 +9504,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 49.53 96.52 0)
 			(effects
 				(font
@@ -9573,7 +9573,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "easyeda2kicad:CAP-SMD_BD12.5-L13.0-W13.0-RD"
+		(property "Footprint" "easyeda2kicad:CAP-SMD_BD12.5-L13.0-W13.0-FD"
 			(at 152.4 41.91 0)
 			(effects
 				(font
@@ -9582,7 +9582,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2208091830_ROQANG-RVT1H471M1213_C90272.pdf"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8588883982968082432"
 			(at 152.4 41.91 0)
 			(effects
 				(font
@@ -9591,7 +9591,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "220u 63V Alu"
 			(at 152.4 41.91 0)
 			(effects
 				(font
@@ -9600,7 +9600,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C249882"
 			(at 152.4 41.91 0)
 			(effects
 				(font
@@ -10919,7 +10919,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100n/50V"
+		(property "Value" "100n"
 			(at 109.855 155.575 0)
 			(effects
 				(font
@@ -10946,7 +10946,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 107.95 154.94 0)
 			(effects
 				(font
@@ -11015,7 +11015,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21B105KBFNNNE_C28323.pdf"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8590916662802014208"
 			(at 220.98 88.9 0)
 			(effects
 				(font
@@ -11024,7 +11024,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "1u 100V X7R"
 			(at 220.98 88.9 0)
 			(effects
 				(font
@@ -11033,7 +11033,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C28323"
+		(property "LCSC" "C22367837"
 			(at 220.98 88.9 0)
 			(effects
 				(font
@@ -11528,7 +11528,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21B105KBFNNNE_C28323.pdf"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8590916662802014208"
 			(at 184.15 92.71 0)
 			(effects
 				(font
@@ -11537,7 +11537,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "1u 100V X7R"
 			(at 184.15 92.71 0)
 			(effects
 				(font
@@ -11546,7 +11546,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C28323"
+		(property "LCSC" "C22367837"
 			(at 184.15 92.71 0)
 			(effects
 				(font
@@ -11777,7 +11777,7 @@
 				)
 			)
 		)
-		(property "Value" "78L05"
+		(property "Value" "NH6375A50P"
 			(at 166.37 77.47 0)
 			(effects
 				(font
@@ -11795,7 +11795,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "http://www.st.com/content/ccc/resource/technical/document/datasheet/15/55/e5/aa/23/5b/43/fd/CD00000446.pdf/files/CD00000446.pdf/jcr:content/translations/en.CD00000446.pdf"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8602998189351972864"
 			(at 166.37 82.55 0)
 			(effects
 				(font
@@ -11804,7 +11804,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "50V 5V LDO"
 			(at 166.37 81.28 0)
 			(effects
 				(font
@@ -11822,7 +11822,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C71136"
+		(property "LCSC" "C7427778"
 			(at 166.37 81.28 0)
 			(effects
 				(font
@@ -11894,7 +11894,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 137.16 87.63 0)
 			(effects
 				(font
@@ -11972,7 +11972,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21B105KBFNNNE_C28323.pdf"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8590916662802014208"
 			(at 176.53 33.02 0)
 			(effects
 				(font
@@ -11981,7 +11981,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "1u 100V X7R"
 			(at 176.53 33.02 0)
 			(effects
 				(font
@@ -11990,7 +11990,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C28323"
+		(property "LCSC" "C22367837"
 			(at 176.53 33.02 0)
 			(effects
 				(font
@@ -12050,7 +12050,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
 			(at 142.24 168.91 0)
 			(effects
 				(font
@@ -12059,7 +12059,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21A106KAYNNNE_C15850.pdf"
+		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2209061730_PSA-Prosperity-Dielectrics-FS32X106K101EGG_C5156756.pdf"
 			(at 142.24 168.91 0)
 			(effects
 				(font
@@ -12068,7 +12068,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "10u 100V X7R"
 			(at 142.24 168.91 0)
 			(effects
 				(font
@@ -12086,7 +12086,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C15850"
+		(property "LCSC" "C5156756"
 			(at 142.24 168.91 0)
 			(effects
 				(font
@@ -12212,7 +12212,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21B105KBFNNNE_C28323.pdf"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8590916662802014208"
 			(at 171.45 41.91 0)
 			(effects
 				(font
@@ -12221,7 +12221,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "1u 100V X7R"
 			(at 171.45 41.91 0)
 			(effects
 				(font
@@ -12230,7 +12230,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C28323"
+		(property "LCSC" "C22367837"
 			(at 171.45 41.91 0)
 			(effects
 				(font
@@ -12299,7 +12299,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21B105KBFNNNE_C28323.pdf"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8590916662802014208"
 			(at 175.26 87.63 0)
 			(effects
 				(font
@@ -12308,7 +12308,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "1u 100V X7R"
 			(at 175.26 87.63 0)
 			(effects
 				(font
@@ -12317,7 +12317,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C28323"
+		(property "LCSC" "C22367837"
 			(at 175.26 87.63 0)
 			(effects
 				(font
@@ -12368,7 +12368,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10u/50V"
+		(property "Value" "10u"
 			(at 77.47 158.75 0)
 			(effects
 				(font
@@ -12395,7 +12395,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "10u 100V X7R"
 			(at 74.93 157.48 0)
 			(effects
 				(font

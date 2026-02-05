@@ -8081,7 +8081,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "22pF 50V C0G"
 			(at 158.75 92.71 0)
 			(effects
 				(font
@@ -8166,7 +8166,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "22pF 50V C0G"
 			(at 158.75 97.79 0)
 			(effects
 				(font
@@ -8254,7 +8254,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 212.09 81.28 0)
 			(effects
 				(font
@@ -8703,7 +8703,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2208091830_ROQANG-RVT1H471M1213_C90272.pdf"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8589039600370769920"
 			(at 48.26 31.75 0)
 			(effects
 				(font
@@ -8712,7 +8712,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "470u 63V"
 			(at 48.26 31.75 0)
 			(effects
 				(font
@@ -8721,7 +8721,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C90272"
+		(property "LCSC" "C487135"
 			(at 48.26 31.75 0)
 			(effects
 				(font
@@ -8963,7 +8963,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 217.17 110.49 0)
 			(effects
 				(font
@@ -9291,7 +9291,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 182.88 66.04 0)
 			(effects
 				(font
@@ -10339,7 +10339,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 182.88 50.8 0)
 			(effects
 				(font
@@ -10475,7 +10475,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
 			(at 182.88 43.18 0)
 			(effects
 				(font
@@ -10484,7 +10484,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21B104KCFNNNE_C28233.pdf"
+		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2209061730_PSA-Prosperity-Dielectrics-FS32X106K101EGG_C5156756.pdf"
 			(at 182.88 43.18 0)
 			(effects
 				(font
@@ -10493,7 +10493,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "10u 100V X7R"
 			(at 182.88 43.18 0)
 			(effects
 				(font
@@ -10502,7 +10502,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C15850"
+		(property "LCSC" "C5156756"
 			(at 182.88 43.18 0)
 			(effects
 				(font
@@ -11272,7 +11272,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "34u 10V X5R"
 			(at 115.57 91.44 0)
 			(effects
 				(font
@@ -11728,7 +11728,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 121.92 91.44 0)
 			(effects
 				(font
@@ -12062,7 +12062,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 182.88 58.42 0)
 			(effects
 				(font

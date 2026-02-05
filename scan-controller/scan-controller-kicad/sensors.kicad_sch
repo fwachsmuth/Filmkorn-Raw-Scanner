@@ -4273,7 +4273,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 184.15 125.73 0)
 			(effects
 				(font
@@ -4451,7 +4451,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 182.88 81.28 0)
 			(effects
 				(font
@@ -4538,7 +4538,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 161.29 125.73 0)
 			(effects
 				(font
@@ -6577,7 +6577,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 59.69 83.82 0)
 			(effects
 				(font

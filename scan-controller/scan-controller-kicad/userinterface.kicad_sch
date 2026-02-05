@@ -3669,7 +3669,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "100V 100nF X7R"
 			(at 170.18 76.2 0)
 			(effects
 				(font
