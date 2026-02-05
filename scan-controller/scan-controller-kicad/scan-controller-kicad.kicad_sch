@@ -4871,6 +4871,18 @@
 			(embedded_fonts no)
 		)
 	)
+	(text "A7 = Version Pin: \nSee readAndPrintBoardRevision()\nfor corresponding R value"
+		(exclude_from_sim no)
+		(at 240.538 80.264 0)
+		(effects
+			(font
+				(face "KiCad Font")
+				(size 0.508 0.508)
+			)
+			(justify left)
+		)
+		(uuid "31de815d-5fce-47e7-a428-2fce983c7cbe")
+	)
 	(text "(Underscore placed to \nkeep the Net called SCL)"
 		(exclude_from_sim no)
 		(at 72.39 142.875 0)
@@ -5061,6 +5073,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b50f4bb3-fb9a-459b-b375-f1d09fbf18f3")
+	)
+	(junction
+		(at 234.95 85.09)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "bbfc8458-d53c-404b-b1f4-09b2aa2a6248")
 	)
 	(junction
 		(at 57.15 41.91)
@@ -5316,7 +5334,7 @@
 	)
 	(wire
 		(pts
-			(xy 243.84 85.09) (xy 246.38 85.09)
+			(xy 243.84 33.02) (xy 246.38 33.02)
 		)
 		(stroke
 			(width 0)
@@ -5403,6 +5421,26 @@
 			(type default)
 		)
 		(uuid "14da6269-5c9d-4e80-a4c3-7317fbf7de18")
+	)
+	(wire
+		(pts
+			(xy 212.09 77.47) (xy 204.47 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "172e809d-c629-4dcd-86ba-e77c64449372")
+	)
+	(wire
+		(pts
+			(xy 212.09 78.74) (xy 212.09 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "175db5fb-2e43-4db7-a928-1acf989ecfea")
 	)
 	(wire
 		(pts
@@ -5616,16 +5654,6 @@
 	)
 	(wire
 		(pts
-			(xy 212.09 77.47) (xy 204.47 77.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "30317bf0-88bb-49e7-bf8b-9f3883982225")
-	)
-	(wire
-		(pts
 			(xy 52.07 132.08) (xy 54.61 132.08)
 		)
 		(stroke
@@ -5806,6 +5834,16 @@
 	)
 	(wire
 		(pts
+			(xy 234.95 83.82) (xy 234.95 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "44696dfd-3aff-4b3b-af9d-87072e187dc4")
+	)
+	(wire
+		(pts
 			(xy 133.35 69.85) (xy 124.46 69.85)
 		)
 		(stroke
@@ -5903,6 +5941,16 @@
 			(type default)
 		)
 		(uuid "4ee8ed5c-440e-47c8-b57b-8d1b8e57bd10")
+	)
+	(wire
+		(pts
+			(xy 234.95 66.04) (xy 189.23 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "55364dbf-e260-45ac-8c58-1e50cb9ce9b9")
 	)
 	(wire
 		(pts
@@ -6036,7 +6084,7 @@
 	)
 	(wire
 		(pts
-			(xy 243.84 76.2) (xy 246.38 76.2)
+			(xy 243.84 24.13) (xy 246.38 24.13)
 		)
 		(stroke
 			(width 0)
@@ -6123,6 +6171,16 @@
 			(type default)
 		)
 		(uuid "7cb71f2c-00ae-4fc2-8326-599269f74d95")
+	)
+	(wire
+		(pts
+			(xy 212.09 83.82) (xy 212.09 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7cd8a19a-717f-46ec-9eb3-9132925d087b")
 	)
 	(wire
 		(pts
@@ -6276,17 +6334,7 @@
 	)
 	(wire
 		(pts
-			(xy 212.09 82.55) (xy 212.09 85.09)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "97581b9a-3f6b-4e88-8768-6fdb60e6aca6")
-	)
-	(wire
-		(pts
-			(xy 246.38 87.63) (xy 243.84 87.63)
+			(xy 246.38 35.56) (xy 243.84 35.56)
 		)
 		(stroke
 			(width 0)
@@ -6373,6 +6421,16 @@
 			(type default)
 		)
 		(uuid "a95245e4-d40f-46e3-b8e5-95d646258146")
+	)
+	(wire
+		(pts
+			(xy 204.47 85.09) (xy 234.95 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ab3a840a-2034-422b-9c3d-7a06ce5f43fc")
 	)
 	(wire
 		(pts
@@ -6556,6 +6614,16 @@
 	)
 	(wire
 		(pts
+			(xy 234.95 76.2) (xy 234.95 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cb53d3d7-7423-4ea0-bc56-053c1904596e")
+	)
+	(wire
+		(pts
 			(xy 173.99 102.87) (xy 170.18 102.87)
 		)
 		(stroke
@@ -6563,6 +6631,16 @@
 			(type default)
 		)
 		(uuid "cbde200f-1075-469a-89f8-abbdcf30e36a")
+	)
+	(wire
+		(pts
+			(xy 234.95 92.71) (xy 234.95 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cc2a4bf0-8988-48c5-a66d-13e7bc82a03c")
 	)
 	(wire
 		(pts
@@ -6816,7 +6894,7 @@
 	)
 	(wire
 		(pts
-			(xy 243.84 80.01) (xy 246.38 80.01)
+			(xy 243.84 27.94) (xy 246.38 27.94)
 		)
 		(stroke
 			(width 0)
@@ -7315,7 +7393,7 @@
 		(uuid "9d730819-4308-4d44-8bba-dabf8adb66b4")
 	)
 	(label "D5"
-		(at 243.84 87.63 180)
+		(at 243.84 35.56 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7355,7 +7433,7 @@
 		(uuid "ae0e6b31-27d7-4383-a4fc-7557b0a19382")
 	)
 	(label "D9"
-		(at 243.84 76.2 180)
+		(at 243.84 24.13 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7495,7 +7573,7 @@
 		(uuid "d1eca865-05c5-48a4-96cf-ed5f8a640e25")
 	)
 	(label "D8"
-		(at 243.84 80.01 180)
+		(at 243.84 27.94 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7525,7 +7603,7 @@
 		(uuid "dab455e5-248e-4002-9454-c5049964e31a")
 	)
 	(label "D6"
-		(at 243.84 85.09 180)
+		(at 243.84 33.02 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8132,7 +8210,7 @@
 	)
 	(symbol
 		(lib_id "Device:C_Small")
-		(at 212.09 80.01 0)
+		(at 212.09 81.28 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -8141,7 +8219,7 @@
 		(dnp no)
 		(uuid "00000000-0000-0000-0000-00005e11b384")
 		(property "Reference" "C11"
-			(at 212.09 77.47 0)
+			(at 212.09 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8150,7 +8228,7 @@
 			)
 		)
 		(property "Value" "100n"
-			(at 212.09 82.55 0)
+			(at 212.852 83.312 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8159,7 +8237,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 212.09 80.01 0)
+			(at 212.09 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8168,7 +8246,7 @@
 			)
 		)
 		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2304140030_Samsung-Electro-Mechanics-CL21B104KCFNNNE_C28233.pdf"
-			(at 212.09 80.01 0)
+			(at 212.09 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8177,7 +8255,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 212.09 80.01 0)
+			(at 212.09 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8186,7 +8264,7 @@
 			)
 		)
 		(property "LCSC" "C28233"
-			(at 212.09 80.01 0)
+			(at 212.09 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8195,7 +8273,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 212.09 80.01 0)
+			(at 212.09 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10305,7 +10383,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDD")
-		(at 212.09 85.09 0)
+		(at 212.09 86.36 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -10314,7 +10392,7 @@
 		(dnp no)
 		(uuid "71aff437-e154-400d-8c70-578ba32e7e68")
 		(property "Reference" "#PWR011"
-			(at 212.09 91.44 0)
+			(at 212.09 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10323,7 +10401,7 @@
 			)
 		)
 		(property "Value" "GNDD"
-			(at 212.09 88.9 0)
+			(at 212.09 90.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10331,7 +10409,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 212.09 85.09 0)
+			(at 212.09 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10340,7 +10418,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 212.09 85.09 0)
+			(at 212.09 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10349,7 +10427,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GNDD\" , digital ground"
-			(at 212.09 85.09 0)
+			(at 212.09 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10695,82 +10773,6 @@
 	)
 	(symbol
 		(lib_id "Peacemans_Teile:TestPoint_named")
-		(at 204.47 85.09 270)
-		(mirror x)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8f303c86-76f2-4eb8-b6e4-2284f45d60ce")
-		(property "Reference" "TP7"
-			(at 204.47 86.995 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "A7"
-			(at 204.47 86.995 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "Peacemans_Teile:TestPoint_THTPad_1.5x1.5mm_Drill0.7mm_named"
-			(at 204.47 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 204.47 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 204.47 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "TP_Label" "A7"
-			(at 210.185 85.09 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "bfc743db-194e-48ca-82b3-940595964f8a")
-		)
-		(instances
-			(project "scan-controller-kicad"
-				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
-					(reference "TP7")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Peacemans_Teile:TestPoint_named")
 		(at 86.36 109.22 90)
 		(unit 1)
 		(exclude_from_sim no)
@@ -10840,6 +10842,92 @@
 			(project "scan-controller-kicad"
 				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
 					(reference "TP12")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 234.95 88.9 0)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "97d6ecfd-59df-4962-8bd6-0e5ddce018fa")
+		(property "Reference" "R50"
+			(at 231.648 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10K"
+			(at 231.648 89.662 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 233.172 88.9 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 234.95 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 234.95 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C17414"
+			(at 234.95 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Inventory" "B"
+			(at 234.95 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "84e03e9a-0bc5-497a-83dc-f177218b1e09")
+		)
+		(pin "2"
+			(uuid "2d306b13-3beb-42b7-97f2-4c23583c8d2b")
+		)
+		(instances
+			(project "scan-controller-kicad"
+				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
+					(reference "R50")
 					(unit 1)
 				)
 			)
@@ -11683,6 +11771,92 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 234.95 80.01 0)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "dfdd5424-6538-49b2-8903-c03c3f9a8239")
+		(property "Reference" "R51"
+			(at 237.998 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "0R"
+			(at 237.49 80.772 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 233.172 80.01 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 234.95 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 234.95 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C17414"
+			(at 234.95 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Inventory" "B"
+			(at 234.95 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "2f05e6fc-d224-46d4-a953-6d65b132f3f4")
+		)
+		(pin "2"
+			(uuid "e21fe297-7b72-4604-8f6e-e9b1326b69b1")
+		)
+		(instances
+			(project "scan-controller-kicad"
+				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
+					(reference "R51")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Transistor_FET:IRLML0030")
 		(at 130.81 58.42 0)
 		(unit 1)
@@ -12157,6 +12331,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GNDD")
+		(at 234.95 93.98 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "facb6e9d-36f8-48bf-85d3-2768c1d2bed5")
+		(property "Reference" "#PWR040"
+			(at 234.95 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GNDD"
+			(at 234.95 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 234.95 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 234.95 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GNDD\" , digital ground"
+			(at 234.95 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "59094c4d-553f-47da-80aa-0852ab02494c")
+		)
+		(instances
+			(project "scan-controller-kicad"
+				(path "/ab6dbce1-4ecf-44ae-8f33-5f07e4f43ca9"
+					(reference "#PWR040")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Transistor_FET:IRLML5203")
 		(at 133.35 45.72 270)
 		(mirror x)
@@ -12497,7 +12737,7 @@
 		)
 	)
 	(sheet
-		(at 246.38 72.39)
+		(at 246.38 20.32)
 		(size 27.305 52.705)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -12513,7 +12753,7 @@
 		)
 		(uuid "f199f7c1-4da9-41da-ae5e-c136f90f6de6")
 		(property "Sheetname" "Drivers"
-			(at 246.38 71.6784 0)
+			(at 246.38 19.6084 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12522,7 +12762,7 @@
 			)
 		)
 		(property "Sheetfile" "drivers.kicad_sch"
-			(at 246.38 125.6796 0)
+			(at 246.38 73.6096 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12531,7 +12771,7 @@
 			)
 		)
 		(pin "Lamp" input
-			(at 246.38 76.2 180)
+			(at 246.38 24.13 180)
 			(uuid "33d130b5-7fec-4cc5-8514-92234fd55583")
 			(effects
 				(font
@@ -12541,7 +12781,7 @@
 			)
 		)
 		(pin "Fan" input
-			(at 246.38 80.01 180)
+			(at 246.38 27.94 180)
 			(uuid "fd8f497a-a892-487f-bb47-bf0a696fe27b")
 			(effects
 				(font
@@ -12551,7 +12791,7 @@
 			)
 		)
 		(pin "Motor Control B" input
-			(at 246.38 85.09 180)
+			(at 246.38 33.02 180)
 			(uuid "1a7c2dd2-0e5b-48df-8bb7-f8de1ac488ff")
 			(effects
 				(font
@@ -12561,7 +12801,7 @@
 			)
 		)
 		(pin "Motor Control A" input
-			(at 246.38 87.63 180)
+			(at 246.38 35.56 180)
 			(uuid "7ac2d810-1bfd-45d8-92c4-3a01278513ba")
 			(effects
 				(font

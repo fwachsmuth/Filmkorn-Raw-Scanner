@@ -190,9 +190,20 @@ volatile bool piIsReady = false;
 /*
  * Board revision is encoded on A7 via voltage divider: 10 kOhm to GND, R51 (VCC to A7) per revision.
  * 3.3 V reference. If A7 is floating (no R51), readings are unstable → report Rev. D.
- * E24 values for R51 per revision (Rev E = first released):
- *   Rev E: 0 R (short), F: 330 R, G: 1.1 k, H: 2.0 k, I: 3.0 k, J: 4.3 k, K: 5.6 k, L: 7.5 k,
- *   M: 10 k, N: 13 k, O: 18 k, P: 24 k, Q: 33 k, R: 56 k, Rev S: not populated (open).
+ * E24 values for R51 per revision (Rev E = first released with this identifier):
+ * Revisions:
+ * E: 0 R (short)
+ * F: 330 R
+ * G: 1.1 k
+ * H: 2.0 k
+ * I: 3.0 k
+ * J: 4.3 k
+ * K: 5.6 k
+ * L: 7.5 k
+ * M: 10 k
+ * N: 13 k 
+ * O: 18 k 
+ * P: 24 k, Q: 33 k, R: 56 k, Rev S: not populated (open).
  */
 void readAndPrintBoardRevision() {
   const int numSamples = 8;
