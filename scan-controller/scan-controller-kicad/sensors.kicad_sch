@@ -5200,7 +5200,7 @@
 				)
 			)
 		)
-		(property "Footprint" "OptoDevice:OnSemi_CASE100AQ"
+		(property "Footprint" "easyeda2kicad:OPTO-SMD_QRE1113GR"
 			(at 99.06 81.28 0)
 			(effects
 				(font
@@ -5375,7 +5375,7 @@
 				)
 			)
 		)
-		(property "Footprint" "OptoDevice:OnSemi_CASE100AQ"
+		(property "Footprint" "easyeda2kicad:OPTO-SMD_QRE1113GR"
 			(at 100.33 127 0)
 			(effects
 				(font
