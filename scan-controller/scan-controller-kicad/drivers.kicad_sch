@@ -2531,147 +2531,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Regulator_Linear:L78L05_SOT89"
-			(pin_names
-				(offset 0.254)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "U"
-				(at -3.81 3.175 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "L78L05_SOT89"
-				(at -0.635 3.175 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Footprint" "Package_TO_SOT_SMD:SOT-89-3"
-				(at 0 5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-						(italic yes)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "http://www.st.com/content/ccc/resource/technical/document/datasheet/15/55/e5/aa/23/5b/43/fd/CD00000446.pdf/files/CD00000446.pdf/jcr:content/translations/en.CD00000446.pdf"
-				(at 0 -1.27 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Positive 100mA 30V Linear Regulator, Fixed Output 5V, SOT-89"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "Voltage Regulator 100mA Positive"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "SOT?89*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "L78L05_SOT89_0_1"
-				(rectangle
-					(start -5.08 1.905)
-					(end 5.08 -5.08)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-			(symbol "L78L05_SOT89_1_1"
-				(pin power_in line
-					(at -7.62 0 0)
-					(length 2.54)
-					(name "IN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 0 -7.62 90)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_out line
-					(at 7.62 0 180)
-					(length 2.54)
-					(name "OUT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Regulator_Switching:XL4015"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -3670,6 +3529,142 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "easyeda2kicad:NH6375A50P"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 7.62 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "NH6375A50P"
+				(at 0 -7.62 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "easyeda2kicad:SOT-89-3_L4.5-W2.5-P1.50-LS4.2-BR"
+				(at 0 -10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "LCSC Part" "C7427778"
+				(at 0 -12.7 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "NH6375A50P_0_1"
+				(rectangle
+					(start -5.08 5.08)
+					(end 3.81 -5.08)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(circle
+					(center -3.81 3.81)
+					(radius 0.38)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin unspecified line
+					(at -7.62 2.54 0)
+					(length 2.54)
+					(name "VSS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at -7.62 0 0)
+					(length 2.54)
+					(name "VIN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at -7.62 -2.54 0)
+					(length 2.54)
+					(name "VOUT"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "power:GNDD"
 			(power)
 			(pin_numbers
@@ -3965,6 +3960,12 @@
 		(uuid "437c5dae-4c2d-4b07-ab31-3e9c847b37e1")
 	)
 	(junction
+		(at 157.48 83.82)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4c22560d-3b32-416c-a7ea-22460d09ef1b")
+	)
+	(junction
 		(at 238.76 30.48)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4097,10 +4098,10 @@
 		(uuid "9fc97271-e7e7-48ac-899f-ed012277d95c")
 	)
 	(junction
-		(at 166.37 93.98)
+		(at 163.83 93.98)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "a052fed2-2152-4e62-8eb5-20ba0bde7677")
+		(uuid "a128df4d-bd77-4b65-80ef-6c12e97fbbd1")
 	)
 	(junction
 		(at 187.96 52.07)
@@ -4149,6 +4150,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "c45530d1-51f8-4a31-a1d1-35d14aef5d49")
+	)
+	(junction
+		(at 163.83 101.6)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c495c343-c506-4793-a450-e9c33339f232")
 	)
 	(junction
 		(at 204.47 91.44)
@@ -4217,12 +4224,6 @@
 		(uuid "de7a815b-3d65-4c4b-8f75-2cbdc93e6fda")
 	)
 	(junction
-		(at 166.37 101.6)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "e0a29c95-e69c-4259-9449-d48bab1a68d3")
-	)
-	(junction
 		(at 93.98 180.34)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4258,12 +4259,6 @@
 		(color 0 0 0 0)
 		(uuid "f4c1f3d9-809a-4c1c-9b5a-0c804bfb47c2")
 	)
-	(junction
-		(at 157.48 81.28)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f93e5505-dd9a-47be-b596-c0d010047f64")
-	)
 	(no_connect
 		(at 163.83 160.02)
 		(uuid "f69f97aa-632c-475c-ac97-593cf28bef3a")
@@ -4277,6 +4272,16 @@
 			(type default)
 		)
 		(uuid "01acd332-e0b0-4180-8db0-862c36b595cb")
+	)
+	(wire
+		(pts
+			(xy 168.91 81.28) (xy 175.26 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "03527f9d-aa09-410e-b7d8-5ef0a075b42f")
 	)
 	(wire
 		(pts
@@ -4460,7 +4465,7 @@
 	)
 	(wire
 		(pts
-			(xy 157.48 90.17) (xy 157.48 93.98)
+			(xy 157.48 91.44) (xy 157.48 93.98)
 		)
 		(stroke
 			(width 0)
@@ -4580,7 +4585,7 @@
 	)
 	(wire
 		(pts
-			(xy 152.4 101.6) (xy 166.37 101.6)
+			(xy 152.4 101.6) (xy 163.83 101.6)
 		)
 		(stroke
 			(width 0)
@@ -5030,6 +5035,16 @@
 	)
 	(wire
 		(pts
+			(xy 163.83 93.98) (xy 175.26 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5a2f6261-cde7-4caf-b18c-16ff1af2f45a")
+	)
+	(wire
+		(pts
 			(xy 205.74 86.36) (xy 204.47 86.36)
 		)
 		(stroke
@@ -5067,6 +5082,16 @@
 			(type default)
 		)
 		(uuid "5b586dba-f284-4f41-8312-26e509b2dd45")
+	)
+	(wire
+		(pts
+			(xy 163.83 101.6) (xy 184.15 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5e56d9cd-3ee6-4261-b23f-7d3b2687b8bf")
 	)
 	(wire
 		(pts
@@ -5250,7 +5275,7 @@
 	)
 	(wire
 		(pts
-			(xy 157.48 30.48) (xy 157.48 81.28)
+			(xy 157.48 30.48) (xy 157.48 83.82)
 		)
 		(stroke
 			(width 0)
@@ -5327,16 +5352,6 @@
 			(type default)
 		)
 		(uuid "72ba5539-e0a9-4c90-8fa4-1b857ca81834")
-	)
-	(wire
-		(pts
-			(xy 166.37 93.98) (xy 175.26 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "731f6411-3c8f-4e25-b145-7ae1d65c3ac1")
 	)
 	(wire
 		(pts
@@ -5540,16 +5555,6 @@
 	)
 	(wire
 		(pts
-			(xy 166.37 101.6) (xy 184.15 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8f4385a5-5158-4a94-bf79-3b6012247794")
-	)
-	(wire
-		(pts
 			(xy 187.96 101.6) (xy 199.39 101.6)
 		)
 		(stroke
@@ -5577,6 +5582,16 @@
 			(type default)
 		)
 		(uuid "9411403c-1354-49d3-b2e6-8a4ad59fd6c7")
+	)
+	(wire
+		(pts
+			(xy 163.83 81.28) (xy 163.83 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "94540dac-d6ec-437b-b3f3-eb6e5dea832c")
 	)
 	(wire
 		(pts
@@ -5617,16 +5632,6 @@
 			(type default)
 		)
 		(uuid "996fe66d-0bfb-4822-b0c8-cc05522410c3")
-	)
-	(wire
-		(pts
-			(xy 157.48 81.28) (xy 157.48 85.09)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "99e3d926-00f8-4d01-ac45-3841e746f949")
 	)
 	(wire
 		(pts
@@ -5790,7 +5795,7 @@
 	)
 	(wire
 		(pts
-			(xy 157.48 93.98) (xy 166.37 93.98)
+			(xy 157.48 93.98) (xy 163.83 93.98)
 		)
 		(stroke
 			(width 0)
@@ -5850,7 +5855,7 @@
 	)
 	(wire
 		(pts
-			(xy 157.48 81.28) (xy 158.75 81.28)
+			(xy 157.48 83.82) (xy 166.37 83.82)
 		)
 		(stroke
 			(width 0)
@@ -5940,16 +5945,6 @@
 	)
 	(wire
 		(pts
-			(xy 173.99 81.28) (xy 175.26 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bf4eee70-c628-4e13-8a24-a1e831b8dbda")
-	)
-	(wire
-		(pts
 			(xy 143.51 92.71) (xy 137.16 92.71)
 		)
 		(stroke
@@ -6017,6 +6012,16 @@
 			(type default)
 		)
 		(uuid "c58313da-6a5d-440d-b173-e63e7711750c")
+	)
+	(wire
+		(pts
+			(xy 163.83 93.98) (xy 163.83 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c7393066-e8ee-4b43-9214-0b706c8e6e26")
 	)
 	(wire
 		(pts
@@ -6120,6 +6125,16 @@
 	)
 	(wire
 		(pts
+			(xy 166.37 83.82) (xy 166.37 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d606970a-26cc-4546-97ce-2ce9bd9ab1b6")
+	)
+	(wire
+		(pts
 			(xy 57.15 128.27) (xy 71.12 128.27)
 		)
 		(stroke
@@ -6210,16 +6225,6 @@
 	)
 	(wire
 		(pts
-			(xy 166.37 88.9) (xy 166.37 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e0e11b6a-9e21-44ef-a8f2-171ab27bef7b")
-	)
-	(wire
-		(pts
 			(xy 196.85 81.28) (xy 199.39 81.28)
 		)
 		(stroke
@@ -6287,6 +6292,16 @@
 			(type default)
 		)
 		(uuid "ecd27ec0-501f-4fa7-b5ba-93db48cfc94b")
+	)
+	(wire
+		(pts
+			(xy 157.48 83.82) (xy 157.48 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ed9fd2a4-6e2e-4293-a400-fc8bb6b9c1e2")
 	)
 	(wire
 		(pts
@@ -6417,16 +6432,6 @@
 			(type default)
 		)
 		(uuid "f9b2cd73-9cf2-49ef-87f0-bf9722d345c3")
-	)
-	(wire
-		(pts
-			(xy 166.37 93.98) (xy 166.37 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fb732139-d91c-4f9c-8bb2-8cf38ec407dc")
 	)
 	(wire
 		(pts
@@ -7437,7 +7442,7 @@
 	)
 	(symbol
 		(lib_id "Device:C_Small")
-		(at 157.48 87.63 0)
+		(at 157.48 88.9 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7445,7 +7450,7 @@
 		(dnp no)
 		(uuid "1ed76ab9-2ec5-4b30-9850-7418cad194a7")
 		(property "Reference" "C1"
-			(at 158.115 86.36 0)
+			(at 158.115 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7454,7 +7459,7 @@
 			)
 		)
 		(property "Value" "10u"
-			(at 158.75 90.805 0)
+			(at 158.496 90.678 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7463,7 +7468,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
-			(at 157.48 87.63 0)
+			(at 157.48 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7472,7 +7477,7 @@
 			)
 		)
 		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2209061730_PSA-Prosperity-Dielectrics-FS32X106K101EGG_C5156756.pdf"
-			(at 157.48 87.63 0)
+			(at 157.48 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7481,7 +7486,7 @@
 			)
 		)
 		(property "Description" "10u 100V X7R"
-			(at 157.48 87.63 0)
+			(at 157.48 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7490,7 +7495,7 @@
 			)
 		)
 		(property "LCSC" "C5156756"
-			(at 157.48 87.63 0)
+			(at 157.48 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7499,7 +7504,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 157.48 87.63 0)
+			(at 157.48 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11225,7 +11230,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor, small symbol"
+		(property "Description" "1W 200V 50mΩ 1%"
 			(at 264.16 88.9 0)
 			(effects
 				(font
@@ -11761,8 +11766,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Regulator_Linear:L78L05_SOT89")
-		(at 166.37 81.28 0)
+		(lib_id "easyeda2kicad:NH6375A50P")
+		(at 166.37 73.66 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -11770,7 +11775,7 @@
 		(dnp no)
 		(uuid "d9f7e59f-7f23-4158-9af5-3d7fec38a5f5")
 		(property "Reference" "U3"
-			(at 166.37 74.93 0)
+			(at 166.624 66.04 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11778,25 +11783,24 @@
 			)
 		)
 		(property "Value" "NH6375A50P"
-			(at 166.37 77.47 0)
+			(at 166.37 68.072 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-89-3"
-			(at 166.37 76.2 0)
+		(property "Footprint" "easyeda2kicad:SOT-89-3_L4.5-W2.5-P1.50-LS4.2-BR"
+			(at 176.53 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
-					(italic yes)
 				)
 				(hide yes)
 			)
 		)
 		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8602998189351972864"
-			(at 166.37 82.55 0)
+			(at 166.37 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11805,7 +11809,7 @@
 			)
 		)
 		(property "Description" "50V 5V LDO"
-			(at 166.37 81.28 0)
+			(at 166.37 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11814,7 +11818,7 @@
 			)
 		)
 		(property "Inventory" "B"
-			(at 166.37 81.28 0)
+			(at 166.37 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11823,7 +11827,16 @@
 			)
 		)
 		(property "LCSC" "C7427778"
-			(at 166.37 81.28 0)
+			(at 166.37 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC Part" "C7427778"
+			(at 179.07 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12273,7 +12286,7 @@
 		(dnp no)
 		(uuid "f5d027e3-d361-413f-9b78-3073879b3f58")
 		(property "Reference" "C3"
-			(at 170.815 89.535 0)
+			(at 171.704 89.662 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12282,7 +12295,7 @@
 			)
 		)
 		(property "Value" "1u"
-			(at 172.72 85.725 0)
+			(at 171.958 85.598 0)
 			(effects
 				(font
 					(size 1.27 1.27)
