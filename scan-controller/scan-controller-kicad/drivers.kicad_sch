@@ -8024,8 +8024,17 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C2687553"
+		(property "LCSC" "C52146084"
 			(at 107.95 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC Part" "C2687553"
+			(at 107.95 166.37 90)
 			(effects
 				(font
 					(size 1.27 1.27)

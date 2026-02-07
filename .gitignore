@@ -74,3 +74,6 @@ images/
 *.img
 *.img.gz
 
+# JLCPCB plot outputs (zip + csv)
+scan-controller/scan-controller-kicad/JLCPCB-plots/*.zip
+scan-controller/scan-controller-kicad/JLCPCB-plots/*.csv
