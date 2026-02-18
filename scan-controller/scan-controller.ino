@@ -556,6 +556,8 @@ void loop() {
             stopBriefly();
           }
           motorState = FWD;
+          // Start 30s countdown only if film is present now; else 0 until we see film in readFilmEndSensor (avoids stale value from previous run)
+          fwdFilmInsertedSince = (digitalRead(FILM_END_PIN) == 1) ? millis() : 0;
           Serial.print(F("Motor: >> at Speed "));
           Serial.println(fps18MotorPower);
           motorFwd();
@@ -1011,6 +1013,7 @@ void motorRev() {
 
 void stopMotorISR() {
   motorState = STOPPED;
+  fwdFilmInsertedSince = 0;
   singleStepInProgress = false;
   digitalWrite(MOTOR_A_PIN, HIGH);
   digitalWrite(MOTOR_B_PIN, HIGH);
