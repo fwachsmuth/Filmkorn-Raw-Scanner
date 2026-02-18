@@ -190,6 +190,12 @@ STATUS_SCREENS = {
     "no-host-computer-paired-yet",
     "updating-ino",
 }
+# Screens that must not be replaced by film-sensor state changes (insert-film / ready-to-scan).
+# These represent conditions that must be resolved before scanning can proceed.
+SCAN_BLOCKING_SCREENS = {
+    "no-drive-connected",
+    "no-host-computer-paired-yet",
+}
 
 class Command(enum.Enum):
     # Arduino to Raspi. Note we are polling the Arduino though, since we are master.
@@ -2737,6 +2743,9 @@ def _reconfigure_camera(raw_size):
 def showInsertFilm(arg_bytes=None):
     global ready_to_scan, last_status_screen
     ready_to_scan = False
+    if current_screen in SCAN_BLOCKING_SCREENS:
+        last_status_screen = "insert-film"
+        return
     # When user has lamp on (preview only, no overlay), don't replace the preview with the overlay
     if current_screen is not None:
         logging.info("Showing Screen: Please insert film")
@@ -2747,6 +2756,8 @@ def showInsertFilm(arg_bytes=None):
 def showReadyToScan(arg_bytes=None):
     global ready_to_scan, last_status_screen
     ready_to_scan = True
+    if current_screen in SCAN_BLOCKING_SCREENS:
+        return
     # When user has lamp on (preview only, no overlay), don't replace the preview with the overlay
     if current_screen is not None:
         logging.info("Showing Screen: Ready to Scan")
@@ -3705,7 +3716,9 @@ def set_init_values(arg_bytes):
     logging.info(f"This equals shutter speed {shutter_speed} µs")
     update_shutter_overlay(shutter_speed)
 
-    if arg_bytes[2] == 0:
+    if current_screen in SCAN_BLOCKING_SCREENS:
+        logging.info("Skipping initial screen (current blocking screen: %s)", current_screen)
+    elif arg_bytes[2] == 0:
         logging.info("Starting with Screen \"Insert Film\"")
         show_screen("insert-film")
     else:
