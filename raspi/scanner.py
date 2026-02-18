@@ -3543,14 +3543,9 @@ def switch_lsyncd_config(storage_location_param: int) -> None:
         if target_conf == LSYNCD_CONF_LOCAL and not os.path.ismount("/mnt/usb"):
             if current_screen != "no-drive-connected":
                 show_screen("no-drive-connected")
-            while not os.path.ismount("/mnt/usb") and not shutting_down:
-                sleep(1)
-            if shutting_down:
-                logging.info("lsyncd: aborting config switch due to shutdown")
-                return
-            # USB is now mounted, show ready screen (only if not in menu mode)
-            if storage_location == 1 and not menu_mode:
-                show_screen("ready-to-scan-local")
+            # Don't block here: main loop must run for sleep button and idle timeout.
+            # _ready_screen_poll_loop will call us again when the drive is mounted.
+            return
         if target_conf == LSYNCD_CONF_NET:
             user_and_host = _read_user_and_host()
             host = user_and_host.split("@", 1)[-1] if user_and_host else None
