@@ -157,6 +157,7 @@ bool lastFilmEndState;
 bool filmEndState;
 bool filmEndLowPending = false;
 uint32_t filmEndLowSince = 0;
+uint32_t fwdFilmInsertedSince = 0;  // when film first seen inserted in RUNFWD (0 = not yet; film-end stop only after 30s)
 
 
 int dummyread; // for throw-away ADC reads (avoids multiplex-carryover of S&H cap charges)
@@ -606,8 +607,11 @@ void readFilmEndSensor() {
       filmEndLowPending = true;
     }
     if (filmEndLowPending && (millis() - filmEndLowSince) >= 500) {
-      // Stop motor if running continuously (RUNFWD/RUNREV) and film was inserted
-      if (motorState == FWD || motorState == REV) {
+      // Stop motor if running continuously: RUNREV always; RUNFWD only after 30s since film was first inserted
+      if (motorState == REV) {
+        Serial.println(F("Film ended during continuous run - stopping"));
+        stopMotor();
+      } else if (motorState == FWD && fwdFilmInsertedSince != 0 && (millis() - fwdFilmInsertedSince) >= 30000) {
         Serial.println(F("Film ended during continuous run - stopping"));
         stopMotor();
       }
@@ -616,6 +620,10 @@ void readFilmEndSensor() {
     }
   } else {
     filmEndLowPending = false;
+    // First time film seen inserted while in RUNFWD: start 30s countdown (film-end stop only after that)
+    if (motorState == FWD && fwdFilmInsertedSince == 0) {
+      fwdFilmInsertedSince = millis();
+    }
     if (lastFilmEndState != 1) {
       nextPiCmd = CMD_SHOW_READY_TO_SCAN;
     }
@@ -917,6 +925,7 @@ void handleMenuSystem() {
 void stopMotor() {
   // ...
   motorState = STOPPED;
+  fwdFilmInsertedSince = 0;  // next RUNFWD run starts with fresh 30s countdown
   singleStepInProgress = false;
   Serial.println(F("Motor: Stop"));
 
