@@ -2735,16 +2735,31 @@ def _reconfigure_camera(raw_size):
         show_screen(current_screen)
 
 def showInsertFilm(arg_bytes=None):
-    logging.info("Showing Screen: Please insert film")
-    global ready_to_scan
+    global ready_to_scan, last_status_screen
     ready_to_scan = False
-    show_screen("insert-film")
+    # When user has lamp on (preview only, no overlay), don't replace the preview with the overlay
+    if current_screen is not None:
+        logging.info("Showing Screen: Please insert film")
+        show_screen("insert-film")
+    else:
+        last_status_screen = "insert-film"
 
 def showReadyToScan(arg_bytes=None):
-    logging.info("Showing Screen: Ready to Scan")
-    global ready_to_scan
+    global ready_to_scan, last_status_screen
     ready_to_scan = True
-    show_ready_to_scan()
+    # When user has lamp on (preview only, no overlay), don't replace the preview with the overlay
+    if current_screen is not None:
+        logging.info("Showing Screen: Ready to Scan")
+        show_ready_to_scan()
+    else:
+        if storage_location == 1 and not os.path.ismount("/mnt/usb"):
+            last_status_screen = "no-drive-connected"
+        elif storage_location == 1:
+            last_status_screen = "ready-to-scan-local"
+        elif storage_location == 0:
+            last_status_screen = "ready-to-scan-net"
+        else:
+            last_status_screen = "ready-to-scan"
 
 def _ready_screen_poll_loop():
     global ready_screen_polling, storage_location
