@@ -112,7 +112,8 @@ enum Command
   CMD_AWB_EXIT = 131,
   CMD_TARGET_EXIT = 132,
   CMD_TARGET_REENTER = 133,  // Re-enter target mode (used when returning from validation error)
-  CMD_WIFI_EXIT = 134
+  CMD_WIFI_EXIT = 134,
+  CMD_SCAN_REJECTED = 135    // Pi rejected START_SCAN (e.g. no drive / not paired)
 };
 
 enum ZoomMode {
@@ -1144,6 +1145,12 @@ void i2cReceive(int howMany) {
         menuState = MENU_IDLE;
         nextPiCmd = CMD_NONE;
         Serial.println(F("Menu: exit (from Pi)"));
+      }
+    }
+    if ((Command)i2cCommand == CMD_SCAN_REJECTED) {
+      if (isScanning) {
+        stopScanning();
+        Serial.println(F("Scan rejected by Pi"));
       }
     }
     // Don't set piIsReady if we aren't scanning anymore

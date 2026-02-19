@@ -253,13 +253,14 @@ class Command(enum.Enum):
     WIFI_CANCEL = 49
     WIFI_EXIT = 134
 
-    # Raspi to Arduino. Ths is handled by i2cReceive() on the Controller side.
+    # Raspi to Arduino. These are handled by i2cReceive() on the Controller side.
     READY = 128
     TELL_INITVALUES = 129 # asks for film load state and exposure pot value (both only get send when they change)
     TELL_LOADSTATE = 130
     AWB_EXIT = 131
     TARGET_EXIT = 132
     TARGET_REENTER = 133  # Re-enter target mode (used when returning from validation error)
+    SCAN_REJECTED = 135   # Tell Arduino to abort scan (Pi rejected START_SCAN)
 
 def process_is_running(contents: str) -> bool:
     try:
@@ -323,7 +324,16 @@ class State:
     def start_scan(self, arg_bytes=None):
         if self.continue_dir:
             return
-        
+
+        if storage_location == 1 and not os.path.ismount("/mnt/usb"):
+            logging.warning("start_scan: blocked - no USB drive connected")
+            tell_arduino(Command.SCAN_REJECTED)
+            return
+        if storage_location == 0 and not _is_paired():
+            logging.warning("start_scan: blocked - no host computer paired")
+            tell_arduino(Command.SCAN_REJECTED)
+            return
+
         # Check ethernet before scanning to host (storage_location == 0)
         # WiFi must not be used for file sync
         if storage_location == 0:
