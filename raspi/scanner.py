@@ -3624,6 +3624,9 @@ def switch_lsyncd_config(storage_location_param: int) -> None:
                 target_setting = _load_target_setting()
                 is_preference_mode = (target_setting != 2)  # 2 = GPIO5 mode
                 
+                # Turn WiFi off so validation uses eth0 only (avoids asymmetric routing)
+                _wifi_radio_off()
+
                 # Run validation tests (same as menu)
                 failures = _validate_host_target()
                 
@@ -3650,7 +3653,8 @@ def switch_lsyncd_config(storage_location_param: int) -> None:
                         _show_target_validation_error()
                         return  # Don't proceed with lsyncd config
                     else:
-                        # GPIO5 mode: show simple error message
+                        # GPIO5 mode: show simple error message; restore WiFi
+                        _wifi_radio_on()
                         logging.warning("lsyncd: host validation failed in GPIO5 mode")
                         error_lines = [
                             "Host Computer Unreachable",
@@ -3685,7 +3689,8 @@ def switch_lsyncd_config(storage_location_param: int) -> None:
                             sleep(1)
                         return  # Don't proceed with lsyncd config
                 
-                # Validation passed, proceed with normal lsyncd config
+                # Validation passed, turn WiFi back on and proceed with normal lsyncd config
+                _wifi_radio_on()
                 logging.info("lsyncd: host validation passed, proceeding with config")
         _atomic_symlink(target_conf, LSYNCD_ACTIVE_CONF)
         logging.info(f"lsyncd: set active config -> {target_conf}")
