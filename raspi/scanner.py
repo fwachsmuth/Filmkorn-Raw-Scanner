@@ -2961,10 +2961,12 @@ def camera_stop():
     return
 
 def set_auto_exposure(enabled: bool):
+    if no_camera:
+        return
     camera.set_controls({"AeEnable": enabled})
 
 def set_zoom_crop(x_frac: float, y_frac: float, w_frac: float, h_frac: float):
-    if sensor_size is None:
+    if no_camera or sensor_size is None:
         return
     sensor_width, sensor_height = sensor_size
     if default_scaler_crop:
@@ -3824,6 +3826,8 @@ def set_lamp_on(arg_bytes=None):
     logging.info("Lamp turned on and camera preview enabled")
 
 def shoot_raw(arg_bytes=None):
+    if no_camera:
+        return
     camera_start()
     if state.raws_path is None or not os.path.isdir(os.path.dirname(state.raws_path)):
         logging.error("RAWs path inaccessible; stopping scan")
