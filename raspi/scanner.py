@@ -2792,6 +2792,8 @@ def _ready_screen_poll_loop():
                 continue
             if storage_location == 1 and not os.path.ismount("/mnt/usb"):
                 _ensure_usb_mount()
+                if not os.path.ismount("/mnt/usb") and not shutting_down and current_screen != "no-drive-connected":
+                    show_screen("no-drive-connected")
             # Check GPIO 5 for target switch state change (only if in GPIO5 mode)
             target_setting = _load_target_setting()
             if target_setting == 2:  # GPIO5 mode
