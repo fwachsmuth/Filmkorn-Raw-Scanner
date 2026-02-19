@@ -3850,14 +3850,7 @@ def shoot_raw(arg_bytes=None):
                         candidate.release()
 
         if request is None:
-            drain_start = time.monotonic()
-            frame_dur_s = max(shutter_speed, 100_000) / 1_000_000
-            while True:
-                candidate = camera.capture_request()
-                if time.monotonic() - drain_start >= frame_dur_s:
-                    request = candidate
-                    break
-                candidate.release()
+            request = camera.capture_request()
 
         request.save_dng(state.raws_path.format(state.raw_count), name="raw")
     finally:
