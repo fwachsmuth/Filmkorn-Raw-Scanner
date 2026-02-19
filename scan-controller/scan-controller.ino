@@ -1149,7 +1149,12 @@ void i2cReceive(int howMany) {
     }
     if ((Command)i2cCommand == CMD_SCAN_REJECTED) {
       if (isScanning) {
-        stopScanning();
+        // Reset scan state locally without sending CMD_STOP_SCAN back to Pi
+        // (Pi never started scanning, so stop_scan() must not run)
+        isScanning = false;
+        piIsReady = false;
+        setLampMode(false);
+        zoomMode = Z1_1;
         Serial.println(F("Scan rejected by Pi"));
       }
     }
