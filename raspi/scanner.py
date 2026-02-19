@@ -2578,36 +2578,16 @@ def clear_tty1():
     except Exception:
         pass
 
-def _show_framebuffer_warning(text: str):
-    """Render a warning message directly to the framebuffer (used when camera is unavailable)."""
+def _show_tty_warning(text: str):
+    """Print a warning message to tty1 (used when camera is unavailable)."""
     try:
-        with open("/sys/class/graphics/fb0/virtual_size", "r") as f:
-            w, h = (int(x) for x in f.read().strip().split(","))
-        with open("/sys/class/graphics/fb0/bits_per_pixel", "r") as f:
-            bpp = int(f.read().strip())
-    except Exception:
-        w, h, bpp = 800, 480, 32
-    img = Image.new("RGBA" if bpp == 32 else "RGB", (w, h), (0, 0, 0, 255))
-    draw = ImageDraw.Draw(img)
-    try:
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 36)
-    except OSError:
-        font = ImageFont.load_default()
-    bbox = draw.textbbox((0, 0), text, font=font) if hasattr(draw, "textbbox") else (0, 0, *draw.textsize(text, font=font))
-    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    draw.text(((w - tw) // 2, (h - th) // 2), text, font=font, fill=(255, 255, 255, 255))
-    try:
-        if bpp == 32:
-            raw = img.convert("RGBA").tobytes("raw", "BGRA")
-        elif bpp == 16:
-            raw = img.convert("RGB").tobytes("raw", "BGR;16")
-        else:
-            raw = img.convert("RGB").tobytes()
-        with open("/dev/fb0", "wb") as fb:
-            fb.write(raw)
-        logging.info("Displayed framebuffer warning: %s", text)
+        with open("/dev/tty1", "w") as tty:
+            tty.write("\033[2J\033[H")
+            tty.write(f"\n\n  *** {text} ***\n")
+            tty.flush()
+        logging.info("Displayed tty1 warning: %s", text)
     except Exception as exc:
-        logging.error("Failed to write framebuffer warning: %s", exc)
+        logging.error("Failed to write tty1 warning: %s", exc)
 
 
 def _enter_sleep_mode():
@@ -2672,7 +2652,7 @@ def _exit_sleep_mode():
         overlay_supported = True
         overlay_ready = True
     elif no_camera:
-        _show_framebuffer_warning("No Camera Connected")
+        _show_tty_warning("No Camera Connected")
     overlay_retry_count = 0
     overlay_retry_timer = None
     # Restore appropriate screen after wake
@@ -4020,7 +4000,7 @@ def setup():
         no_camera = True
         camera = None
         current_screen = "no-camera-connected"
-        _show_framebuffer_warning("No Camera Connected")
+        _show_tty_warning("No Camera Connected")
 
     # Check USB filesystem if in local storage mode
     if storage_location == 1 and os.path.ismount("/mnt/usb"):
