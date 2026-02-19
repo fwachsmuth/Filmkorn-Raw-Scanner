@@ -164,6 +164,7 @@ uint32_t fwdFilmInsertedSince = 0;  // when film first seen inserted in RUNFWD (
 int dummyread; // for throw-away ADC reads (avoids multiplex-carryover of S&H cap charges)
 
 bool lampMode = false;
+bool lampModeBeforeScan = false;  // saved on SCAN entry, restored on SCAN_REJECTED
 bool isScanning = false;
 uint8_t scanExtraFrames = 0;  // frames to continue after film end detected
 uint8_t filmEjectAdvances = 0;  // advances to eject film after scanning done
@@ -564,6 +565,7 @@ void loop() {
           motorFwd();
           break;
         case SCAN:
+          lampModeBeforeScan = lampMode;
           isScanning = true;
           scanExtraFrames = 0;  // reset extra frames counter
           scanFilmEndCount = 0;  // reset film end debounce counter
@@ -1153,8 +1155,7 @@ void i2cReceive(int howMany) {
         // (Pi never started scanning, so stop_scan() must not run)
         isScanning = false;
         piIsReady = false;
-        setLampMode(false);
-        zoomMode = Z1_1;
+        setLampMode(lampModeBeforeScan);
         Serial.println(F("Scan rejected by Pi"));
       }
     }
