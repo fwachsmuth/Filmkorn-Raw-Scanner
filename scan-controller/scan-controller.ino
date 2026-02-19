@@ -169,7 +169,8 @@ bool isScanning = false;
 uint8_t scanExtraFrames = 0;  // frames to continue after film end detected
 uint8_t filmEjectAdvances = 0;  // advances to eject film after scanning done
 volatile bool singleStepInProgress = false;  // true while single-step motor advance is running
-bool scanAdvancing = false;  // true while waiting for motor to finish a scan advance
+bool scanAdvancing = false;  // true while motor is advancing during scan (SHOOT_RAW sent when done)
+bool firstScanFrame = false;  // true for the very first frame of a scan (no advance needed)
 uint8_t scanFilmEndCount = 0;  // consecutive film-end reads needed to trigger end-of-roll
 bool updateMode = false;
 bool pairingMode = false;
@@ -431,54 +432,67 @@ void loop() {
   }
 
   currentButton = pollButtons();
-  // Once motor advance completes, tell the Raspi to capture
+
+  // Motor advance complete → tell the Raspi to capture the now-stationary frame
   if (scanAdvancing && !singleStepInProgress)
   {
     scanAdvancing = false;
     nextPiCmd = CMD_SHOOT_RAW;
   }
 
+  // Scan cycle: capture first, then advance.
+  // piIsReady means the Raspi finished capturing → time to advance to the next frame.
+  // On the very first frame, the film is already positioned → capture without advancing.
   if (isScanning && piIsReady && !singleStepInProgress && !scanAdvancing && nextPiCmd == CMD_NONE)
   {
     piIsReady = false;
-    if (!digitalRead(FILM_END_PIN))
+
+    if (firstScanFrame)
     {
-      if (scanExtraFrames == 0)
-      {
-        scanFilmEndCount++;
-        if (scanFilmEndCount >= 3)  // require 3 consecutive film-end reads
-        {
-          // Film end confirmed - start countdown to scan film remainder
-          scanExtraFrames = 25;
-          Serial.println(F("Film ended - scanning 25 extra frames"));
-        }
-      }
+      firstScanFrame = false;
+      nextPiCmd = CMD_SHOOT_RAW;
     }
     else
     {
-      scanFilmEndCount = 0;  // reset counter if film is detected
-    }
-    
-    if (scanExtraFrames > 0)
-    {
-      scanExtraFrames--;
-      if (scanExtraFrames == 0)
+      if (!digitalRead(FILM_END_PIN))
       {
-        Serial.println(F("Extra frames done - stopping scan, ejecting film"));
-        stopScanning();
-        filmEjectAdvances = 15;  // start eject phase
-        motorFWD1();  // start first eject advance
+        if (scanExtraFrames == 0)
+        {
+          scanFilmEndCount++;
+          if (scanFilmEndCount >= 3)  // require 3 consecutive film-end reads
+          {
+            // Film end confirmed - start countdown to scan film remainder
+            scanExtraFrames = 25;
+            Serial.println(F("Film ended - scanning 25 extra frames"));
+          }
+        }
+      }
+      else
+      {
+        scanFilmEndCount = 0;  // reset counter if film is detected
+      }
+
+      if (scanExtraFrames > 0)
+      {
+        scanExtraFrames--;
+        if (scanExtraFrames == 0)
+        {
+          Serial.println(F("Extra frames done - stopping scan, ejecting film"));
+          stopScanning();
+          filmEjectAdvances = 15;  // start eject phase
+          motorFWD1();  // start first eject advance
+        }
+        else
+        {
+          motorFWD1();
+          scanAdvancing = true;
+        }
       }
       else
       {
         motorFWD1();
         scanAdvancing = true;
       }
-    }
-    else
-    {
-      motorFWD1();
-      scanAdvancing = true;
     }
   }
 
@@ -575,6 +589,8 @@ void loop() {
         case SCAN:
           lampModeBeforeScan = lampMode;
           isScanning = true;
+          firstScanFrame = true;
+          scanAdvancing = false;
           scanExtraFrames = 0;  // reset extra frames counter
           scanFilmEndCount = 0;  // reset film end debounce counter
           filmEjectAdvances = 0;  // cancel any pending eject
@@ -1035,6 +1051,7 @@ void stopScanning() {
   isScanning = false;
   piIsReady = false;
   scanAdvancing = false;
+  firstScanFrame = false;
   setLampMode(false);
   zoomMode = Z1_1;
   nextPiCmd = CMD_STOP_SCAN;
