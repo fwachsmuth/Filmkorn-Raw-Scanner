@@ -169,6 +169,7 @@ bool isScanning = false;
 uint8_t scanExtraFrames = 0;  // frames to continue after film end detected
 uint8_t filmEjectAdvances = 0;  // advances to eject film after scanning done
 volatile bool singleStepInProgress = false;  // true while single-step motor advance is running
+bool scanAdvancing = false;  // true while waiting for motor to finish a scan advance
 uint8_t scanFilmEndCount = 0;  // consecutive film-end reads needed to trigger end-of-roll
 bool updateMode = false;
 bool pairingMode = false;
@@ -430,7 +431,14 @@ void loop() {
   }
 
   currentButton = pollButtons();
-  if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
+  // Once motor advance completes, tell the Raspi to capture
+  if (scanAdvancing && !singleStepInProgress)
+  {
+    scanAdvancing = false;
+    nextPiCmd = CMD_SHOOT_RAW;
+  }
+
+  if (isScanning && piIsReady && !singleStepInProgress && !scanAdvancing && nextPiCmd == CMD_NONE)
   {
     piIsReady = false;
     if (!digitalRead(FILM_END_PIN))
@@ -463,14 +471,14 @@ void loop() {
       }
       else
       {
-        motorFWD1();               // advance
-        nextPiCmd = CMD_SHOOT_RAW; // tell to shoot
+        motorFWD1();
+        scanAdvancing = true;
       }
     }
     else
     {
-      motorFWD1();               // advance
-      nextPiCmd = CMD_SHOOT_RAW; // tell to shoot
+      motorFWD1();
+      scanAdvancing = true;
     }
   }
 
@@ -1026,6 +1034,7 @@ void stopMotorISR() {
 void stopScanning() {
   isScanning = false;
   piIsReady = false;
+  scanAdvancing = false;
   setLampMode(false);
   zoomMode = Z1_1;
   nextPiCmd = CMD_STOP_SCAN;
