@@ -3984,13 +3984,9 @@ def setup():
     # Instanziate things
     state = State()
     global no_camera
-    if not Picamera2.global_camera_info():
-        logging.error("No camera detected")
-        no_camera = True
-        camera = None
-        current_screen = "no-camera-connected"
-        _show_framebuffer_warning("No Camera Connected")
-    else:
+    try:
+        if not Picamera2.global_camera_info():
+            raise RuntimeError("No camera detected")
         # Use scientific tuning file - no lens shading correction, better for telecine
         # See: https://forums.kinograph.cc/t/pi-hq-camera-vs-dslr-image-fidelity/2810/32
         tuning = Picamera2.load_tuning_file('imx477_scientific.json')
@@ -4015,6 +4011,12 @@ def setup():
         camera_start()
         overlay_ready = True
         _apply_overlay_if_ready()
+    except Exception as exc:
+        logging.error("Camera initialization failed: %s", exc)
+        no_camera = True
+        camera = None
+        current_screen = "no-camera-connected"
+        _show_framebuffer_warning("No Camera Connected")
 
     # Check USB filesystem if in local storage mode
     if storage_location == 1 and os.path.ismount("/mnt/usb"):
