@@ -170,8 +170,10 @@ uint8_t scanExtraFrames = 0;  // frames to continue after film end detected
 uint8_t filmEjectAdvances = 0;  // advances to eject film after scanning done
 volatile bool singleStepInProgress = false;  // true while single-step motor advance is running
 bool scanAdvancing = false;  // true while motor is advancing during scan (SHOOT_RAW sent when done)
+uint32_t scanSettleStart = 0;  // millis() timestamp when motor stopped; 0 = not settling
 bool firstScanFrame = false;  // true for the very first frame of a scan (no advance needed)
 uint8_t scanFilmEndCount = 0;  // consecutive film-end reads needed to trigger end-of-roll
+const uint8_t SCAN_SETTLE_MS = 30;  // ms to wait after motor stop for film to settle before capture
 bool updateMode = false;
 bool pairingMode = false;
 bool logsMode = false;
@@ -433,11 +435,17 @@ void loop() {
 
   currentButton = pollButtons();
 
-  // Motor advance complete → tell the Raspi to capture the now-stationary frame
+  // Motor advance complete → wait for film to settle, then tell the Raspi to capture
   if (scanAdvancing && !singleStepInProgress)
   {
-    scanAdvancing = false;
-    nextPiCmd = CMD_SHOOT_RAW;
+    if (scanSettleStart == 0)
+      scanSettleStart = millis();
+    if (millis() - scanSettleStart >= SCAN_SETTLE_MS)
+    {
+      scanAdvancing = false;
+      scanSettleStart = 0;
+      nextPiCmd = CMD_SHOOT_RAW;
+    }
   }
 
   // Scan cycle: capture first, then advance.
@@ -1051,6 +1059,7 @@ void stopScanning() {
   isScanning = false;
   piIsReady = false;
   scanAdvancing = false;
+  scanSettleStart = 0;
   firstScanFrame = false;
   setLampMode(false);
   zoomMode = Z1_1;
