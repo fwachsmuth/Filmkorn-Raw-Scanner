@@ -61,6 +61,7 @@ storage_location = None
 current_screen = None
 ready_screen_polling = False
 camera_running = False
+no_camera = False
 sensor_size = None
 raw_format = "SBGGR12"  # uncompressed 12-bit raw, updated in setup()
 overlay_cache = {}
@@ -195,6 +196,7 @@ STATUS_SCREENS = {
 SCAN_BLOCKING_SCREENS = {
     "no-drive-connected",
     "no-host-computer-paired-yet",
+    "no-camera-connected",
 }
 
 class Command(enum.Enum):
@@ -325,6 +327,10 @@ class State:
         if self.continue_dir:
             return
 
+        if no_camera:
+            logging.warning("start_scan: blocked - no camera connected")
+            tell_arduino(Command.SCAN_REJECTED)
+            return
         if storage_location == 1 and not os.path.ismount("/mnt/usb"):
             logging.warning("start_scan: blocked - no USB drive connected")
             tell_arduino(Command.SCAN_REJECTED)
@@ -382,6 +388,8 @@ class State:
 # Displays a PNG in full screen, making our UI
 def show_screen(message):
     global current_screen, pending_overlay, last_status_screen, idle_since
+    if no_camera:
+        return
     if update_mode or pairing_mode:
         return
     if power_warning_active and not sleep_mode and message != "too-much-power":
@@ -2286,6 +2294,8 @@ def _menu_select():
 
 def _apply_overlay_if_ready():
     global pending_overlay, overlay_supported, overlay_retry_count, overlay_retry_timer
+    if no_camera:
+        return
     if (
         pending_overlay is None
         or not overlay_ready
@@ -2315,6 +2325,8 @@ def _apply_overlay_if_ready():
 
 def clear_overlay():
     global pending_overlay, current_screen
+    if no_camera:
+        return
     pending_overlay = None
     current_screen = None
     if overlay_ready:
@@ -2566,6 +2578,38 @@ def clear_tty1():
     except Exception:
         pass
 
+def _show_framebuffer_warning(text: str):
+    """Render a warning message directly to the framebuffer (used when camera is unavailable)."""
+    try:
+        with open("/sys/class/graphics/fb0/virtual_size", "r") as f:
+            w, h = (int(x) for x in f.read().strip().split(","))
+        with open("/sys/class/graphics/fb0/bits_per_pixel", "r") as f:
+            bpp = int(f.read().strip())
+    except Exception:
+        w, h, bpp = 800, 480, 32
+    img = Image.new("RGBA" if bpp == 32 else "RGB", (w, h), (0, 0, 0, 255))
+    draw = ImageDraw.Draw(img)
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 36)
+    except OSError:
+        font = ImageFont.load_default()
+    bbox = draw.textbbox((0, 0), text, font=font) if hasattr(draw, "textbbox") else (0, 0, *draw.textsize(text, font=font))
+    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    draw.text(((w - tw) // 2, (h - th) // 2), text, font=font, fill=(255, 255, 255, 255))
+    try:
+        if bpp == 32:
+            raw = img.convert("RGBA").tobytes("raw", "BGRA")
+        elif bpp == 16:
+            raw = img.convert("RGB").tobytes("raw", "BGR;16")
+        else:
+            raw = img.convert("RGB").tobytes()
+        with open("/dev/fb0", "wb") as fb:
+            fb.write(raw)
+        logging.info("Displayed framebuffer warning: %s", text)
+    except Exception as exc:
+        logging.error("Failed to write framebuffer warning: %s", exc)
+
+
 def _enter_sleep_mode():
     global sleep_mode, preview_started, camera_running, pairing_mode, current_screen, pairing_exit_pending
     logging.info("Entering sleep mode")
@@ -2578,15 +2622,16 @@ def _enter_sleep_mode():
         GPIO.output(UC_POWER_GPIO, GPIO.LOW)
     except Exception:
         pass
-    try:
-        camera.stop_preview()
-    except Exception:
-        pass
-    if camera_running:
+    if not no_camera and camera is not None:
         try:
-            camera.stop()
+            camera.stop_preview()
         except Exception:
             pass
+        if camera_running:
+            try:
+                camera.stop()
+            except Exception:
+                pass
         camera_running = False
     preview_started = False
     sleep_mode = True
@@ -2617,14 +2662,17 @@ def _exit_sleep_mode():
         GPIO.output(UC_POWER_GPIO, GPIO.HIGH)
     except Exception:
         pass
-    if preview_started:
-        try:
-            camera.stop_preview()
-        except Exception:
-            pass
-    camera_start()
-    overlay_supported = True
-    overlay_ready = True
+    if not no_camera and camera is not None:
+        if preview_started:
+            try:
+                camera.stop_preview()
+            except Exception:
+                pass
+        camera_start()
+        overlay_supported = True
+        overlay_ready = True
+    elif no_camera:
+        _show_framebuffer_warning("No Camera Connected")
     overlay_retry_count = 0
     overlay_retry_timer = None
     # Restore appropriate screen after wake
@@ -2893,7 +2941,7 @@ def show_ready_to_scan():
 
 def camera_start():
     global camera_running, preview_started, default_scaler_crop
-    if camera_running:
+    if no_camera or camera_running:
         return
     if not preview_started:
         camera.start_preview(Preview.DRM, x=80, y=0, width=640, height=480)
@@ -3935,31 +3983,38 @@ def setup():
 
     # Instanziate things
     state = State()
-    # Use scientific tuning file - no lens shading correction, better for telecine
-    # See: https://forums.kinograph.cc/t/pi-hq-camera-vs-dslr-image-fidelity/2810/32
-    tuning = Picamera2.load_tuning_file('imx477_scientific.json')
-    camera = Picamera2(tuning=tuning)
-    global raw_format
-    for candidate in camera.sensor_modes:
-        if candidate.get("bit_depth") == SENSOR_BIT_DEPTH:
-            raw_format = candidate.get("unpacked") or candidate.get("format")
-            break
-    logging.info(f"Using raw format: {raw_format}")
-    overlay_ready = False
-    overlay_supported = True
-    overlay_retry_count = 0
-    overlay_retry_timer = None
-    raw_size = (4056, 3040) if resolution_switch == 0 else (2028, 1520)
-    camera_config = _create_camera_config(raw_size, raw_format)
-    camera.configure(camera_config)
-    
+    global no_camera
+    if not Picamera2.global_camera_info():
+        logging.error("No camera detected")
+        no_camera = True
+        camera = None
+        current_screen = "no-camera-connected"
+        _show_framebuffer_warning("No Camera Connected")
+    else:
+        # Use scientific tuning file - no lens shading correction, better for telecine
+        # See: https://forums.kinograph.cc/t/pi-hq-camera-vs-dslr-image-fidelity/2810/32
+        tuning = Picamera2.load_tuning_file('imx477_scientific.json')
+        camera = Picamera2(tuning=tuning)
+        global raw_format
+        for candidate in camera.sensor_modes:
+            if candidate.get("bit_depth") == SENSOR_BIT_DEPTH:
+                raw_format = candidate.get("unpacked") or candidate.get("format")
+                break
+        logging.info(f"Using raw format: {raw_format}")
+        overlay_ready = False
+        overlay_supported = True
+        overlay_retry_count = 0
+        overlay_retry_timer = None
+        raw_size = (4056, 3040) if resolution_switch == 0 else (2028, 1520)
+        camera_config = _create_camera_config(raw_size, raw_format)
+        camera.configure(camera_config)
 
-    sensor_size = camera.camera_configuration().get("sensor", {}).get("output_size", FULL_RESOLUTION)
-    preview_size = camera.camera_configuration().get("main", {}).get("size", preview_size)
-    _apply_camera_controls()
-    camera_start()
-    overlay_ready = True
-    _apply_overlay_if_ready()
+        sensor_size = camera.camera_configuration().get("sensor", {}).get("output_size", FULL_RESOLUTION)
+        preview_size = camera.camera_configuration().get("main", {}).get("size", preview_size)
+        _apply_camera_controls()
+        camera_start()
+        overlay_ready = True
+        _apply_overlay_if_ready()
 
     # Check USB filesystem if in local storage mode
     if storage_location == 1 and os.path.ismount("/mnt/usb"):
@@ -4255,11 +4310,12 @@ if __name__ == '__main__':
                         "no-drive-connected",
                         "too-much-power",
                         "no-usb3-drive",
+                        "no-camera-connected",
                     }
                     or pairing_mode
                 )
             ):
-                if current_screen == "no-drive-connected" and idle_since is None:
+                if current_screen in {"no-drive-connected", "no-camera-connected"} and idle_since is None:
                     idle_since = now
                 if (
                     idle_since is not None
@@ -4271,28 +4327,29 @@ if __name__ == '__main__':
                     time.sleep(0.1)
                     continue
             loop()
-            if now - last_disk_check >= (1.0 if state.scanning else 3.0):
-                check_available_disk_space()
-                last_disk_check = now
-            _check_usb_power_warning()
-            if (
-                not state.scanning
-                and storage_location == 1
-                and current_screen in {"ready-to-scan-local", "insert-film", "no-usb3-drive"}
-            ):
-                _check_usb3_speed_warning()
-            if not state.scanning and now - last_resolution_check >= 0.5:
-                new_resolution = GPIO.input(17)
-                if new_resolution != current_resolution_switch:
-                    current_resolution_switch = new_resolution
-                    raw_size = (4056, 3040) if new_resolution == 0 else (2028, 1520)
-                    last_resolution_label = "4K Raw" if new_resolution == 0 else "2K Raw"
-                    logging.info(
-                        "GPIO 17 changed (0=Full-res, 1=Half-res): %s",
-                        current_resolution_switch,
-                    )
-                    _reconfigure_camera(raw_size)
-                last_resolution_check = now
+            if not no_camera:
+                if now - last_disk_check >= (1.0 if state.scanning else 3.0):
+                    check_available_disk_space()
+                    last_disk_check = now
+                _check_usb_power_warning()
+                if (
+                    not state.scanning
+                    and storage_location == 1
+                    and current_screen in {"ready-to-scan-local", "insert-film", "no-usb3-drive"}
+                ):
+                    _check_usb3_speed_warning()
+                if not state.scanning and now - last_resolution_check >= 0.5:
+                    new_resolution = GPIO.input(17)
+                    if new_resolution != current_resolution_switch:
+                        current_resolution_switch = new_resolution
+                        raw_size = (4056, 3040) if new_resolution == 0 else (2028, 1520)
+                        last_resolution_label = "4K Raw" if new_resolution == 0 else "2K Raw"
+                        logging.info(
+                            "GPIO 17 changed (0=Full-res, 1=Half-res): %s",
+                            current_resolution_switch,
+                        )
+                        _reconfigure_camera(raw_size)
+                    last_resolution_check = now
             if shutting_down:
                 _start_shutdown_timer()
                 break
@@ -4306,10 +4363,11 @@ if __name__ == '__main__':
         if shutdown_requested_at is not None:
             logging.info("Shutdown requested; elapsed %.2fs", time.monotonic() - shutdown_requested_at)
         try:
-            if camera_running:
-                camera.stop()
-            camera.close()
-            logging.info("Camera stopped and closed on shutdown")
+            if not no_camera and camera is not None:
+                if camera_running:
+                    camera.stop()
+                camera.close()
+                logging.info("Camera stopped and closed on shutdown")
         except Exception:
             pass
         # Best-effort: turn off the controller MCU power on exit.
