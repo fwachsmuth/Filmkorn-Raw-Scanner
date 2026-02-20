@@ -2886,6 +2886,10 @@ def _ramdisk_empty_poll_loop():
                 last_increase_at = time.time()
                 restarted_lsyncd = True
             sleep(1)
+        try:
+            os.sync()
+        except OSError:
+            pass
         if not shutting_down:
             if last_status_screen:
                 show_screen(last_status_screen)
