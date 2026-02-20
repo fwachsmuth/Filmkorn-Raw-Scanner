@@ -2611,39 +2611,40 @@ def _show_ethernet_warning():
     _apply_overlay_if_ready()
 
 
+_LOGO_SCALE = 0.8  # Display the logo at 80% of its original size
+
 def _get_logo_height() -> int:
-    """Get the height of the logo if it exists, otherwise return 0."""
+    """Get the scaled height of the logo if it exists, otherwise return 0."""
     logo_path = "controller-screens/logo.png"
     if not os.path.exists(logo_path):
         return 0
     try:
         logo = Image.open(logo_path)
-        return logo.size[1]
+        return round(logo.size[1] * _LOGO_SCALE)
     except Exception:
         return 0
 
 def _stamp_logo(base_img: Image.Image) -> Image.Image:
     """Stamp a logo onto the base image if logo.png exists in controller-screens/.
-    
-    The logo is placed at the top center (no margin).
+
+    The logo is scaled to _LOGO_SCALE and placed at the top center.
     If the logo doesn't exist, the image is returned unchanged.
     """
     logo_path = "controller-screens/logo.png"
     if not os.path.exists(logo_path):
         return base_img
-    
+
     try:
         logo = Image.open(logo_path).convert("RGBA")
-        # Use logo at 100% original size, positioned at top center (no margin)
-        x = (base_img.size[0] - logo.size[0]) // 2  # Center horizontally
+        new_w = round(logo.size[0] * _LOGO_SCALE)
+        new_h = round(logo.size[1] * _LOGO_SCALE)
+        logo = logo.resize((new_w, new_h), Image.LANCZOS)
+        x = (base_img.size[0] - new_w) // 2  # Center horizontally
         y = 0  # At the very top
-        position = (x, y)
-        
-        # Composite the logo onto the base image (handles transparency)
-        base_img.paste(logo, position, logo)
+        base_img.paste(logo, (x, y), logo)
     except Exception as e:
         logging.warning(f"Failed to stamp logo: {e}")
-    
+
     return base_img
 
 def _draw_text_badge(base_img, text: str, position: str, y_offset: int = 0):
