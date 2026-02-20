@@ -142,7 +142,8 @@ enum MenuItem {
   MENU_ITEM_WIFI = 4,
   MENU_ITEM_LOGS = 5,
   MENU_ITEM_UNPAIR = 6,
-  MENU_ITEM_COUNT = 7
+  MENU_ITEM_LANGUAGE = 7,
+  MENU_ITEM_COUNT = 8
 };
 
 
@@ -723,6 +724,10 @@ void handleMenuSystem() {
             case MENU_ITEM_UNPAIR:
               menuState = MENU_UNPAIR;
               nextPiCmd = CMD_UNPAIR_ENTER;
+              break;
+            case MENU_ITEM_LANGUAGE:
+              // Language cycling is handled entirely by the Pi; stay in MENU_MAIN
+              nextPiCmd = CMD_MENU_SELECT;
               break;
             default:
               // If no specific submenu, send MENU_SELECT for Python to handle

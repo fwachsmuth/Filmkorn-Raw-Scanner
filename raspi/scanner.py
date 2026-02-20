@@ -18,6 +18,7 @@ import secrets
 import atexit
 import threading
 from collections import deque
+import json
 import re
 import shutil
 import RPi.GPIO as GPIO
@@ -154,14 +155,26 @@ wifi_scroll_offset = 0
 wifi_portal_process = None  # Subprocess running the captive portal
 WIFI_NETWORKS_FILE = os.path.join(os.path.dirname(__file__), ".wifi_networks")
 MENU_ITEMS = [
-    "Firmware Update",
-    "Start Pairing",
-    "Preview White Balance",
-    "Select Scan Target",
-    "Setup Wifi",
-    "Create Debug Log",
-    "Factory Reset",
+    "menu.item.firmware-update",
+    "menu.item.start-pairing",
+    "menu.item.preview-wb",
+    "menu.item.scan-target",
+    "menu.item.setup-wifi",
+    "menu.item.create-debug-log",
+    "menu.item.factory-reset",
+    "menu.item.language",
 ]
+
+# --- Localization ---
+LOCALE_OPTIONS = [
+    ("en", "English"),
+    ("de", "Deutsch"),
+]
+LOCALES_DIR = os.path.join(os.path.dirname(__file__), "locales")
+LOCALE_FILE = os.path.join(os.path.dirname(__file__), ".locale")
+current_locale = "en"
+_translations: dict = {}
+
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 current_version_label = None
 mcu_flash_in_progress = False
@@ -200,61 +213,61 @@ SCAN_BLOCKING_SCREENS = {
 SCREEN_DEFINITIONS = {
     "insert-film": {
         "icon_name": "film.png",
-        "title": "Insert Film",
+        "title_key": "screen.insert-film.title",
     },
     "no-drive-connected": {
         "icon_name": "warning.png",
-        "title": "Connect\nUSB Drive",
+        "title_key": "screen.no-drive-connected.title",
     },
     "checking-filesystem": {
         "icon_name": "hourglass.png",
-        "title": "Checking\nFilesystem...",
+        "title_key": "screen.checking-filesystem.title",
     },
     "generating-debug-log": {
         "icon_name": "bug.png",
-        "title": "Generating\nDebug Log...",
+        "title_key": "screen.generating-debug-log.title",
     },
     "updating-ino": {
         "icon_name": "lightning.png",
-        "title": "Updating\nController Firmware...",
+        "title_key": "screen.updating-ino.title",
     },
     "waiting-for-files-to-sync": {
         "icon_name": "hourglass.png",
-        "title": "Writing Files...",
+        "title_key": "screen.waiting-for-files-to-sync.title",
     },
     "ready-to-scan": {
-        "title": "Ready to Scan",
+        "title_key": "screen.ready-to-scan.title",
     },
     "ready-to-scan-local": {
-        "title": "Ready to Scan",
+        "title_key": "screen.ready-to-scan.title",
     },
     "ready-to-scan-net": {
-        "title": "Ready to Scan\n(Remote)",
+        "title_key": "screen.ready-to-scan-net.title",
     },
     "no-host-computer-paired-yet": {
         "icon_name": "warning.png",
-        "title": "No host paired yet",
-        "description": "Run \u201cInstall Film Scanner\u201d on your\nComputer first to complete pairing.",
+        "title_key": "screen.no-host-computer-paired-yet.title",
+        "description_key": "screen.no-host-computer-paired-yet.description",
     },
     "too-much-power": {
         "icon_name": "warning.png",
-        "title": "Insufficient Power",
-        "description": "Your USB Drive consumes too much\npower. Use an active USB3 Hub or a\nbigger Raspi Power Supply.",
+        "title_key": "screen.too-much-power.title",
+        "description_key": "screen.too-much-power.description",
     },
     "no-usb3-drive": {
         "icon_name": "snail.png",
-        "title": "Not a USB3 Drive",
-        "description": "The connected Drive is not a USB3 drive\nor consumes too much power.\nScanning will be slow.",
+        "title_key": "screen.no-usb3-drive.title",
+        "description_key": "screen.no-usb3-drive.description",
     },
     "target-dir-does-not-exist": {
         "icon_name": "warning.png",
-        "title": "Can\u2019t write to Host.",
-        "description": "Run pair.sh on the Host first.\n\nWhen already paired, run\nset_scan_destination.sh",
+        "title_key": "screen.target-dir-does-not-exist.title",
+        "description_key": "screen.target-dir-does-not-exist.description",
     },
     "unpaired-from-client": {
         "icon_name": "construction.png",
-        "title": "Unpaired from Client.",
-        "description": "Run pair.sh on the Host\nto pair again",
+        "title_key": "screen.unpaired-from-client.title",
+        "description_key": "screen.unpaired-from-client.description",
     },
 }
 
@@ -446,6 +459,63 @@ class State:
 
 _icon_cache = {}
 
+
+def _load_locale_setting() -> str:
+    """Return the persisted locale code, falling back to 'en'."""
+    if os.path.exists(LOCALE_FILE):
+        try:
+            with open(LOCALE_FILE, "r") as f:
+                code = f.read().strip()
+                if code in dict(LOCALE_OPTIONS):
+                    return code
+        except IOError:
+            pass
+    return "en"
+
+
+def _save_locale_setting(code: str):
+    try:
+        with open(LOCALE_FILE, "w") as f:
+            f.write(code)
+        logging.info("locale: saved %s", code)
+    except IOError as e:
+        logging.error("locale: failed to save: %s", e)
+
+
+def _load_locale(code: str = "en"):
+    """Load the JSON locale file for *code*, falling back to English for missing keys."""
+    global _translations, current_locale
+    current_locale = code
+    base: dict = {}
+    # Always load English as the fallback layer
+    en_path = os.path.join(LOCALES_DIR, "en.json")
+    try:
+        with open(en_path, "r", encoding="utf-8") as f:
+            base = json.load(f)
+    except Exception as e:
+        logging.error("locale: failed to load en.json: %s", e)
+    if code != "en":
+        locale_path = os.path.join(LOCALES_DIR, f"{code}.json")
+        try:
+            with open(locale_path, "r", encoding="utf-8") as f:
+                overrides = json.load(f)
+            base.update(overrides)
+        except Exception as e:
+            logging.error("locale: failed to load %s.json: %s", code, e)
+    _translations = base
+    logging.info("locale: loaded '%s' (%d keys)", code, len(_translations))
+
+
+def _(key: str, **kwargs) -> str:
+    """Return the localised string for *key*, formatting with *kwargs* if provided.
+
+    Falls back to the key itself when no translation exists so that untranslated
+    strings are at least readable during development.
+    """
+    text = _translations.get(key, key)
+    return text.format(**kwargs) if kwargs else text
+
+
 def build_status_screen(title, icon_name=None, description=None):
     """Build a status screen overlay with logo, optional icon, title, and optional description.
 
@@ -569,7 +639,11 @@ def show_screen(message):
     if overlay is None:
         screen_def = SCREEN_DEFINITIONS.get(message)
         if screen_def:
-            overlay = build_status_screen(**screen_def)
+            build_kwargs = {"icon_name": screen_def.get("icon_name")}
+            build_kwargs["title"] = _(screen_def["title_key"])
+            if "description_key" in screen_def:
+                build_kwargs["description"] = _(screen_def["description_key"])
+            overlay = build_status_screen(**build_kwargs)
         else:
             logging.warning("No screen definition for '%s'", message)
             overlay = build_status_screen(title=message.replace("-", " ").title())
@@ -973,14 +1047,11 @@ def _get_current_tag() -> Optional[str]:
 def _show_update_selection():
     global current_screen, pending_overlay, overlay_ready, update_confirmation_mode, update_confirmation_selected, update_scroll_offset, preview_started
     if update_confirmation_mode:
-        # Show confirmation submenu
-        lines = ["Are you sure?", "", ""]
-        lines.append("> No" if update_confirmation_selected == 0 else "  No")
-        lines.append("> Yes" if update_confirmation_selected == 1 else "  Yes")
+        lines = [_("update.confirm-title"), "", ""]
+        lines.append("> " + _("update.no") if update_confirmation_selected == 0 else "  " + _("update.no"))
+        lines.append("> " + _("update.yes") if update_confirmation_selected == 1 else "  " + _("update.yes"))
         lines.append("")
-        # Build fresh - only 2 options, very fast
-        # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
-        button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+        button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
         overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=0)
         current_screen = "update_confirm"
         pending_overlay = overlay
@@ -997,21 +1068,20 @@ def _show_update_selection():
     
     if update_error:
         logging.error("update: error=%s", update_error)
-        show_update_screen(["Update error", update_error, "Check connection"])
+        show_update_screen([_("update.error"), update_error, _("update.check-connection")])
         return
     if not update_tags:
         logging.info("update: no installable tags")
-        show_update_screen(["No update available", "No tags found"])
+        show_update_screen([_("update.no-update"), _("update.no-tags")])
         return
-    
-    # Show tags in vertical list (like settings menu)
-    lines = ["Firmware Update", "", ""]
+
+    lines = [_("update.title"), "", ""]
     for i, tag in enumerate(update_tags):
         prefix = "> " if i == update_selected else "  "
         lines.append(prefix + tag)
     lines.append("")
     if update_current_tag:
-        lines.append(f"Current: {update_current_tag}")
+        lines.append(_("update.current", tag=update_current_tag))
     
     # Calculate scroll offset to keep selected item visible
     selected_line_idx = 3 + update_selected  # 3 = title + 2 empty lines
@@ -1027,9 +1097,7 @@ def _show_update_selection():
     elif selected_line_idx >= update_scroll_offset + max_visible_lines:
         update_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
     
-    # With only ~8 tags, overlay building is fast - build fresh each time
-    # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
-    button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+    button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
     overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=update_scroll_offset)
     current_screen = "update"
     pending_overlay = overlay
@@ -1142,7 +1210,7 @@ def _start_update(tag: str):
             logging.info("update: deleted .mcu_hex_hash to force MCU firmware check on next boot")
         except Exception as exc:
             logging.warning("update: failed to delete .mcu_hex_hash: %s", exc)
-    show_update_screen([f"Updating {tag}", "Please wait"])
+    show_update_screen([_("update.updating", tag=tag), _("update.please-wait")])
     update_script = os.path.join(os.path.dirname(__file__), "ota-updating", "update.sh")
     try:
         subprocess.run(
@@ -1164,15 +1232,10 @@ def _start_update(tag: str):
         )
     except Exception as exc:
         logging.exception("update: failed to launch update script: %s", exc)
-        show_update_screen(["Update failed", "Could not start updater"])
+        show_update_screen([_("update.failed"), _("update.could-not-start")])
 
 def _confirm_update_after_delay(tag: str):
-    show_update_screen(
-        [
-            "Updating can take a few minutes.",
-            "Please wait and do not remove power.",
-        ]
-    )
+    show_update_screen([_("update.warning1"), _("update.warning2")])
     def _start():
         clear_overlay()
         _start_update(tag)
@@ -1258,32 +1321,27 @@ def _get_current_awb_mode():
 def _show_awb_selection():
     global awb_selected, awb_scroll_offset, current_screen, pending_overlay, overlay_ready, preview_started, awb_stored_idx
     # Show options in vertical list (like settings menu)
-    lines = ["Preview White Balance", "", ""]
-    for i, (label, _) in enumerate(AWB_OPTIONS):
+    lines = [_("awb.title"), "", ""]
+    for i, (label, _awb_mode) in enumerate(AWB_OPTIONS):
         prefix = "> " if i == awb_selected else "  "
         lines.append(prefix + label)
     lines.append("")
-    # Use cached stored index instead of reading from file every time
     stored_label = AWB_OPTIONS[awb_stored_idx][0]
-    lines.append(f"Current: {stored_label}")
-    
-    # Calculate scroll offset to keep selected item visible
+    lines.append(_("awb.current", label=stored_label))
+
     selected_line_idx = 3 + awb_selected  # 3 = title + 2 empty lines
     logo_height = _get_logo_height()
     button_area_height = 60
     available_height = preview_size[1] - logo_height - 10 - button_area_height if preview_size else 400
     estimated_line_height = 40
     max_visible_lines = max(1, int(available_height / estimated_line_height))
-    
-    # Adjust scroll to keep selected item visible
+
     if selected_line_idx < awb_scroll_offset:
         awb_scroll_offset = max(0, selected_line_idx)
     elif selected_line_idx >= awb_scroll_offset + max_visible_lines:
         awb_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
-    
-    # With only 3 options, overlay building is fast - build fresh each time
-    # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
-    button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+
+    button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
     overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=awb_scroll_offset)
     current_screen = "awb"
     pending_overlay = overlay
@@ -1383,33 +1441,27 @@ def _save_target_setting(idx: int):
 
 def _show_target_selection():
     global target_selected, target_scroll_offset, current_screen, pending_overlay, overlay_ready, preview_started, target_stored_idx
-    # Show options in vertical list (like settings menu)
-    lines = ["Select Scan Target", "", ""]
-    for i, (label, _) in enumerate(TARGET_OPTIONS):
+    lines = [_("target.title"), "", ""]
+    for i, (label, _target_loc) in enumerate(TARGET_OPTIONS):
         prefix = "> " if i == target_selected else "  "
         lines.append(prefix + label)
     lines.append("")
-    # Use cached stored index instead of reading from file every time
     stored_label = TARGET_OPTIONS[target_stored_idx][0]
-    lines.append(f"Current: {stored_label}")
-    
-    # Calculate scroll offset to keep selected item visible
+    lines.append(_("target.current", label=stored_label))
+
     selected_line_idx = 3 + target_selected  # 3 = title + 2 empty lines
     logo_height = _get_logo_height()
     button_area_height = 60
     available_height = preview_size[1] - logo_height - 10 - button_area_height if preview_size else 400
     estimated_line_height = 40
     max_visible_lines = max(1, int(available_height / estimated_line_height))
-    
-    # Adjust scroll to keep selected item visible
+
     if selected_line_idx < target_scroll_offset:
         target_scroll_offset = max(0, selected_line_idx)
     elif selected_line_idx >= target_scroll_offset + max_visible_lines:
         target_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
-    
-    # With only 3 options, overlay building is fast - build fresh each time
-    # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
-    button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+
+    button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
     overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=target_scroll_offset)
     current_screen = "target"
     pending_overlay = overlay
@@ -1530,25 +1582,23 @@ def _show_target_validation_error():
     """Show error screen with specific failed tests."""
     global current_screen, pending_overlay, overlay_ready, preview_started, target_validation_failures
     
-    lines = ["Could not write to Host", ""]
-    
+    lines = [_("target.error.title"), ""]
+
     if "config" in target_validation_failures:
-        lines.append("No host configured")
-        lines.append("Run pairing first")
+        lines.append(_("target.error.no-config"))
+        lines.append(_("target.error.run-pairing"))
     else:
-        # Show specific help messages based on which tests failed
         if "ping" in target_validation_failures:
-            lines.append("Connect scanner via ethernet")
-            lines.append("cable to same network as host")
+            lines.append(_("target.error.ping"))
+            lines.append(_("target.error.ping-hint"))
         if "ssh" in target_validation_failures:
-            lines.append("On Mac: enable Remote Login")
-            lines.append("(Sharing) and allow firewall")
+            lines.append(_("target.error.ssh"))
+            lines.append(_("target.error.ssh-hint"))
         if "write" in target_validation_failures:
-            lines.append("Check that 'Full Disk Access")
-            lines.append("for remote users' is enabled")
-    
-    # Button labels: only Back button
-    button_labels = {2: "Back"}
+            lines.append(_("target.error.write"))
+            lines.append(_("target.error.write-hint"))
+
+    button_labels = {2: _("btn.back")}
     overlay = _build_menu_overlay(lines, button_labels=button_labels)
     current_screen = "target_validation_error"
     pending_overlay = overlay
@@ -1588,7 +1638,7 @@ def _target_confirm(_args=None):
     target_value = TARGET_OPTIONS[target_selected][1]
     if target_value == 0:  # Host Computer
         logging.info("target: validating Host Computer connectivity...")
-        show_update_screen(["Checking host...", "Please wait"])
+        show_update_screen([_("target.checking"), _("target.please-wait")])
         failures = _validate_host_target()
         if failures:
             logging.warning("target: validation failed: %s", failures)
@@ -1708,22 +1758,21 @@ def _show_wifi_menu():
     global wifi_selected, wifi_scroll_offset, current_screen, pending_overlay, overlay_ready, preview_started
     
     networks = _load_wifi_networks()
-    lines = ["WiFi Setup", "", ""]
-    
-    # Menu options
-    menu_options = ["Start Setup (Captive Portal)"]
+    lines = [_("wifi.title"), "", ""]
+
+    menu_options = [_("wifi.start-setup")]
     for net in networks:
         menu_options.append(f"  {net.get('ssid', 'Unknown')}")
-    
+
     for i, option in enumerate(menu_options):
         prefix = "> " if i == wifi_selected else "  "
         lines.append(prefix + option)
-    
+
     lines.append("")
     if networks:
-        lines.append("Configured networks shown above")
+        lines.append(_("wifi.configured"))
     else:
-        lines.append("No WiFi networks configured")
+        lines.append(_("wifi.no-networks"))
     
     # Calculate scroll offset to keep selected item visible
     selected_line_idx = 3 + wifi_selected
@@ -1738,7 +1787,7 @@ def _show_wifi_menu():
     elif selected_line_idx >= wifi_scroll_offset + max_visible_lines:
         wifi_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
     
-    button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+    button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
     overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=wifi_scroll_offset)
     current_screen = "wifi"
     pending_overlay = overlay
@@ -1845,15 +1894,14 @@ def _reconnect_wifi(ssid: str):
     
     logging.info("wifi: attempting to reconnect to %s", ssid)
     
-    # Show "Connecting..." overlay
     lines = [
-        "WiFi",
+        _("wifi.heading"),
         "",
         "",
-        f"Connecting to:",
+        _("wifi.connecting-to"),
         f"  {ssid}",
         "",
-        "Please wait...",
+        _("wifi.please-wait"),
     ]
     button_labels = {}  # No buttons during connection
     overlay = _build_menu_overlay(lines, button_labels=button_labels)
@@ -1883,12 +1931,11 @@ def _reconnect_wifi(ssid: str):
         logging.warning("wifi: reconnect failed: %s", e)
     
     if success:
-        # Show brief success message
         lines = [
-            "WiFi",
+            _("wifi.heading"),
             "",
             "",
-            f"Connected to:",
+            _("wifi.connected-to"),
             f"  {ssid}",
             "",
             "",
@@ -1898,8 +1945,7 @@ def _reconnect_wifi(ssid: str):
         overlay_ready = True
         _apply_overlay_if_ready()
         time.sleep(2)
-        
-        # Exit WiFi menu and return to main menu or ready screen
+
         wifi_mode = False
         try:
             tell_arduino(Command.WIFI_EXIT)
@@ -1910,17 +1956,16 @@ def _reconnect_wifi(ssid: str):
         else:
             show_ready_to_scan()
     else:
-        # Show error and return to WiFi menu so user can try again
         lines = [
-            "WiFi",
+            _("wifi.heading"),
             "",
             "",
-            "Connection failed!",
+            _("wifi.connect-failed"),
             "",
-            f"Could not connect to:",
+            _("wifi.could-not-connect"),
             f"  {ssid}",
         ]
-        button_labels = {6: "OK"}
+        button_labels = {6: _("btn.ok")}
         overlay = _build_menu_overlay(lines, button_labels=button_labels)
         pending_overlay = overlay
         overlay_ready = True
@@ -1939,30 +1984,28 @@ def _start_wifi_portal():
     
     if not os.path.exists(portal_script):
         logging.error("wifi: portal script not found at %s", portal_script)
-        # Show error message
-        lines = ["WiFi Setup Error", "", "", "Portal not installed.", "", "Please update firmware."]
-        button_labels = {2: "Back"}
+        lines = [_("wifi.error-title"), "", "", _("wifi.portal-not-installed"), "", _("wifi.update-firmware")]
+        button_labels = {2: _("btn.back")}
         overlay = _build_menu_overlay(lines, button_labels=button_labels)
         current_screen = "wifi-error"
         pending_overlay = overlay
         overlay_ready = True
         _apply_overlay_if_ready()
         return
-    
-    # Show "starting portal" screen
+
     lines = [
-        "WiFi Setup",
+        _("wifi.title"),
         "",
         "",
-        "Starting captive portal...",
+        _("wifi.portal-starting"),
         "",
-        "Connect to WiFi network:",
-        "  Filmkorn Scanner Setup",
+        _("wifi.portal-connect"),
+        _("wifi.portal-network-name"),
         "",
-        "Then open any website",
-        "to configure WiFi."
+        _("wifi.portal-open-website"),
+        _("wifi.portal-configure"),
     ]
-    button_labels = {2: "Cancel"}
+    button_labels = {2: _("btn.cancel")}
     overlay = _build_menu_overlay(lines, button_labels=button_labels)
     current_screen = "wifi-portal"
     pending_overlay = overlay
@@ -2173,10 +2216,10 @@ def _enter_pairing_mode():
     code = f"{secrets.randbelow(1000000):06d}"
     expires_at = int(time.time()) + 120
     if not _enable_pairing_password(code, expires_at):
-        show_update_screen(["Pairing failed", "Could not enable SSH"], button_labels={2: "Back"})
+        show_update_screen([_("pairing.failed"), _("pairing.ssh-error")], button_labels={2: _("btn.back")})
         return
     logging.info("pairing: otp code generated")
-    show_update_screen(["Pairing code", code, "This password expires in 2 minutes"], button_labels={2: "Back"})
+    show_update_screen([_("pairing.code-title"), code, _("pairing.code-hint")], button_labels={2: _("btn.back")})
     threading.Timer(120.0, _exit_pairing_mode_screen).start()
 
 def _export_logs() -> str:
@@ -2234,13 +2277,12 @@ def _enter_unpair_mode():
 
 def _show_unpair_confirmation():
     global current_screen, pending_overlay, overlay_ready, preview_started
-    lines = ["Factory Reset?", "", ""]
-    lines.append("> No" if unpair_confirmation_selected == 0 else "  No")
-    lines.append("> Yes" if unpair_confirmation_selected == 1 else "  Yes")
+    lines = [_("unpair.title"), "", ""]
+    lines.append("> " + _("update.no") if unpair_confirmation_selected == 0 else "  " + _("update.no"))
+    lines.append("> " + _("update.yes") if unpair_confirmation_selected == 1 else "  " + _("update.yes"))
     lines.append("")
-    lines.append("This will unpair from client")
-    # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
-    button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+    lines.append(_("unpair.detail"))
+    button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
     overlay = _build_menu_overlay(lines, button_labels=button_labels)
     current_screen = "unpair_confirm"
     pending_overlay = overlay
@@ -2356,44 +2398,40 @@ def _show_menu_screen():
     # Ensure AWB setting is loaded (in case it changed)
     awb_stored_idx = _load_awb_setting()
     target_stored_idx = _load_target_setting()
-    lines = ["Settings Menu", "", ""]  # Extra empty line after title
-    for i, item in enumerate(MENU_ITEMS):
+    lines = [_("menu.title"), "", ""]  # Extra empty line after title
+    for i, item_key in enumerate(MENU_ITEMS):
         prefix = "> " if i == menu_selected else "  "
-        # Special handling for "Preview White Balance" to show current K value
-        if item == "Preview White Balance":
-            # Extract K value from AWB_OPTIONS (format: "~3600K" -> "3600 K")
+        if item_key == "menu.item.preview-wb":
             awb_label = AWB_OPTIONS[awb_stored_idx][0]
-            # Remove "~" and "K", then add " K"
             k_value = awb_label.replace("~", "").replace("K", "").strip()
-            display_item = f"Preview White Balance ({k_value} K)"
-        elif item == "Select Scan Target":
-            # Show current target
+            display_item = _("menu.item.preview-wb", k=k_value)
+        elif item_key == "menu.item.scan-target":
             target_label = TARGET_OPTIONS[target_stored_idx][0]
-            display_item = f"Select Scan Target ({target_label})"
+            display_item = _("menu.item.scan-target", target=target_label)
+        elif item_key == "menu.item.language":
+            locale_name = _("locale.name")
+            display_item = _("menu.item.language", name=locale_name)
         else:
-            display_item = item
+            display_item = _(item_key)
         lines.append(prefix + display_item)
     lines.append("")  # Empty line after menu items
-    
+
     # Calculate scroll offset to keep selected item visible
-    # Selected item index in lines (accounting for title + empty lines)
-    selected_line_idx = 3 + menu_selected  # 3 = "Settings Menu" + 2 empty lines
-    # Estimate visible lines (rough calculation, will be refined in _build_menu_overlay)
+    selected_line_idx = 3 + menu_selected  # 3 = title + 2 empty lines
     logo_height = _get_logo_height()
     button_area_height = 60  # Approximate
     available_height = preview_size[1] - logo_height - 10 - button_area_height if preview_size else 400
     estimated_line_height = 40  # Approximate line height
     max_visible_lines = max(1, int(available_height / estimated_line_height))
-    
+
     # Adjust scroll to keep selected item visible
     if selected_line_idx < menu_scroll_offset:
         menu_scroll_offset = max(0, selected_line_idx)
     elif selected_line_idx >= menu_scroll_offset + max_visible_lines:
         menu_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
-    
-    # With only 5 items, overlay building is fast - build synchronously
+
     # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
-    button_labels = {2: "Back", 3: "Up", 5: "Down", 6: "OK"}
+    button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
     overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=menu_scroll_offset)
     current_screen = "menu"
     idle_since = None
@@ -2444,15 +2482,30 @@ def _menu_next():
     logging.info("menu: selected item %d: %s", menu_selected, MENU_ITEMS[menu_selected])
     _show_menu_screen()
 
+def _cycle_locale():
+    """Cycle to the next available locale, save it, and refresh the menu."""
+    global current_locale
+    codes = [c for c, _ in LOCALE_OPTIONS]
+    current_idx = codes.index(current_locale) if current_locale in codes else 0
+    new_locale = codes[(current_idx + 1) % len(codes)]
+    logging.info("locale: switching %s → %s", current_locale, new_locale)
+    _save_locale_setting(new_locale)
+    _load_locale(new_locale)
+    overlay_cache.clear()
+    _show_menu_screen()
+
+
 def _menu_select():
-    global menu_selected
+    global menu_selected, current_locale
     if not menu_mode:
         return
     selected_item = MENU_ITEMS[menu_selected]
     logging.info("menu: selected item %d: %s", menu_selected, selected_item)
-    
-    # The Arduino will send the appropriate command based on the selected item
-    # We don't need to do anything here as the Arduino handles the transition
+
+    if selected_item == "menu.item.language":
+        _cycle_locale()
+        return
+    # For all other items the Arduino drives the submenu transition.
 
 def _apply_overlay_if_ready():
     global pending_overlay, overlay_supported, overlay_retry_count, overlay_retry_timer
@@ -2538,19 +2591,19 @@ def _show_ethernet_warning():
     logging.warning("ethernet: eth0 is not connected, cannot scan to host")
     
     lines = [
-        "Ethernet Required",
+        _("ethernet.title"),
         "",
         "",
-        "Cannot scan to Host Computer",
-        "without ethernet connection.",
+        _("ethernet.line1"),
+        _("ethernet.line2"),
         "",
-        "Please connect an ethernet",
-        "cable to the scanner.",
+        _("ethernet.line3"),
+        _("ethernet.line4"),
         "",
-        "WiFi cannot be used for",
-        "file sync to host."
+        _("ethernet.line5"),
+        _("ethernet.line6"),
     ]
-    button_labels = {2: "Back"}
+    button_labels = {2: _("btn.back")}
     overlay = _build_menu_overlay(lines, button_labels=button_labels)
     current_screen = "ethernet-warning"
     pending_overlay = overlay
@@ -3822,14 +3875,14 @@ def switch_lsyncd_config(storage_location_param: int) -> None:
                         _wifi_radio_on()
                         logging.warning("lsyncd: host validation failed in GPIO5 mode")
                         error_lines = [
-                            "Host Computer Unreachable",
+                            _("gpio5.error.title"),
                             "",
-                            "Please flip the target",
-                            "switch on GPIO5 to",
-                            "use USB-Drive instead",
+                            _("gpio5.error.line1"),
+                            _("gpio5.error.line2"),
+                            _("gpio5.error.line3"),
                             "",
-                            "Or fix network/host",
-                            "connectivity issues"
+                            _("gpio5.error.line4"),
+                            _("gpio5.error.line5"),
                         ]
                         button_labels = {}  # No buttons, user must flip switch
                         overlay = _build_menu_overlay(error_lines, button_labels=button_labels)
@@ -4091,6 +4144,7 @@ def setup():
     logging.getLogger("libcamera").setLevel(logging.WARNING)
 
     logging.info("----------------------------------------------------------------------------------")
+    _load_locale(_load_locale_setting())
     start_time = datetime.now()
     dmesg_since = start_time.strftime('%Y-%m-%d %H:%M:%S')
     logging.info("Scanner started at %s", start_time.strftime('%Y-%m-%d %H:%M:%S'))
