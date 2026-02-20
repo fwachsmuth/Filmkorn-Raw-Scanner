@@ -390,7 +390,7 @@ def show_screen(message):
     global current_screen, pending_overlay, last_status_screen, idle_since
     if no_camera:
         return
-    if update_mode or pairing_mode:
+    if update_mode or pairing_mode or menu_mode:
         return
     if power_warning_active and not sleep_mode and message != "too-much-power":
         return
