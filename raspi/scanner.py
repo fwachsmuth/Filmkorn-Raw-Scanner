@@ -583,9 +583,14 @@ def show_screen(message):
         idle_since = None
     if message in STATUS_SCREENS and message != "waiting-for-files-to-sync":
         last_status_screen = message
+    # Keep base overlay as fallback for screens where _render_scan_overlay() exits early.
+    # Don't apply the base first — let _render_scan_overlay() produce the complete overlay
+    # (including shutter badge) as the first thing the camera sees.
     pending_overlay = overlay
-    _apply_overlay_if_ready()
     _render_scan_overlay()
+    # _render_scan_overlay() may return early for some screens (e.g. waiting-for-files-to-sync
+    # when not scanning), leaving pending_overlay as the base screen. Apply it now in that case.
+    _apply_overlay_if_ready()
     if message == "no-drive-connected" and not ready_screen_polling:
         threading.Thread(target=_ready_screen_poll_loop, daemon=True).start()
 
