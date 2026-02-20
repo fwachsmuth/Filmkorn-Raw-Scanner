@@ -2679,7 +2679,7 @@ def _draw_text_badge(base_img, text: str, position: str, y_offset: int = 0):
         (x - pad, y - pad, x + text_w + pad, y + text_h + pad),
         fill=(0, 0, 0, 160),
     )
-    draw.text((x, y), text, font=font, fill=(200, 200, 200, 255))
+    draw.text((x, y), text, font=font, fill=(160, 160, 160, 255))
 
 def _build_fps_overlay(text: str):
     if preview_size is None:
