@@ -2487,6 +2487,7 @@ def _render_scan_overlay():
         return
     show_shutter = state.scanning or current_screen in {
         "insert-film",
+        "no-drive-connected",
         "ready-to-scan",
         "ready-to-scan-local",
         "ready-to-scan-net",
