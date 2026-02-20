@@ -56,9 +56,9 @@ enum Command
 
   // Arduino to Raspi
   CMD_PING,
-  CMD_Z1_1,  // Zoom Leel 1:1
-  CMD_Z3_1,  // Zoom Leel 3:1
-  CMD_Z10_1, // Zoom Leel 6:1
+  CMD_Z1_1,  // Zoom Level 1:1
+  CMD_Z3_1,  // Zoom Level 3:1
+  CMD_Z10_1, // Zoom Level 6:1
   CMD_SHOOT_RAW,
   CMD_LAMP_OFF, // needs to stay at an even number
   CMD_LAMP_ON,

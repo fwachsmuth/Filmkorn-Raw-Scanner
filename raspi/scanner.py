@@ -186,8 +186,6 @@ STATUS_SCREENS = {
     "no-drive-connected",
     "waiting-for-files-to-sync",
     "target-dir-does-not-exist",
-    "cannot-connect-to-arduino",
-    "cannot-connect-to-paired-mac",
     "no-host-computer-paired-yet",
     "updating-ino",
 }
@@ -197,6 +195,67 @@ SCAN_BLOCKING_SCREENS = {
     "no-drive-connected",
     "no-host-computer-paired-yet",
     "no-camera-connected",
+}
+
+SCREEN_DEFINITIONS = {
+    "insert-film": {
+        "icon_name": "film.png",
+        "title": "Insert Film",
+    },
+    "no-drive-connected": {
+        "icon_name": "warning.png",
+        "title": "Connect\nUSB Drive",
+    },
+    "checking-filesystem": {
+        "icon_name": "hourglass.png",
+        "title": "Checking\nFilesystem...",
+    },
+    "generating-debug-log": {
+        "icon_name": "bug.png",
+        "title": "Generating\nDebug Log...",
+    },
+    "updating-ino": {
+        "icon_name": "lightning.png",
+        "title": "Updating\nController Firmware...",
+    },
+    "waiting-for-files-to-sync": {
+        "icon_name": "hourglass.png",
+        "title": "Writing Files...",
+    },
+    "ready-to-scan": {
+        "title": "Ready to Scan",
+    },
+    "ready-to-scan-local": {
+        "title": "Ready to Scan",
+    },
+    "ready-to-scan-net": {
+        "title": "Ready to Scan\n(Remote)",
+    },
+    "no-host-computer-paired-yet": {
+        "icon_name": "warning.png",
+        "title": "No host paired yet",
+        "description": "Run \u201cInstall Film Scanner\u201d on your\nComputer first to complete pairing.",
+    },
+    "too-much-power": {
+        "icon_name": "warning.png",
+        "title": "Insufficient Power",
+        "description": "Your USB Drive consumes too much\npower. Use an active USB3 Hub or a\nbigger Raspi Power Supply.",
+    },
+    "no-usb3-drive": {
+        "icon_name": "snail.png",
+        "title": "Not a USB3 Drive",
+        "description": "The connected Drive is not a USB3 drive\nor consumes too much power.\nScanning will be slow.",
+    },
+    "target-dir-does-not-exist": {
+        "icon_name": "warning.png",
+        "title": "Can\u2019t write to Host.",
+        "description": "Run pair.sh on the Host first.\n\nWhen already paired, run\nset_scan_destination.sh",
+    },
+    "unpaired-from-client": {
+        "icon_name": "construction.png",
+        "title": "Unpaired from Client.",
+        "description": "Run pair.sh on the Host\nto pair again",
+    },
 }
 
 class Command(enum.Enum):
@@ -385,7 +444,115 @@ class State:
         except FileNotFoundError:
             pass
 
-# Displays a PNG in full screen, making our UI
+_icon_cache = {}
+
+def build_status_screen(title, icon_name=None, description=None):
+    """Build a status screen overlay with logo, optional icon, title, and optional description.
+
+    Args:
+        title: Main text, may contain newlines for multi-line titles.
+        icon_name: Filename of an icon in controller-screens/icons/ (e.g. "warning.png").
+        description: Smaller text shown below the title.
+
+    Returns:
+        A numpy RGBA array (H, W, 4) suitable for use as a camera overlay,
+        or None if preview_size is not set.
+    """
+    if preview_size is None:
+        return None
+
+    base = Image.new("RGBA", preview_size, (0, 0, 0, 255))
+    draw = ImageDraw.Draw(base)
+
+    has_description = description is not None and description.strip()
+    title_size = 36 if has_description else 48
+
+    try:
+        title_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", title_size)
+    except OSError:
+        title_font = ImageFont.load_default()
+    try:
+        desc_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 22)
+    except OSError:
+        desc_font = ImageFont.load_default()
+
+    logo_height = _get_logo_height()
+    w, h = preview_size
+
+    icon_img = None
+    if icon_name:
+        icon_img = _icon_cache.get(icon_name)
+        if icon_img is None:
+            icon_path = os.path.join("controller-screens", "icons", icon_name)
+            if os.path.exists(icon_path):
+                try:
+                    icon_img = Image.open(icon_path).convert("RGBA")
+                    _icon_cache[icon_name] = icon_img
+                except Exception:
+                    pass
+
+    def _text_block_height(text, font):
+        lines = text.split("\n")
+        total = 0
+        for line in lines:
+            if hasattr(draw, "textbbox"):
+                bbox = draw.textbbox((0, 0), line or " ", font=font)
+                total += bbox[3] - bbox[1]
+            else:
+                total += draw.textsize(line or " ", font=font)[1]
+        total += 6 * max(0, len(lines) - 1)
+        return total
+
+    icon_h = icon_img.size[1] if icon_img else 0
+    icon_gap = 35 if icon_img else 0
+    title_gap = 20
+    desc_gap = 25
+
+    title_h = _text_block_height(title, title_font)
+    desc_h = _text_block_height(description, desc_font) if has_description else 0
+
+    content_h = icon_h + (icon_gap > 0) * icon_gap + title_h + (desc_h > 0) * (desc_gap + desc_h)
+    available = h - logo_height - 10
+    start_y = logo_height + 10 + max(0, (available - content_h) // 2)
+
+    y = start_y
+
+    if icon_img:
+        icon_x = (w - icon_img.size[0]) // 2
+        base.paste(icon_img, (icon_x, y), icon_img)
+        y += icon_h + title_gap
+
+    title_lines = title.split("\n")
+    for line in title_lines:
+        if hasattr(draw, "textbbox"):
+            bbox = draw.textbbox((0, 0), line, font=title_font)
+            tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+        else:
+            tw, th = draw.textsize(line, font=title_font)
+        tx = (w - tw) // 2
+        draw.text((tx, y), line, font=title_font, fill=(255, 255, 255, 255))
+        y += th + 6
+
+    if has_description:
+        y += desc_gap - 6
+        desc_lines = description.split("\n")
+        for line in desc_lines:
+            if hasattr(draw, "textbbox"):
+                bbox = draw.textbbox((0, 0), line or " ", font=desc_font)
+                tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+            else:
+                tw, th = draw.textsize(line or " ", font=desc_font)
+            tx = (w - tw) // 2
+            draw.text((tx, y), line, font=desc_font, fill=(200, 200, 200, 255))
+            y += th + 6
+
+    base = _stamp_logo(base)
+
+    rgba = np.array(base, dtype=np.uint8)
+    rgba[..., 3] = 255
+    return rgba
+
+
 def show_screen(message):
     global current_screen, pending_overlay, last_status_screen, idle_since
     if no_camera:
@@ -397,27 +564,17 @@ def show_screen(message):
     if usb3_warning_active and not sleep_mode and message not in {"no-usb3-drive", "too-much-power"}:
         return
 
-    message_path = f"controller-screens/{message}.png"
-    overlay = overlay_cache.get(message_path)
+    overlay = overlay_cache.get(message)
 
     if overlay is None:
-        image = Image.open(message_path).convert("RGBA")
-        if image.size != preview_size:
-            scale = min(preview_size[0] / image.size[0], preview_size[1] / image.size[1])
-            new_size = (int(image.size[0] * scale), int(image.size[1] * scale))
-            resized = image.resize(new_size, Image.LANCZOS)
-            canvas = Image.new("RGBA", preview_size, (0, 0, 0, 255))
-            offset = ((preview_size[0] - new_size[0]) // 2, (preview_size[1] - new_size[1]) // 2)
-            canvas.paste(resized, offset)
-            image = canvas
-        
-        # Stamp logo onto the image
-        image = _stamp_logo(image)
-        
-        rgba = np.array(image, dtype=np.uint8)
-        rgba[..., 3] = 255
-        overlay = rgba
-        overlay_cache[message_path] = overlay
+        screen_def = SCREEN_DEFINITIONS.get(message)
+        if screen_def:
+            overlay = build_status_screen(**screen_def)
+        else:
+            logging.warning("No screen definition for '%s'", message)
+            overlay = build_status_screen(title=message.replace("-", " ").title())
+        if overlay is not None:
+            overlay_cache[message] = overlay
 
     current_screen = message
     if message in {"insert-film", "ready-to-scan", "ready-to-scan-local", "ready-to-scan-net", "no-usb3-drive", "no-drive-connected"}:
@@ -2469,8 +2626,7 @@ def _build_fps_overlay(text: str):
     if preview_size is None:
         return None
     if current_screen:
-        message_path = f"controller-screens/{current_screen}.png"
-        base_overlay = overlay_cache.get(message_path)
+        base_overlay = overlay_cache.get(current_screen)
     else:
         base_overlay = None
     if base_overlay is not None:
@@ -2497,8 +2653,7 @@ def _render_scan_overlay():
     if preview_size is None:
         return
     if current_screen:
-        message_path = f"controller-screens/{current_screen}.png"
-        base_overlay = overlay_cache.get(message_path)
+        base_overlay = overlay_cache.get(current_screen)
     else:
         base_overlay = None
     if base_overlay is not None:
