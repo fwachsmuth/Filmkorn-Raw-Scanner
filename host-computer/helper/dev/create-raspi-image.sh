@@ -331,7 +331,14 @@ else
   fi
 fi
 
-log "stashing host-specific config"
+log "stashing host-specific config:"
+log "  .user_and_host"
+log "  .scan_destination"
+log "  .host_path"
+log "  .wifi_networks"
+log "  lsyncd-to-host.conf"
+log "  .locale"
+log "  .mcu_hex_hash"
 sudo tar -czf "$STASH_DIR/imaging-config.tgz" --ignore-failed-read \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.user_and_host \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.scan_destination \
@@ -553,10 +560,11 @@ info "Image created: $OUTPUT"
 
 if [[ "${DRY_RUN}" == "false" ]]; then
   info "Rebooting Raspberry Pi to restore normal operation..."
-  # The restore already ran inside the EXIT trap of the imaging SSH session;
-  # the reboot cleans up any lingering stopped services and brings the scanner
-  # back to a fresh state. Connection drop is expected.
-  ssh "${SSH_OPTS[@]}" "${USER}@${HOST}" "sudo init 6" 2>/dev/null || true
+  # Brief pause so sshd is fully ready after the imaging session closed.
+  sleep 3
+  # Connection will drop mid-command when the Pi starts rebooting; that is
+  # expected and the non-zero SSH exit code is intentionally ignored.
+  ssh "${SSH_OPTS[@]}" "${USER}@${HOST}" "sudo init 6" || true
   info "Pi is rebooting. Continuing with local shrink step..."
 fi
 
