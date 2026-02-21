@@ -4302,8 +4302,10 @@ def setup():
     if not user_and_host or not host_path:
         logging.warning("No host computer paired yet (missing .user_and_host or .host_path).")
 
-    # Show a first screen to indicate we are running
-    if user_and_host and host_path:
+    # Show a first screen to indicate we are running.
+    # Only require host pairing when the active target is the host computer (storage_location == 0).
+    # USB and GPIO5-pointing-to-USB targets don't need a paired host to be ready.
+    if storage_location != 0 or (user_and_host and host_path):
         show_ready_to_scan()
     else:
         show_screen("no-host-computer-paired-yet")
