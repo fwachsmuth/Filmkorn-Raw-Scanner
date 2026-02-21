@@ -246,6 +246,19 @@ MotorState motorState = STOPPED;
 Command nextPiCmd = CMD_NONE;
 ZoomMode zoomMode = Z1_1;
 
+// Timer 0 prescaler is set to 1 in setup() to raise the PWM frequency on motor
+// pins 5 & 6 from ~980 Hz (audible) to ~62.5 kHz (inaudible). As a side effect,
+// millis() and delay() run 64x faster; use these wrappers everywhere instead.
+#define TIMER0_PRESCALER_SCALE 64UL
+
+unsigned long scaledMillis() {
+  return millis() / TIMER0_PRESCALER_SCALE;
+}
+
+void scaledDelay(unsigned long ms) {
+  delay(ms * TIMER0_PRESCALER_SCALE);
+}
+
 void setup() {  
   // Capture reset cause before any init clears it; then clear MCUSR for next reset.
   uint8_t mcusr = MCUSR;
@@ -284,7 +297,11 @@ void setup() {
   filmEndState = digitalRead(FILM_END_PIN);
   lastFilmEndState = filmEndState;
 
-  bootIgnoreUntil = millis() + 800;
+  bootIgnoreUntil = scaledMillis() + 800;
+
+  // Raise Timer 0 PWM to ~62.5 kHz (prescaler 1 instead of default 64).
+  // See scaledMillis() / scaledDelay() above for the required compensation.
+  TCCR0B = (TCCR0B & 0xF8) | 0x01;
 
   // Stop the engines
   analogWrite(MOTOR_A_PIN, 0);
@@ -300,7 +317,7 @@ void setup() {
 }
 
 void loop() {
-  if (!updateMode && millis() < bootIgnoreUntil) {
+  if (!updateMode && scaledMillis() < bootIgnoreUntil) {
     currentButton = pollButtons();
     prevButton = currentButton;
     return;
@@ -347,11 +364,11 @@ void loop() {
       if (!stopButtonPressed) {
         // Button just pressed - start timing
         stopButtonPressed = true;
-        stopButtonPressedAt = millis();
+        stopButtonPressedAt = scaledMillis();
         Serial.println(F("Menu: STOP button pressed, timing..."));
       } else {
         // Button still held - check if long enough
-        uint32_t pressDuration = millis() - stopButtonPressedAt;
+        uint32_t pressDuration = scaledMillis() - stopButtonPressedAt;
         if (pressDuration >= STOP_LONG_PRESS_MS) {
           // Long press detected - enter menu immediately
           menuState = MENU_MAIN;
@@ -368,7 +385,7 @@ void loop() {
       // Button not pressed or released
       if (stopButtonPressed) {
         // Button was pressed but released before long-press threshold
-        uint32_t pressDuration = millis() - stopButtonPressedAt;
+        uint32_t pressDuration = scaledMillis() - stopButtonPressedAt;
         Serial.print(F("Menu: STOP released after "));
         Serial.print(pressDuration);
         Serial.println(F(" ms (too short)"));
@@ -394,9 +411,9 @@ void loop() {
         Serial.println(F("Pairing mode: stop pressed"));
         pairingMode = false;
         pairingCancelPending = true;
-        pairingCancelSentAt = millis();
+        pairingCancelSentAt = scaledMillis();
         nextPiCmd = CMD_PAIRING_CANCEL;
-      } else if ((millis() - pairingModeEnteredAt) > 130000) {
+      } else if ((scaledMillis() - pairingModeEnteredAt) > 130000) {
         pairingMode = false;
         nextPiCmd = CMD_NONE;
       }
@@ -583,7 +600,7 @@ void loop() {
           }
           motorState = FWD;
           // Start 30s countdown only if film is present now; else 0 until we see film in readFilmEndSensor (avoids stale value from previous run)
-          fwdFilmInsertedSince = (digitalRead(FILM_END_PIN) == 1) ? millis() : 0;
+          fwdFilmInsertedSince = (digitalRead(FILM_END_PIN) == 1) ? scaledMillis() : 0;
           Serial.print(F("Motor: >> at Speed "));
           Serial.println(fps18MotorPower);
           motorFwd();
@@ -632,15 +649,15 @@ void readFilmEndSensor() {
   filmEndState = digitalRead(FILM_END_PIN);
   if (filmEndState == 0) {
     if (lastFilmEndState != 0) {
-      filmEndLowSince = millis();
+      filmEndLowSince = scaledMillis();
       filmEndLowPending = true;
     }
-    if (filmEndLowPending && (millis() - filmEndLowSince) >= 500) {
+    if (filmEndLowPending && (scaledMillis() - filmEndLowSince) >= 500) {
       // Stop motor if running continuously: RUNREV always; RUNFWD only after 30s since film was first inserted
       if (motorState == REV) {
         Serial.println(F("Film ended during continuous run - stopping"));
         stopMotor();
-      } else if (motorState == FWD && fwdFilmInsertedSince != 0 && (millis() - fwdFilmInsertedSince) >= 30000) {
+      } else if (motorState == FWD && fwdFilmInsertedSince != 0 && (scaledMillis() - fwdFilmInsertedSince) >= 30000) {
         Serial.println(F("Film ended during continuous run - stopping"));
         stopMotor();
       }
@@ -651,7 +668,7 @@ void readFilmEndSensor() {
     filmEndLowPending = false;
     // First time film seen inserted while in RUNFWD: start 30s countdown (film-end stop only after that)
     if (motorState == FWD && fwdFilmInsertedSince == 0) {
-      fwdFilmInsertedSince = millis();
+      fwdFilmInsertedSince = scaledMillis();
     }
     if (lastFilmEndState != 1) {
       nextPiCmd = CMD_SHOW_READY_TO_SCAN;
@@ -698,7 +715,7 @@ void handleMenuSystem() {
             case MENU_ITEM_PAIRING:
               menuState = MENU_PAIRING;
               pairingMode = true;
-              pairingModeEnteredAt = millis();
+              pairingModeEnteredAt = scaledMillis();
               nextPiCmd = CMD_PAIRING_ENTER;
               break;
             case MENU_ITEM_AWB:
@@ -793,7 +810,7 @@ void handleMenuSystem() {
         menuState = MENU_MAIN;
         pairingMode = false;
         pairingCancelPending = true;
-        pairingCancelSentAt = millis();
+        pairingCancelSentAt = scaledMillis();
         nextPiCmd = CMD_PAIRING_CANCEL;
       } else if (currentButton == RUNREV) {
         // Go back to main menu
@@ -801,7 +818,7 @@ void handleMenuSystem() {
         pairingMode = false;
         nextPiCmd = CMD_PAIRING_CANCEL;
         Serial.println(F("Pairing: back to menu"));
-      } else if ((millis() - pairingModeEnteredAt) > 130000) {
+      } else if ((scaledMillis() - pairingModeEnteredAt) > 130000) {
         menuState = MENU_MAIN;
         pairingMode = false;
         nextPiCmd = CMD_NONE;
@@ -966,7 +983,7 @@ void stopMotor() {
 
   digitalWrite(MOTOR_A_PIN, HIGH);
   digitalWrite(MOTOR_B_PIN, HIGH);
-//  delay(10); // geht nicht im ISR und hier sind wir ggf im ISR!
+//  scaledDelay(10); // geht nicht im ISR und hier sind wir ggf im ISR!
 //  digitalWrite(MOTOR_A_PIN, LOW);
 //  digitalWrite(MOTOR_B_PIN, LOW);
 }
@@ -975,7 +992,7 @@ void stopBriefly() {
   // This makes direct direction changes less harsh
   stopMotor();
   Serial.println(F("(Briefly...)"));
-  delay(250);
+  scaledDelay(250);
 }
 
 void setLampMode(bool mode) {
@@ -1067,7 +1084,7 @@ ControlButton pollButtons() {
   int buttonBankB = analogRead(BUTTONS_B_PIN) ;
   ControlButton buttonChoice = NONE;
 
-  delay(10); // debounce (since button release bounce is not covered in the FSM)
+  scaledDelay(10); // debounce (since button release bounce is not covered in the FSM)
 
   if (noButtonPressed)
   {
@@ -1195,7 +1212,7 @@ void i2cRequest() {
   Command cmdToSend = nextPiCmd;
   Wire.write(cmdToSend);
 
-  if (pairingCancelPending && (millis() - pairingCancelSentAt) > 5000) {
+  if (pairingCancelPending && (scaledMillis() - pairingCancelSentAt) > 5000) {
     pairingCancelPending = false;
   }
 
