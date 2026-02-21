@@ -514,6 +514,14 @@ restore_after_image() {
   restore_from_any "imaging-history.tgz"
   restore_from_any "imaging-config.tgz"
   restore_swap
+  # The imaging script enabled filmkorn-firstboot.service and deleted its
+  # marker so that the image triggers firstboot when flashed to a new card.
+  # The source Pi itself must NOT run firstboot on its next boot (that would
+  # regenerate SSH host keys and break existing SSH connections).
+  log "disabling firstboot service on source Pi"
+  systemctl disable filmkorn-firstboot.service 2>/dev/null || true
+  mkdir -p /var/lib/filmkorn
+  touch /var/lib/filmkorn/firstboot.done
   if [ -f "$LOG_FILE" ]; then
     cp -f "$LOG_FILE" /var/log/filmkorn-imaging.log 2>/dev/null || true
   fi
