@@ -202,6 +202,19 @@ stash_copy() {
 
 sudo systemctl stop filmkorn-scanner.service || true
 sudo systemctl stop filmkorn-lsyncd.service || true
+# Stop every service that periodically writes to the root filesystem so that
+# the dirty-read image is as clean as possible (e2fsck repairs the rest on
+# first boot).  Services that only write to tmpfs (/run, /tmp) are left alone.
+for svc in \
+    cron.service \
+    rsyslog.service \
+    fake-hwclock.service \
+    avahi-daemon.service \
+    bluetooth.service \
+    triggerhappy.service \
+    ; do
+  sudo systemctl stop "$svc" 2>/dev/null && log "stopped $svc" || true
+done
 
 restore_from_any() {
   local name="$1"
@@ -425,9 +438,6 @@ fi
 mkdir -p "$STASH_DIR" "$STASH_RAMDISK" "$STASH_PERSIST" || true
 touch "$LOG_FILE" 2>/dev/null || true
 
-REMOUNT_RO="false"
-FROZEN="false"
-
 log() {
   echo "imaging: $*" >&2
   echo "imaging: $*" >>"$LOG_FILE" 2>/dev/null || true
@@ -503,15 +513,9 @@ restore_after_image() {
   cleanup_stash
 }
 
-cleanup() {
-  if [[ "${FROZEN}" == "true" ]]; then
-    fsfreeze -u / || true
-  elif [[ "${REMOUNT_RO}" == "true" ]]; then
-    mount -o remount,rw / || true
-  fi
-  restore_after_image
-}
-trap cleanup EXIT
+# No fsfreeze: all disk-writing services were stopped in the prep phase.
+# e2fsck runs on first boot to clean up any journal inconsistencies.
+trap restore_after_image EXIT
 
 if [[ "${KEEP_SSH}" != "true" ]]; then
   if has_stash "imaging-ssh.tgz"; then
@@ -531,19 +535,7 @@ if [[ "${KEEP_HOSTKEYS}" != "true" ]]; then
 fi
 
 sync
-if mount -o remount,ro / 2>/dev/null; then
-  log "remounted / read-only"
-  REMOUNT_RO="true"
-else
-  if command -v fsfreeze >/dev/null 2>&1; then
-    log "freezing /"
-    fsfreeze -f /
-    FROZEN="true"
-  else
-    echo "WARN: could not remount / read-only and fsfreeze not available" >&2
-  fi
-fi
-
+log "streaming image (dirty read; e2fsck repairs on first boot)"
 dd if=/dev/mmcblk0 bs=4M status=progress | gzip -1
 EOF
   then
@@ -558,6 +550,15 @@ if [[ "${DRY_RUN}" == "true" ]]; then
 fi
 
 info "Image created: $OUTPUT"
+
+if [[ "${DRY_RUN}" == "false" ]]; then
+  info "Rebooting Raspberry Pi to restore normal operation..."
+  # The restore already ran inside the EXIT trap of the imaging SSH session;
+  # the reboot cleans up any lingering stopped services and brings the scanner
+  # back to a fresh state. Connection drop is expected.
+  ssh "${SSH_OPTS[@]}" "${USER}@${HOST}" "sudo init 6" 2>/dev/null || true
+  info "Pi is rebooting. Continuing with local shrink step..."
+fi
 
 if [[ "${DRY_RUN}" == "false" ]]; then
   if command -v pishrink >/dev/null 2>&1; then
