@@ -214,7 +214,8 @@ if ! $paired_exists; then
   echo "To reveal the password:"
   echo "- Hold the ${BOLD}STOP button${RESET} until the Settings menu appears"
   echo "- Select ${BOLD}Start Pairing${RESET} to reveal the password"
-    ssh-keyscan -H filmkorn-scanner.local >> ~/.ssh/known_hosts 2>/dev/null || warn "Could not prefetch host key for filmkorn-scanner.local"
+    ssh-keygen -R filmkorn-scanner.local 2>/dev/null || true
+  ssh-keyscan -H filmkorn-scanner.local 2>/dev/null | grep -v '^#' >> ~/.ssh/known_hosts || warn "Could not prefetch host key for filmkorn-scanner.local"
   ssh_copy_tmp="$(mktemp)"
   if ! ssh-copy-id \
     -o StrictHostKeyChecking=accept-new \
