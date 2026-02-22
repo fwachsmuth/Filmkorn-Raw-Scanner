@@ -984,6 +984,15 @@ def _get_version_label() -> Optional[str]:
     return sha_result.stdout.strip() or None
 
 def _fetch_tags() -> bool:
+    # Mirror update.sh: convert SSH remote to HTTPS so fetch works without SSH keys
+    # (SSH keys are stripped from distributed images for security)
+    url_result = _git("config", "--get", "remote.origin.url")
+    if url_result.returncode == 0:
+        remote_url = url_result.stdout.strip()
+        if remote_url.startswith("git@github.com:"):
+            https_url = "https://github.com/" + remote_url[len("git@github.com:"):]
+            logging.info("update: switching origin to HTTPS (%s)", https_url)
+            _git("remote", "set-url", "origin", https_url)
     result = _git("fetch", "--tags", "--prune", "--force")
     if result.returncode != 0:
         logging.error(
