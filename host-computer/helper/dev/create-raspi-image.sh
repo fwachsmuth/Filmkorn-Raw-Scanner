@@ -48,7 +48,9 @@ manual_shrink_hint() {
 HOST="filmkorn-scanner.local"
 USER="pi"
 # Keep connection alive during long imaging; fail fast on connect
-SSH_OPTS=(-o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=6)
+# StrictHostKeyChecking=accept-new: auto-accept new host keys (e.g. after factory reset)
+# but still reject if a known host presents a *different* key mid-session.
+SSH_OPTS=(-o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=accept-new)
 OUTPUT=""
 ZERO_FILL=true
 KEEP_SSH=false
@@ -150,6 +152,11 @@ if [[ -z "$OUTPUT" ]]; then
 fi
 OUTPUT="${OUTPUT_DIR}/$(basename "$OUTPUT")"
 
+# Always start with a clean known_hosts entry for the scanner so that
+# StrictHostKeyChecking=accept-new works even if the Pi's SSH host keys were
+# regenerated since last pairing (e.g. after a factory reset + firstboot).
+ssh-keygen -R "${HOST}" 2>/dev/null || true
+
 if [[ "${DRY_RUN}" == "true" ]]; then
   info "Dry run: would prepare Raspberry Pi for imaging"
 else
@@ -209,7 +216,6 @@ for svc in \
     cron.service \
     rsyslog.service \
     fake-hwclock.service \
-    avahi-daemon.service \
     bluetooth.service \
     triggerhappy.service \
     ; do
