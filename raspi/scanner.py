@@ -1026,6 +1026,18 @@ def _fetch_tags() -> bool:
         logging.info("update: git fetch stdout=%s", result.stdout.strip())
     return True
 
+def _has_dev_keys() -> bool:
+    """Return True if ~/.ssh/id_filmkorn-scanner-dev_ed25519* keys are present."""
+    ssh_dir = os.path.expanduser("~/.ssh")
+    try:
+        return any(
+            f.startswith("id_filmkorn-scanner-dev_ed25519")
+            for f in os.listdir(ssh_dir)
+        )
+    except OSError:
+        return False
+
+
 def _list_tags() -> list:
     result = _git("tag", "--list", "--sort=v:refname")
     if result.returncode != 0:
@@ -1037,7 +1049,13 @@ def _list_tags() -> list:
         return []
     tags = [line.strip() for line in result.stdout.splitlines() if line.strip()]
     if OTA_TAG_PREFIX:
-        tags = [t for t in tags if t.startswith(OTA_TAG_PREFIX)]
+        if _has_dev_keys():
+            # Dev keys present: also include bare X.Y.Z tags (no prefix)
+            bare_semver = re.compile(r"^\d+\.\d+\.\d+(?:-[A-Za-z0-9._-]+)?$")
+            tags = [t for t in tags if t.startswith(OTA_TAG_PREFIX) or bare_semver.match(t)]
+            logging.info("update: dev keys found, including un-prefixed tags")
+        else:
+            tags = [t for t in tags if t.startswith(OTA_TAG_PREFIX)]
     tag_pattern = re.compile(r"^v?\d+\.\d+\.\d+(?:-[A-Za-z0-9._-]+)?$")
     filtered = [tag for tag in tags if tag_pattern.match(tag)]
     logging.info("update: found %d tags, %d installable", len(tags), len(filtered))
