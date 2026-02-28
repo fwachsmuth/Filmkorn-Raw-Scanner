@@ -170,6 +170,8 @@ bool isScanning = false;
 uint8_t scanExtraFrames = 0;  // frames to continue after film end detected
 uint8_t filmEjectAdvances = 0;  // advances to eject film after scanning done
 volatile bool singleStepInProgress = false;  // true while single-step motor advance is running
+volatile uint32_t fwd1StartTime = 0;         // timestamp of most recent motorFWD1() call
+const uint32_t MIN_STEP_MS = 5;             // minimum valid EYE trigger time after step start (filters motor PWM noise)
 uint8_t scanFilmEndCount = 0;  // consecutive film-end reads needed to trigger end-of-roll
 bool updateMode = false;
 bool pairingMode = false;
@@ -1031,6 +1033,7 @@ void setZoomMode(ZoomMode mode) {
 
 void motorFWD1() {
   singleStepInProgress = true;
+  fwd1StartTime = scaledMillis(); // arm minimum step guard
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
   analogWrite(MOTOR_A_PIN, singleStepMotorPower);
@@ -1039,6 +1042,7 @@ void motorFWD1() {
 
 void motorREV1() {
   singleStepInProgress = true;
+  fwd1StartTime = 0; // disable minimum step guard for manual REV1
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
   analogWrite(MOTOR_A_PIN, 0);
@@ -1060,6 +1064,12 @@ void motorRev() {
 }
 
 void stopMotorISR() {
+  // Reject EYE triggers within the first MIN_STEP_MS of a step:
+  // motor PWM switching noise can couple into EYE_PIN and cause false falling edges.
+  if (scaledMillis() - fwd1StartTime < MIN_STEP_MS) {
+    EIFR = 1; // clear flag so the glitch doesn't immediately re-trigger
+    return;
+  }
   motorState = STOPPED;
   fwdFilmInsertedSince = 0;
   singleStepInProgress = false;
