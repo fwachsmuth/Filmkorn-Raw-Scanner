@@ -182,6 +182,9 @@ volatile uint8_t rampBrakeMotorPin = MOTOR_A_PIN;  // which pin was driving duri
 const uint32_t RAMP_BRAKE_MS = 30;
 const uint32_t RAMP_START_MS = 30;    // start-ramp duration in ms
 const uint8_t  RAMP_START_STEPS = 10; // PWM steps during ramp-up (must divide RAMP_START_MS evenly)
+// Deferred CMD_SHOOT_RAW: set by the scan loop, promoted to nextPiCmd only once
+// the ramp brake has finished and the motor is fully stopped.
+bool pendingShootRaw = false;
 uint8_t scanFilmEndCount = 0;  // consecutive film-end reads needed to trigger end-of-roll
 bool updateMode = false;
 bool pairingMode = false;
@@ -373,6 +376,12 @@ void loop() {
       singleStepInProgress = false;
       digitalWrite(MOTOR_A_PIN, HIGH);
       digitalWrite(MOTOR_B_PIN, HIGH);
+      // Motor is now fully stopped. Only now tell the Pi to shoot, so it never
+      // captures a frame while the film is still decelerating.
+      if (pendingShootRaw && isScanning) {
+        nextPiCmd = CMD_SHOOT_RAW;
+        pendingShootRaw = false;
+      }
     } else {
       uint8_t power = (uint8_t)((uint32_t)rampBrakeInitPower * (RAMP_BRAKE_MS - elapsed) / RAMP_BRAKE_MS);
       analogWrite(rampBrakeMotorPin, power);
@@ -533,14 +542,14 @@ void loop() {
       }
       else
       {
-        motorFWD1();               // advance
-        nextPiCmd = CMD_SHOOT_RAW; // tell to shoot
+        motorFWD1();              // advance
+        pendingShootRaw = true;   // shoot deferred until ramp brake completes
       }
     }
     else
     {
-      motorFWD1();               // advance
-      nextPiCmd = CMD_SHOOT_RAW; // tell to shoot
+      motorFWD1();              // advance
+      pendingShootRaw = true;   // shoot deferred until ramp brake completes
     }
   }
 
@@ -1060,8 +1069,9 @@ void setZoomMode(ZoomMode mode) {
 }
 
 // Linear ramp-up from 50 % to 100 % of singleStepMotorPower.
-// Always called before attachInterrupt(), so no EYE ISR can fire during the ramp.
-// Blocking is intentional and safe here (loop() context only, never ISR).
+// Always called after detachInterrupt() and before attachInterrupt(), so no
+// EYE ISR can fire during the ramp. Blocking is intentional and safe here
+// (loop() context only, never ISR).
 static void rampMotorStart(uint8_t activePin, uint8_t idlePin) {
   analogWrite(idlePin, 0);
   uint8_t half = singleStepMotorPower / 2;
@@ -1074,21 +1084,32 @@ static void rampMotorStart(uint8_t activePin, uint8_t idlePin) {
 
 void motorFWD1() {
   rampBrakeActive = false;  // abort any pending ramp so the new advance is clean
+  pendingShootRaw = false;  // clear stale deferred-shoot flag from any aborted advance
   rampBrakeMotorPin = MOTOR_A_PIN;
   singleStepInProgress = true;
-  rampMotorStart(MOTOR_A_PIN, MOTOR_B_PIN);   // ramp up before arming ISR
-  fwd1StartTime = scaledMillis();              // arm step guard from end of ramp (motor at full power)
-  EIFR = 1; // clear flag for interrupt
+  // Detach ISR before ramp-up: the ISR from the previous step is never explicitly
+  // detached (detachInterrupt is commented out in stopMotorISR), so it is still
+  // armed here. Without detach, motor PWM noise during rampMotorStart() can
+  // fire the ISR with the stale fwd1StartTime from the previous step, which would
+  // pass the MIN_STEP_MS guard and set rampBrakeActive=true prematurely.
+  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
+  EIFR = 1;  // clear any EYE flag that arrived before detach
+  rampMotorStart(MOTOR_A_PIN, MOTOR_B_PIN);
+  fwd1StartTime = scaledMillis();  // arm step guard from end of ramp (motor at full power)
+  EIFR = 1;  // clear any edge that arrived during ramp
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
 }
 
 void motorREV1() {
   rampBrakeActive = false;  // abort any pending ramp so the new advance is clean
+  pendingShootRaw = false;
   rampBrakeMotorPin = MOTOR_B_PIN;
   singleStepInProgress = true;
   fwd1StartTime = 0; // disable minimum step guard for manual REV1
-  rampMotorStart(MOTOR_B_PIN, MOTOR_A_PIN);   // ramp up before arming ISR
-  EIFR = 1; // clear flag for interrupt
+  detachInterrupt(digitalPinToInterrupt(EYE_PIN));  // same reasoning as motorFWD1
+  EIFR = 1;
+  rampMotorStart(MOTOR_B_PIN, MOTOR_A_PIN);
+  EIFR = 1;
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
 }
 
@@ -1128,6 +1149,7 @@ void stopMotorISR() {
 void stopScanning() {
   isScanning = false;
   piIsReady = false;
+  pendingShootRaw = false;
   setLampMode(false);
   zoomMode = Z1_1;
   nextPiCmd = CMD_STOP_SCAN;
