@@ -1073,8 +1073,8 @@ void stopMotorISR() {
   motorState = STOPPED;
   fwdFilmInsertedSince = 0;
   singleStepInProgress = false;
-  digitalWrite(MOTOR_A_PIN, HIGH);
-  digitalWrite(MOTOR_B_PIN, HIGH);
+//  digitalWrite(MOTOR_A_PIN, HIGH);
+//  digitalWrite(MOTOR_B_PIN, HIGH);
 //  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
 }
 
