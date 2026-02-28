@@ -180,6 +180,8 @@ volatile uint32_t rampBrakeStartTime = 0;
 volatile uint8_t rampBrakeInitPower = 0;
 volatile uint8_t rampBrakeMotorPin = MOTOR_A_PIN;  // which pin was driving during the step
 const uint32_t RAMP_BRAKE_MS = 30;
+const uint32_t RAMP_START_MS = 30;    // start-ramp duration in ms
+const uint8_t  RAMP_START_STEPS = 10; // PWM steps during ramp-up (must divide RAMP_START_MS evenly)
 uint8_t scanFilmEndCount = 0;  // consecutive film-end reads needed to trigger end-of-roll
 bool updateMode = false;
 bool pairingMode = false;
@@ -1057,15 +1059,27 @@ void setZoomMode(ZoomMode mode) {
   Serial.println(zoomMode == Z1_1 ? F("out") : F("in"));
 }
 
+// Linear ramp-up from 50 % to 100 % of singleStepMotorPower.
+// Always called before attachInterrupt(), so no EYE ISR can fire during the ramp.
+// Blocking is intentional and safe here (loop() context only, never ISR).
+static void rampMotorStart(uint8_t activePin, uint8_t idlePin) {
+  analogWrite(idlePin, 0);
+  uint8_t half = singleStepMotorPower / 2;
+  for (uint8_t i = 0; i <= RAMP_START_STEPS; i++) {
+    uint8_t power = half + (uint8_t)((uint16_t)(singleStepMotorPower - half) * i / RAMP_START_STEPS);
+    analogWrite(activePin, power);
+    if (i < RAMP_START_STEPS) scaledDelay(RAMP_START_MS / RAMP_START_STEPS);
+  }
+}
+
 void motorFWD1() {
   rampBrakeActive = false;  // abort any pending ramp so the new advance is clean
   rampBrakeMotorPin = MOTOR_A_PIN;
   singleStepInProgress = true;
-  fwd1StartTime = scaledMillis(); // arm minimum step guard
+  rampMotorStart(MOTOR_A_PIN, MOTOR_B_PIN);   // ramp up before arming ISR
+  fwd1StartTime = scaledMillis();              // arm step guard from end of ramp (motor at full power)
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
-  analogWrite(MOTOR_A_PIN, singleStepMotorPower);
-  analogWrite(MOTOR_B_PIN, 0);
 }
 
 void motorREV1() {
@@ -1073,10 +1087,9 @@ void motorREV1() {
   rampBrakeMotorPin = MOTOR_B_PIN;
   singleStepInProgress = true;
   fwd1StartTime = 0; // disable minimum step guard for manual REV1
+  rampMotorStart(MOTOR_B_PIN, MOTOR_A_PIN);   // ramp up before arming ISR
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
-  analogWrite(MOTOR_A_PIN, 0);
-  analogWrite(MOTOR_B_PIN, singleStepMotorPower);
 }
 
 void motorFwd() {
