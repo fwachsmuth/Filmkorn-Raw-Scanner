@@ -179,12 +179,9 @@ volatile bool rampBrakeActive = false;
 volatile uint32_t rampBrakeStartTime = 0;
 volatile uint8_t rampBrakeInitPower = 0;
 volatile uint8_t rampBrakeMotorPin = MOTOR_A_PIN;  // which pin was driving during the step
-const uint32_t RAMP_BRAKE_MS = 15;
-const uint32_t RAMP_START_MS = 15;    // start-ramp duration in ms
+const uint32_t RAMP_BRAKE_MS = 30;
+const uint32_t RAMP_START_MS = 30;    // start-ramp duration in ms
 const uint8_t  RAMP_START_STEPS = 10; // PWM steps during ramp-up (must divide RAMP_START_MS evenly)
-// Deferred CMD_SHOOT_RAW: set by the scan loop, promoted to nextPiCmd only once
-// the ramp brake has finished and the motor is fully stopped.
-bool pendingShootRaw = false;
 uint8_t scanFilmEndCount = 0;  // consecutive film-end reads needed to trigger end-of-roll
 bool updateMode = false;
 bool pairingMode = false;
@@ -376,12 +373,6 @@ void loop() {
       singleStepInProgress = false;
       digitalWrite(MOTOR_A_PIN, HIGH);
       digitalWrite(MOTOR_B_PIN, HIGH);
-      // Motor is now fully stopped. Only now tell the Pi to shoot, so it never
-      // captures a frame while the film is still decelerating.
-      if (pendingShootRaw && isScanning) {
-        nextPiCmd = CMD_SHOOT_RAW;
-        pendingShootRaw = false;
-      }
     } else {
       uint8_t power = (uint8_t)((uint32_t)rampBrakeInitPower * (RAMP_BRAKE_MS - elapsed) / RAMP_BRAKE_MS);
       analogWrite(rampBrakeMotorPin, power);
@@ -542,14 +533,12 @@ void loop() {
       }
       else
       {
-        motorFWD1();              // advance
-        pendingShootRaw = true;   // shoot deferred until ramp brake completes
+        motorFWD1();  // advance; CMD_SHOOT_RAW sent by stopMotorISR when EYE fires
       }
     }
     else
     {
-      motorFWD1();              // advance
-      pendingShootRaw = true;   // shoot deferred until ramp brake completes
+      motorFWD1();  // advance; CMD_SHOOT_RAW sent by stopMotorISR when EYE fires
     }
   }
 
@@ -1084,7 +1073,6 @@ static void rampMotorStart(uint8_t activePin, uint8_t idlePin) {
 
 void motorFWD1() {
   rampBrakeActive = false;  // abort any pending ramp so the new advance is clean
-  pendingShootRaw = false;  // clear stale deferred-shoot flag from any aborted advance
   rampBrakeMotorPin = MOTOR_A_PIN;
   singleStepInProgress = true;
   // Detach ISR before ramp-up: the ISR from the previous step is never explicitly
@@ -1102,7 +1090,6 @@ void motorFWD1() {
 
 void motorREV1() {
   rampBrakeActive = false;  // abort any pending ramp so the new advance is clean
-  pendingShootRaw = false;
   rampBrakeMotorPin = MOTOR_B_PIN;
   singleStepInProgress = true;
   fwd1StartTime = 0; // disable minimum step guard for manual REV1
@@ -1143,13 +1130,19 @@ void stopMotorISR() {
   rampBrakeInitPower = singleStepMotorPower;
   rampBrakeStartTime = scaledMillis();
   rampBrakeActive = true;
+  // Film is now at the correct frame position (EYE just fired). Signal Pi to
+  // shoot immediately so its camera pipeline (~30-50 ms) runs in parallel with
+  // the ramp brake (~30 ms). By the time the shutter opens, the motor is stopped.
+  // Only signal during a scan advance; eject advances have isScanning=false.
+  if (isScanning) {
+    nextPiCmd = CMD_SHOOT_RAW;
+  }
 //  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
 }
 
 void stopScanning() {
   isScanning = false;
   piIsReady = false;
-  pendingShootRaw = false;
   setLampMode(false);
   zoomMode = Z1_1;
   nextPiCmd = CMD_STOP_SCAN;
