@@ -179,8 +179,8 @@ volatile bool rampBrakeActive = false;
 volatile uint32_t rampBrakeStartTime = 0;
 volatile uint8_t rampBrakeInitPower = 0;
 volatile uint8_t rampBrakeMotorPin = MOTOR_A_PIN;  // which pin was driving during the step
-const uint32_t RAMP_BRAKE_MS = 30;
-const uint32_t RAMP_START_MS = 30;    // start-ramp duration in ms
+const uint32_t RAMP_BRAKE_MS = 15;
+const uint32_t RAMP_START_MS = 15;    // start-ramp duration in ms
 const uint8_t  RAMP_START_STEPS = 10; // PWM steps during ramp-up (must divide RAMP_START_MS evenly)
 // Deferred CMD_SHOOT_RAW: set by the scan loop, promoted to nextPiCmd only once
 // the ramp brake has finished and the motor is fully stopped.
