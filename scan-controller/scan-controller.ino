@@ -172,6 +172,14 @@ uint8_t filmEjectAdvances = 0;  // advances to eject film after scanning done
 volatile bool singleStepInProgress = false;  // true while single-step motor advance is running
 volatile uint32_t fwd1StartTime = 0;         // timestamp of most recent motorFWD1() call
 const uint32_t MIN_STEP_MS = 5;             // minimum valid EYE trigger time after step start (filters motor PWM noise)
+
+// Ramp brake: linearly reduce PWM over RAMP_BRAKE_MS before applying hard brake,
+// to reduce regenerative-braking current spikes and DRV8871 heat at scan speed.
+volatile bool rampBrakeActive = false;
+volatile uint32_t rampBrakeStartTime = 0;
+volatile uint8_t rampBrakeInitPower = 0;
+volatile uint8_t rampBrakeMotorPin = MOTOR_A_PIN;  // which pin was driving during the step
+const uint32_t RAMP_BRAKE_MS = 20;
 uint8_t scanFilmEndCount = 0;  // consecutive film-end reads needed to trigger end-of-roll
 bool updateMode = false;
 bool pairingMode = false;
@@ -350,6 +358,23 @@ void loop() {
   // Handle menu system
   if (menuState != MENU_IDLE) {
     handleMenuSystem();
+    return;
+  }
+
+  // Ramp brake handler: runs every loop iteration after the EYE ISR fires.
+  // The ISR set rampBrakeActive instead of hard-braking so we can ramp PWM
+  // down here without blocking inside the ISR.
+  if (rampBrakeActive) {
+    uint32_t elapsed = scaledMillis() - rampBrakeStartTime;
+    if (elapsed >= RAMP_BRAKE_MS) {
+      rampBrakeActive = false;
+      singleStepInProgress = false;
+      digitalWrite(MOTOR_A_PIN, HIGH);
+      digitalWrite(MOTOR_B_PIN, HIGH);
+    } else {
+      uint8_t power = (uint8_t)((uint32_t)rampBrakeInitPower * (RAMP_BRAKE_MS - elapsed) / RAMP_BRAKE_MS);
+      analogWrite(rampBrakeMotorPin, power);
+    }
     return;
   }
 
@@ -976,6 +1001,7 @@ void handleMenuSystem() {
 
 void stopMotor() {
   // ...
+  rampBrakeActive = false;  // abort any in-progress ramp brake immediately
   motorState = STOPPED;
   fwdFilmInsertedSince = 0;  // next RUNFWD run starts with fresh 30s countdown
   singleStepInProgress = false;
@@ -1032,6 +1058,8 @@ void setZoomMode(ZoomMode mode) {
 }
 
 void motorFWD1() {
+  rampBrakeActive = false;  // abort any pending ramp so the new advance is clean
+  rampBrakeMotorPin = MOTOR_A_PIN;
   singleStepInProgress = true;
   fwd1StartTime = scaledMillis(); // arm minimum step guard
   EIFR = 1; // clear flag for interrupt
@@ -1041,6 +1069,8 @@ void motorFWD1() {
 }
 
 void motorREV1() {
+  rampBrakeActive = false;  // abort any pending ramp so the new advance is clean
+  rampBrakeMotorPin = MOTOR_B_PIN;
   singleStepInProgress = true;
   fwd1StartTime = 0; // disable minimum step guard for manual REV1
   EIFR = 1; // clear flag for interrupt
@@ -1072,9 +1102,13 @@ void stopMotorISR() {
   }
   motorState = STOPPED;
   fwdFilmInsertedSince = 0;
-  singleStepInProgress = false;
-  digitalWrite(MOTOR_A_PIN, LOW);
-  digitalWrite(MOTOR_B_PIN, LOW);
+  // Don't hard-brake or clear singleStepInProgress yet: start a linear ramp
+  // brake instead. loop() will ramp PWM to 0 over RAMP_BRAKE_MS, then apply
+  // the hard brake and clear singleStepInProgress. This reduces the large
+  // regenerative-braking current spikes that overheat the DRV8871 at scan speed.
+  rampBrakeInitPower = singleStepMotorPower;
+  rampBrakeStartTime = scaledMillis();
+  rampBrakeActive = true;
 //  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
 }
 
