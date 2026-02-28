@@ -4133,6 +4133,7 @@ def shoot_raw(arg_bytes=None):
     )
     update_fps_overlay(avg_fps)
     update_shutter_overlay(shutter_speed)
+    check_available_disk_space()
     say_ready()
 
 def set_exposure(arg_bytes):

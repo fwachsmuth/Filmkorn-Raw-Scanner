@@ -303,9 +303,9 @@ void setup() {
   // See scaledMillis() / scaledDelay() above for the required compensation.
   TCCR0B = (TCCR0B & 0xF8) | 0x01;
 
-  // Stop the engines
-  analogWrite(MOTOR_A_PIN, 0);
-  analogWrite(MOTOR_B_PIN, 0);
+  // Brake the motor (both HIGH = H-Bridge short-circuit brake, safer than freewheel on reset)
+  digitalWrite(MOTOR_A_PIN, HIGH);
+  digitalWrite(MOTOR_B_PIN, HIGH);
   digitalWrite(FAN_PIN, LOW);
   digitalWrite(LAMP_PIN, LOW);
 
