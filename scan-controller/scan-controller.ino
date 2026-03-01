@@ -1074,6 +1074,8 @@ void stopMotorISR() {
 void stopScanning() {
   isScanning = false;
   piIsReady = false;
+  detachInterrupt(digitalPinToInterrupt(EYE_PIN));  // cancel any pending single-step ISR
+  stopMotor();  // resets singleStepInProgress, motorState, brakes motor pins
   setLampMode(false);
   zoomMode = Z1_1;
   nextPiCmd = CMD_STOP_SCAN;
