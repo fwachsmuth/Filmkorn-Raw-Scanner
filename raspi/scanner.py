@@ -4106,23 +4106,13 @@ def shoot_raw(arg_bytes=None):
                         break
                     candidate.release()
             else:
-                # Drain any frames buffered during film transport.
-                # CMD_SHOOT_RAW now arrives after the EYE fires, so up to
-                # buffer_count (4) stale frames captured while the film was
-                # advancing may be sitting in the completed-request queue.
-                # Stale frames are already in the queue and return instantly;
-                # once the queue is empty, capture_request() blocks until the
-                # next fresh frame is ready (≥1 frame-period ≈ 16–33 ms).
-                # A 15 ms drain budget reliably drains all stale frames and
-                # then keeps the first frame that completes after the drain —
-                # which is always a frame of stationary film.
-                drain_until = time.monotonic() + 0.015
-                while True:
-                    candidate = camera.capture_request()
-                    if time.monotonic() >= drain_until:
-                        request = candidate
-                        break
-                    candidate.release()
+                # CMD_SHOOT_RAW is sent after the ramp brake completes
+                # (~30 ms after EYE fires). By that time the camera has
+                # captured at least one frame of stationary film, so the first
+                # capture_request() either returns that already-queued frame
+                # instantly or blocks briefly for the next one.
+                # No drain loop needed: any queued frames are of stationary film.
+                request = camera.capture_request()
 
         request.save_dng(state.raws_path.format(state.raw_count), name="raw")
     finally:

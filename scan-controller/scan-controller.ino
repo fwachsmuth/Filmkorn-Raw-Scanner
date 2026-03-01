@@ -179,8 +179,8 @@ volatile bool rampBrakeActive = false;
 volatile uint32_t rampBrakeStartTime = 0;
 volatile uint8_t rampBrakeInitPower = 0;
 volatile uint8_t rampBrakeMotorPin = MOTOR_A_PIN;  // which pin was driving during the step
-const uint32_t RAMP_BRAKE_MS = 20;
-const uint32_t RAMP_START_MS = 20;    // start-ramp duration in ms
+const uint32_t RAMP_BRAKE_MS = 30;
+const uint32_t RAMP_START_MS = 30;    // start-ramp duration in ms
 const uint8_t  RAMP_START_STEPS = 10; // PWM steps during ramp-up (must divide RAMP_START_MS evenly)
 uint8_t scanFilmEndCount = 0;  // consecutive film-end reads needed to trigger end-of-roll
 bool updateMode = false;
@@ -373,6 +373,14 @@ void loop() {
       singleStepInProgress = false;
       digitalWrite(MOTOR_A_PIN, HIGH);
       digitalWrite(MOTOR_B_PIN, HIGH);
+      // Signal Pi to shoot NOW that the ramp brake is complete (~30 ms after
+      // EYE fired). By this time the camera has captured at least one frame of
+      // stationary film (frame period ≈ 16–33 ms). The Pi's first
+      // capture_request() returns that already-queued stationary frame
+      // instantly — same as the original protocol but shifted in time.
+      if (isScanning) {
+        nextPiCmd = CMD_SHOOT_RAW;
+      }
     } else {
       uint8_t power = (uint8_t)((uint32_t)rampBrakeInitPower * (RAMP_BRAKE_MS - elapsed) / RAMP_BRAKE_MS);
       analogWrite(rampBrakeMotorPin, power);
@@ -1130,13 +1138,8 @@ void stopMotorISR() {
   rampBrakeInitPower = singleStepMotorPower;
   rampBrakeStartTime = scaledMillis();
   rampBrakeActive = true;
-  // Film is now at the correct frame position (EYE just fired). Signal Pi to
-  // shoot immediately so its camera pipeline (~30-50 ms) runs in parallel with
-  // the ramp brake (~30 ms). By the time the shutter opens, the motor is stopped.
-  // Only signal during a scan advance; eject advances have isScanning=false.
-  if (isScanning) {
-    nextPiCmd = CMD_SHOOT_RAW;
-  }
+  // CMD_SHOOT_RAW is sent after ramp brake completes (in loop()), not here.
+  // By that time the camera has a queued stationary frame ready.
 //  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
 }
 
