@@ -23,6 +23,10 @@ import re
 import shutil
 import RPi.GPIO as GPIO
 import logging
+try:
+    from systemd.journal import JournalHandler
+except ImportError:
+    JournalHandler = None
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -4261,19 +4265,6 @@ def say_ready():
     logging.debug("Told Arduino we are ready for next image")
 
 
-# Custom StreamHandler that flushes immediately after each log message
-# This ensures logs appear in journalctl in real-time even under heavy I/O load
-class FlushingStreamHandler(logging.StreamHandler):
-    """StreamHandler that explicitly flushes stdout after each log message."""
-    def emit(self, record):
-        try:
-            msg = self.format(record)
-            self.stream.write(msg + self.terminator)
-            self.stream.flush()
-        except Exception:
-            self.handleError(record)
-
-
 # Now let's go
 def setup():
     global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, last_sleep_button_state, last_sleep_button_change, sleep_button_armed, dmesg_since, current_version_label
@@ -4282,16 +4273,37 @@ def setup():
     atexit.register(cleanup_terminal)
     clear_tty1()
 
-    # set up logging (file + stdout so journalctl includes full detail)
+    # set up logging (file + direct journald when available; stdout fallback)
     logging.root.handlers.clear()
     file_handler = logging.FileHandler("scanner.log")
     file_handler.setLevel(logging.DEBUG)
-    console_handler = FlushingStreamHandler(sys.stdout)
-    console_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter("%(levelname)s:%(name)s:%(message)s")
     file_handler.setFormatter(formatter)
-    console_handler.setFormatter(formatter)
-    logging.basicConfig(level=logging.DEBUG, handlers=[file_handler, console_handler])
+    handlers = [file_handler]
+    journald_setup_error = None
+    if JournalHandler is not None:
+        try:
+            journald_handler = JournalHandler(SYSLOG_IDENTIFIER="filmkorn-scanner")
+            journald_handler.setLevel(logging.DEBUG)
+            journald_handler.setFormatter(formatter)
+            handlers.append(journald_handler)
+        except Exception as exc:
+            journald_setup_error = exc
+
+    # Fallback for systems without python3-systemd or when JournalHandler fails.
+    if len(handlers) == 1:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(logging.DEBUG)
+        console_handler.setFormatter(formatter)
+        handlers.append(console_handler)
+
+    logging.basicConfig(level=logging.DEBUG, handlers=handlers)
+    if JournalHandler is None:
+        logging.warning("journald: python3-systemd not available; using stdout fallback")
+    elif journald_setup_error is not None:
+        logging.warning("journald: failed to initialize direct handler (%s); using stdout fallback", journald_setup_error)
+    else:
+        logging.info("journald: direct JournalHandler enabled")
     logging.getLogger("picamera2").setLevel(logging.WARNING)
     logging.getLogger("libcamera").setLevel(logging.WARNING)
 
