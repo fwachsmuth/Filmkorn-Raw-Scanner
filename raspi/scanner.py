@@ -4106,21 +4106,28 @@ def shoot_raw(arg_bytes=None):
                         break
                     candidate.release()
             else:
-                # Drain all already-completed frames from the camera queue.
-                # These are transport-era frames that accumulated while the motor was
-                # running. capture_request(wait=False) returns None immediately when
-                # the queue is empty, so this loop is instant (no blocking).
-                # The IMX477 sensor clock (SensorTimestamp) drifts relative to
-                # CLOCK_BOOTTIME, so timestamp comparisons become unreliable after
-                # ~30 s. Using wait=False avoids any clock comparison entirely.
+                # Drain stale transport-era frames from the camera queue.
+                #
+                # Frames already sitting completed in the queue (buffered during
+                # motor transport) are returned by capture_request() near-instantly
+                # (a simple list pop, typically <3 ms on the Pi).  A genuinely fresh
+                # frame requires waiting for the sensor's next full exposure cycle,
+                # which is always ≥16 ms at 60 fps or ≥33 ms at 30 fps — a hardware
+                # minimum that no amount of system load can shrink.
+                #
+                # By measuring how long each capture_request() call takes, we can
+                # drain all queued stale frames without any clock comparisons
+                # (avoiding the IMX477/CLOCK_BOOTTIME drift issue) and without
+                # relying on capture_request(wait=False) returning None (it returns
+                # a Job object in newer picamera2, which has no .release()).
+                _STALE_THRESHOLD_S = 0.010  # 10 ms: well below the ≥16 ms hardware minimum
                 while True:
-                    stale = camera.capture_request(wait=False)
-                    if stale is None:
+                    t0 = time.monotonic()
+                    candidate = camera.capture_request()
+                    if time.monotonic() - t0 > _STALE_THRESHOLD_S:
+                        request = candidate  # took a while → fresh stationary frame
                         break
-                    stale.release()
-                # Now get the next fresh frame. It is captured entirely after the drain,
-                # so it is guaranteed to be of stationary film at the current position.
-                request = camera.capture_request()
+                    candidate.release()     # returned instantly → stale/transport frame
 
         request.save_dng(state.raws_path.format(state.raw_count), name="raw")
     finally:
