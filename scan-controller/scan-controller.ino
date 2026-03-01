@@ -1063,10 +1063,10 @@ void stopMotorISR() {
   singleStepInProgress = false;
   digitalWrite(MOTOR_A_PIN, HIGH);
   digitalWrite(MOTOR_B_PIN, HIGH);
+  detachInterrupt(digitalPinToInterrupt(EYE_PIN));  // prevent spurious re-fires while film settles
   if (isScanning) {
     nextPiCmd = CMD_SHOOT_RAW;  // signal Pi only after film is stationary
   }
-//  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
 }
 
 void stopScanning() {
