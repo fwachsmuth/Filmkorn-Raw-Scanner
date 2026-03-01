@@ -243,7 +243,7 @@ ControlButton currentButton = NONE;
 ControlButton prevButton = NONE;
 uint8_t currentMotor = 0;
 MotorState motorState = STOPPED;
-Command nextPiCmd = CMD_NONE;
+volatile Command nextPiCmd = CMD_NONE;
 ZoomMode zoomMode = Z1_1;
 
 // Timer 0 prescaler is set to 1 in setup() to raise the PWM frequency on motor
@@ -1063,7 +1063,9 @@ void stopMotorISR() {
   singleStepInProgress = false;
   digitalWrite(MOTOR_A_PIN, HIGH);
   digitalWrite(MOTOR_B_PIN, HIGH);
-  detachInterrupt(digitalPinToInterrupt(EYE_PIN));  // prevent spurious re-fires while film settles
+  detachInterrupt(digitalPinToInterrupt(EYE_PIN));  // prevent spurious re-fires; must run before sei()
+  sei();  // re-enable interrupts so the TWI ISR can respond to any in-flight I2C poll from the Pi.
+          // Safe: EYE_PIN is detached above, so stopMotorISR() cannot re-enter.
   if (isScanning) {
     nextPiCmd = CMD_SHOOT_RAW;  // signal Pi only after film is stationary
   }
