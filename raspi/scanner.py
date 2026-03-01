@@ -37,6 +37,12 @@ FULL_RESOLUTION = (4056, 3840)
 
 SENSOR_BIT_DEPTH = 12
 DEBUG_DRAIN = True  # Log frame-drain timing to diagnose out-of-order captures
+# Minimum frames to discard after motor stop (adds safety for buffered transport frames)
+DRAIN_MIN_DISCARD_4K = 2
+DRAIN_MIN_DISCARD_2K = 0
+# SensorTimestamp safety margin (ns) added after motor stop
+DRAIN_CUTOFF_MARGIN_NS_4K = 120_000_000
+DRAIN_CUTOFF_MARGIN_NS_2K = 66_000_000
 
 # --- Controller MCU (ATmega328P) Power Switch ---
 UC_POWER_GPIO = 16  # GPIO16 (physical pin 36) enables µC power switch on the controller PCB
@@ -4111,13 +4117,24 @@ def shoot_raw(arg_bytes=None):
                         candidate.release()
 
         discarded = 0
+        is_full_res = (current_resolution_switch == 0)
+        min_discard = DRAIN_MIN_DISCARD_4K if is_full_res else DRAIN_MIN_DISCARD_2K
+        cutoff_margin_ns = DRAIN_CUTOFF_MARGIN_NS_4K if is_full_res else DRAIN_CUTOFF_MARGIN_NS_2K
         if request is None:
+            # Buffer drain rules (summary):
+            # 1) Prefer SensorTimestamp-based cutoff when we have a recent anchor frame.
+            #    Accept first frame with SensorTimestamp > (last_ts + elapsed_since_last + margin),
+            #    while discarding at least min_discard frames.
+            # 2) If no recent anchor, fall back to time-based drain using time.monotonic(),
+            #    still honoring min_discard.
+            # 3) If exposure is very long (>50ms), extend settle time before accepting a frame.
             if shutter_speed > 50_000:
+                # Long exposures: wait extra time so we don't accept a transport-era frame.
                 motor_settle_s = 0.15
                 drain_until = time.monotonic() + motor_settle_s + shutter_speed / 1_000_000
                 while True:
                     candidate = camera.capture_request()
-                    if time.monotonic() >= drain_until:
+                    if time.monotonic() >= drain_until and discarded >= min_discard:
                         request = candidate
                         break
                     discarded += 1
@@ -4150,12 +4167,14 @@ def shoot_raw(arg_bytes=None):
                 #                   window (33 ms was not enough in practice).
                 if _last_frame_sensor_ts is not None and \
                         (cmd_received_mono - _last_frame_mono_ts) < 10.0:
+                    # SensorTimestamp-based drain: use last accepted frame as a reference.
+                    # cutoff_ts is in camera-clock ns; reject frames until we're safely past motor stop.
                     elapsed_ns  = int((cmd_received_mono - _last_frame_mono_ts) * 1e9)
-                    cutoff_ts   = _last_frame_sensor_ts + elapsed_ns + 66_000_000
+                    cutoff_ts   = _last_frame_sensor_ts + elapsed_ns + cutoff_margin_ns
                     while True:
                         candidate = camera.capture_request()
                         cand_ts = candidate.get_metadata().get("SensorTimestamp", 0)
-                        if cand_ts > cutoff_ts:
+                        if cand_ts > cutoff_ts and discarded >= min_discard:
                             request = candidate
                             break
                         discarded += 1
@@ -4163,12 +4182,13 @@ def shoot_raw(arg_bytes=None):
                 else:
                     # First frame of a scan (no reference yet) or scan resumed
                     # after a long pause: fall back to fixed-deadline drain.
+                    # This uses time.monotonic() instead of SensorTimestamp.
                     motor_settle_s = 0.075
                     drain_until = time.monotonic() + motor_settle_s
                     while True:
                         candidate = camera.capture_request()
                         now_mono = time.monotonic()
-                        if now_mono >= drain_until:
+                        if now_mono >= drain_until and discarded >= min_discard:
                             request = candidate
                             break
                         discarded += 1
