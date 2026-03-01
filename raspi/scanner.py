@@ -4134,13 +4134,14 @@ def shoot_raw(arg_bytes=None):
                 # cutoff = last_ts + elapsed_ns + 33 ms
                 #   last_ts       : SensorTimestamp of last saved frame
                 #   elapsed_ns    : monotonic delta → camera-clock delta (< 0.2 ms error)
-                #   + 33 ms       : skip one extra frame so the accepted frame's
-                #                   top row (rolling shutter) lands ≥33 ms after
-                #                   motor stop, past the mechanical settling window.
+                #   + 66 ms       : skip two frame periods so the accepted frame's
+                #                   top row (rolling shutter) lands ≥66 ms after
+                #                   motor stop, well past the mechanical settling
+                #                   window (33 ms was not enough in practice).
                 if _last_frame_sensor_ts is not None and \
                         (cmd_received_mono - _last_frame_mono_ts) < 10.0:
                     elapsed_ns  = int((cmd_received_mono - _last_frame_mono_ts) * 1e9)
-                    cutoff_ts   = _last_frame_sensor_ts + elapsed_ns + 33_000_000
+                    cutoff_ts   = _last_frame_sensor_ts + elapsed_ns + 66_000_000
                     while True:
                         candidate = camera.capture_request()
                         if candidate.get_metadata().get("SensorTimestamp", 0) > cutoff_ts:
