@@ -4261,6 +4261,19 @@ def say_ready():
     logging.debug("Told Arduino we are ready for next image")
 
 
+# Custom StreamHandler that flushes immediately after each log message
+# This ensures logs appear in journalctl in real-time even under heavy I/O load
+class FlushingStreamHandler(logging.StreamHandler):
+    """StreamHandler that explicitly flushes stdout after each log message."""
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            self.stream.write(msg + self.terminator)
+            self.stream.flush()
+        except Exception:
+            self.handleError(record)
+
+
 # Now let's go
 def setup():
     global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, last_sleep_button_state, last_sleep_button_change, sleep_button_armed, dmesg_since, current_version_label
