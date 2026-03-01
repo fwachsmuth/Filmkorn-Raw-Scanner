@@ -4182,8 +4182,12 @@ def shoot_raw(arg_bytes=None):
         # through.
         if DEBUG_DRAIN:
             accepted_ts = request.get_metadata().get("SensorTimestamp")
+            if state.raws_path is not None:
+                dng_name = os.path.basename(state.raws_path.format(state.raw_count))
+            else:
+                dng_name = "unknown"
             if _last_frame_sensor_ts is None or accepted_ts is None:
-                logging.info("drain: accepted (discarded=%d) delta_ms=n/a", discarded)
+                logging.info("drain: accepted %s (discarded=%d) delta_ms=n/a", dng_name, discarded)
             else:
                 delta_ms = (accepted_ts - _last_frame_sensor_ts) / 1_000_000.0
                 note = "OK"
@@ -4191,7 +4195,7 @@ def shoot_raw(arg_bytes=None):
                     note = "SMALL"
                 elif delta_ms > 120.0:
                     note = "LARGE"
-                logging.info("drain: accepted (discarded=%d) delta_ms=%.1f [%s]", discarded, delta_ms, note)
+                logging.info("drain: accepted %s (discarded=%d) delta_ms=%.1f [%s]", dng_name, discarded, delta_ms, note)
         _last_frame_sensor_ts = request.get_metadata().get("SensorTimestamp")
         _last_frame_mono_ts   = time.monotonic()
         request.save_dng(state.raws_path.format(state.raw_count), name="raw")
