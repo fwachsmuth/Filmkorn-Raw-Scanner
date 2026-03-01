@@ -4286,7 +4286,7 @@ def setup():
     logging.root.handlers.clear()
     file_handler = logging.FileHandler("scanner.log")
     file_handler.setLevel(logging.DEBUG)
-    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler = FlushingStreamHandler(sys.stdout)
     console_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter("%(levelname)s:%(name)s:%(message)s")
     file_handler.setFormatter(formatter)
