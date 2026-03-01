@@ -41,7 +41,7 @@ DEBUG_DRAIN = True  # Log frame-drain timing to diagnose out-of-order captures
 DRAIN_MIN_DISCARD_4K = 2
 DRAIN_MIN_DISCARD_2K = 0
 # SensorTimestamp safety margin (ns) added after motor stop
-DRAIN_CUTOFF_MARGIN_NS_4K = 150_000_000
+DRAIN_CUTOFF_MARGIN_NS_4K = 135_000_000
 DRAIN_CUTOFF_MARGIN_NS_2K = 66_000_000
 
 # --- Controller MCU (ATmega328P) Power Switch ---
