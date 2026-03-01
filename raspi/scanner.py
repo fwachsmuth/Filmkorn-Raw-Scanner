@@ -36,6 +36,7 @@ RAW_DIRS_PATH = "/mnt/ramdisk/" # This is where the camera saves to. Has to end 
 FULL_RESOLUTION = (4056, 3840)
 
 SENSOR_BIT_DEPTH = 12
+DEBUG_DRAIN = True  # Log frame-drain timing to diagnose out-of-order captures
 
 # --- Controller MCU (ATmega328P) Power Switch ---
 UC_POWER_GPIO = 16  # GPIO16 (physical pin 36) enables µC power switch on the controller PCB
@@ -4149,9 +4150,21 @@ def shoot_raw(arg_bytes=None):
                         (cmd_received_mono - _last_frame_mono_ts) < 10.0:
                     elapsed_ns  = int((cmd_received_mono - _last_frame_mono_ts) * 1e9)
                     cutoff_ts   = _last_frame_sensor_ts + elapsed_ns + 66_000_000
+                    if DEBUG_DRAIN:
+                        logging.debug(
+                            "drain: cmd_mono=%.6f last_mono=%.6f elapsed_ns=%d last_ts=%s cutoff_ts=%s",
+                            cmd_received_mono,
+                            _last_frame_mono_ts,
+                            elapsed_ns,
+                            _last_frame_sensor_ts,
+                            cutoff_ts,
+                        )
                     while True:
                         candidate = camera.capture_request()
-                        if candidate.get_metadata().get("SensorTimestamp", 0) > cutoff_ts:
+                        cand_ts = candidate.get_metadata().get("SensorTimestamp", 0)
+                        if DEBUG_DRAIN:
+                            logging.debug("drain: candidate_ts=%s cutoff_ts=%s", cand_ts, cutoff_ts)
+                        if cand_ts > cutoff_ts:
                             request = candidate
                             break
                         candidate.release()
@@ -4160,9 +4173,18 @@ def shoot_raw(arg_bytes=None):
                     # after a long pause: fall back to fixed-deadline drain.
                     motor_settle_s = 0.075
                     drain_until = time.monotonic() + motor_settle_s
+                    if DEBUG_DRAIN:
+                        logging.debug(
+                            "drain: fallback start, drain_until=%.6f (settle=%.3fs)",
+                            drain_until,
+                            motor_settle_s,
+                        )
                     while True:
                         candidate = camera.capture_request()
-                        if time.monotonic() >= drain_until:
+                        now_mono = time.monotonic()
+                        if DEBUG_DRAIN:
+                            logging.debug("drain: fallback candidate at %.6f (until %.6f)", now_mono, drain_until)
+                        if now_mono >= drain_until:
                             request = candidate
                             break
                         candidate.release()
