@@ -4159,12 +4159,15 @@ def shoot_raw(arg_bytes=None):
                             break
                         candidate.release()
 
-        request.save_dng(state.raws_path.format(state.raw_count), name="raw")
         # Anchor calibration point for next cycle's SensorTimestamp drain.
-        # Recorded after save_dng() so elapsed_ns on the next call equals only
-        # say_ready + advance + poll (~150 ms), minimising drift accumulation.
+        # Must be recorded BEFORE save_dng() so that _last_frame_mono_ts is
+        # close to when capture_request() returned (≈ frame capture time).
+        # Recording it after save_dng() would shift the reference by 50–150 ms,
+        # making cutoff_ts land before motor stop and letting transport frames
+        # through.
         _last_frame_sensor_ts = request.get_metadata().get("SensorTimestamp")
         _last_frame_mono_ts   = time.monotonic()
+        request.save_dng(state.raws_path.format(state.raw_count), name="raw")
     finally:
         if request is not None:
             request.release()
