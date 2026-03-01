@@ -471,7 +471,7 @@ void loop() {
   }
 
   currentButton = pollButtons();
-  if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN)
+  if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN && !singleStepInProgress)
   {
     piIsReady = false;
     if (!digitalRead(FILM_END_PIN))
@@ -504,14 +504,12 @@ void loop() {
       }
       else
       {
-        motorFWD1();               // advance
-        nextPiCmd = CMD_SHOOT_RAW; // tell to shoot
+        motorFWD1();  // advance; CMD_SHOOT_RAW sent by stopMotorISR when film stops
       }
     }
     else
     {
-      motorFWD1();               // advance
-      nextPiCmd = CMD_SHOOT_RAW; // tell to shoot
+      motorFWD1();  // advance; CMD_SHOOT_RAW sent by stopMotorISR when film stops
     }
   }
 
@@ -1065,6 +1063,9 @@ void stopMotorISR() {
   singleStepInProgress = false;
   digitalWrite(MOTOR_A_PIN, HIGH);
   digitalWrite(MOTOR_B_PIN, HIGH);
+  if (isScanning) {
+    nextPiCmd = CMD_SHOOT_RAW;  // signal Pi only after film is stationary
+  }
 //  detachInterrupt(digitalPinToInterrupt(EYE_PIN));
 }
 

@@ -4057,6 +4057,11 @@ def set_lamp_on(arg_bytes=None):
     logging.info("Lamp turned on and camera preview enabled")
 
 def shoot_raw(arg_bytes=None):
+    # Record the boot-clock time when this command was received.
+    # CMD_SHOOT_RAW is now sent from stopMotorISR(), so this timestamp is
+    # approximately when the motor stopped and the film became stationary.
+    # Used below to drain transport-era frames from the camera buffer.
+    boot_ns_at_cmd = int(time.clock_gettime(time.CLOCK_BOOTTIME) * 1_000_000_000)
     if no_camera:
         return
     camera_start()
@@ -4106,7 +4111,17 @@ def shoot_raw(arg_bytes=None):
                         break
                     candidate.release()
             else:
-                request = camera.capture_request()
+                # Drain any frames captured before the motor stopped.
+                # SensorTimestamp is CLOCK_BOOTTIME in nanoseconds.
+                # Stale transport-era frames are already queued (returned instantly);
+                # we loop until we get a frame captured after the shoot command arrived.
+                while True:
+                    candidate = camera.capture_request()
+                    meta = candidate.get_metadata()
+                    if meta.get("SensorTimestamp", 0) >= boot_ns_at_cmd:
+                        request = candidate
+                        break
+                    candidate.release()
 
         request.save_dng(state.raws_path.format(state.raw_count), name="raw")
     finally:
