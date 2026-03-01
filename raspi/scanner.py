@@ -4110,23 +4110,27 @@ def shoot_raw(arg_bytes=None):
                 #
                 # CMD_SHOOT_RAW is set in stopMotorISR() after the motor stops, but
                 # the picamera2 buffer (buffer_count=4) still holds frames captured
-                # during transport.  We wait a fixed 40 ms — slightly longer than one
-                # camera frame period at 30 fps (33 ms) — then accept the next frame.
-                # Any frame returned before the deadline is a transport-era frame and
-                # is released; the first frame accepted after the deadline was captured
-                # while the film was already stationary.
+                # during transport.  We drain until motor_settle_s has elapsed, then
+                # accept the next frame.
+                #
+                # The IMX477 rolling shutter reads out all ~3040 rows over ~31 ms.
+                # With a 40 ms deadline the accepted frame's top row is captured only
+                # ~28 ms after motor stop — inside the mechanical settling window —
+                # which causes a jello/skew artifact.  Using 75 ms pushes the top
+                # row to ~60 ms and the bottom row to ~91 ms post-stop, well clear
+                # of any residual film oscillation.
                 #
                 # This avoids SensorTimestamp vs CLOCK_BOOTTIME drift (breaks after
                 # ~30 s) and doesn't rely on capture_request(wait=False) (returns a
                 # Job object in this picamera2 version, not None).
-                motor_settle_s = 0.040
+                motor_settle_s = 0.075
                 drain_until = time.monotonic() + motor_settle_s
                 while True:
                     candidate = camera.capture_request()
                     if time.monotonic() >= drain_until:
-                        request = candidate  # deadline passed → stationary frame
+                        request = candidate  # deadline passed → settled frame
                         break
-                    candidate.release()     # still within deadline → transport frame
+                    candidate.release()     # still within deadline → transport/settling frame
 
         request.save_dng(state.raws_path.format(state.raw_count), name="raw")
     finally:
