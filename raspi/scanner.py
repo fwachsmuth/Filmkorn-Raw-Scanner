@@ -88,6 +88,10 @@ last_sleep_button_change = 0.0
 sleep_button_armed = True
 idle_since = None
 shutter_speed = AUTO_SHUTTER_SPEED
+# Per-frame sensor-clock calibration for transport-frame drain.
+# Recorded after each saved frame to anchor SensorTimestamp ↔ monotonic mapping.
+_last_frame_sensor_ts = None   # SensorTimestamp (camera clock, nanoseconds)
+_last_frame_mono_ts   = None   # time.monotonic() when that capture_request() returned
 overlay_supported = True
 overlay_retry_count = 0
 overlay_retry_timer = None
@@ -4057,8 +4061,11 @@ def set_lamp_on(arg_bytes=None):
     logging.info("Lamp turned on and camera preview enabled")
 
 def shoot_raw(arg_bytes=None):
+    global _last_frame_sensor_ts, _last_frame_mono_ts
     if no_camera:
         return
+    # Record when CMD_SHOOT_RAW arrived (≈ motor-stop time in monotonic clock).
+    cmd_received_mono = time.monotonic()
     camera_start()
     if state.raws_path is None or not os.path.isdir(os.path.dirname(state.raws_path)):
         logging.error("RAWs path inaccessible; stopping scan")
@@ -4106,33 +4113,58 @@ def shoot_raw(arg_bytes=None):
                         break
                     candidate.release()
             else:
-                # Drain stale transport-era frames from the camera queue.
+                # Drain stale transport-era frames using per-frame calibrated
+                # SensorTimestamp comparison.
                 #
-                # CMD_SHOOT_RAW is set in stopMotorISR() after the motor stops, but
-                # the picamera2 buffer (buffer_count=4) still holds frames captured
-                # during transport.  We drain until motor_settle_s has elapsed, then
-                # accept the next frame.
+                # The original SensorTimestamp approach (vs CLOCK_BOOTTIME) failed
+                # after ~30 s because the IMX477 oscillator drifts ~1000 ppm from
+                # the Pi's system clock, accumulating ~30 ms of error in 30 s.
                 #
-                # The IMX477 rolling shutter reads out all ~3040 rows over ~31 ms.
-                # With a 40 ms deadline the accepted frame's top row is captured only
-                # ~28 ms after motor stop — inside the mechanical settling window —
-                # which causes a jello/skew artifact.  Using 75 ms pushes the top
-                # row to ~60 ms and the bottom row to ~91 ms post-stop, well clear
-                # of any residual film oscillation.
+                # The fixed-deadline approach (time.monotonic()) fails under I/O
+                # load: when the Pi is busy writing DNGs, capture_request() can
+                # block >75 ms even for a stale buffered frame, letting a transport
+                # frame slip through the deadline filter.
                 #
-                # This avoids SensorTimestamp vs CLOCK_BOOTTIME drift (breaks after
-                # ~30 s) and doesn't rely on capture_request(wait=False) (returns a
-                # Job object in this picamera2 version, not None).
-                motor_settle_s = 0.075
-                drain_until = time.monotonic() + motor_settle_s
-                while True:
-                    candidate = camera.capture_request()
-                    if time.monotonic() >= drain_until:
-                        request = candidate  # deadline passed → settled frame
-                        break
-                    candidate.release()     # still within deadline → transport/settling frame
+                # Solution: compare SensorTimestamps in camera-clock space, but
+                # anchor the reference to the PREVIOUS frame (not session start).
+                # Only ~150 ms of monotonic time elapses between the reference frame
+                # and cmd_received_mono, so the accumulated drift is < 0.2 ms —
+                # negligible and correct indefinitely.
+                #
+                # cutoff = last_ts + elapsed_ns + 33 ms
+                #   last_ts       : SensorTimestamp of last saved frame
+                #   elapsed_ns    : monotonic delta → camera-clock delta (< 0.2 ms error)
+                #   + 33 ms       : skip one extra frame so the accepted frame's
+                #                   top row (rolling shutter) lands ≥33 ms after
+                #                   motor stop, past the mechanical settling window.
+                if _last_frame_sensor_ts is not None and \
+                        (cmd_received_mono - _last_frame_mono_ts) < 10.0:
+                    elapsed_ns  = int((cmd_received_mono - _last_frame_mono_ts) * 1e9)
+                    cutoff_ts   = _last_frame_sensor_ts + elapsed_ns + 33_000_000
+                    while True:
+                        candidate = camera.capture_request()
+                        if candidate.get_metadata().get("SensorTimestamp", 0) > cutoff_ts:
+                            request = candidate
+                            break
+                        candidate.release()
+                else:
+                    # First frame of a scan (no reference yet) or scan resumed
+                    # after a long pause: fall back to fixed-deadline drain.
+                    motor_settle_s = 0.075
+                    drain_until = time.monotonic() + motor_settle_s
+                    while True:
+                        candidate = camera.capture_request()
+                        if time.monotonic() >= drain_until:
+                            request = candidate
+                            break
+                        candidate.release()
 
         request.save_dng(state.raws_path.format(state.raw_count), name="raw")
+        # Anchor calibration point for next cycle's SensorTimestamp drain.
+        # Recorded after save_dng() so elapsed_ns on the next call equals only
+        # say_ready + advance + poll (~150 ms), minimising drift accumulation.
+        _last_frame_sensor_ts = request.get_metadata().get("SensorTimestamp")
+        _last_frame_mono_ts   = time.monotonic()
     finally:
         if request is not None:
             request.release()
