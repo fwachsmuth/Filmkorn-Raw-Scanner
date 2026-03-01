@@ -4110,6 +4110,7 @@ def shoot_raw(arg_bytes=None):
                     if request is not candidate:
                         candidate.release()
 
+        discarded = 0
         if request is None:
             if shutter_speed > 50_000:
                 motor_settle_s = 0.15
@@ -4119,6 +4120,7 @@ def shoot_raw(arg_bytes=None):
                     if time.monotonic() >= drain_until:
                         request = candidate
                         break
+                    discarded += 1
                     candidate.release()
             else:
                 # Drain stale transport-era frames using per-frame calibrated
@@ -4167,6 +4169,7 @@ def shoot_raw(arg_bytes=None):
                         if cand_ts > cutoff_ts:
                             request = candidate
                             break
+                        discarded += 1
                         candidate.release()
                 else:
                     # First frame of a scan (no reference yet) or scan resumed
@@ -4187,6 +4190,7 @@ def shoot_raw(arg_bytes=None):
                         if now_mono >= drain_until:
                             request = candidate
                             break
+                        discarded += 1
                         candidate.release()
 
         # Anchor calibration point for next cycle's SensorTimestamp drain.
@@ -4195,6 +4199,18 @@ def shoot_raw(arg_bytes=None):
         # Recording it after save_dng() would shift the reference by 50–150 ms,
         # making cutoff_ts land before motor stop and letting transport frames
         # through.
+        if DEBUG_DRAIN:
+            accepted_ts = request.get_metadata().get("SensorTimestamp")
+            if _last_frame_sensor_ts is None or accepted_ts is None:
+                logging.info("drain: accepted (discarded=%d) delta_ms=n/a", discarded)
+            else:
+                delta_ms = (accepted_ts - _last_frame_sensor_ts) / 1_000_000.0
+                note = "OK"
+                if delta_ms < 50.0:
+                    note = "SMALL"
+                elif delta_ms > 120.0:
+                    note = "LARGE"
+                logging.info("drain: accepted (discarded=%d) delta_ms=%.1f [%s]", discarded, delta_ms, note)
         _last_frame_sensor_ts = request.get_metadata().get("SensorTimestamp")
         _last_frame_mono_ts   = time.monotonic()
         request.save_dng(state.raws_path.format(state.raw_count), name="raw")
