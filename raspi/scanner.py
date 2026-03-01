@@ -3271,7 +3271,6 @@ def ask_arduino() -> Optional["list[int]"]:
             sleep(retry_delay)
             retry_delay *= 2  # Exponential backoff: 50, 100, 200 ms → ~350 ms total
     logging.error("Failed to read from Arduino after several attempts. Attempting I2C bus recovery.")
-    global arduino
     try:
         arduino.close()
         time.sleep(0.1)
