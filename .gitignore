@@ -15,8 +15,6 @@ raspi/.wifi_networks
 
 # log files
 nohup.out
-TODO.md
-
 
 raspi/lsyncd.conf
 raspi/lsyncd-to-host.conf
@@ -46,9 +44,7 @@ fp-info-cache
 *.dsn
 *.ses
 
-# BOM files
-*.xml
-*.csv
+
 
 # kicad 8 backups
 *-backups
@@ -74,6 +70,4 @@ images/
 *.img
 *.img.gz
 
-# JLCPCB plot outputs (zip + csv)
-scan-controller/scan-controller-kicad/JLCPCB-plots/*.zip
-scan-controller/scan-controller-kicad/JLCPCB-plots/*.csv
+
