@@ -23,10 +23,6 @@ import re
 import shutil
 import RPi.GPIO as GPIO
 import logging
-try:
-    from systemd.journal import JournalHandler
-except ImportError:
-    JournalHandler = None
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -4273,37 +4269,16 @@ def setup():
     atexit.register(cleanup_terminal)
     clear_tty1()
 
-    # set up logging (file + direct journald when available; stdout fallback)
+    # set up logging (file + stdout so journalctl includes full detail)
     logging.root.handlers.clear()
     file_handler = logging.FileHandler("scanner.log")
     file_handler.setLevel(logging.DEBUG)
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter("%(levelname)s:%(name)s:%(message)s")
     file_handler.setFormatter(formatter)
-    handlers = [file_handler]
-    journald_setup_error = None
-    if JournalHandler is not None:
-        try:
-            journald_handler = JournalHandler(SYSLOG_IDENTIFIER="filmkorn-scanner")
-            journald_handler.setLevel(logging.DEBUG)
-            journald_handler.setFormatter(formatter)
-            handlers.append(journald_handler)
-        except Exception as exc:
-            journald_setup_error = exc
-
-    # Fallback for systems without python3-systemd or when JournalHandler fails.
-    if len(handlers) == 1:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.DEBUG)
-        console_handler.setFormatter(formatter)
-        handlers.append(console_handler)
-
-    logging.basicConfig(level=logging.DEBUG, handlers=handlers)
-    if JournalHandler is None:
-        logging.warning("journald: python3-systemd not available; using stdout fallback")
-    elif journald_setup_error is not None:
-        logging.warning("journald: failed to initialize direct handler (%s); using stdout fallback", journald_setup_error)
-    else:
-        logging.info("journald: direct JournalHandler enabled")
+    console_handler.setFormatter(formatter)
+    logging.basicConfig(level=logging.DEBUG, handlers=[file_handler, console_handler])
     logging.getLogger("picamera2").setLevel(logging.WARNING)
     logging.getLogger("libcamera").setLevel(logging.WARNING)
 
