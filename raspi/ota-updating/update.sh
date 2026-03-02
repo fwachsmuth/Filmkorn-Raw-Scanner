@@ -19,6 +19,10 @@ log() {
 
 export HOME="${HOME:-/root}"
 
+run_as_pi() {
+  sudo -u pi "$@"
+}
+
 run_and_log() {
   local label="$1"
   shift
@@ -50,8 +54,8 @@ run_hook() {
 cd "$REPO_DIR"
 log "update: marking repo safe for git"
 git config --system --add safe.directory "$REPO_DIR" || true
-PREV_REF="$(git rev-parse HEAD 2>/dev/null || true)"
-PREV_DESC="$(git describe --tags --always 2>/dev/null || true)"
+PREV_REF="$(run_as_pi git rev-parse HEAD 2>/dev/null || true)"
+PREV_DESC="$(run_as_pi git describe --tags --always 2>/dev/null || true)"
 log "update: current ref $PREV_DESC ($PREV_REF)"
 
 on_exit() {
@@ -60,7 +64,7 @@ on_exit() {
     log "update: failed code=$status"
     if [ -n "$PREV_REF" ]; then
       log "update: restoring $PREV_DESC ($PREV_REF)"
-      run_and_log "git-restore" git checkout -f "$PREV_REF"
+      run_and_log "git-restore" run_as_pi git checkout -f "$PREV_REF"
     fi
   fi
   log "update: starting $SERVICE_NAME"
@@ -71,15 +75,15 @@ trap on_exit EXIT
 log "update: stopping $SERVICE_NAME"
 sudo systemctl stop "$SERVICE_NAME" || true
 log "update: fetching tags"
-REMOTE_URL="$(git config --get remote.origin.url || true)"
+REMOTE_URL="$(run_as_pi git config --get remote.origin.url || true)"
 if [[ "$REMOTE_URL" == git@github.com:* ]]; then
   HTTPS_URL="https://github.com/${REMOTE_URL#git@github.com:}"
   log "update: switching origin to HTTPS ($HTTPS_URL)"
-  git remote set-url origin "$HTTPS_URL"
+  run_as_pi git remote set-url origin "$HTTPS_URL"
 fi
-run_and_log "git-fetch" git fetch --tags --prune
+run_and_log "git-fetch" run_as_pi git fetch --tags --prune
 log "update: checking out $TAG"
-run_and_log "git-checkout" git checkout "$TAG"
+run_and_log "git-checkout" run_as_pi git checkout "$TAG"
 HEX_PATH="scan-controller/build/arduino.avr.pro/scan-controller.ino.with_bootloader.hex"
 if [ ! -f "$HEX_PATH" ]; then
   log "update: missing hex file $HEX_PATH; aborting update"
