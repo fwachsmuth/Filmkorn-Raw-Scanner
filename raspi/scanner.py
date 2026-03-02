@@ -36,7 +36,7 @@ RAW_DIRS_PATH = "/mnt/ramdisk/" # This is where the camera saves to. Has to end 
 FULL_RESOLUTION = (4056, 3840)
 
 SENSOR_BIT_DEPTH = 12
-DEBUG_DRAIN = True  # Log frame-drain timing to diagnose out-of-order captures
+DEBUG_DRAIN = False  # Log frame-drain timing to diagnose out-of-order captures
 # Minimum frames to discard after motor stop (adds safety for buffered transport frames)
 DRAIN_MIN_DISCARD_4K = 2
 DRAIN_MIN_DISCARD_2K = 0
