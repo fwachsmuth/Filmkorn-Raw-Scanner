@@ -3391,9 +3391,10 @@ def ask_arduino() -> Optional["list[int]"]:
     # Check if arduino is initialized
     if 'arduino' not in globals() or arduino is None:
         return None
-    # Keep total retry block under ~0.5 s so we don't starve the camera pipeline.
+    # Keep total retry block reasonable so we don't starve the camera pipeline.
     # V4L2 dequeue timer is 1 s; blocking longer can cause "Camera frontend has timed out".
-    max_retries = 4
+    # 6 retries @ 70ms base = ~2 s worst case, which covers Arduino motor-drive busy periods.
+    max_retries = 6
     retry_delay = 0.07
     for attempt in range(max_retries):
         try:
@@ -4600,6 +4601,9 @@ def loop():
     received = ask_arduino()  # This tells us what to do next. See Command enum.
     command = None
     if received is None:
+        if state.scanning:
+            logging.warning("I2C failure during active scan; re-sending READY to recover")
+            say_ready()
         return
     try:
         command = Command(received[0])
