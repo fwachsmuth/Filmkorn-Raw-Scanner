@@ -43,8 +43,8 @@ DRAIN_MIN_DISCARD_4K_FLOOR = 1
 DRAIN_MIN_DISCARD_2K_FLOOR = 0
 # User-adjustable capture latency (how long to wait after motor stop before accepting a frame).
 # The same absolute time is used for both 2K and 4K modes.
-CAPTURE_LATENCY_STEPS_MS = [0, 20, 40, 60, 80, 100, 120]
-CAPTURE_LATENCY_DEFAULT_IDX = 4  # 80 ms
+CAPTURE_LATENCY_STEPS_MS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+CAPTURE_LATENCY_DEFAULT_IDX = 3  # 30 ms
 CAPTURE_LATENCY_FILE = os.path.join(os.path.dirname(__file__), ".capture_latency")
 
 # --- Controller MCU (ATmega328P) Power Switch ---
