@@ -41,13 +41,10 @@ DEBUG_DRAIN = False  # Log frame-drain timing to diagnose out-of-order captures
 # Edit these to tune the safety floor; they are NOT exposed in the UI.
 DRAIN_MIN_DISCARD_4K_FLOOR = 1
 DRAIN_MIN_DISCARD_2K_FLOOR = 0
-# User-adjustable capture latency (how long to wait after motor stop before accepting a frame).
-# The 2K value is scaled to 4K by the frame-period ratio plus the extra readout overhead.
-CAPTURE_LATENCY_STEPS_MS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
-FRAME_PERIOD_2K_MS = 33   # ~30 fps
-FRAME_PERIOD_4K_MS = 100  # ~10 fps
-READOUT_DELTA_4K_MS = 15  # 4K readout (~31 ms) minus 2K readout (~16 ms)
-CAPTURE_LATENCY_DEFAULT_IDX = 3  # 30 ms
+# User-adjustable capture latency: number of frames to discard after motor stop.
+# Automatically scales to any framerate (2K ~33 ms/frame, 4K ~100 ms/frame).
+CAPTURE_LATENCY_STEPS_FRAMES = [0, 1, 2, 3, 4]
+CAPTURE_LATENCY_DEFAULT_IDX = 1  # 1 frame
 CAPTURE_LATENCY_FILE = os.path.join(os.path.dirname(__file__), ".capture_latency")
 
 # --- Controller MCU (ATmega328P) Power Switch ---
@@ -1373,7 +1370,7 @@ def _load_latency_setting() -> int:
         try:
             with open(CAPTURE_LATENCY_FILE, "r") as f:
                 idx = int(f.read().strip())
-                if 0 <= idx < len(CAPTURE_LATENCY_STEPS_MS):
+                if 0 <= idx < len(CAPTURE_LATENCY_STEPS_FRAMES):
                     return idx
         except (ValueError, IOError):
             pass
@@ -1384,7 +1381,7 @@ def _save_latency_setting(idx: int):
     try:
         with open(CAPTURE_LATENCY_FILE, "w") as f:
             f.write(str(idx))
-        logging.info("latency: saved setting %d (%d ms)", idx, CAPTURE_LATENCY_STEPS_MS[idx])
+        logging.info("latency: saved setting %d (%d frames)", idx, CAPTURE_LATENCY_STEPS_FRAMES[idx])
     except IOError as e:
         logging.error("latency: failed to save setting: %s", e)
 
@@ -1498,12 +1495,13 @@ def _awb_cancel(_args=None):
 def _show_latency_selection():
     global latency_selected_idx, current_screen, pending_overlay, overlay_ready, preview_started, latency_stored_idx
     lines = [_("latency.title"), "", ""]
-    for i, ms in enumerate(CAPTURE_LATENCY_STEPS_MS):
+    for i, n in enumerate(CAPTURE_LATENCY_STEPS_FRAMES):
         prefix = "> " if i == latency_selected_idx else "  "
-        lines.append(prefix + f"{ms} ms")
+        label = f"{n} frame" if n == 1 else f"{n} frames"
+        lines.append(prefix + label)
     lines.append("")
-    stored_ms = CAPTURE_LATENCY_STEPS_MS[latency_stored_idx]
-    lines.append(_("latency.current", ms=stored_ms))
+    stored_frames = CAPTURE_LATENCY_STEPS_FRAMES[latency_stored_idx]
+    lines.append(_("latency.current", frames=stored_frames))
 
     selected_line_idx = 3 + latency_selected_idx
     logo_height = _get_logo_height()
@@ -1539,23 +1537,23 @@ def _latency_prev(_args=None):
     global latency_selected_idx
     if not latency_mode:
         return
-    latency_selected_idx = (latency_selected_idx - 1) % len(CAPTURE_LATENCY_STEPS_MS)
-    logging.info("latency: selected %d ms", CAPTURE_LATENCY_STEPS_MS[latency_selected_idx])
+    latency_selected_idx = (latency_selected_idx - 1) % len(CAPTURE_LATENCY_STEPS_FRAMES)
+    logging.info("latency: selected %d frames", CAPTURE_LATENCY_STEPS_FRAMES[latency_selected_idx])
     _show_latency_selection()
 
 def _latency_next(_args=None):
     global latency_selected_idx
     if not latency_mode:
         return
-    latency_selected_idx = (latency_selected_idx + 1) % len(CAPTURE_LATENCY_STEPS_MS)
-    logging.info("latency: selected %d ms", CAPTURE_LATENCY_STEPS_MS[latency_selected_idx])
+    latency_selected_idx = (latency_selected_idx + 1) % len(CAPTURE_LATENCY_STEPS_FRAMES)
+    logging.info("latency: selected %d frames", CAPTURE_LATENCY_STEPS_FRAMES[latency_selected_idx])
     _show_latency_selection()
 
 def _latency_confirm(_args=None):
     global latency_mode, latency_stored_idx
     if not latency_mode:
         return
-    logging.info("latency: confirmed %d ms", CAPTURE_LATENCY_STEPS_MS[latency_selected_idx])
+    logging.info("latency: confirmed %d frames", CAPTURE_LATENCY_STEPS_FRAMES[latency_selected_idx])
     _save_latency_setting(latency_selected_idx)
     latency_stored_idx = latency_selected_idx
     latency_mode = False
@@ -2575,8 +2573,8 @@ def _show_menu_screen():
             k_value = awb_label.replace("~", "").replace("K", "").strip()
             display_item = _("menu.item.preview-wb", k=k_value)
         elif item_key == "menu.item.capture-latency":
-            ms = CAPTURE_LATENCY_STEPS_MS[latency_stored_idx]
-            display_item = _("menu.item.capture-latency", ms=ms)
+            frames = CAPTURE_LATENCY_STEPS_FRAMES[latency_stored_idx]
+            display_item = _("menu.item.capture-latency", frames=frames)
         elif item_key == "menu.item.scan-target":
             target_label = TARGET_OPTIONS[target_stored_idx][0]
             display_item = _("menu.item.scan-target", target=target_label)
@@ -4254,11 +4252,9 @@ def shoot_raw(arg_bytes=None):
         discarded = 0
         is_full_res = (current_resolution_switch == 0)
         min_discard = DRAIN_MIN_DISCARD_4K_FLOOR if is_full_res else DRAIN_MIN_DISCARD_2K_FLOOR
-        latency_ms = CAPTURE_LATENCY_STEPS_MS[latency_stored_idx]
-        if is_full_res:
-            # Scale 2K latency to 4K: preserve frame-count semantics + extra readout overhead
-            latency_ms = round(latency_ms * (FRAME_PERIOD_4K_MS / FRAME_PERIOD_2K_MS)) + READOUT_DELTA_4K_MS
-        cutoff_margin_ns = latency_ms * 1_000_000
+        user_discard = CAPTURE_LATENCY_STEPS_FRAMES[latency_stored_idx]
+        min_discard = max(min_discard, user_discard)
+        cutoff_margin_ns = 0
         if request is None:
             # Buffer drain rules (summary):
             # 1) Prefer SensorTimestamp-based cutoff when we have a recent anchor frame.
@@ -4457,7 +4453,7 @@ def setup():
     
     # Load user settings
     latency_stored_idx = _load_latency_setting()
-    logging.info("latency: loaded capture latency %d ms", CAPTURE_LATENCY_STEPS_MS[latency_stored_idx])
+    logging.info("latency: loaded capture latency %d frames", CAPTURE_LATENCY_STEPS_FRAMES[latency_stored_idx])
 
     # Load the target setting and initialize storage_location accordingly
     target_stored_idx = _load_target_setting()

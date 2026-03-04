@@ -28,7 +28,7 @@
   "menu.item.firmware-update": "Firmware Update",
   "menu.item.start-pairing": "Start Pairing",
   "menu.item.preview-wb": "Preview White Balance ({k} K)",
-  "menu.item.capture-latency": "Capture Latency ({ms} ms)",
+  "menu.item.capture-latency": "Capture Latency ({frames} fr)",
   "menu.item.scan-target": "Select Scan Target ({target})",
   "menu.item.setup-wifi": "Setup Wifi",
   "menu.item.create-debug-log": "Create Debug Log",
@@ -45,7 +45,7 @@
   "awb.current": "Current: {label}",
 
   "latency.title": "Capture Latency",
-  "latency.current": "Current: {ms} ms",
+  "latency.current": "Current: {frames} fr",
 
   "target.title": "Select Scan Target",
   "target.current": "Current: {label}",
