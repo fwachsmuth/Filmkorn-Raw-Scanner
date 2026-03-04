@@ -104,6 +104,11 @@ enum Command
   CMD_WIFI_NEXT = 47,
   CMD_WIFI_CONFIRM = 48,
   CMD_WIFI_CANCEL = 49,
+  CMD_LATENCY_ENTER = 50,
+  CMD_LATENCY_PREV = 51,
+  CMD_LATENCY_NEXT = 52,
+  CMD_LATENCY_CONFIRM = 53,
+  CMD_LATENCY_CANCEL = 54,
 
   // Raspi to Arduino
   CMD_READY = 128,
@@ -113,7 +118,8 @@ enum Command
   CMD_TARGET_EXIT = 132,
   CMD_TARGET_REENTER = 133,  // Re-enter target mode (used when returning from validation error)
   CMD_WIFI_EXIT = 134,
-  CMD_SCAN_REJECTED = 135    // Pi rejected START_SCAN (e.g. no drive / not paired)
+  CMD_SCAN_REJECTED = 135,   // Pi rejected START_SCAN (e.g. no drive / not paired)
+  CMD_LATENCY_EXIT = 136     // Pi tells Arduino to exit latency submenu
 };
 
 enum ZoomMode {
@@ -128,6 +134,7 @@ enum MenuState {
   MENU_UPDATE,    // Firmware update submenu
   MENU_PAIRING,   // Pairing submenu
   MENU_AWB,       // White balance submenu
+  MENU_LATENCY,   // Capture latency submenu
   MENU_TARGET,    // Scan target submenu
   MENU_WIFI,      // WiFi setup submenu
   MENU_LOGS,      // Debug log submenu
@@ -138,12 +145,13 @@ enum MenuItem {
   MENU_ITEM_UPDATE = 0,
   MENU_ITEM_PAIRING = 1,
   MENU_ITEM_AWB = 2,
-  MENU_ITEM_TARGET = 3,
-  MENU_ITEM_WIFI = 4,
-  MENU_ITEM_LOGS = 5,
-  MENU_ITEM_UNPAIR = 6,
-  MENU_ITEM_LANGUAGE = 7,
-  MENU_ITEM_COUNT = 8
+  MENU_ITEM_CAPTURE_LATENCY = 3,
+  MENU_ITEM_TARGET = 4,
+  MENU_ITEM_WIFI = 5,
+  MENU_ITEM_LOGS = 6,
+  MENU_ITEM_UNPAIR = 7,
+  MENU_ITEM_LANGUAGE = 8,
+  MENU_ITEM_COUNT = 9
 };
 
 
@@ -175,6 +183,7 @@ bool updateMode = false;
 bool pairingMode = false;
 bool logsMode = false;
 bool awbMode = false;
+bool latencyMode = false;
 bool targetMode = false;
 bool wifiMode = false;
 volatile bool targetReenterPending = false;
@@ -721,6 +730,11 @@ void handleMenuSystem() {
               awbMode = true;
               nextPiCmd = CMD_AWB_ENTER;
               break;
+            case MENU_ITEM_CAPTURE_LATENCY:
+              menuState = MENU_LATENCY;
+              latencyMode = true;
+              nextPiCmd = CMD_LATENCY_ENTER;
+              break;
             case MENU_ITEM_TARGET:
               menuState = MENU_TARGET;
               targetMode = true;
@@ -847,6 +861,35 @@ void handleMenuSystem() {
             awbMode = false;
             nextPiCmd = CMD_AWB_CANCEL;
             Serial.println(F("AWB: exit menu"));
+            break;
+          default:
+            break;
+        }
+      }
+    } else if (latencyMode) {
+      if (currentButton != prevButton) {
+        prevButton = currentButton;
+        switch (currentButton) {
+          case RUNREV:
+            menuState = MENU_MAIN;
+            latencyMode = false;
+            nextPiCmd = CMD_LATENCY_CANCEL;
+            Serial.println(F("Latency: back to menu"));
+            break;
+          case REV1:
+            nextPiCmd = CMD_LATENCY_PREV;
+            break;
+          case FWD1:
+            nextPiCmd = CMD_LATENCY_NEXT;
+            break;
+          case RUNFWD:
+            nextPiCmd = CMD_LATENCY_CONFIRM;
+            break;
+          case STOP:
+            menuState = MENU_IDLE;
+            latencyMode = false;
+            nextPiCmd = CMD_LATENCY_CANCEL;
+            Serial.println(F("Latency: exit menu"));
             break;
           default:
             break;
@@ -1150,6 +1193,12 @@ void i2cReceive(int howMany) {
       nextPiCmd = CMD_NONE;
       Serial.println(F("AWB menu: exit"));
     }
+    if ((Command)i2cCommand == CMD_LATENCY_EXIT) {
+      latencyMode = false;
+      menuState = MENU_MAIN;
+      nextPiCmd = CMD_NONE;
+      Serial.println(F("Latency menu: exit"));
+    }
     if ((Command)i2cCommand == CMD_TARGET_EXIT) {
       targetMode = false;
       menuState = MENU_MAIN;
@@ -1173,6 +1222,7 @@ void i2cReceive(int howMany) {
         updateMode = false;
         pairingMode = false;
         awbMode = false;
+        latencyMode = false;
         targetMode = false;
         logsMode = false;
         nextPiCmd = CMD_NONE;

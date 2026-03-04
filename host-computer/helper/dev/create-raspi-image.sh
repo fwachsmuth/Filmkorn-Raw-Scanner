@@ -388,6 +388,7 @@ sudo journalctl --rotate || true
 sudo journalctl --vacuum-time=1s || true
 sudo find /var/log -type f -exec truncate -s 0 {} + || true
 sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/scanner.log || true
+sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.capture_latency || true
 
 sudo apt-get clean || true
 sudo rm -rf /var/cache/apt/archives/* || true

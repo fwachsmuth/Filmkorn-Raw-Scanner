@@ -37,12 +37,15 @@ FULL_RESOLUTION = (4056, 3840)
 
 SENSOR_BIT_DEPTH = 12
 DEBUG_DRAIN = False  # Log frame-drain timing to diagnose out-of-order captures
-# Minimum frames to discard after motor stop (adds safety for buffered transport frames)
-DRAIN_MIN_DISCARD_4K = 2
-DRAIN_MIN_DISCARD_2K = 0
-# SensorTimestamp safety margin (ns) added after motor stop
-DRAIN_CUTOFF_MARGIN_NS_4K = 170_000_000
-DRAIN_CUTOFF_MARGIN_NS_2K = 86_000_000
+# Minimum frames to always discard after motor stop regardless of latency setting.
+# Edit these to tune the safety floor; they are NOT exposed in the UI.
+DRAIN_MIN_DISCARD_4K_FLOOR = 1
+DRAIN_MIN_DISCARD_2K_FLOOR = 0
+# User-adjustable capture latency (how long to wait after motor stop before accepting a frame).
+# The same absolute time is used for both 2K and 4K modes.
+CAPTURE_LATENCY_STEPS_MS = [0, 20, 40, 60, 80, 100, 120]
+CAPTURE_LATENCY_DEFAULT_IDX = 4  # 80 ms
+CAPTURE_LATENCY_FILE = os.path.join(os.path.dirname(__file__), ".capture_latency")
 
 # --- Controller MCU (ATmega328P) Power Switch ---
 UC_POWER_GPIO = 16  # GPIO16 (physical pin 36) enables µC power switch on the controller PCB
@@ -99,6 +102,9 @@ shutter_speed = AUTO_SHUTTER_SPEED
 # Recorded after each saved frame to anchor SensorTimestamp ↔ monotonic mapping.
 _last_frame_sensor_ts = None   # SensorTimestamp (camera clock, nanoseconds)
 _last_frame_mono_ts   = None   # time.monotonic() when that capture_request() returned
+latency_mode = False
+latency_selected_idx = CAPTURE_LATENCY_DEFAULT_IDX  # working selection while in menu
+latency_stored_idx = CAPTURE_LATENCY_DEFAULT_IDX    # loaded/saved value used during scanning
 overlay_supported = True
 overlay_retry_count = 0
 overlay_retry_timer = None
@@ -169,6 +175,7 @@ MENU_ITEMS = [
     "menu.item.firmware-update",
     "menu.item.start-pairing",
     "menu.item.preview-wb",
+    "menu.item.capture-latency",
     "menu.item.scan-target",
     "menu.item.setup-wifi",
     "menu.item.create-debug-log",
@@ -336,6 +343,11 @@ class Command(enum.Enum):
     WIFI_NEXT = 47
     WIFI_CONFIRM = 48
     WIFI_CANCEL = 49
+    LATENCY_ENTER = 50
+    LATENCY_PREV = 51
+    LATENCY_NEXT = 52
+    LATENCY_CONFIRM = 53
+    LATENCY_CANCEL = 54
     WIFI_EXIT = 134
 
     # Raspi to Arduino. These are handled by i2cReceive() on the Controller side.
@@ -346,6 +358,7 @@ class Command(enum.Enum):
     TARGET_EXIT = 132
     TARGET_REENTER = 133  # Re-enter target mode (used when returning from validation error)
     SCAN_REJECTED = 135   # Tell Arduino to abort scan (Pi rejected START_SCAN)
+    LATENCY_EXIT = 136    # Tell Arduino to exit latency submenu (Pi → Arduino)
 
 def process_is_running(contents: str) -> bool:
     try:
@@ -1351,6 +1364,28 @@ def _save_awb_setting(idx: int):
     except IOError as e:
         logging.error("awb: failed to save setting: %s", e)
 
+def _load_latency_setting() -> int:
+    """Load the stored capture latency index from file. Returns CAPTURE_LATENCY_DEFAULT_IDX on missing/invalid."""
+    if os.path.exists(CAPTURE_LATENCY_FILE):
+        try:
+            with open(CAPTURE_LATENCY_FILE, "r") as f:
+                idx = int(f.read().strip())
+                if 0 <= idx < len(CAPTURE_LATENCY_STEPS_MS):
+                    return idx
+        except (ValueError, IOError):
+            pass
+    return CAPTURE_LATENCY_DEFAULT_IDX
+
+def _save_latency_setting(idx: int):
+    """Save the capture latency index to file."""
+    try:
+        with open(CAPTURE_LATENCY_FILE, "w") as f:
+            f.write(str(idx))
+        logging.info("latency: saved setting %d (%d ms)", idx, CAPTURE_LATENCY_STEPS_MS[idx])
+    except IOError as e:
+        logging.error("latency: failed to save setting: %s", e)
+
+
 def _get_current_awb_mode():
     """Get the current AWB mode enum based on stored setting."""
     idx = _load_awb_setting()
@@ -1454,6 +1489,98 @@ def _awb_cancel(_args=None):
         show_ready_to_scan()
 
 # --- End AWB Menu ---
+
+# --- Capture Latency Menu ---
+
+def _show_latency_selection():
+    global latency_selected_idx, current_screen, pending_overlay, overlay_ready, preview_started, latency_stored_idx
+    lines = [_("latency.title"), "", ""]
+    for i, ms in enumerate(CAPTURE_LATENCY_STEPS_MS):
+        prefix = "> " if i == latency_selected_idx else "  "
+        lines.append(prefix + f"{ms} ms")
+    lines.append("")
+    stored_ms = CAPTURE_LATENCY_STEPS_MS[latency_stored_idx]
+    lines.append(_("latency.current", ms=stored_ms))
+
+    selected_line_idx = 3 + latency_selected_idx
+    logo_height = _get_logo_height()
+    button_area_height = 60
+    available_height = preview_size[1] - logo_height - 10 - button_area_height if preview_size else 400
+    estimated_line_height = 40
+    max_visible_lines = max(1, int(available_height / estimated_line_height))
+    scroll_offset = max(0, selected_line_idx - max_visible_lines + 1) if selected_line_idx >= max_visible_lines else 0
+
+    button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=scroll_offset)
+    current_screen = "latency"
+    pending_overlay = overlay
+    if not preview_started:
+        try:
+            camera_start()
+        except Exception as exc:
+            logging.error("Latency screen: failed to start preview: %s", exc)
+    overlay_ready = True
+    _apply_overlay_if_ready()
+    if pending_overlay is not None:
+        threading.Timer(0.2, _apply_overlay_if_ready).start()
+
+def _enter_latency_mode():
+    global latency_mode, latency_selected_idx, latency_stored_idx
+    logging.info("latency: entering capture latency menu")
+    latency_mode = True
+    latency_stored_idx = _load_latency_setting()
+    latency_selected_idx = latency_stored_idx
+    _show_latency_selection()
+
+def _latency_prev(_args=None):
+    global latency_selected_idx
+    if not latency_mode:
+        return
+    latency_selected_idx = (latency_selected_idx - 1) % len(CAPTURE_LATENCY_STEPS_MS)
+    logging.info("latency: selected %d ms", CAPTURE_LATENCY_STEPS_MS[latency_selected_idx])
+    _show_latency_selection()
+
+def _latency_next(_args=None):
+    global latency_selected_idx
+    if not latency_mode:
+        return
+    latency_selected_idx = (latency_selected_idx + 1) % len(CAPTURE_LATENCY_STEPS_MS)
+    logging.info("latency: selected %d ms", CAPTURE_LATENCY_STEPS_MS[latency_selected_idx])
+    _show_latency_selection()
+
+def _latency_confirm(_args=None):
+    global latency_mode, latency_stored_idx
+    if not latency_mode:
+        return
+    logging.info("latency: confirmed %d ms", CAPTURE_LATENCY_STEPS_MS[latency_selected_idx])
+    _save_latency_setting(latency_selected_idx)
+    latency_stored_idx = latency_selected_idx
+    latency_mode = False
+    try:
+        tell_arduino(Command.LATENCY_EXIT)
+    except Exception as exc:
+        logging.warning("latency: failed to notify controller: %s", exc)
+    if menu_mode:
+        _show_menu_screen()
+    else:
+        show_ready_to_scan()
+
+def _latency_cancel(_args=None):
+    global latency_mode
+    if not latency_mode:
+        return
+    logging.info("latency: canceled by user")
+    latency_mode = False
+    try:
+        tell_arduino(Command.LATENCY_EXIT)
+    except Exception as exc:
+        logging.warning("latency: failed to notify controller: %s", exc)
+    if menu_mode:
+        _show_menu_screen()
+    else:
+        show_ready_to_scan()
+
+# --- End Capture Latency Menu ---
 
 # --- Scan Target Menu ---
 
@@ -2432,10 +2559,11 @@ def _unpair_cancel(_args=None):
         show_ready_to_scan()
 
 def _show_menu_screen():
-    global current_screen, pending_overlay, idle_since, overlay_ready, menu_selected, menu_scroll_offset, awb_stored_idx, target_stored_idx
-    # Ensure AWB setting is loaded (in case it changed)
+    global current_screen, pending_overlay, idle_since, overlay_ready, menu_selected, menu_scroll_offset, awb_stored_idx, target_stored_idx, latency_stored_idx
+    # Ensure settings are loaded (in case they changed)
     awb_stored_idx = _load_awb_setting()
     target_stored_idx = _load_target_setting()
+    latency_stored_idx = _load_latency_setting()
     lines = [_("menu.title"), "", ""]  # Extra empty line after title
     for i, item_key in enumerate(MENU_ITEMS):
         prefix = "> " if i == menu_selected else "  "
@@ -2443,6 +2571,9 @@ def _show_menu_screen():
             awb_label = AWB_OPTIONS[awb_stored_idx][0]
             k_value = awb_label.replace("~", "").replace("K", "").strip()
             display_item = _("menu.item.preview-wb", k=k_value)
+        elif item_key == "menu.item.capture-latency":
+            ms = CAPTURE_LATENCY_STEPS_MS[latency_stored_idx]
+            display_item = _("menu.item.capture-latency", ms=ms)
         elif item_key == "menu.item.scan-target":
             target_label = TARGET_OPTIONS[target_stored_idx][0]
             display_item = _("menu.item.scan-target", target=target_label)
@@ -4118,8 +4249,8 @@ def shoot_raw(arg_bytes=None):
 
         discarded = 0
         is_full_res = (current_resolution_switch == 0)
-        min_discard = DRAIN_MIN_DISCARD_4K if is_full_res else DRAIN_MIN_DISCARD_2K
-        cutoff_margin_ns = DRAIN_CUTOFF_MARGIN_NS_4K if is_full_res else DRAIN_CUTOFF_MARGIN_NS_2K
+        min_discard = DRAIN_MIN_DISCARD_4K_FLOOR if is_full_res else DRAIN_MIN_DISCARD_2K_FLOOR
+        cutoff_margin_ns = CAPTURE_LATENCY_STEPS_MS[latency_stored_idx] * 1_000_000
         if request is None:
             # Buffer drain rules (summary):
             # 1) Prefer SensorTimestamp-based cutoff when we have a recent anchor frame.
@@ -4263,7 +4394,7 @@ def say_ready():
 
 # Now let's go
 def setup():
-    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, last_sleep_button_state, last_sleep_button_change, sleep_button_armed, dmesg_since, current_version_label
+    global PID_FILE_PATH, arduino, arduino_i2c_address, ssh_subprocess, state, camera, storage_location, sensor_size, preview_size, overlay_ready, overlay_supported, overlay_retry_count, overlay_retry_timer, current_resolution_switch, last_resolution_label, last_sleep_button_state, last_sleep_button_change, sleep_button_armed, dmesg_since, current_version_label, latency_stored_idx
     os.chdir("/home/pi/Filmkorn-Raw-Scanner/raspi")
     
     atexit.register(cleanup_terminal)
@@ -4316,6 +4447,10 @@ def setup():
     #   0 => Net / remote
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     
+    # Load user settings
+    latency_stored_idx = _load_latency_setting()
+    logging.info("latency: loaded capture latency %d ms", CAPTURE_LATENCY_STEPS_MS[latency_stored_idx])
+
     # Load the target setting and initialize storage_location accordingly
     target_stored_idx = _load_target_setting()
     target_value = TARGET_OPTIONS[target_stored_idx][1]
@@ -4539,6 +4674,19 @@ def loop():
                 Command.AWB_NEXT: _awb_next,
                 Command.AWB_CONFIRM: _awb_confirm,
                 Command.AWB_CANCEL: _awb_cancel,
+            }.get(command, None)
+            if func is not None:
+                func(received[1:])
+            return
+        if command == Command.LATENCY_ENTER:
+            _enter_latency_mode()
+            return
+        if latency_mode:
+            func = {
+                Command.LATENCY_PREV: _latency_prev,
+                Command.LATENCY_NEXT: _latency_next,
+                Command.LATENCY_CONFIRM: _latency_confirm,
+                Command.LATENCY_CANCEL: _latency_cancel,
             }.get(command, None)
             if func is not None:
                 func(received[1:])
