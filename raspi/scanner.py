@@ -39,11 +39,14 @@ SENSOR_BIT_DEPTH = 12
 DEBUG_DRAIN = False  # Log frame-drain timing to diagnose out-of-order captures
 # Minimum frames to always discard after motor stop regardless of latency setting.
 # Edit these to tune the safety floor; they are NOT exposed in the UI.
-DRAIN_MIN_DISCARD_4K_FLOOR = 2
+DRAIN_MIN_DISCARD_4K_FLOOR = 1
 DRAIN_MIN_DISCARD_2K_FLOOR = 0
 # User-adjustable capture latency (how long to wait after motor stop before accepting a frame).
-# The same absolute time is used for both 2K and 4K modes.
+# The 2K value is scaled to 4K by the frame-period ratio plus the extra readout overhead.
 CAPTURE_LATENCY_STEPS_MS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+FRAME_PERIOD_2K_MS = 33   # ~30 fps
+FRAME_PERIOD_4K_MS = 100  # ~10 fps
+READOUT_DELTA_4K_MS = 15  # 4K readout (~31 ms) minus 2K readout (~16 ms)
 CAPTURE_LATENCY_DEFAULT_IDX = 3  # 30 ms
 CAPTURE_LATENCY_FILE = os.path.join(os.path.dirname(__file__), ".capture_latency")
 
@@ -4251,7 +4254,11 @@ def shoot_raw(arg_bytes=None):
         discarded = 0
         is_full_res = (current_resolution_switch == 0)
         min_discard = DRAIN_MIN_DISCARD_4K_FLOOR if is_full_res else DRAIN_MIN_DISCARD_2K_FLOOR
-        cutoff_margin_ns = CAPTURE_LATENCY_STEPS_MS[latency_stored_idx] * 1_000_000
+        latency_ms = CAPTURE_LATENCY_STEPS_MS[latency_stored_idx]
+        if is_full_res:
+            # Scale 2K latency to 4K: preserve frame-count semantics + extra readout overhead
+            latency_ms = round(latency_ms * (FRAME_PERIOD_4K_MS / FRAME_PERIOD_2K_MS)) + READOUT_DELTA_4K_MS
+        cutoff_margin_ns = latency_ms * 1_000_000
         if request is None:
             # Buffer drain rules (summary):
             # 1) Prefer SensorTimestamp-based cutoff when we have a recent anchor frame.
