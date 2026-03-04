@@ -39,7 +39,7 @@ SENSOR_BIT_DEPTH = 12
 DEBUG_DRAIN = False  # Log frame-drain timing to diagnose out-of-order captures
 # Minimum frames to always discard after motor stop regardless of latency setting.
 # Edit these to tune the safety floor; they are NOT exposed in the UI.
-DRAIN_MIN_DISCARD_4K_FLOOR = 1
+DRAIN_MIN_DISCARD_4K_FLOOR = 2
 DRAIN_MIN_DISCARD_2K_FLOOR = 0
 # User-adjustable capture latency (how long to wait after motor stop before accepting a frame).
 # The same absolute time is used for both 2K and 4K modes.
