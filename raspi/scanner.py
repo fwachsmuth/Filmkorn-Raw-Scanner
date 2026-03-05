@@ -382,14 +382,8 @@ def process_is_running(contents: str) -> bool:
 
     return True
 
-class ZoomMode(enum.Enum):
-    Z1_1 = 0
-    Z3_1 = 1
-    Z10_1 = 2
-
 class State:
     def __init__(self):
-        self._zoom_mode = ZoomMode.Z1_1
         self.raws_path: Optional[str] = None
         self.raw_count = 0
         self.continue_dir = False
@@ -398,14 +392,6 @@ class State:
         self.fps_sum = 0.0
         self.fps_count = 0
         self.warmup_needed = False
-
-    @property
-    def lamp_mode(self) -> bool:
-        return camera_running
-
-    @property
-    def zoom_mode(self) -> ZoomMode:
-        return self._zoom_mode
 
     def set_raws_path(self):
         raws_path = datetime_to_raws_path(datetime.now()) + _resolution_suffix()
@@ -4171,21 +4157,18 @@ def set_init_values(arg_bytes):
         show_ready_to_scan()
 
 def set_zoom_mode_1_1(arg_bytes=None):
-    state._zoom_mode = ZoomMode.Z1_1
     set_auto_exposure(True)
     set_zoom_crop(0.0, 0.0, 1.0, 1.0)
     logging.info("Changing Preview Zoom Level to 1:1")
 
 def set_zoom_mode_3_1(arg_bytes=None):
     set_lamp_on()
-    state._zoom_mode = ZoomMode.Z1_1
     set_auto_exposure(True)
     set_zoom_crop(1 / 3, 1 / 3, 1 / 3, 1 / 3)
     logging.info("Changing Preview Zoom Level to 3:1")
 
 def set_zoom_mode_10_1(arg_bytes=None):
     set_lamp_on()
-    state._zoom_mode = ZoomMode.Z1_1
     set_auto_exposure(True)
     set_zoom_crop(0.42, 0.42, 1 / 6, 1 / 6)
     logging.info("Changing Preview Zoom Level to 6:1")
