@@ -9,6 +9,11 @@
 #define EEPROM_CALIB_ADDR  0    // uint8_t motorMinDuty
 #define EEPROM_MAGIC_ADDR  1    // magic byte to detect valid calibration data
 #define EEPROM_CALIB_MAGIC 0xA5
+#define EEPROM_BACKUP_MAGIC       0xC7
+// Layout within the backup region (starting at EEPROM addr 5):
+// [magic:1][len_lsb:1][len_msb:1][TLV...]
+// Wipe = overwrite magic byte (offset 0 in region = absolute addr 5) with 0x00
+#define EEPROM_BACKUP_BASE_ADDR   5     // backup region starts here
 
 const byte SLAVE_ADDRESS = 42; // Our i2c address here
 /*
@@ -113,6 +118,12 @@ enum Command
   CMD_LATENCY_CONFIRM = 53,
   CMD_LATENCY_CANCEL = 54,
 
+  // EEPROM dotfile backup (bidirectional)
+  CMD_EEPROM_WRITE_CHUNK = 55,   // Pi → Arduino: [offset_hi, offset_lo, data...]
+  CMD_EEPROM_READ_REQUEST = 56,  // Pi → Arduino: [offset_hi, offset_lo, length]
+  CMD_EEPROM_WIPE = 57,          // Pi → Arduino: wipe backup magic byte
+  CMD_EEPROM_DATA = 58,          // Arduino → Pi: buffered read data (follows CMD_EEPROM_READ_REQUEST)
+
   // Raspi to Arduino
   CMD_READY = 128,
   CMD_TELL_INITVALUES = 129, // send film load state and exposure pot value (both only get send when they change)
@@ -204,6 +215,11 @@ uint32_t stopButtonPressedAt = 0;
 const uint32_t STOP_LONG_PRESS_MS = 3000;  // 3 seconds
 
 volatile bool piIsReady = false;
+
+// EEPROM backup: read buffer filled by CMD_EEPROM_READ_REQUEST, served by i2cRequest()
+uint8_t eepromReadBuf[32];
+uint8_t eepromReadLen = 0;
+volatile bool eepromReadReady = false;
 
 /*
  * Board revision is encoded on A7 via voltage divider: 10 kOhm to GND, R51 (VCC to A7) per revision.
@@ -1192,101 +1208,132 @@ ControlButton pollButtons() {
 
 void i2cReceive(int howMany) {
   // This is called when the Pi tells us something (like: ready to take next photo)
-  uint8_t i2cCommand;
-  if (howMany >= (sizeof i2cCommand))
-  {
-    while (Wire.available()) {
-      i2cCommand = Wire.read();
-    }
-    
-    if ((Command)i2cCommand == CMD_PAIRING_EXIT) {
-      pairingMode = false;
-      menuState = MENU_MAIN;
-      nextPiCmd = CMD_NONE;
-      pairingCancelPending = false;
-    }
-    if ((Command)i2cCommand == CMD_LOGS_EXIT) {
-      logsMode = false;
-      menuState = MENU_MAIN;
-      nextPiCmd = CMD_NONE;
-    }
-    if ((Command)i2cCommand == CMD_AWB_EXIT) {
-      awbMode = false;
-      menuState = MENU_MAIN;
-      nextPiCmd = CMD_NONE;
-      Serial.println(F("AWB menu: exit"));
-    }
-    if ((Command)i2cCommand == CMD_LATENCY_EXIT) {
-      latencyMode = false;
-      menuState = MENU_MAIN;
-      nextPiCmd = CMD_NONE;
-      Serial.println(F("Latency menu: exit"));
-    }
-    if ((Command)i2cCommand == CMD_TARGET_EXIT) {
-      targetMode = false;
-      menuState = MENU_MAIN;
-      nextPiCmd = CMD_NONE;
-      Serial.println(F("Target menu: exit"));
-    }
-    if ((Command)i2cCommand == CMD_WIFI_EXIT) {
-      wifiMode = false;
-      menuState = MENU_MAIN;
-      nextPiCmd = CMD_NONE;
-      Serial.println(F("WiFi menu: exit"));
-    }
-    if ((Command)i2cCommand == CMD_TARGET_REENTER) {
-      targetReenterPending = true;
-    }
-    if ((Command)i2cCommand == CMD_MENU_EXIT) {
-      // If we're in a submenu, go back to main menu; otherwise exit completely
-      if (menuState != MENU_IDLE && menuState != MENU_MAIN) {
-        menuState = MENU_MAIN;
-        // Clear submenu modes
-        updateMode = false;
-        pairingMode = false;
-        awbMode = false;
-        latencyMode = false;
-        targetMode = false;
-        logsMode = false;
-        nextPiCmd = CMD_NONE;
-        Serial.println(F("Menu: back to main (from Pi)"));
-      } else {
-        menuState = MENU_IDLE;
-        nextPiCmd = CMD_NONE;
-        Serial.println(F("Menu: exit (from Pi)"));
-      }
-    }
-    if ((Command)i2cCommand == CMD_SCAN_REJECTED) {
-      if (isScanning) {
-        // Reset scan state locally without sending CMD_STOP_SCAN back to Pi
-        // (Pi never started scanning, so stop_scan() must not run)
-        isScanning = false;
-        piIsReady = false;
-        setLampMode(lampModeBeforeScan);
-        Serial.println(F("Scan rejected by Pi"));
-      }
-    }
-    // Don't set piIsReady if we aren't scanning anymore
-    if ((Command)i2cCommand == CMD_READY && isScanning) {
-      piIsReady = true;
-    }
-    if ((Command)i2cCommand == CMD_TELL_INITVALUES)
-    {
-      filmLoadState = digitalRead(FILM_END_PIN);
-      dummyread = analogRead(EXPOSURE_POT);
-      exposurePot = analogRead(EXPOSURE_POT);
-      Serial.print(F("Current Film load state: "));
-      Serial.println(filmLoadState);
-      Serial.print(F("Current Exposure Setting: "));
-      Serial.println(exposurePot);
-      nextPiCmd = CMD_SET_INITVALUES;
+  if (howMany < 1) return;
+  uint8_t i2cCommand = Wire.read();
+  // Read any payload bytes that follow the command byte
+  uint8_t payload[32];
+  uint8_t payloadLen = 0;
+  while (Wire.available() && payloadLen < (uint8_t)sizeof(payload)) {
+    payload[payloadLen++] = Wire.read();
+  }
+  // Drain any excess bytes (safety)
+  while (Wire.available()) Wire.read();
+
+  // --- EEPROM backup commands (multi-byte payloads) ---
+  if ((Command)i2cCommand == CMD_EEPROM_WRITE_CHUNK && payloadLen >= 2) {
+    uint16_t offset = ((uint16_t)payload[0] << 8) | payload[1];
+    for (uint8_t i = 2; i < payloadLen; i++) {
+      EEPROM.update(EEPROM_BACKUP_BASE_ADDR + offset + (i - 2), payload[i]);
     }
   }
-} 
+  if ((Command)i2cCommand == CMD_EEPROM_READ_REQUEST && payloadLen >= 3) {
+    uint16_t offset = ((uint16_t)payload[0] << 8) | payload[1];
+    uint8_t length = payload[2];
+    if (length > sizeof(eepromReadBuf)) length = sizeof(eepromReadBuf);
+    for (uint8_t i = 0; i < length; i++) {
+      eepromReadBuf[i] = EEPROM.read(EEPROM_BACKUP_BASE_ADDR + offset + i);
+    }
+    eepromReadLen = length;
+    eepromReadReady = true;
+  }
+  if ((Command)i2cCommand == CMD_EEPROM_WIPE) {
+    EEPROM.update(EEPROM_BACKUP_BASE_ADDR, 0x00);  // clear magic byte at offset 0 of backup region
+    Serial.println(F("EEPROM backup: wiped"));
+  }
+
+  // Single-byte commands (existing behaviour unchanged)
+  if ((Command)i2cCommand == CMD_PAIRING_EXIT) {
+    pairingMode = false;
+    menuState = MENU_MAIN;
+    nextPiCmd = CMD_NONE;
+    pairingCancelPending = false;
+  }
+  if ((Command)i2cCommand == CMD_LOGS_EXIT) {
+    logsMode = false;
+    menuState = MENU_MAIN;
+    nextPiCmd = CMD_NONE;
+  }
+  if ((Command)i2cCommand == CMD_AWB_EXIT) {
+    awbMode = false;
+    menuState = MENU_MAIN;
+    nextPiCmd = CMD_NONE;
+    Serial.println(F("AWB menu: exit"));
+  }
+  if ((Command)i2cCommand == CMD_LATENCY_EXIT) {
+    latencyMode = false;
+    menuState = MENU_MAIN;
+    nextPiCmd = CMD_NONE;
+    Serial.println(F("Latency menu: exit"));
+  }
+  if ((Command)i2cCommand == CMD_TARGET_EXIT) {
+    targetMode = false;
+    menuState = MENU_MAIN;
+    nextPiCmd = CMD_NONE;
+    Serial.println(F("Target menu: exit"));
+  }
+  if ((Command)i2cCommand == CMD_WIFI_EXIT) {
+    wifiMode = false;
+    menuState = MENU_MAIN;
+    nextPiCmd = CMD_NONE;
+    Serial.println(F("WiFi menu: exit"));
+  }
+  if ((Command)i2cCommand == CMD_TARGET_REENTER) {
+    targetReenterPending = true;
+  }
+  if ((Command)i2cCommand == CMD_MENU_EXIT) {
+    // If we're in a submenu, go back to main menu; otherwise exit completely
+    if (menuState != MENU_IDLE && menuState != MENU_MAIN) {
+      menuState = MENU_MAIN;
+      // Clear submenu modes
+      updateMode = false;
+      pairingMode = false;
+      awbMode = false;
+      latencyMode = false;
+      targetMode = false;
+      logsMode = false;
+      nextPiCmd = CMD_NONE;
+      Serial.println(F("Menu: back to main (from Pi)"));
+    } else {
+      menuState = MENU_IDLE;
+      nextPiCmd = CMD_NONE;
+      Serial.println(F("Menu: exit (from Pi)"));
+    }
+  }
+  if ((Command)i2cCommand == CMD_SCAN_REJECTED) {
+    if (isScanning) {
+      // Reset scan state locally without sending CMD_STOP_SCAN back to Pi
+      // (Pi never started scanning, so stop_scan() must not run)
+      isScanning = false;
+      piIsReady = false;
+      setLampMode(lampModeBeforeScan);
+      Serial.println(F("Scan rejected by Pi"));
+    }
+  }
+  // Don't set piIsReady if we aren't scanning anymore
+  if ((Command)i2cCommand == CMD_READY && isScanning) {
+    piIsReady = true;
+  }
+  if ((Command)i2cCommand == CMD_TELL_INITVALUES) {
+    filmLoadState = digitalRead(FILM_END_PIN);
+    dummyread = analogRead(EXPOSURE_POT);
+    exposurePot = analogRead(EXPOSURE_POT);
+    Serial.print(F("Current Film load state: "));
+    Serial.println(filmLoadState);
+    Serial.print(F("Current Exposure Setting: "));
+    Serial.println(exposurePot);
+    nextPiCmd = CMD_SET_INITVALUES;
+  }
+}
 
 
 void i2cRequest() {
-  // This gets called when the Pi uses ask_arduino() in its loop to ask what to do next. 
+  // This gets called when the Pi uses ask_arduino() in its loop to ask what to do next.
+  // If an EEPROM read was requested, serve the buffered data instead of the normal command.
+  if (eepromReadReady) {
+    Wire.write(eepromReadBuf, eepromReadLen);
+    eepromReadReady = false;
+    return;
+  }
   Command cmdToSend = nextPiCmd;
   Wire.write(cmdToSend);
 

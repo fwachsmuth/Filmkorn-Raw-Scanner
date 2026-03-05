@@ -210,6 +210,54 @@ MCU_HEX_PATH = os.path.join(
 MCU_AVRDUDE = "/usr/local/bin/avrdude"
 MCU_AVRDUDE_CONF = os.path.join(repo_root, "scan-controller", "avrdude_gpio.conf")
 MCU_HEX_HASH_FILE = os.path.join(os.path.dirname(__file__), ".mcu_hex_hash")
+
+# EEPROM dotfile backup layout (ATmega328P, 1024 bytes total)
+# Addr 0: motorMinDuty (existing)   Addr 1: motor calib magic (existing)
+# Addr 5+: backup region: [magic:1][len_lsb:1][len_msb:1][TLV entries...]
+#   TLV entry: [file_id:1][len_hi:1][len_lo:1][data:N]
+# Wipe = set magic byte at addr 5 to 0x00
+EEPROM_BACKUP_MAGIC = 0xC7
+
+EEPROM_FILE_CAPTURE_LATENCY  = 0
+EEPROM_FILE_HOST_PATH        = 1
+EEPROM_FILE_USER_AND_HOST    = 2
+EEPROM_FILE_SCAN_DESTINATION = 3
+EEPROM_FILE_WIFI_NETWORKS    = 4
+EEPROM_FILE_AWB_MODE         = 5
+EEPROM_FILE_SCAN_TARGET_MODE = 6
+EEPROM_FILE_LOCALE           = 7
+
+# Each entry: (file_id, absolute_path_or_relative_name)
+# Relative names are resolved with os.path.join(os.path.dirname(__file__), name)
+def _eeprom_dotfile_path(name_or_abs: str) -> str:
+    """Return absolute path for a dotfile name or pass through if already absolute."""
+    if os.path.isabs(name_or_abs):
+        return name_or_abs
+    return os.path.join(os.path.dirname(__file__), name_or_abs)
+
+# Maps file_id → absolute path
+EEPROM_BACKUP_FILES: "list[tuple[int, str]]" = [
+    (EEPROM_FILE_CAPTURE_LATENCY,  CAPTURE_LATENCY_FILE),
+    (EEPROM_FILE_HOST_PATH,        _eeprom_dotfile_path(".host_path")),
+    (EEPROM_FILE_USER_AND_HOST,    _eeprom_dotfile_path(".user_and_host")),
+    (EEPROM_FILE_SCAN_DESTINATION, _eeprom_dotfile_path(".scan_destination")),
+    (EEPROM_FILE_WIFI_NETWORKS,    WIFI_NETWORKS_FILE),
+    (EEPROM_FILE_AWB_MODE,         AWB_FILE),
+    (EEPROM_FILE_SCAN_TARGET_MODE, TARGET_FILE),
+    (EEPROM_FILE_LOCALE,           LOCALE_FILE),
+]
+
+# Pairing files are written externally (host-side SSH scripts); watch their mtimes
+# in the main loop and trigger EEPROM backup when any of them changes.
+EEPROM_PAIRING_FILES = [
+    _eeprom_dotfile_path(".host_path"),
+    _eeprom_dotfile_path(".user_and_host"),
+    _eeprom_dotfile_path(".scan_destination"),
+]
+EEPROM_PAIRING_MTIME_INTERVAL = 60.0  # seconds between mtime checks
+_eeprom_pairing_mtimes: "dict[str, float]" = {}
+_eeprom_last_mtime_check: float = 0.0
+
 STATUS_SCREENS = {
     "insert-film",
     "ready-to-scan",
@@ -349,6 +397,13 @@ class Command(enum.Enum):
     LATENCY_NEXT = 52
     LATENCY_CONFIRM = 53
     LATENCY_CANCEL = 54
+
+    # EEPROM dotfile backup (bidirectional)
+    EEPROM_WRITE_CHUNK = 55   # Pi → Arduino: [offset_hi, offset_lo, data...]
+    EEPROM_READ_REQUEST = 56  # Pi → Arduino: [offset_hi, offset_lo, length]
+    EEPROM_WIPE = 57          # Pi → Arduino: wipe backup magic byte
+    EEPROM_DATA = 58          # Arduino → Pi: buffered read data
+
     WIFI_EXIT = 134
 
     # Raspi to Arduino. These are handled by i2cReceive() on the Controller side.
@@ -489,6 +544,7 @@ def _save_locale_setting(code: str):
         with open(LOCALE_FILE, "w") as f:
             f.write(code)
         logging.info("locale: saved %s", code)
+        _eeprom_backup_all()
     except IOError as e:
         logging.error("locale: failed to save: %s", e)
 
@@ -1348,6 +1404,7 @@ def _save_awb_setting(idx: int):
         with open(AWB_FILE, "w") as f:
             f.write(str(idx))
         logging.info("awb: saved setting %d (%s)", idx, AWB_OPTIONS[idx][0])
+        _eeprom_backup_all()
     except IOError as e:
         logging.error("awb: failed to save setting: %s", e)
 
@@ -1369,6 +1426,7 @@ def _save_latency_setting(idx: int):
         with open(CAPTURE_LATENCY_FILE, "w") as f:
             f.write(str(idx))
         logging.info("latency: saved setting %d (%d frames)", idx, CAPTURE_LATENCY_STEPS_FRAMES[idx])
+        _eeprom_backup_all()
     except IOError as e:
         logging.error("latency: failed to save setting: %s", e)
 
@@ -1589,6 +1647,7 @@ def _save_target_setting(idx: int):
         with open(TARGET_FILE, "w") as f:
             f.write(str(idx))
         logging.info("target: saved setting %d (%s)", idx, TARGET_OPTIONS[idx][0])
+        _eeprom_backup_all()
     except IOError as e:
         logging.error("target: failed to save setting: %s", e)
 
@@ -1903,6 +1962,7 @@ def _save_wifi_network(ssid: str):
         with open(WIFI_NETWORKS_FILE, "w") as f:
             json.dump({"networks": networks}, f)
         logging.info("wifi: saved network %s", ssid)
+        _eeprom_backup_all()
     except IOError as e:
         logging.error("wifi: failed to save network: %s", e)
 
@@ -2516,7 +2576,8 @@ def _unpair_confirm(_args=None):
                 logging.info("unpair: deleted preference file: %s", file_path)
             except Exception as exc:
                 logging.warning("unpair: failed to delete %s: %s", file_path, exc)
-    
+    _eeprom_wipe()
+
     show_screen("unpaired-from-client")
     time.sleep(5)
     # Go back to menu or ready screen
@@ -3406,6 +3467,163 @@ def ask_arduino() -> Optional["list[int]"]:
     except Exception as exc:
         logging.error("I2C bus recovery failed: %s", exc)
     return None
+
+
+# ---------------------------------------------------------------------------
+# EEPROM dotfile backup helpers
+# ---------------------------------------------------------------------------
+
+def _eeprom_write_bytes(offset: int, data: bytes) -> bool:
+    """Write data to the Arduino EEPROM backup region, starting at offset, in 28-byte chunks.
+    The offset is relative to EEPROM_BACKUP_BASE_ADDR inside the Arduino firmware."""
+    global arduino, arduino_i2c_address
+    if arduino is None:
+        return False
+    CHUNK = 28
+    try:
+        for i in range(0, len(data), CHUNK):
+            chunk = data[i:i + CHUNK]
+            chunk_offset = offset + i
+            payload = [chunk_offset >> 8, chunk_offset & 0xFF] + list(chunk)
+            arduino.write_i2c_block_data(arduino_i2c_address,
+                                         Command.EEPROM_WRITE_CHUNK.value,
+                                         payload)
+            # ATmega EEPROM write time is ~3.4 ms/byte; allow the ISR to finish before next chunk.
+            time.sleep(0.005 * len(chunk))
+        return True
+    except Exception as exc:
+        logging.error("EEPROM write error at offset %d: %s", offset, exc)
+        return False
+
+
+def _eeprom_read_bytes(offset: int, length: int) -> "Optional[bytes]":
+    """Read length bytes from the Arduino EEPROM backup region starting at offset."""
+    global arduino, arduino_i2c_address
+    if arduino is None:
+        return None
+    CHUNK = 28
+    result = bytearray()
+    try:
+        pos = 0
+        while pos < length:
+            read_len = min(CHUNK, length - pos)
+            chunk_offset = offset + pos
+            arduino.write_i2c_block_data(arduino_i2c_address,
+                                         Command.EEPROM_READ_REQUEST.value,
+                                         [chunk_offset >> 8, chunk_offset & 0xFF, read_len])
+            time.sleep(0.005)  # allow Arduino to fill the buffer
+            raw = arduino.read_i2c_block_data(arduino_i2c_address, 0, read_len)
+            result.extend(raw[:read_len])
+            pos += read_len
+        return bytes(result)
+    except Exception as exc:
+        logging.error("EEPROM read error at offset %d: %s", offset, exc)
+        return None
+
+
+def _eeprom_backup_all() -> None:
+    """Serialise all existing backup dotfiles into TLV format and write to Arduino EEPROM."""
+    global arduino, arduino_i2c_address
+    if arduino is None:
+        return
+    try:
+        # Build TLV payload
+        payload = bytearray()
+        for file_id, file_path in EEPROM_BACKUP_FILES:
+            if not os.path.isfile(file_path):
+                continue
+            with open(file_path, "rb") as f:
+                data = f.read()
+            length = len(data)
+            payload += bytes([file_id, length >> 8, length & 0xFF]) + data
+
+        total = len(payload)
+        if total > 1019:
+            logging.error("EEPROM backup payload too large: %d bytes (max 1019)", total)
+            return
+
+        # Layout: [magic(1), len_lsb(1), len_msb(1), TLV...] at offset 0 within backup region
+        header = bytes([EEPROM_BACKUP_MAGIC, total & 0xFF, total >> 8])
+        if not _eeprom_write_bytes(0, header + payload):
+            return
+
+        file_count = sum(1 for _, p in EEPROM_BACKUP_FILES if os.path.isfile(p))
+        logging.info("EEPROM backup: wrote %d bytes (%d files)", 3 + total, file_count)
+    except Exception as exc:
+        logging.error("EEPROM backup failed: %s", exc)
+
+
+def _eeprom_restore_all() -> None:
+    """Read TLV data from Arduino EEPROM and restore any dotfiles missing from the filesystem."""
+    global arduino, arduino_i2c_address
+    if arduino is None:
+        return
+    try:
+        # Read header: [magic, len_lsb, len_msb]
+        header = _eeprom_read_bytes(0, 3)
+        if header is None or len(header) < 3:
+            return
+        if header[0] != EEPROM_BACKUP_MAGIC:
+            logging.info("EEPROM backup: no valid backup found (magic=0x%02x)", header[0])
+            return
+        total = header[1] | (header[2] << 8)
+        if total == 0 or total > 1019:
+            logging.warning("EEPROM backup: invalid payload length %d", total)
+            return
+
+        # Read TLV payload
+        payload = _eeprom_read_bytes(3, total)
+        if payload is None or len(payload) < total:
+            logging.warning("EEPROM backup: short read (%d of %d bytes)", len(payload) if payload else 0, total)
+            return
+
+        # Build lookup: file_id → file_path
+        id_to_path = {fid: fpath for fid, fpath in EEPROM_BACKUP_FILES}
+
+        # Parse TLV and restore missing files
+        pos = 0
+        restored = 0
+        while pos + 3 <= total:
+            file_id = payload[pos]
+            length = (payload[pos + 1] << 8) | payload[pos + 2]
+            pos += 3
+            if pos + length > total:
+                logging.warning("EEPROM backup: TLV entry truncated at offset %d", pos)
+                break
+            data = payload[pos:pos + length]
+            pos += length
+            file_path = id_to_path.get(file_id)
+            if file_path is None:
+                continue
+            if not os.path.isfile(file_path):
+                try:
+                    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                    with open(file_path, "wb") as f:
+                        f.write(data)
+                    logging.info("EEPROM restore: wrote %s (%d bytes)", os.path.basename(file_path), length)
+                    restored += 1
+                except Exception as exc:
+                    logging.warning("EEPROM restore: could not write %s: %s", file_path, exc)
+
+        if restored:
+            logging.info("EEPROM restore: restored %d file(s) from EEPROM", restored)
+        else:
+            logging.info("EEPROM restore: all dotfiles already present, nothing to restore")
+    except Exception as exc:
+        logging.error("EEPROM restore failed: %s", exc)
+
+
+def _eeprom_wipe() -> None:
+    """Wipe the EEPROM backup by clearing the magic byte."""
+    global arduino, arduino_i2c_address
+    if arduino is None:
+        return
+    try:
+        arduino.write_byte(arduino_i2c_address, Command.EEPROM_WIPE.value)
+        logging.info("EEPROM backup: wiped")
+    except Exception as exc:
+        logging.error("EEPROM wipe failed: %s", exc)
+
 
 def poll_ssh_subprocess():
     global ssh_subprocess
@@ -4566,6 +4784,11 @@ def setup():
     sleep(1) # wait a bit here to avoid i2c IO Errors
     arduino_i2c_address = 42 # This is the Arduino's i2c arduinoI2cAddress
 
+    # Restore any dotfiles missing from the filesystem from EEPROM backup,
+    # then sync all currently present dotfiles back to EEPROM.
+    _eeprom_restore_all()
+    _eeprom_backup_all()
+
     # Reset Arduino menu state in case it was stuck in a menu from before restart
     # But don't reset if we need to enter menu mode due to validation failure
     global pending_menu_entry
@@ -4603,12 +4826,35 @@ def setup():
 
     ssh_subprocess = None
 
+def _check_pairing_file_mtimes() -> None:
+    """Detect externally-written pairing files and trigger EEPROM backup when they change."""
+    global _eeprom_pairing_mtimes, _eeprom_last_mtime_check
+    now = time.time()
+    if now - _eeprom_last_mtime_check < EEPROM_PAIRING_MTIME_INTERVAL:
+        return
+    _eeprom_last_mtime_check = now
+    changed = False
+    for path in EEPROM_PAIRING_FILES:
+        try:
+            mtime = os.path.getmtime(path) if os.path.isfile(path) else 0.0
+        except OSError:
+            mtime = 0.0
+        if _eeprom_pairing_mtimes.get(path) != mtime:
+            _eeprom_pairing_mtimes[path] = mtime
+            if mtime > 0.0:
+                changed = True
+    if changed:
+        logging.info("EEPROM backup: pairing file(s) changed, updating backup")
+        _eeprom_backup_all()
+
+
 def loop():
     global target_mode, target_validation_error, target_validation_failures
     if mcu_flash_in_progress:
         time.sleep(0.05)
         return
 
+    _check_pairing_file_mtimes()
     poll_ssh_subprocess()
 
     received = ask_arduino()  # This tells us what to do next. See Command enum.
