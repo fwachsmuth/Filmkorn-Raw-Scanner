@@ -181,6 +181,7 @@ MENU_ITEMS = [
     "menu.item.create-debug-log",
     "menu.item.factory-reset",
     "menu.item.language",
+    "menu.item.calibrate-motor",
 ]
 
 # --- Localization ---

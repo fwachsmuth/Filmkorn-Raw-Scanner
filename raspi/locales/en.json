@@ -34,6 +34,7 @@
   "menu.item.create-debug-log": "Create Debug Log",
   "menu.item.factory-reset": "Factory Reset",
   "menu.item.language": "Language: {name}",
+  "menu.item.calibrate-motor": "Calibrate Motor",
 
   "btn.back": "Back",
   "btn.ok": "OK",
