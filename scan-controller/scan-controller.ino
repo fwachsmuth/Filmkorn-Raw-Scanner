@@ -1036,8 +1036,6 @@ void handleMenuSystem() {
 }
 
 
-#define RAMP_STEP_SINGLE  5    // PWM units per step for single-step advances
-#define RAMP_MS_SINGLE    2    // ms per step  →  ~25 ms total for a ~60-unit range
 #define RAMP_STEP_CONT    3    // PWM units per step for continuous run
 #define RAMP_MS_CONT      5    // ms per step  →  ~200 ms total
 
@@ -1176,8 +1174,8 @@ void motorFWD1() {
   singleStepInProgress = true;
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
+  analogWrite(MOTOR_A_PIN, singleStepMotorPower);
   analogWrite(MOTOR_B_PIN, 0);
-  motorRamp(MOTOR_A_PIN, motorMinDuty, singleStepMotorPower, RAMP_STEP_SINGLE, RAMP_MS_SINGLE);
 }
 
 void motorREV1() {
@@ -1185,7 +1183,7 @@ void motorREV1() {
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
   analogWrite(MOTOR_A_PIN, 0);
-  motorRamp(MOTOR_B_PIN, motorMinDuty, singleStepMotorPower, RAMP_STEP_SINGLE, RAMP_MS_SINGLE);
+  analogWrite(MOTOR_B_PIN, singleStepMotorPower);
 }
 
 void motorFwd() {
