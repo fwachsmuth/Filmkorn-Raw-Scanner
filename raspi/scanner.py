@@ -4208,10 +4208,22 @@ def set_lamp_on(arg_bytes=None):
     logging.info("Lamp turned on and camera preview enabled")
 
 def shoot_raw(arg_bytes=None):
+    # CMD_SHOOT_RAW is sent by the Arduino's stopMotorISR() immediately after
+    # the motor stops.  By the time this function runs on the Pi, the film is
+    # mechanically stopping (or just stopped).
+    #
+    # The camera (picamera2, buffer_count=4) is running continuously and keeps
+    # filling its ring buffer with frames.  Some of those buffered frames were
+    # captured while the film was still moving ("transport-era frames").  We must
+    # drain those stale frames before saving the DNG.
+    #
+    # There are three drain strategies, selected below based on shutter speed
+    # and whether we have a SensorTimestamp anchor from the previous frame.
     global _last_frame_sensor_ts, _last_frame_mono_ts
     if no_camera:
         return
-    # Record when CMD_SHOOT_RAW arrived (≈ motor-stop time in monotonic clock).
+    # Snapshot of Pi's monotonic clock at the moment this command arrived.
+    # Used as a proxy for "motor stopped at this wall-clock time".
     cmd_received_mono = time.monotonic()
     camera_start()
     if state.raws_path is None or not os.path.isdir(os.path.dirname(state.raws_path)):
@@ -4251,20 +4263,33 @@ def shoot_raw(arg_bytes=None):
 
         discarded = 0
         is_full_res = (current_resolution_switch == 0)
+
+        # min_discard = how many frames to unconditionally throw away before
+        # accepting one.  It is the higher of the hardcoded safety floor
+        # (DRAIN_MIN_DISCARD_*_FLOOR, not user-visible) and the user's
+        # "Capture Latency" setting (number of frames, 0–4).
+        # At 2K (30 fps) each discard costs ~33 ms; at 4K (10 fps) ~100 ms.
+        # This is the primary knob for tuning motion-blur / transport-frame safety.
         min_discard = DRAIN_MIN_DISCARD_4K_FLOOR if is_full_res else DRAIN_MIN_DISCARD_2K_FLOOR
         user_discard = CAPTURE_LATENCY_STEPS_FRAMES[latency_stored_idx]
         min_discard = max(min_discard, user_discard)
+
+        # cutoff_margin_ns is an *additional* SensorTimestamp guard on top of
+        # min_discard (used by path B below).  Currently 0 — the frame count
+        # alone controls timing, so no extra margin is needed.
         cutoff_margin_ns = 0
+
         if request is None:
-            # Buffer drain rules (summary):
-            # 1) Prefer SensorTimestamp-based cutoff when we have a recent anchor frame.
-            #    Accept first frame with SensorTimestamp > (last_ts + elapsed_since_last + margin),
-            #    while discarding at least min_discard frames.
-            # 2) If no recent anchor, fall back to time-based drain using time.monotonic(),
-            #    still honoring min_discard.
-            # 3) If exposure is very long (>50ms), extend settle time before accepting a frame.
-            if shutter_speed > 50_000:
-                # Long exposures: wait extra time so we don't accept a transport-era frame.
+            # ── PATH A: Long-exposure shutter (>10 ms = slower than ~1/100s) ──────
+            # For slow shutters (1/50s, 1/10s, 1/2s…) the exposure window is long
+            # enough that a "frame count" approach is insufficient: a frame that
+            # started exposing just before the motor stopped would still show blur.
+            # Instead we wait a fixed settle time (150 ms for mechanical damping)
+            # PLUS one full shutter duration before accepting any frame.
+            # This guarantees row 0 of the accepted frame opened its shutter
+            # strictly after the film was stationary.
+            # min_discard is still honoured as an additional floor.
+            if shutter_speed > 10_000:
                 motor_settle_s = 0.15
                 drain_until = time.monotonic() + motor_settle_s + shutter_speed / 1_000_000
                 while True:
@@ -4274,67 +4299,66 @@ def shoot_raw(arg_bytes=None):
                         break
                     discarded += 1
                     candidate.release()
-            else:
-                # Drain stale transport-era frames using per-frame calibrated
-                # SensorTimestamp comparison.
-                #
-                # The original SensorTimestamp approach (vs CLOCK_BOOTTIME) failed
-                # after ~30 s because the IMX477 oscillator drifts ~1000 ppm from
-                # the Pi's system clock, accumulating ~30 ms of error in 30 s.
-                #
-                # The fixed-deadline approach (time.monotonic()) fails under I/O
-                # load: when the Pi is busy writing DNGs, capture_request() can
-                # block >75 ms even for a stale buffered frame, letting a transport
-                # frame slip through the deadline filter.
-                #
-                # Solution: compare SensorTimestamps in camera-clock space, but
-                # anchor the reference to the PREVIOUS frame (not session start).
-                # Only ~150 ms of monotonic time elapses between the reference frame
-                # and cmd_received_mono, so the accumulated drift is < 0.2 ms —
-                # negligible and correct indefinitely.
-                #
-                # cutoff = last_ts + elapsed_ns + 33 ms
-                #   last_ts       : SensorTimestamp of last saved frame
-                #   elapsed_ns    : monotonic delta → camera-clock delta (< 0.2 ms error)
-                #   + 66 ms       : skip two frame periods so the accepted frame's
-                #                   top row (rolling shutter) lands ≥66 ms after
-                #                   motor stop, well past the mechanical settling
-                #                   window (33 ms was not enough in practice).
-                if _last_frame_sensor_ts is not None and \
-                        (cmd_received_mono - _last_frame_mono_ts) < 10.0:
-                    # SensorTimestamp-based drain: use last accepted frame as a reference.
-                    # cutoff_ts is in camera-clock ns; reject frames until we're safely past motor stop.
-                    elapsed_ns  = int((cmd_received_mono - _last_frame_mono_ts) * 1e9)
-                    cutoff_ts   = _last_frame_sensor_ts + elapsed_ns + cutoff_margin_ns
-                    while True:
-                        candidate = camera.capture_request()
-                        cand_ts = candidate.get_metadata().get("SensorTimestamp", 0)
-                        if cand_ts > cutoff_ts and discarded >= min_discard:
-                            request = candidate
-                            break
-                        discarded += 1
-                        candidate.release()
-                else:
-                    # First frame of a scan (no reference yet) or scan resumed
-                    # after a long pause: fall back to fixed-deadline drain.
-                    # This uses time.monotonic() instead of SensorTimestamp.
-                    motor_settle_s = 0.075
-                    drain_until = time.monotonic() + motor_settle_s
-                    while True:
-                        candidate = camera.capture_request()
-                        now_mono = time.monotonic()
-                        if now_mono >= drain_until and discarded >= min_discard:
-                            request = candidate
-                            break
-                        discarded += 1
-                        candidate.release()
 
-        # Anchor calibration point for next cycle's SensorTimestamp drain.
-        # Must be recorded BEFORE save_dng() so that _last_frame_mono_ts is
-        # close to when capture_request() returned (≈ frame capture time).
-        # Recording it after save_dng() would shift the reference by 50–150 ms,
-        # making cutoff_ts land before motor stop and letting transport frames
-        # through.
+            # ── PATH B: Fast shutter, previous frame known (normal scanning) ──────
+            # For typical scan shutter speeds (≤10 ms) we use SensorTimestamp to
+            # count frames in camera-clock space rather than wall-clock time.
+            #
+            # Why not compare SensorTimestamp against CLOCK_BOOTTIME directly?
+            # The IMX477 oscillator drifts ~1000 ppm from the Pi's system clock,
+            # accumulating ~30 ms error after 30 s of scanning — enough to accept
+            # a transport-era frame.
+            #
+            # Why not just use time.monotonic() with a fixed deadline?
+            # Under I/O load (writing DNGs) capture_request() can block >75 ms
+            # even for a stale buffered frame, so a deadline can be reached while
+            # still holding a transport-era frame.
+            #
+            # Solution: express the cutoff in camera-clock nanoseconds, anchored to
+            # the PREVIOUS saved frame's SensorTimestamp (not session start).
+            # The Pi-to-camera time mapping only needs to be accurate over ~150 ms
+            # (the inter-frame interval), so drift is <0.2 ms — negligible.
+            #
+            # cutoff_ts = last_saved_ts + (monotonic elapsed since last frame → ns)
+            #             + cutoff_margin_ns (currently 0)
+            #
+            # Any candidate frame with SensorTimestamp ≤ cutoff_ts was captured
+            # before (or during) motor stop → discard it.
+            # We also discard at least min_discard frames unconditionally.
+            elif _last_frame_sensor_ts is not None and \
+                    (cmd_received_mono - _last_frame_mono_ts) < 10.0:
+                elapsed_ns = int((cmd_received_mono - _last_frame_mono_ts) * 1e9)
+                cutoff_ts  = _last_frame_sensor_ts + elapsed_ns + cutoff_margin_ns
+                while True:
+                    candidate = camera.capture_request()
+                    cand_ts = candidate.get_metadata().get("SensorTimestamp", 0)
+                    if cand_ts > cutoff_ts and discarded >= min_discard:
+                        request = candidate
+                        break
+                    discarded += 1
+                    candidate.release()
+
+            # ── PATH C: Fast shutter, no previous frame (first frame of scan) ─────
+            # No SensorTimestamp anchor yet (scan just started or resumed after a
+            # long pause).  Fall back to a fixed 75 ms monotonic deadline, which
+            # covers at least two 2K frame periods and one 4K frame period.
+            # min_discard is still applied on top.
+            else:
+                motor_settle_s = 0.075
+                drain_until = time.monotonic() + motor_settle_s
+                while True:
+                    candidate = camera.capture_request()
+                    if time.monotonic() >= drain_until and discarded >= min_discard:
+                        request = candidate
+                        break
+                    discarded += 1
+                    candidate.release()
+
+        # Save the SensorTimestamp and monotonic time of the frame we just accepted.
+        # This becomes the anchor for PATH B on the *next* shoot_raw() call.
+        # Must be recorded BEFORE save_dng() — recording it after would add 50–150 ms
+        # of DNG-write time to elapsed_ns, pushing cutoff_ts before motor stop and
+        # letting transport frames through.
         if DEBUG_DRAIN:
             accepted_ts = request.get_metadata().get("SensorTimestamp")
             if state.raws_path is not None:
