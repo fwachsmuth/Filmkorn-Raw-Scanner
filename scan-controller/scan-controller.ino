@@ -4,6 +4,11 @@
 
 #include <avr/io.h>
 #include <Wire.h>
+#include <EEPROM.h>
+
+#define EEPROM_CALIB_ADDR  0    // uint8_t motorMinDuty
+#define EEPROM_MAGIC_ADDR  1    // magic byte to detect valid calibration data
+#define EEPROM_CALIB_MAGIC 0xA5
 
 const byte SLAVE_ADDRESS = 42; // Our i2c address here
 /*
@@ -151,11 +156,13 @@ enum MenuItem {
   MENU_ITEM_LOGS = 6,
   MENU_ITEM_UNPAIR = 7,
   MENU_ITEM_LANGUAGE = 8,
-  MENU_ITEM_COUNT = 9
+  MENU_ITEM_CALIB_MOTOR = 9,
+  MENU_ITEM_COUNT = 10
 };
 
 
 // Define some global variables
+uint8_t motorMinDuty = 100;     // lower bound for pot mapping; updated by calibration
 uint8_t fps18MotorPower = 0;
 uint8_t singleStepMotorPower = 0;
 int16_t exposurePot = 0;
@@ -278,6 +285,16 @@ void setup() {
   digitalWrite(LAMP_PIN, LOW);
 
   Serial.begin(115200);
+
+  // Load calibrated motor minimum duty cycle (if available)
+  if (EEPROM.read(EEPROM_MAGIC_ADDR) == EEPROM_CALIB_MAGIC) {
+    motorMinDuty = EEPROM.read(EEPROM_CALIB_ADDR);
+    Serial.print(F("EEPROM motorMinDuty = "));
+    Serial.println(motorMinDuty);
+  } else {
+    Serial.println(F("EEPROM: no calib data, using default motorMinDuty=100"));
+  }
+
   Serial.print(F("BOOT MCUSR=0x"));
   Serial.print(mcusr, HEX);
   Serial.print(F(" PORF="));
@@ -538,9 +555,9 @@ void loop() {
 
   // Read the trim pots to determine PWM width for the Motor
   dummyread = analogRead(CONT_RUN_POT);
-  fps18MotorPower = map(analogRead(CONT_RUN_POT), 0, 1023, 255, 100); // 100 since lower values don't start the motor
+  fps18MotorPower = map(analogRead(CONT_RUN_POT), 0, 1023, 255, motorMinDuty);
   dummyread = analogRead(SINGLE_STEP_POT);
-  singleStepMotorPower = map(analogRead(SINGLE_STEP_POT), 0, 1023, 255, 100);
+  singleStepMotorPower = map(analogRead(SINGLE_STEP_POT), 0, 1023, 255, motorMinDuty);
 
   if (currentButton != prevButton) {
     prevButton = currentButton;
@@ -757,6 +774,12 @@ void handleMenuSystem() {
             case MENU_ITEM_LANGUAGE:
               // Language cycling is handled entirely by the Pi; stay in MENU_MAIN
               nextPiCmd = CMD_MENU_SELECT;
+              break;
+            case MENU_ITEM_CALIB_MOTOR:
+              // Run calibration locally; exit menu so pots work normally afterwards
+              menuState = MENU_IDLE;
+              nextPiCmd = CMD_MENU_EXIT;
+              calibrateMotor();
               break;
             default:
               // If no specific submenu, send MENU_SELECT for Python to handle
@@ -1012,6 +1035,69 @@ void handleMenuSystem() {
   }
 }
 
+
+#define CALIB_STEP       2     // PWM step down per iteration
+#define CALIB_STEP_MS    300   // ms to hold each duty level before checking
+#define CALIB_TIMEOUT_MS 1000  // ms without eye pulse → motor considered stalled
+#define CALIB_BUFFER     15    // safety margin added on top of stall duty cycle
+
+void calibrateMotor() {
+  Serial.println(F("Calib: starting motor sweep"));
+
+  // Spin up at full speed, wait up to 3 s for first EYE_PIN FALLING edge
+  analogWrite(MOTOR_A_PIN, 255);
+  analogWrite(MOTOR_B_PIN, 0);
+
+  uint32_t t0 = scaledMillis();
+  bool seenPulse = false;
+  uint8_t lastEye = digitalRead(EYE_PIN);
+  while (scaledMillis() - t0 < 3000) {
+    uint8_t eye = digitalRead(EYE_PIN);
+    if (lastEye == HIGH && eye == LOW) { seenPulse = true; break; }
+    lastEye = eye;
+  }
+
+  if (!seenPulse) {
+    Serial.println(F("Calib: no EYE pulse - aborted (film loaded?)"));
+    stopMotor();
+    return;
+  }
+
+  // Sweep duty cycle down from 255 until the motor stalls
+  uint8_t stalledAt = 30;  // fallback if motor never stalls within sweep range
+  for (uint8_t duty = 255; duty >= 30; duty -= CALIB_STEP) {
+    analogWrite(MOTOR_A_PIN, duty);
+    scaledDelay(CALIB_STEP_MS);
+
+    // Watch for a pulse within CALIB_TIMEOUT_MS
+    uint32_t tCheck = scaledMillis();
+    bool pulse = false;
+    lastEye = digitalRead(EYE_PIN);
+    while (scaledMillis() - tCheck < CALIB_TIMEOUT_MS) {
+      uint8_t eye = digitalRead(EYE_PIN);
+      if (lastEye == HIGH && eye == LOW) { pulse = true; break; }
+      lastEye = eye;
+    }
+
+    if (!pulse) {
+      stalledAt = duty;
+      Serial.print(F("Calib: stalled at duty "));
+      Serial.println(duty);
+      break;
+    }
+  }
+
+  stopMotor();
+
+  uint8_t newMin = (uint8_t)min((uint16_t)stalledAt + CALIB_BUFFER, (uint16_t)255);
+  motorMinDuty = newMin;
+  Serial.print(F("Calib: new motorMinDuty = "));
+  Serial.println(motorMinDuty);
+
+  EEPROM.update(EEPROM_CALIB_ADDR, motorMinDuty);
+  EEPROM.update(EEPROM_MAGIC_ADDR, EEPROM_CALIB_MAGIC);
+  Serial.println(F("Calib: saved to EEPROM"));
+}
 
 void stopMotor() {
   // ...
