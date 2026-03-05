@@ -47,7 +47,6 @@ enum MotorState {
 #define MOTOR_A_PIN     6 // PWM
 #define FAN_PIN         8
 #define LAMP_PIN        9
-// #define LED_PIN         unused
 #define BUTTONS_A_PIN   A0
 #define BUTTONS_B_PIN   A1
 #define SINGLE_STEP_POT A2
@@ -67,7 +66,6 @@ enum Command
   CMD_SHOOT_RAW,
   CMD_LAMP_OFF, // needs to stay at an even number
   CMD_LAMP_ON,
-  CMD_INIT_SCAN, // never used?
   CMD_START_SCAN,
   CMD_STOP_SCAN,
   CMD_SET_EXP, // set new exposure time per trimpot position
@@ -167,7 +165,6 @@ uint8_t fps18MotorPower = 0;
 uint8_t singleStepMotorPower = 0;
 int16_t exposurePot = 0;
 int16_t lastSentExposurePot = -100;  // last value sent to Pi (init far away to trigger first send)
-// uint16_t loopCounter;
 uint8_t filmLoadState;
 
 bool lastFilmEndState;
@@ -312,7 +309,6 @@ void setup() {
   pinMode(CONT_RUN_POT, INPUT);
   pinMode(EXPOSURE_POT, INPUT);
   pinMode(FAN_PIN, OUTPUT);
-  // pinMode(LED_PIN, OUTPUT);
   pinMode(MOTOR_A_PIN, OUTPUT);
   pinMode(MOTOR_B_PIN, OUTPUT);
   pinMode(EYE_PIN, INPUT);
@@ -426,74 +422,6 @@ void loop() {
   } else {
     // Not idle - reset long-press state
     stopButtonPressed = false;
-  }
-
-  if (updateMode || pairingMode || logsMode || awbMode) {
-    if (pairingMode) {
-      dummyread = analogRead(BUTTONS_B_PIN);
-      int pairingButtonsB = analogRead(BUTTONS_B_PIN);
-      currentButton = pollButtons();
-      if (pairingButtonsB > 990 || currentButton == STOP) {
-        Serial.println(F("Pairing mode: stop pressed"));
-        pairingMode = false;
-        pairingCancelPending = true;
-        pairingCancelSentAt = scaledMillis();
-        nextPiCmd = CMD_PAIRING_CANCEL;
-      } else if ((scaledMillis() - pairingModeEnteredAt) > 130000) {
-        pairingMode = false;
-        nextPiCmd = CMD_NONE;
-      }
-      return;
-    }
-    if (updateMode) {
-      currentButton = pollButtons();
-      if (currentButton != prevButton) {
-        prevButton = currentButton;
-        switch (currentButton) {
-          case RUNREV:
-            nextPiCmd = CMD_UPDATE_PREV;
-            break;
-          case RUNFWD:
-            nextPiCmd = CMD_UPDATE_NEXT;
-            break;
-          case SCAN:
-            nextPiCmd = CMD_UPDATE_CONFIRM;
-            break;
-          case STOP:
-            nextPiCmd = CMD_UPDATE_CANCEL;
-            break;
-          default:
-            break;
-        }
-      }
-    }
-    if (awbMode) {
-      currentButton = pollButtons();
-      if (currentButton != prevButton) {
-        prevButton = currentButton;
-        switch (currentButton) {
-          case RUNREV:
-            nextPiCmd = CMD_AWB_PREV;
-            break;
-          case RUNFWD:
-            nextPiCmd = CMD_AWB_NEXT;
-            break;
-          case SCAN:
-            nextPiCmd = CMD_AWB_CONFIRM;
-            break;
-          case STOP:
-            nextPiCmd = CMD_AWB_CANCEL;
-            break;
-          default:
-            break;
-        }
-      }
-    }
-    return;
-  }
-
-  if (pairingCancelPending) {
-    return;
   }
 
   currentButton = pollButtons();
@@ -1120,13 +1048,8 @@ void stopMotor() {
   singleStepInProgress = false;
   Serial.println(F("Motor: Stop"));
 
-  // Enable the below three lines if breaking makes sense
-
   digitalWrite(MOTOR_A_PIN, HIGH);
   digitalWrite(MOTOR_B_PIN, HIGH);
-//  scaledDelay(10); // geht nicht im ISR und hier sind wir ggf im ISR!
-//  digitalWrite(MOTOR_A_PIN, LOW);
-//  digitalWrite(MOTOR_B_PIN, LOW);
 }
 
 void stopBriefly() {
@@ -1379,7 +1302,6 @@ void i2cRequest() {
 
   // Special case to get initial (current) values of film load switch and exposue pot
   if (cmdToSend == CMD_SET_INITVALUES) {
-    #define INIT_VALUES_SIZE 3
     Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot); // little endian
     Wire.write(filmLoadState);
   }
