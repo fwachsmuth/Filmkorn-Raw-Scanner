@@ -1036,6 +1036,22 @@ void handleMenuSystem() {
 }
 
 
+#define RAMP_STEP_SINGLE  5    // PWM units per step for single-step advances
+#define RAMP_MS_SINGLE    2    // ms per step  →  ~25 ms total for a ~60-unit range
+#define RAMP_STEP_CONT    3    // PWM units per step for continuous run
+#define RAMP_MS_CONT      5    // ms per step  →  ~200 ms total
+
+// Ramp a motor pin from fromDuty up to toDuty in 'step' PWM increments,
+// pausing stepMs ms between each. The inactive pin must already be 0.
+void motorRamp(uint8_t pin, uint8_t fromDuty, uint8_t toDuty,
+               uint8_t step, unsigned long stepMs) {
+  for (int d = fromDuty; d < (int)toDuty; d += step) {
+    analogWrite(pin, (uint8_t)min(d, (int)toDuty));
+    scaledDelay(stepMs);
+  }
+  analogWrite(pin, toDuty);  // land exactly on target
+}
+
 #define CALIB_STEP       2     // PWM step down per iteration
 #define CALIB_STEP_MS    300   // ms to hold each duty level before checking
 #define CALIB_TIMEOUT_MS 1000  // ms without eye pulse → motor considered stalled
@@ -1160,8 +1176,8 @@ void motorFWD1() {
   singleStepInProgress = true;
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
-  analogWrite(MOTOR_A_PIN, singleStepMotorPower);
   analogWrite(MOTOR_B_PIN, 0);
+  motorRamp(MOTOR_A_PIN, motorMinDuty, singleStepMotorPower, RAMP_STEP_SINGLE, RAMP_MS_SINGLE);
 }
 
 void motorREV1() {
@@ -1169,21 +1185,21 @@ void motorREV1() {
   EIFR = 1; // clear flag for interrupt
   attachInterrupt(digitalPinToInterrupt(EYE_PIN), stopMotorISR, FALLING);
   analogWrite(MOTOR_A_PIN, 0);
-  analogWrite(MOTOR_B_PIN, singleStepMotorPower);
+  motorRamp(MOTOR_B_PIN, motorMinDuty, singleStepMotorPower, RAMP_STEP_SINGLE, RAMP_MS_SINGLE);
 }
 
 void motorFwd() {
   detachInterrupt(digitalPinToInterrupt(EYE_PIN));
   currentMotor = MOTOR_A_PIN;
-  analogWrite(MOTOR_A_PIN, fps18MotorPower);
   analogWrite(MOTOR_B_PIN, 0);
+  motorRamp(MOTOR_A_PIN, motorMinDuty, fps18MotorPower, RAMP_STEP_CONT, RAMP_MS_CONT);
 }
 
 void motorRev() {
   detachInterrupt(digitalPinToInterrupt(EYE_PIN));
   currentMotor = MOTOR_B_PIN;
   analogWrite(MOTOR_A_PIN, 0);
-  analogWrite(MOTOR_B_PIN, fps18MotorPower);
+  motorRamp(MOTOR_B_PIN, motorMinDuty, fps18MotorPower, RAMP_STEP_CONT, RAMP_MS_CONT);
 }
 
 void stopMotorISR() {
