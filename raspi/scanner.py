@@ -4417,8 +4417,10 @@ def set_exposure(arg_bytes):
     logging.info(f"This equals shutter speed {shutter_speed} µs")
 
 def say_ready():
-    tell_arduino(Command.READY)
-    logging.debug("Told Arduino we are ready for next image")
+    ok = tell_arduino(Command.READY)
+    if ok:
+        logging.debug("Told Arduino we are ready for next image")
+    return ok
 
 
 # Now let's go
@@ -4630,8 +4632,15 @@ def loop():
     command = None
     if received is None:
         if state.scanning:
-            logging.warning("I2C failure during active scan; re-sending READY to recover")
-            say_ready()
+            logging.warning("I2C failure during active scan; attempting to re-send READY")
+            for retry in range(3):
+                time.sleep(1.0 + retry * 2.0)  # 1 s, 3 s, 5 s → up to ~9 s total
+                if say_ready():
+                    logging.info("Re-sent READY successfully on attempt %d", retry + 1)
+                    break
+                logging.warning("Re-send READY attempt %d failed", retry + 1)
+            else:
+                logging.error("Could not re-send READY after 3 attempts; will retry next loop iteration")
         return
     try:
         command = Command(received[0])
