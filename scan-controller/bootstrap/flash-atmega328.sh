@@ -56,10 +56,11 @@ fi
 # Burn uC Code & bootloader 
 # This is for the new, self-built avrdude 8.1 with libgpiod support.
 # Fuse setting still needs to be tested!!!! 
+# Set EESAVE fuse (hfuse 0xD2) so EEPROM survives chip erase, then flash.
 sudo /usr/local/bin/avrdude \
-  -D \
   -C "$CONF_PATH" \
   -p atmega328p \
   -c raspberry_pi_gpio \
   -P gpiochip0 \
+  -U hfuse:w:0xD2:m \
   -U "flash:w:${HEX_PATH}:i"
