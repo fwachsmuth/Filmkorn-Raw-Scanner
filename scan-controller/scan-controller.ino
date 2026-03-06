@@ -124,6 +124,10 @@ enum Command
   CMD_EEPROM_WIPE = 57,          // Pi → Arduino: wipe backup magic byte
   CMD_EEPROM_DATA = 58,          // Arduino → Pi: buffered read data (follows CMD_EEPROM_READ_REQUEST)
 
+  // Motor calibration (bidirectional)
+  CMD_SET_MOTOR_CALIB = 59,      // Pi → Arduino: [motorMinDuty] — apply stored calibration on startup
+  CMD_MOTOR_CALIB_RESULT = 60,   // Arduino → Pi: [motorMinDuty] — calibration result to save as dotfile
+
   // Raspi to Arduino
   CMD_READY = 128,
   CMD_TELL_INITVALUES = 129, // send film load state and exposure pot value (both only get send when they change)
@@ -310,14 +314,8 @@ void setup() {
 
   Serial.begin(115200);
 
-  // Load calibrated motor minimum duty cycle (if available)
-  if (EEPROM.read(EEPROM_MAGIC_ADDR) == EEPROM_CALIB_MAGIC) {
-    motorMinDuty = EEPROM.read(EEPROM_CALIB_ADDR);
-    Serial.print(F("EEPROM motorMinDuty = "));
-    Serial.println(motorMinDuty);
-  } else {
-    Serial.println(F("EEPROM: no calib data, using default motorMinDuty=100"));
-  }
+  // motorMinDuty default (100) is used until Pi sends CMD_SET_MOTOR_CALIB at startup
+  // (EEPROM_CALIB_ADDR / EEPROM_MAGIC_ADDR bytes 0-1 are kept unused for layout compatibility)
 
   Serial.print(F("BOOT MCUSR=0x"));
   Serial.print(mcusr, HEX);
@@ -1090,9 +1088,8 @@ void calibrateMotor() {
   Serial.print(F("Calib: new motorMinDuty = "));
   Serial.println(motorMinDuty);
 
-  EEPROM.update(EEPROM_CALIB_ADDR, motorMinDuty);
-  EEPROM.update(EEPROM_MAGIC_ADDR, EEPROM_CALIB_MAGIC);
-  Serial.println(F("Calib: saved to EEPROM"));
+  nextPiCmd = CMD_MOTOR_CALIB_RESULT;
+  Serial.println(F("Calib: result queued for Pi"));
 }
 
 void stopMotor() {
@@ -1362,6 +1359,11 @@ void i2cReceive(int howMany) {
       Serial.println(F("Menu: exit (from Pi)"));
     }
   }
+  if ((Command)i2cCommand == CMD_SET_MOTOR_CALIB && payloadLen >= 1) {
+    motorMinDuty = payload[0];
+    Serial.print(F("Motor calib set from Pi: motorMinDuty = "));
+    Serial.println(motorMinDuty);
+  }
   if ((Command)i2cCommand == CMD_SCAN_REJECTED) {
     if (isScanning) {
       // Reset scan state locally without sending CMD_STOP_SCAN back to Pi
@@ -1425,6 +1427,9 @@ void i2cRequest() {
     response[1] = (uint8_t)(exposurePot & 0xFF);        // low byte
     response[2] = (uint8_t)((exposurePot >> 8) & 0xFF);  // high byte
     response[3] = filmLoadState;
+  }
+  if (cmdToSend == CMD_MOTOR_CALIB_RESULT) {
+    response[1] = motorMinDuty;
   }
 
   Wire.write(response, 5);

@@ -191,6 +191,8 @@ LOCALE_OPTIONS = [
 ]
 LOCALES_DIR = os.path.join(os.path.dirname(__file__), "locales")
 LOCALE_FILE = os.path.join(os.path.dirname(__file__), ".locale")
+MOTOR_CALIB_FILE = os.path.join(os.path.dirname(__file__), ".motor_calibration")
+MOTOR_CALIB_DEFAULT = 100  # default motorMinDuty when no calibration is stored
 current_locale = "en"
 _translations: dict = {}
 
@@ -212,7 +214,7 @@ MCU_AVRDUDE_CONF = os.path.join(repo_root, "scan-controller", "avrdude_gpio.conf
 MCU_HEX_HASH_FILE = os.path.join(os.path.dirname(__file__), ".mcu_hex_hash")
 
 # EEPROM dotfile backup layout (ATmega328P, 1024 bytes total)
-# Addr 0: motorMinDuty (existing)   Addr 1: motor calib magic (existing)
+# Addr 0-4: unused (reserved — formerly motorMinDuty/magic; kept empty for layout compatibility)
 # Addr 5+: backup region: [magic:1][len_lsb:1][len_msb:1][TLV entries...]
 #   TLV entry: [file_id:1][len_hi:1][len_lo:1][data:N]
 # Wipe = set magic byte at addr 5 to 0x00
@@ -226,6 +228,7 @@ EEPROM_FILE_WIFI_NETWORKS    = 4
 EEPROM_FILE_AWB_MODE         = 5
 EEPROM_FILE_SCAN_TARGET_MODE = 6
 EEPROM_FILE_LOCALE           = 7
+EEPROM_FILE_MOTOR_CALIB      = 8
 
 # Each entry: (file_id, absolute_path_or_relative_name)
 # Relative names are resolved with os.path.join(os.path.dirname(__file__), name)
@@ -245,6 +248,7 @@ EEPROM_BACKUP_FILES: "list[tuple[int, str]]" = [
     (EEPROM_FILE_AWB_MODE,         AWB_FILE),
     (EEPROM_FILE_SCAN_TARGET_MODE, TARGET_FILE),
     (EEPROM_FILE_LOCALE,           LOCALE_FILE),
+    (EEPROM_FILE_MOTOR_CALIB,      MOTOR_CALIB_FILE),
 ]
 
 # Pairing files are written externally (host-side SSH scripts); watch their mtimes
@@ -403,6 +407,10 @@ class Command(enum.Enum):
     EEPROM_WIPE = 57          # Pi → Arduino: wipe backup magic byte
     EEPROM_DATA = 58          # Arduino → Pi: buffered read data
 
+    # Motor calibration (bidirectional)
+    SET_MOTOR_CALIB    = 59   # Pi → Arduino: [motorMinDuty] — apply stored calibration on startup
+    MOTOR_CALIB_RESULT = 60   # Arduino → Pi: [motorMinDuty] — calibration result to save as dotfile
+
     WIFI_EXIT = 134
 
     # Raspi to Arduino. These are handled by i2cReceive() on the Controller side.
@@ -546,6 +554,41 @@ def _save_locale_setting(code: str):
         _eeprom_backup_all()
     except IOError as e:
         logging.error("locale: failed to save: %s", e)
+
+
+def _load_motor_calib() -> int:
+    """Return the persisted motorMinDuty value, falling back to MOTOR_CALIB_DEFAULT."""
+    if os.path.exists(MOTOR_CALIB_FILE):
+        try:
+            with open(MOTOR_CALIB_FILE, "r") as f:
+                return max(0, min(255, int(f.read().strip())))
+        except (IOError, ValueError):
+            pass
+    return MOTOR_CALIB_DEFAULT
+
+
+def _save_motor_calib(value: int):
+    try:
+        with open(MOTOR_CALIB_FILE, "w") as f:
+            f.write(str(value))
+        logging.info("motor calib: saved motorMinDuty=%d", value)
+        _eeprom_backup_all()
+    except IOError as e:
+        logging.error("motor calib: failed to save: %s", e)
+
+
+def _send_motor_calib_to_arduino(value: int):
+    """Send the stored motorMinDuty to the Arduino via CMD_SET_MOTOR_CALIB (59)."""
+    global arduino, arduino_i2c_address
+    if arduino is None:
+        return
+    try:
+        arduino.write_i2c_block_data(arduino_i2c_address,
+                                     Command.SET_MOTOR_CALIB.value,
+                                     [value & 0xFF])
+        logging.info("motor calib: sent motorMinDuty=%d to Arduino", value)
+    except Exception as exc:
+        logging.error("motor calib: failed to send to Arduino: %s", exc)
 
 
 def _load_locale(code: str = "en"):
@@ -2563,6 +2606,7 @@ def _unpair_confirm(_args=None):
         TARGET_FILE,        # .scan_target_mode
         MCU_HEX_HASH_FILE,  # .mcu_hex_hash
         WIFI_NETWORKS_FILE, # .wifi_networks
+        MOTOR_CALIB_FILE,   # .motor_calibration
         ".user_and_host",
         ".scan_destination",
         ".host_path",
@@ -4805,6 +4849,7 @@ def setup():
     _eeprom_restore_all()
     _eeprom_backup_all()
     time.sleep(0.1)  # let I2C bus settle after EEPROM operations
+    _send_motor_calib_to_arduino(_load_motor_calib())
 
     # Seed pairing file mtimes so the first loop() check doesn't trigger a spurious backup
     for path in EEPROM_PAIRING_FILES:
@@ -5045,6 +5090,11 @@ def loop():
                     func(received[1:])
             else:
                 logging.warning("wifi: received %s but wifi_mode is False - state mismatch!", command)
+            return
+        if command == Command.MOTOR_CALIB_RESULT:
+            calib_value = received[1] if len(received) > 1 else MOTOR_CALIB_DEFAULT
+            logging.info("motor calib: received result motorMinDuty=%d from Arduino", calib_value)
+            _save_motor_calib(calib_value)
             return
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {
