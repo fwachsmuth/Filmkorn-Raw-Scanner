@@ -5052,12 +5052,6 @@ def loop():
             else:
                 logging.warning("wifi: received %s but wifi_mode is False - state mismatch!", command)
             return
-        # When any menu/submenu is active, ignore non-menu commands that would
-        # overwrite the current screen (e.g. a stale SET_INITVALUES from startup).
-        if menu_mode or update_mode or pairing_mode or awb_mode or latency_mode or target_mode or wifi_mode or unpair_mode or logs_mode:
-            logging.debug("Ignoring non-menu command %s while in menu/submenu mode", command)
-            return
-
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {
             Command.Z1_1: set_zoom_mode_1_1,
@@ -5075,6 +5069,12 @@ def loop():
         }.get(command, None)
 
         if func is not None:
+            # When any menu/submenu is active, ignore scan-time commands that
+            # would overwrite the menu screen (e.g. a stale SET_INITVALUES).
+            if menu_mode or update_mode or pairing_mode or awb_mode or latency_mode \
+                    or target_mode or wifi_mode or unpair_mode or logs_mode:
+                logging.debug("Ignoring %s while in menu/submenu mode", command)
+                return
             func(received[1:])
 # end main control loop
 
