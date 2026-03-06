@@ -1394,7 +1394,15 @@ void i2cRequest() {
     return;
   }
   Command cmdToSend = nextPiCmd;
-  Wire.write(cmdToSend);
+  // Response layout is always 5 bytes: [cmd, b1, b2, b3, check]
+  // where check = ~cmd.  Unused payload slots are zero-padded so that the
+  // check byte is always at index 4.
+  uint8_t response[5];
+  response[0] = (uint8_t)cmdToSend;
+  response[1] = 0;
+  response[2] = 0;
+  response[3] = 0;
+  response[4] = (uint8_t)~cmdToSend;
 
   if (pairingCancelPending && (scaledMillis() - pairingCancelSentAt) > 5000) {
     pairingCancelPending = false;
@@ -1403,21 +1411,18 @@ void i2cRequest() {
   // Special case when the exposure pot was changed
   if (cmdToSend == CMD_SET_EXP) {
     Serial.println(F("Sending new Exposure Time value."));
-    Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot);  // little endian
+    response[1] = (uint8_t)(exposurePot & 0xFF);        // low byte
+    response[2] = (uint8_t)((exposurePot >> 8) & 0xFF);  // high byte
   }
 
   // Special case to get initial (current) values of film load switch and exposue pot
   if (cmdToSend == CMD_SET_INITVALUES) {
-    Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot); // little endian
-    Wire.write(filmLoadState);
+    response[1] = (uint8_t)(exposurePot & 0xFF);        // low byte
+    response[2] = (uint8_t)((exposurePot >> 8) & 0xFF);  // high byte
+    response[3] = filmLoadState;
   }
 
-  // Integrity check byte: bitwise complement of the command byte.
-  // The Pi reads 5 bytes and verifies response[0] ^ response[4] == 0xFF
-  // to detect I2C bit-corruption (a known RPi bcm2835 clock-stretching issue).
-  // When the check fails, the Pi sends ACK_FAIL (register byte) to request re-send;
-  // otherwise the next normal poll (register byte CMD_NONE) clears the command.
-  Wire.write((uint8_t)~cmdToSend);
+  Wire.write(response, 5);
 
   // Record what we sent so i2cReceive's ACK handler can verify that
   // loop() hasn't overwritten nextPiCmd with a newer command since.
