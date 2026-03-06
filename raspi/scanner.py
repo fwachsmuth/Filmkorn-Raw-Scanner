@@ -272,6 +272,7 @@ STATUS_SCREENS = {
     "target-dir-does-not-exist",
     "no-host-computer-paired-yet",
     "updating-ino",
+    "calibrating-motor",
 }
 # Screens that must not be replaced by film-sensor state changes (insert-film / ready-to-scan).
 # These represent conditions that must be resolved before scanning can proceed.
@@ -339,6 +340,10 @@ SCREEN_DEFINITIONS = {
         "icon_name": "construction.png",
         "title_key": "screen.unpaired-from-client.title",
         "description_key": "screen.unpaired-from-client.description",
+    },
+    "calibrating-motor": {
+        "icon_name": "hourglass.png",
+        "title_key": "screen.calibrating-motor.title",
     },
 }
 
@@ -408,6 +413,7 @@ class Command(enum.Enum):
     EEPROM_DATA = 58          # Arduino → Pi: buffered read data
 
     # Motor calibration (bidirectional)
+    CALIB_MOTOR_START  = 61   # Arduino → Pi: calibration starting (Pi shows status screen, exits menu)
     SET_MOTOR_CALIB    = 59   # Pi → Arduino: [motorMinDuty] — apply stored calibration on startup
     MOTOR_CALIB_RESULT = 60   # Arduino → Pi: [motorMinDuty] — calibration result to save as dotfile
 
@@ -5091,10 +5097,17 @@ def loop():
             else:
                 logging.warning("wifi: received %s but wifi_mode is False - state mismatch!", command)
             return
+        if command == Command.CALIB_MOTOR_START:
+            logging.info("motor calib: calibration starting — showing calibrating screen")
+            global menu_mode
+            menu_mode = False
+            show_screen("calibrating-motor")
+            return
         if command == Command.MOTOR_CALIB_RESULT:
             calib_value = received[1] if len(received) > 1 else MOTOR_CALIB_DEFAULT
             logging.info("motor calib: received result motorMinDuty=%d from Arduino", calib_value)
             _save_motor_calib(calib_value)
+            show_ready_to_scan()
             return
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {

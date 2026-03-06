@@ -118,5 +118,7 @@
   "gpio5.error.line2": "switch on GPIO5 to",
   "gpio5.error.line3": "use USB-Drive instead",
   "gpio5.error.line4": "Or fix network/host",
-  "gpio5.error.line5": "connectivity issues"
+  "gpio5.error.line5": "connectivity issues",
+
+  "screen.calibrating-motor.title": "Calibrating\nMotor..."
 }

@@ -125,6 +125,7 @@ enum Command
   CMD_EEPROM_DATA = 58,          // Arduino → Pi: buffered read data (follows CMD_EEPROM_READ_REQUEST)
 
   // Motor calibration (bidirectional)
+  CMD_CALIB_MOTOR_START = 61,    // Arduino → Pi: calibration starting (Pi shows status screen, exits menu)
   CMD_SET_MOTOR_CALIB = 59,      // Pi → Arduino: [motorMinDuty] — apply stored calibration on startup
   CMD_MOTOR_CALIB_RESULT = 60,   // Arduino → Pi: [motorMinDuty] — calibration result to save as dotfile
 
@@ -756,9 +757,9 @@ void handleMenuSystem() {
               nextPiCmd = CMD_MENU_SELECT;
               break;
             case MENU_ITEM_CALIB_MOTOR:
-              // Run calibration locally; exit menu so pots work normally afterwards
+              // Notify Pi to exit menu and show calibrating screen, then run calibration locally
               menuState = MENU_IDLE;
-              nextPiCmd = CMD_MENU_EXIT;
+              nextPiCmd = CMD_CALIB_MOTOR_START;
               calibrateMotor();
               break;
             default:

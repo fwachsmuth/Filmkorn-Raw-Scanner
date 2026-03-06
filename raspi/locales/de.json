@@ -118,5 +118,7 @@
   "gpio5.error.line2": "auf GPIO5 umlegen",
   "gpio5.error.line3": "für USB-Drive statt Host",
   "gpio5.error.line4": "Oder Netzwerk/Host",
-  "gpio5.error.line5": "Verbindung prüfen"
+  "gpio5.error.line5": "Verbindung prüfen",
+
+  "screen.calibrating-motor.title": "Motor wird\nkalibriert..."
 }
