@@ -123,6 +123,7 @@ enum Command
   CMD_EEPROM_READ_REQUEST = 56,  // Pi → Arduino: [offset_hi, offset_lo, length]
   CMD_EEPROM_WIPE = 57,          // Pi → Arduino: wipe backup magic byte
   CMD_EEPROM_DATA = 58,          // Arduino → Pi: buffered read data (follows CMD_EEPROM_READ_REQUEST)
+  CMD_NACK = 59,                  // Pi → Arduino: previous read was corrupted, re-send
 
   // Raspi to Arduino
   CMD_READY = 128,
@@ -278,6 +279,8 @@ ControlButton prevButton = NONE;
 uint8_t currentMotor = 0;
 MotorState motorState = STOPPED;
 volatile Command nextPiCmd = CMD_NONE;
+volatile Command nextPiCmdPending = CMD_NONE;   // applied to nextPiCmd when Pi ACKs
+volatile Command nextPiCmdLastSent = CMD_NONE;  // what i2cRequest last sent, for ACK matching
 ZoomMode zoomMode = Z1_1;
 
 // Timer 0 prescaler is set to 1 in setup() to raise the PWM frequency on motor
@@ -1274,6 +1277,28 @@ void i2cReceive(int howMany) {
     eepromDataAvailable = false;
   }
 
+  // Implicit ACK/NACK of the previous i2cRequest response.
+  // CMD_NONE (0) = normal poll register byte from read_i2c_block_data → the Pi
+  // accepted the last response, so apply the deferred nextPiCmd transition.
+  // CMD_NACK (59) = Pi detected a corrupted read and wants us to re-send →
+  // keep nextPiCmd as-is so the same command goes out on the next i2cRequest.
+  // Any other command: the Pi is sending a real command that may override
+  // nextPiCmd, so discard the stale pending transition.
+  if ((Command)i2cCommand == CMD_NONE) {
+    // Only apply the pending transition if loop() hasn't overwritten nextPiCmd
+    // with a newer command since i2cRequest last ran.
+    if (nextPiCmd == nextPiCmdLastSent) {
+      nextPiCmd = nextPiCmdPending;
+    }
+    nextPiCmdPending = CMD_NONE;
+    nextPiCmdLastSent = CMD_NONE;
+  } else if ((Command)i2cCommand == CMD_NACK) {
+    // Keep nextPiCmd for re-send; don't touch nextPiCmdPending.
+  } else {
+    nextPiCmdPending = CMD_NONE;
+    nextPiCmdLastSent = CMD_NONE;
+  }
+
   // Single-byte commands (existing behaviour unchanged)
   if ((Command)i2cCommand == CMD_PAIRING_EXIT) {
     pairingMode = false;
@@ -1386,17 +1411,31 @@ void i2cRequest() {
     Wire.write((const uint8_t *)&exposurePot, sizeof exposurePot); // little endian
     Wire.write(filmLoadState);
   }
+
+  // Integrity check byte: bitwise complement of the command byte.
+  // The Pi reads 5 bytes and verifies response[0] ^ response[4] == 0xFF
+  // to detect I2C bit-corruption (a known RPi bcm2835 clock-stretching issue).
+  // When the check fails, the Pi sends ACK_FAIL (register byte) to request re-send;
+  // otherwise the next normal poll (register byte CMD_NONE) clears the command.
+  Wire.write((uint8_t)~cmdToSend);
+
+  // Record what we sent so i2cReceive's ACK handler can verify that
+  // loop() hasn't overwritten nextPiCmd with a newer command since.
+  nextPiCmdLastSent = cmdToSend;
+
+  // Don't clear nextPiCmd here — let the Pi acknowledge receipt.
+  // i2cReceive applies nextPiCmdPending when it gets CMD_NONE (normal poll),
+  // meaning the previous response was accepted.  If it gets CMD_NACK instead,
+  // we keep nextPiCmd so the command is re-sent on the next i2cRequest.
+  // Exception: commands that need special next-state transitions.
   if (pairingCancelPending && cmdToSend == CMD_PAIRING_CANCEL) {
-    nextPiCmd = CMD_PAIRING_CANCEL;
+    // keep CMD_PAIRING_CANCEL until cancelled
+    nextPiCmdPending = CMD_PAIRING_CANCEL;
   } else if (cmdToSend == CMD_UPDATE_CANCEL && menuState == MENU_IDLE) {
-    // If we just canceled update and menu is now IDLE, send MENU_EXIT next
-    // so Python knows to exit menu mode
-    nextPiCmd = CMD_MENU_EXIT;
+    nextPiCmdPending = CMD_MENU_EXIT;
   } else if (cmdToSend == CMD_UNPAIR_CANCEL && menuState == MENU_MAIN) {
-    // If we just canceled unpair and menu is back to MAIN, clear the command
-    // so Python can continue navigating the main menu
-    nextPiCmd = CMD_NONE;
+    nextPiCmdPending = CMD_NONE;
   } else {
-    nextPiCmd = CMD_NONE;
+    nextPiCmdPending = CMD_NONE;
   }
 }

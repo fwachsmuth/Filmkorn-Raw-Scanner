@@ -403,6 +403,7 @@ class Command(enum.Enum):
     EEPROM_READ_REQUEST = 56  # Pi → Arduino: [offset_hi, offset_lo, length]
     EEPROM_WIPE = 57          # Pi → Arduino: wipe backup magic byte
     EEPROM_DATA = 58          # Arduino → Pi: buffered read data
+    NACK = 59                 # Pi → Arduino: previous read was corrupted, re-send
 
     WIFI_EXIT = 134
 
@@ -3445,10 +3446,23 @@ def ask_arduino() -> Optional["list[int]"]:
     # 6 retries @ 70ms base = ~2 s worst case, which covers Arduino motor-drive busy periods.
     max_retries = 6
     retry_delay = 0.07
+    reg_byte = 0  # CMD_NONE = ACK previous + poll; CMD_NACK (59) = re-send
     for attempt in range(max_retries):
         try:
-            response = arduino.read_i2c_block_data(arduino_i2c_address, 0, 4)
-            return response  # Success, return the response
+            response = arduino.read_i2c_block_data(arduino_i2c_address, reg_byte, 5)
+            # Validate integrity: byte 4 must be the bitwise complement of byte 0.
+            # Detects I2C bit-corruption (known RPi bcm2835 clock-stretching issue).
+            if (response[0] ^ response[4]) != 0xFF:
+                logging.warning(
+                    "I2C integrity check failed (cmd=%d, check=%d, raw=%s); requesting re-send",
+                    response[0], response[4], response,
+                )
+                reg_byte = Command.NACK.value  # tell Arduino to re-send
+                sleep(retry_delay)
+                retry_delay *= 2
+                continue
+            reg_byte = 0  # reset for next call
+            return response[:4]  # strip check byte, return 4 payload bytes
         except OSError as e:
             # Depending on kernel/driver, a NACK can surface as EREMOTEIO or EIO.
             if e.errno not in (errno.EREMOTEIO, errno.EIO, errno.ETIMEDOUT):
@@ -3456,8 +3470,13 @@ def ask_arduino() -> Optional["list[int]"]:
             logging.warning(
                 f"Attempt {attempt + 1}: No I2C answer when polling Arduino. Probably busy right now (errno={e.errno})."
             )
+            # After an I2C error, the Arduino may not have received the register
+            # byte at all, so we don't know if i2cReceive fired.  Send NACK on
+            # the retry to be safe — if the Arduino didn't send anything, NACK
+            # is harmless (it just keeps nextPiCmd as-is).
+            reg_byte = Command.NACK.value
             sleep(retry_delay)
-            retry_delay *= 2  # Exponential backoff: 50, 100, 200 ms → ~350 ms total
+            retry_delay *= 2  # Exponential backoff: 70, 140, 280 ms …
     logging.error("Failed to read from Arduino after several attempts. Attempting I2C bus recovery.")
     try:
         arduino.close()
