@@ -3512,8 +3512,8 @@ def _eeprom_read_bytes(offset: int, length: int) -> "Optional[bytes]":
                                          Command.EEPROM_READ_REQUEST.value,
                                          [chunk_offset >> 8, chunk_offset & 0xFF, read_len])
             # EEPROM reads are deferred to loop() on the Arduino (~3.4 ms/byte).
-            # 28-byte chunk = ~95 ms; 150 ms gives comfortable margin.
-            time.sleep(0.150)
+            # Wait long enough for loop() to finish reading this chunk, plus scheduling margin.
+            time.sleep(read_len * 0.004 + 0.020)
             raw = arduino.read_i2c_block_data(arduino_i2c_address, 0, read_len)
             result.extend(raw[:read_len])
             pos += read_len
