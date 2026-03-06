@@ -4878,8 +4878,10 @@ def _check_pairing_file_mtimes() -> None:
         _eeprom_backup_all()
 
 
+_last_dispatched_cmd = Command.IDLE  # dedup guard: skip consecutive identical non-IDLE commands
+
 def loop():
-    global target_mode, target_validation_error, target_validation_failures
+    global target_mode, target_validation_error, target_validation_failures, _last_dispatched_cmd
     if mcu_flash_in_progress:
         time.sleep(0.05)
         return
@@ -4909,6 +4911,16 @@ def loop():
     except ValueError:
         logging.error(f"Received unknown command byte: {received[0]} (raw: {received})")
         return
+
+    # The Arduino re-sends each command up to 3 times (retry counter) so the Pi
+    # gets multiple chances in case of I2C corruption.  Skip consecutive
+    # duplicates of the same non-IDLE command to avoid double-processing.
+    if command is not None and command != Command.IDLE:
+        if command == _last_dispatched_cmd:
+            return
+        _last_dispatched_cmd = command
+    else:
+        _last_dispatched_cmd = Command.IDLE
 
     if command is not None:
         # Menu system commands
