@@ -3514,7 +3514,7 @@ def _eeprom_read_bytes(offset: int, length: int) -> "Optional[bytes]":
             # EEPROM reads are deferred to loop() on the Arduino (~3.4 ms/byte).
             # Wait long enough for loop() to finish reading this chunk, plus scheduling margin.
             time.sleep(read_len * 0.004 + 0.020)
-            raw = arduino.read_i2c_block_data(arduino_i2c_address, 0, read_len)
+            raw = arduino.read_i2c_block_data(arduino_i2c_address, Command.EEPROM_DATA.value, read_len)
             result.extend(raw[:read_len])
             pos += read_len
         return bytes(result)
@@ -4790,6 +4790,14 @@ def setup():
     # then sync all currently present dotfiles back to EEPROM.
     _eeprom_restore_all()
     _eeprom_backup_all()
+    time.sleep(0.1)  # let I2C bus settle after EEPROM operations
+
+    # Seed pairing file mtimes so the first loop() check doesn't trigger a spurious backup
+    for path in EEPROM_PAIRING_FILES:
+        try:
+            _eeprom_pairing_mtimes[path] = os.path.getmtime(path) if os.path.isfile(path) else 0.0
+        except OSError:
+            _eeprom_pairing_mtimes[path] = 0.0
 
     # Reset Arduino menu state in case it was stuck in a menu from before restart
     # But don't reset if we need to enter menu mode due to validation failure

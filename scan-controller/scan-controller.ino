@@ -219,7 +219,8 @@ volatile bool piIsReady = false;
 // EEPROM backup: read buffer filled in loop() after CMD_EEPROM_READ_REQUEST, served by i2cRequest()
 uint8_t eepromReadBuf[32];
 uint8_t eepromReadLen = 0;
-volatile bool eepromReadReady = false;
+volatile bool eepromDataAvailable = false;     // set by loop() when eepromReadBuf is filled
+volatile bool eepromServeNextRequest = false;  // set by i2cReceive when Pi sends CMD_EEPROM_DATA reg byte
 // Deferred read request: set by ISR, consumed by loop() to avoid slow EEPROM reads inside ISR
 volatile bool eepromReadPending = false;
 volatile uint16_t eepromReadPendingOffset = 0;
@@ -375,7 +376,7 @@ void loop() {
       eepromReadBuf[i] = EEPROM.read(EEPROM_BACKUP_BASE_ADDR + offset + i);
     }
     eepromReadLen = length;
-    eepromReadReady = true;
+    eepromDataAvailable = true;
   }
 
   // Handle deferred target re-enter from i2cReceive ISR
@@ -1257,6 +1258,10 @@ void i2cReceive(int howMany) {
     EEPROM.update(EEPROM_BACKUP_BASE_ADDR, 0x00);  // clear magic byte at offset 0 of backup region
     Serial.println(F("EEPROM backup: wiped"));
   }
+  if ((Command)i2cCommand == CMD_EEPROM_DATA) {
+    // Pi is about to read EEPROM data via i2cRequest — flag it to serve the buffer
+    eepromServeNextRequest = true;
+  }
 
   // Single-byte commands (existing behaviour unchanged)
   if ((Command)i2cCommand == CMD_PAIRING_EXIT) {
@@ -1346,9 +1351,10 @@ void i2cReceive(int howMany) {
 void i2cRequest() {
   // This gets called when the Pi uses ask_arduino() in its loop to ask what to do next.
   // If an EEPROM read was requested, serve the buffered data instead of the normal command.
-  if (eepromReadReady) {
+  if (eepromServeNextRequest && eepromDataAvailable) {
     Wire.write(eepromReadBuf, eepromReadLen);
-    eepromReadReady = false;
+    eepromServeNextRequest = false;
+    eepromDataAvailable = false;
     return;
   }
   Command cmdToSend = nextPiCmd;
