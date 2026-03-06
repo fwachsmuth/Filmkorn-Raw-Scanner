@@ -217,7 +217,7 @@ MenuState menuState = MENU_IDLE;
 uint8_t menuSelected = 0;  // Current selection in main menu
 bool stopButtonPressed = false;
 uint32_t stopButtonPressedAt = 0;
-const uint32_t STOP_LONG_PRESS_MS = 3000;  // 3 seconds
+const uint32_t STOP_LONG_PRESS_MS = 2000;  // 2 seconds
 
 volatile bool piIsReady = false;
 
