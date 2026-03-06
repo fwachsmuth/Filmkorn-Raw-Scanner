@@ -1104,7 +1104,7 @@ def _fetch_tags() -> bool:
     url_result = _git("config", "--get", "remote.origin.url")
     if url_result.returncode == 0:
         remote_url = url_result.stdout.strip()
-        if remote_url.startswith("git@github.com:") and not _dev_keys_present():
+        if remote_url.startswith("git@github.com:") and not _has_dev_keys():
             https_url = "https://github.com/" + remote_url[len("git@github.com:"):]
             logging.info("update: switching origin to HTTPS (%s)", https_url)
             _git("remote", "set-url", "origin", https_url)
