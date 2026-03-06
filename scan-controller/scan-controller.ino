@@ -225,6 +225,11 @@ volatile bool eepromServeNextRequest = false;  // set by i2cReceive when Pi send
 volatile bool eepromReadPending = false;
 volatile uint16_t eepromReadPendingOffset = 0;
 volatile uint8_t eepromReadPendingLen = 0;
+// Deferred write request: set by ISR, consumed by loop() to avoid slow EEPROM writes inside ISR
+volatile bool eepromWritePending = false;
+uint8_t eepromWriteBuf[32];
+uint8_t eepromWriteLen = 0;
+volatile uint16_t eepromWriteOffset = 0;
 
 /*
  * Board revision is encoded on A7 via voltage divider: 10 kOhm to GND, R51 (VCC to A7) per revision.
@@ -278,14 +283,6 @@ ControlButton prevButton = NONE;
 uint8_t currentMotor = 0;
 MotorState motorState = STOPPED;
 volatile Command nextPiCmd = CMD_NONE;
-volatile uint8_t nextPiCmdSendCount = 0;  // how many more times i2cRequest should re-send before clearing
-
-// Set nextPiCmd with automatic retry count so the Pi gets multiple chances
-// to read it (in case of I2C corruption).  CMD_NONE always gets count 0.
-static inline void setNextPiCmd(Command cmd) {
-  nextPiCmd = cmd;
-  nextPiCmdSendCount = (cmd == CMD_NONE) ? 0 : 3;
-}
 
 ZoomMode zoomMode = Z1_1;
 
@@ -388,6 +385,20 @@ void loop() {
     eepromDataAvailable = true;
   }
 
+  // Handle deferred EEPROM write request from i2cReceive ISR.
+  // EEPROM.update() takes ~3.4 ms/byte so must not run inside the ISR.
+  if (eepromWritePending) {
+    eepromWritePending = false;
+    uint16_t offset = eepromWriteOffset;
+    uint8_t length = eepromWriteLen;
+    for (uint8_t i = 0; i < length; i++) {
+      EEPROM.update(EEPROM_BACKUP_BASE_ADDR + offset + i, eepromWriteBuf[i]);
+    }
+    if (length == 1 && offset == 0 && eepromWriteBuf[0] == 0x00) {
+      Serial.println(F("EEPROM backup: wiped"));
+    }
+  }
+
   // Handle deferred target re-enter from i2cReceive ISR
   if (targetReenterPending) {
     targetReenterPending = false;
@@ -399,7 +410,7 @@ void loop() {
     }
     targetMode = true;
     menuState = MENU_TARGET;
-    setNextPiCmd(CMD_NONE);
+    nextPiCmd = CMD_NONE;
     // Poll buttons immediately to sync state - this prevents any button that was
     // pressed before entering menu mode from triggering actions
     currentButton = pollButtons();
@@ -441,7 +452,7 @@ void loop() {
           stopButtonPressed = false;
           prevButton = NONE;  // Reset prevButton so menu navigation works
           currentButton = NONE;  // Reset currentButton
-          setNextPiCmd(CMD_MENU_ENTER);
+          nextPiCmd = CMD_MENU_ENTER;
           Serial.println(F("Menu: enter (long press STOP)"));
           return;
         }
@@ -557,11 +568,11 @@ void loop() {
           break;
         case ZOOM:
           setZoomMode((zoomMode == Z10_1) ? Z1_1 : (ZoomMode)((uint8_t)zoomMode + 1));
-          setNextPiCmd((Command)((uint8_t)CMD_Z1_1 + (uint8_t)zoomMode));
+          nextPiCmd = (Command)((uint8_t)CMD_Z1_1 + (uint8_t)zoomMode);
           break;
         case LIGHT:
           setLampMode(!lampMode);
-          setNextPiCmd((Command)((uint8_t)CMD_LAMP_OFF + lampMode));
+          nextPiCmd = (Command)((uint8_t)CMD_LAMP_OFF + lampMode);
           break;
         case RUNREV:
           if (motorState == FWD)
@@ -606,7 +617,7 @@ void loop() {
           scanExtraFrames = 0;  // reset extra frames counter
           scanFilmEndCount = 0;  // reset film end debounce counter
           filmEjectAdvances = 0;  // cancel any pending eject
-          setNextPiCmd(CMD_START_SCAN);
+          nextPiCmd = CMD_START_SCAN;
           setLampMode(true);
           // ... (don't forget to detach ISR)
           break;
@@ -635,7 +646,7 @@ void readExposurePot() {
     lastSentExposurePot = newExposurePot;
     Serial.print(F("New Exposure Setting: "));
     Serial.println(exposurePot);
-    setNextPiCmd(CMD_SET_EXP);
+    nextPiCmd = CMD_SET_EXP;
   }
 }
 
@@ -656,7 +667,7 @@ void readFilmEndSensor() {
         Serial.println(F("Film ended during continuous run - stopping"));
         stopMotor();
       }
-      setNextPiCmd(CMD_SHOW_INSERT_FILM);
+      nextPiCmd = CMD_SHOW_INSERT_FILM;
       filmEndLowPending = false;
     }
   } else {
@@ -666,7 +677,7 @@ void readFilmEndSensor() {
       fwdFilmInsertedSince = scaledMillis();
     }
     if (lastFilmEndState != 1) {
-      setNextPiCmd(CMD_SHOW_READY_TO_SCAN);
+      nextPiCmd = CMD_SHOW_READY_TO_SCAN;
     }
   }
 }
@@ -686,14 +697,14 @@ void handleMenuSystem() {
         case REV1:
           // Navigate up (wrap around)
           menuSelected = (menuSelected - 1 + MENU_ITEM_COUNT) % MENU_ITEM_COUNT;
-          setNextPiCmd(CMD_MENU_PREV);
+          nextPiCmd = CMD_MENU_PREV;
           Serial.print(F("Menu: selected item "));
           Serial.println(menuSelected);
           break;
         case FWD1:
           // Navigate down (wrap around)
           menuSelected = (menuSelected + 1) % MENU_ITEM_COUNT;
-          setNextPiCmd(CMD_MENU_NEXT);
+          nextPiCmd = CMD_MENU_NEXT;
           Serial.print(F("Menu: selected item "));
           Serial.println(menuSelected);
           break;
@@ -705,63 +716,63 @@ void handleMenuSystem() {
             case MENU_ITEM_UPDATE:
               menuState = MENU_UPDATE;
               updateMode = true;
-              setNextPiCmd(CMD_UPDATE_ENTER);
+              nextPiCmd = CMD_UPDATE_ENTER;
               break;
             case MENU_ITEM_PAIRING:
               menuState = MENU_PAIRING;
               pairingMode = true;
               pairingModeEnteredAt = scaledMillis();
-              setNextPiCmd(CMD_PAIRING_ENTER);
+              nextPiCmd = CMD_PAIRING_ENTER;
               break;
             case MENU_ITEM_AWB:
               menuState = MENU_AWB;
               awbMode = true;
-              setNextPiCmd(CMD_AWB_ENTER);
+              nextPiCmd = CMD_AWB_ENTER;
               break;
             case MENU_ITEM_CAPTURE_LATENCY:
               menuState = MENU_LATENCY;
               latencyMode = true;
-              setNextPiCmd(CMD_LATENCY_ENTER);
+              nextPiCmd = CMD_LATENCY_ENTER;
               break;
             case MENU_ITEM_TARGET:
               menuState = MENU_TARGET;
               targetMode = true;
-              setNextPiCmd(CMD_TARGET_ENTER);
+              nextPiCmd = CMD_TARGET_ENTER;
               break;
             case MENU_ITEM_WIFI:
               menuState = MENU_WIFI;
               wifiMode = true;
-              setNextPiCmd(CMD_WIFI_ENTER);
+              nextPiCmd = CMD_WIFI_ENTER;
               break;
             case MENU_ITEM_LOGS:
               menuState = MENU_LOGS;
               logsMode = true;
-              setNextPiCmd(CMD_LOGS_ENTER);
+              nextPiCmd = CMD_LOGS_ENTER;
               break;
             case MENU_ITEM_UNPAIR:
               menuState = MENU_UNPAIR;
-              setNextPiCmd(CMD_UNPAIR_ENTER);
+              nextPiCmd = CMD_UNPAIR_ENTER;
               break;
             case MENU_ITEM_LANGUAGE:
               // Language cycling is handled entirely by the Pi; stay in MENU_MAIN
-              setNextPiCmd(CMD_MENU_SELECT);
+              nextPiCmd = CMD_MENU_SELECT;
               break;
             case MENU_ITEM_CALIB_MOTOR:
               // Run calibration locally; exit menu so pots work normally afterwards
               menuState = MENU_IDLE;
-              setNextPiCmd(CMD_MENU_EXIT);
+              nextPiCmd = CMD_MENU_EXIT;
               calibrateMotor();
               break;
             default:
               // If no specific submenu, send MENU_SELECT for Python to handle
-              setNextPiCmd(CMD_MENU_SELECT);
+              nextPiCmd = CMD_MENU_SELECT;
               break;
           }
           break;
         case RUNREV:
           // Exit menu
           menuState = MENU_IDLE;
-          setNextPiCmd(CMD_MENU_EXIT);
+          nextPiCmd = CMD_MENU_EXIT;
           Serial.println(F("Menu: exit"));
           break;
         default:
@@ -779,26 +790,26 @@ void handleMenuSystem() {
             // Go back to main menu
             menuState = MENU_MAIN;
             updateMode = false;
-            setNextPiCmd(CMD_UPDATE_CANCEL);
+            nextPiCmd = CMD_UPDATE_CANCEL;
             Serial.println(F("Update: back to menu"));
             break;
           case REV1:
-            setNextPiCmd(CMD_UPDATE_PREV);
+            nextPiCmd = CMD_UPDATE_PREV;
             Serial.println(F("Update: prev"));
             break;
           case FWD1:
-            setNextPiCmd(CMD_UPDATE_NEXT);
+            nextPiCmd = CMD_UPDATE_NEXT;
             Serial.println(F("Update: next"));
             break;
           case RUNFWD:
-            setNextPiCmd(CMD_UPDATE_CONFIRM);
+            nextPiCmd = CMD_UPDATE_CONFIRM;
             Serial.println(F("Update: confirm"));
             break;
           case STOP:
             // Exit menu completely
             menuState = MENU_IDLE;
             updateMode = false;
-            setNextPiCmd(CMD_UPDATE_CANCEL);
+            nextPiCmd = CMD_UPDATE_CANCEL;
             Serial.println(F("Update: exit menu"));
             // Note: Python will need to detect menu exit via menuState change
             // We'll send CMD_MENU_EXIT on next i2c request if menuState is IDLE
@@ -817,17 +828,17 @@ void handleMenuSystem() {
         pairingMode = false;
         pairingCancelPending = true;
         pairingCancelSentAt = scaledMillis();
-        setNextPiCmd(CMD_PAIRING_CANCEL);
+        nextPiCmd = CMD_PAIRING_CANCEL;
       } else if (currentButton == RUNREV) {
         // Go back to main menu
         menuState = MENU_MAIN;
         pairingMode = false;
-        setNextPiCmd(CMD_PAIRING_CANCEL);
+        nextPiCmd = CMD_PAIRING_CANCEL;
         Serial.println(F("Pairing: back to menu"));
       } else if ((scaledMillis() - pairingModeEnteredAt) > 130000) {
         menuState = MENU_MAIN;
         pairingMode = false;
-        setNextPiCmd(CMD_NONE);
+        nextPiCmd = CMD_NONE;
       }
     } else if (awbMode) {
       if (currentButton != prevButton) {
@@ -837,23 +848,23 @@ void handleMenuSystem() {
             // Go back to main menu
             menuState = MENU_MAIN;
             awbMode = false;
-            setNextPiCmd(CMD_AWB_CANCEL);
+            nextPiCmd = CMD_AWB_CANCEL;
             Serial.println(F("AWB: back to menu"));
             break;
           case REV1:
-            setNextPiCmd(CMD_AWB_PREV);
+            nextPiCmd = CMD_AWB_PREV;
             break;
           case FWD1:
-            setNextPiCmd(CMD_AWB_NEXT);
+            nextPiCmd = CMD_AWB_NEXT;
             break;
           case RUNFWD:
-            setNextPiCmd(CMD_AWB_CONFIRM);
+            nextPiCmd = CMD_AWB_CONFIRM;
             break;
           case STOP:
             // Exit menu completely
             menuState = MENU_IDLE;
             awbMode = false;
-            setNextPiCmd(CMD_AWB_CANCEL);
+            nextPiCmd = CMD_AWB_CANCEL;
             Serial.println(F("AWB: exit menu"));
             break;
           default:
@@ -867,22 +878,22 @@ void handleMenuSystem() {
           case RUNREV:
             menuState = MENU_MAIN;
             latencyMode = false;
-            setNextPiCmd(CMD_LATENCY_CANCEL);
+            nextPiCmd = CMD_LATENCY_CANCEL;
             Serial.println(F("Latency: back to menu"));
             break;
           case REV1:
-            setNextPiCmd(CMD_LATENCY_PREV);
+            nextPiCmd = CMD_LATENCY_PREV;
             break;
           case FWD1:
-            setNextPiCmd(CMD_LATENCY_NEXT);
+            nextPiCmd = CMD_LATENCY_NEXT;
             break;
           case RUNFWD:
-            setNextPiCmd(CMD_LATENCY_CONFIRM);
+            nextPiCmd = CMD_LATENCY_CONFIRM;
             break;
           case STOP:
             menuState = MENU_IDLE;
             latencyMode = false;
-            setNextPiCmd(CMD_LATENCY_CANCEL);
+            nextPiCmd = CMD_LATENCY_CANCEL;
             Serial.println(F("Latency: exit menu"));
             break;
           default:
@@ -897,26 +908,26 @@ void handleMenuSystem() {
             // Go back to main menu
             menuState = MENU_MAIN;
             targetMode = false;
-            setNextPiCmd(CMD_TARGET_CANCEL);
+            nextPiCmd = CMD_TARGET_CANCEL;
             Serial.println(F("Target: back to menu"));
             break;
           case REV1:
-            setNextPiCmd(CMD_TARGET_PREV);
+            nextPiCmd = CMD_TARGET_PREV;
             Serial.println(F("Target: prev"));
             break;
           case FWD1:
-            setNextPiCmd(CMD_TARGET_NEXT);
+            nextPiCmd = CMD_TARGET_NEXT;
             Serial.println(F("Target: next"));
             break;
           case RUNFWD:
-            setNextPiCmd(CMD_TARGET_CONFIRM);
+            nextPiCmd = CMD_TARGET_CONFIRM;
             Serial.println(F("Target: confirm"));
             break;
           case STOP:
             // Exit menu completely
             menuState = MENU_IDLE;
             targetMode = false;
-            setNextPiCmd(CMD_TARGET_CANCEL);
+            nextPiCmd = CMD_TARGET_CANCEL;
             Serial.println(F("Target: exit menu"));
             break;
           default:
@@ -931,26 +942,26 @@ void handleMenuSystem() {
             // Go back to main menu
             menuState = MENU_MAIN;
             wifiMode = false;
-            setNextPiCmd(CMD_WIFI_CANCEL);
+            nextPiCmd = CMD_WIFI_CANCEL;
             Serial.println(F("WiFi: back to menu"));
             break;
           case REV1:
-            setNextPiCmd(CMD_WIFI_PREV);
+            nextPiCmd = CMD_WIFI_PREV;
             Serial.println(F("WiFi: prev"));
             break;
           case FWD1:
-            setNextPiCmd(CMD_WIFI_NEXT);
+            nextPiCmd = CMD_WIFI_NEXT;
             Serial.println(F("WiFi: next"));
             break;
           case RUNFWD:
-            setNextPiCmd(CMD_WIFI_CONFIRM);
+            nextPiCmd = CMD_WIFI_CONFIRM;
             Serial.println(F("WiFi: confirm"));
             break;
           case STOP:
             // Exit menu completely
             menuState = MENU_IDLE;
             wifiMode = false;
-            setNextPiCmd(CMD_WIFI_CANCEL);
+            nextPiCmd = CMD_WIFI_CANCEL;
             Serial.println(F("WiFi: exit menu"));
             break;
           default:
@@ -965,7 +976,7 @@ void handleMenuSystem() {
           // Go back to main menu or exit
           menuState = MENU_MAIN;
           logsMode = false;
-          setNextPiCmd(CMD_LOGS_EXIT);
+          nextPiCmd = CMD_LOGS_EXIT;
           Serial.println(F("Logs: back to menu"));
         }
       }
@@ -975,27 +986,27 @@ void handleMenuSystem() {
         prevButton = currentButton;
         switch (currentButton) {
           case REV1:
-            setNextPiCmd(CMD_UNPAIR_PREV);
+            nextPiCmd = CMD_UNPAIR_PREV;
             Serial.println(F("Unpair: prev"));
             break;
           case FWD1:
-            setNextPiCmd(CMD_UNPAIR_NEXT);
+            nextPiCmd = CMD_UNPAIR_NEXT;
             Serial.println(F("Unpair: next"));
             break;
           case RUNFWD:
-            setNextPiCmd(CMD_UNPAIR_CONFIRM);
+            nextPiCmd = CMD_UNPAIR_CONFIRM;
             Serial.println(F("Unpair: confirm"));
             break;
           case RUNREV:
             // Go back to main menu
             menuState = MENU_MAIN;
-            setNextPiCmd(CMD_UNPAIR_CANCEL);
+            nextPiCmd = CMD_UNPAIR_CANCEL;
             Serial.println(F("Unpair: back to menu"));
             break;
           case STOP:
             // Exit menu completely
             menuState = MENU_IDLE;
-            setNextPiCmd(CMD_UNPAIR_CANCEL);
+            nextPiCmd = CMD_UNPAIR_CANCEL;
             Serial.println(F("Unpair: exit menu"));
             break;
           default:
@@ -1176,7 +1187,7 @@ void stopMotorISR() {
   sei();  // re-enable interrupts so the TWI ISR can respond to any in-flight I2C poll from the Pi.
           // Safe: EYE_PIN is detached above, so stopMotorISR() cannot re-enter.
   if (isScanning) {
-    setNextPiCmd(CMD_SHOOT_RAW);  // signal Pi only after film is stationary
+    nextPiCmd = CMD_SHOOT_RAW;  // signal Pi only after film is stationary
   }
 }
 
@@ -1187,7 +1198,7 @@ void stopScanning() {
   stopMotor();  // resets singleStepInProgress, motorState, brakes motor pins
   setLampMode(false);
   zoomMode = Z1_1;
-  setNextPiCmd(CMD_STOP_SCAN);
+  nextPiCmd = CMD_STOP_SCAN;
 }
 
 ControlButton pollButtons() {
@@ -1248,10 +1259,17 @@ void i2cReceive(int howMany) {
 
   // --- EEPROM backup commands (multi-byte payloads) ---
   if ((Command)i2cCommand == CMD_EEPROM_WRITE_CHUNK && payloadLen >= 2) {
+    // Don't write EEPROM here — EEPROM.update() takes ~3.4 ms/byte and would block the ISR.
+    // Record the request and let loop() do the actual writes.
     uint16_t offset = ((uint16_t)payload[0] << 8) | payload[1];
-    for (uint8_t i = 2; i < payloadLen; i++) {
-      EEPROM.update(EEPROM_BACKUP_BASE_ADDR + offset + (i - 2), payload[i]);
+    uint8_t dataLen = payloadLen - 2;
+    if (dataLen > sizeof(eepromWriteBuf)) dataLen = sizeof(eepromWriteBuf);
+    for (uint8_t i = 0; i < dataLen; i++) {
+      eepromWriteBuf[i] = payload[2 + i];
     }
+    eepromWriteOffset = offset;
+    eepromWriteLen = dataLen;
+    eepromWritePending = true;
   }
   if ((Command)i2cCommand == CMD_EEPROM_READ_REQUEST && payloadLen >= 3) {
     uint16_t offset = ((uint16_t)payload[0] << 8) | payload[1];
@@ -1264,8 +1282,11 @@ void i2cReceive(int howMany) {
     eepromReadPending = true;
   }
   if ((Command)i2cCommand == CMD_EEPROM_WIPE) {
-    EEPROM.update(EEPROM_BACKUP_BASE_ADDR, 0x00);  // clear magic byte at offset 0 of backup region
-    Serial.println(F("EEPROM backup: wiped"));
+    // Defer to loop() — even a single EEPROM.update() takes ~3.4 ms
+    eepromWriteBuf[0] = 0x00;
+    eepromWriteOffset = 0;
+    eepromWriteLen = 1;
+    eepromWritePending = true;
   }
   if ((Command)i2cCommand == CMD_EEPROM_DATA) {
     // Pi is about to read EEPROM data via i2cRequest — flag it to serve the buffer
@@ -1283,48 +1304,40 @@ void i2cReceive(int howMany) {
     eepromDataAvailable = false;
   }
 
-  // When the Pi sends a real command (value >= 128, e.g. CMD_READY,
-  // CMD_TELL_INITVALUES), it has moved on from reading, so stop retrying
-  // the previous outgoing command.  The reg byte 0 (CMD_NONE) from
-  // read_i2c_block_data is NOT a real command — just a bus artefact.
-  if (i2cCommand >= 128) {
-    setNextPiCmd(CMD_NONE);  // also resets nextPiCmdSendCount to 0
-  }
-
   // Single-byte commands (existing behaviour unchanged)
   if ((Command)i2cCommand == CMD_PAIRING_EXIT) {
     pairingMode = false;
     menuState = MENU_MAIN;
-    setNextPiCmd(CMD_NONE);
+    nextPiCmd = CMD_NONE;
     pairingCancelPending = false;
   }
   if ((Command)i2cCommand == CMD_LOGS_EXIT) {
     logsMode = false;
     menuState = MENU_MAIN;
-    setNextPiCmd(CMD_NONE);
+    nextPiCmd = CMD_NONE;
   }
   if ((Command)i2cCommand == CMD_AWB_EXIT) {
     awbMode = false;
     menuState = MENU_MAIN;
-    setNextPiCmd(CMD_NONE);
+    nextPiCmd = CMD_NONE;
     Serial.println(F("AWB menu: exit"));
   }
   if ((Command)i2cCommand == CMD_LATENCY_EXIT) {
     latencyMode = false;
     menuState = MENU_MAIN;
-    setNextPiCmd(CMD_NONE);
+    nextPiCmd = CMD_NONE;
     Serial.println(F("Latency menu: exit"));
   }
   if ((Command)i2cCommand == CMD_TARGET_EXIT) {
     targetMode = false;
     menuState = MENU_MAIN;
-    setNextPiCmd(CMD_NONE);
+    nextPiCmd = CMD_NONE;
     Serial.println(F("Target menu: exit"));
   }
   if ((Command)i2cCommand == CMD_WIFI_EXIT) {
     wifiMode = false;
     menuState = MENU_MAIN;
-    setNextPiCmd(CMD_NONE);
+    nextPiCmd = CMD_NONE;
     Serial.println(F("WiFi menu: exit"));
   }
   if ((Command)i2cCommand == CMD_TARGET_REENTER) {
@@ -1341,11 +1354,11 @@ void i2cReceive(int howMany) {
       latencyMode = false;
       targetMode = false;
       logsMode = false;
-      setNextPiCmd(CMD_NONE);
+      nextPiCmd = CMD_NONE;
       Serial.println(F("Menu: back to main (from Pi)"));
     } else {
       menuState = MENU_IDLE;
-      setNextPiCmd(CMD_NONE);
+      nextPiCmd = CMD_NONE;
       Serial.println(F("Menu: exit (from Pi)"));
     }
   }
@@ -1371,7 +1384,7 @@ void i2cReceive(int howMany) {
     Serial.println(filmLoadState);
     Serial.print(F("Current Exposure Setting: "));
     Serial.println(exposurePot);
-    setNextPiCmd(CMD_SET_INITVALUES);
+    nextPiCmd = CMD_SET_INITVALUES;
   }
 }
 
@@ -1416,19 +1429,17 @@ void i2cRequest() {
 
   Wire.write(response, 5);
 
-  // Decrement retry counter; only clear nextPiCmd when exhausted.
-  // This gives the Pi multiple chances to read the command in case of
-  // I2C bit-corruption (RPi bcm2835 clock-stretching bug).
   if (pairingCancelPending && cmdToSend == CMD_PAIRING_CANCEL) {
-    setNextPiCmd(CMD_PAIRING_CANCEL);
+    nextPiCmd = CMD_PAIRING_CANCEL;
   } else if (cmdToSend == CMD_UPDATE_CANCEL && menuState == MENU_IDLE) {
-    setNextPiCmd(CMD_MENU_EXIT);
+    // If we just canceled update and menu is now IDLE, send MENU_EXIT next
+    // so Python knows to exit menu mode
+    nextPiCmd = CMD_MENU_EXIT;
   } else if (cmdToSend == CMD_UNPAIR_CANCEL && menuState == MENU_MAIN) {
-    setNextPiCmd(CMD_NONE);
-  } else if (nextPiCmdSendCount > 0) {
-    nextPiCmdSendCount--;
-    // keep nextPiCmd as-is — Pi hasn't ACKed yet
+    // If we just canceled unpair and menu is back to MAIN, clear the command
+    // so Python can continue navigating the main menu
+    nextPiCmd = CMD_NONE;
   } else {
-    setNextPiCmd(CMD_NONE);
+    nextPiCmd = CMD_NONE;
   }
 }

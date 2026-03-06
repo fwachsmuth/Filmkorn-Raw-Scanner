@@ -3452,14 +3452,9 @@ def ask_arduino() -> Optional["list[int]"]:
             # Detects I2C bit-corruption (known RPi bcm2835 clock-stretching issue).
             if (response[0] ^ response[4]) != 0xFF:
                 logging.warning(
-                    "I2C integrity check failed (cmd=%d, check=%d, raw=%s); discarding",
+                    "I2C integrity check failed (cmd=%d, check=%d, raw=%s); proceeding anyway",
                     response[0], response[4], response,
                 )
-                # The command was already consumed on the Arduino side; we can't
-                # re-request it.  Discard and return None so the caller retries
-                # on the next loop iteration (the Arduino will re-set nextPiCmd
-                # from loop() if the event is still relevant, e.g. button state).
-                return None
             return response[:4]  # strip check byte, return 4 payload bytes
         except OSError as e:
             # Depending on kernel/driver, a NACK can surface as EREMOTEIO or EIO.
@@ -4878,10 +4873,8 @@ def _check_pairing_file_mtimes() -> None:
         _eeprom_backup_all()
 
 
-_last_dispatched_cmd = Command.IDLE  # dedup guard: skip consecutive identical non-IDLE commands
-
 def loop():
-    global target_mode, target_validation_error, target_validation_failures, _last_dispatched_cmd
+    global target_mode, target_validation_error, target_validation_failures
     if mcu_flash_in_progress:
         time.sleep(0.05)
         return
@@ -4903,24 +4896,14 @@ def loop():
             else:
                 logging.error("Could not re-send READY after 3 attempts; will retry next loop iteration")
         return
-    # Debug: log raw I2C bytes for non-IDLE responses to diagnose data corruption
+    # Log all non-IDLE commands for diagnostics
     if received[0] != Command.IDLE.value:
-        logging.debug(f"ask_arduino raw bytes: {received}")
+        logging.info(f"ask_arduino raw: {received}")
     try:
         command = Command(received[0])
     except ValueError:
         logging.error(f"Received unknown command byte: {received[0]} (raw: {received})")
         return
-
-    # The Arduino re-sends each command up to 3 times (retry counter) so the Pi
-    # gets multiple chances in case of I2C corruption.  Skip consecutive
-    # duplicates of the same non-IDLE command to avoid double-processing.
-    if command is not None and command != Command.IDLE:
-        if command == _last_dispatched_cmd:
-            return
-        _last_dispatched_cmd = command
-    else:
-        _last_dispatched_cmd = Command.IDLE
 
     if command is not None:
         # Menu system commands
