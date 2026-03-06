@@ -1263,6 +1263,17 @@ void i2cReceive(int howMany) {
     eepromServeNextRequest = true;
   }
 
+  // Any non-EEPROM command clears stale EEPROM read flags.  This prevents a
+  // failed or abandoned EEPROM read from leaking buffered data into a later
+  // normal ask_arduino() poll (which sends reg byte 0 = CMD_NONE).
+  if ((Command)i2cCommand != CMD_EEPROM_WRITE_CHUNK &&
+      (Command)i2cCommand != CMD_EEPROM_READ_REQUEST &&
+      (Command)i2cCommand != CMD_EEPROM_WIPE &&
+      (Command)i2cCommand != CMD_EEPROM_DATA) {
+    eepromServeNextRequest = false;
+    eepromDataAvailable = false;
+  }
+
   // Single-byte commands (existing behaviour unchanged)
   if ((Command)i2cCommand == CMD_PAIRING_EXIT) {
     pairingMode = false;
