@@ -4361,6 +4361,14 @@ def set_init_values(arg_bytes):
     exposure_val = arg_bytes[1] << 8 | arg_bytes[0]
     logging.info(f"Received currently set Exposure Value: {exposure_val}")
 
+    # ADC is 10-bit (0-1023); values above that indicate corrupted I2C data
+    if exposure_val > 1023:
+        logging.error(
+            "Ignoring SET_INITVALUES: exposure %d exceeds ADC range (raw: %s)",
+            exposure_val, list(arg_bytes),
+        )
+        return
+
     # calculate the pot value into meaningful new shutter speeds
     global shutter_speed
     shutter_speed = int(math.exp(exposure_val * EXPOSURE_VAL_FACTOR) * SHUTTER_SPEED_RANGE[0])
@@ -4881,10 +4889,13 @@ def loop():
             else:
                 logging.error("Could not re-send READY after 3 attempts; will retry next loop iteration")
         return
+    # Debug: log raw I2C bytes for non-IDLE responses to diagnose data corruption
+    if received[0] != Command.IDLE.value:
+        logging.debug(f"ask_arduino raw bytes: {received}")
     try:
         command = Command(received[0])
     except ValueError:
-        logging.error(f"Received unknown command byte: {received[0]}")
+        logging.error(f"Received unknown command byte: {received[0]} (raw: {received})")
         return
 
     if command is not None:
