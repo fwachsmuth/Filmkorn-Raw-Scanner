@@ -216,10 +216,14 @@ const uint32_t STOP_LONG_PRESS_MS = 3000;  // 3 seconds
 
 volatile bool piIsReady = false;
 
-// EEPROM backup: read buffer filled by CMD_EEPROM_READ_REQUEST, served by i2cRequest()
+// EEPROM backup: read buffer filled in loop() after CMD_EEPROM_READ_REQUEST, served by i2cRequest()
 uint8_t eepromReadBuf[32];
 uint8_t eepromReadLen = 0;
 volatile bool eepromReadReady = false;
+// Deferred read request: set by ISR, consumed by loop() to avoid slow EEPROM reads inside ISR
+volatile bool eepromReadPending = false;
+volatile uint16_t eepromReadPendingOffset = 0;
+volatile uint8_t eepromReadPendingLen = 0;
 
 /*
  * Board revision is encoded on A7 via voltage divider: 10 kOhm to GND, R51 (VCC to A7) per revision.
@@ -359,6 +363,19 @@ void loop() {
     currentButton = pollButtons();
     prevButton = currentButton;
     return;
+  }
+
+  // Handle deferred EEPROM read request from i2cReceive ISR.
+  // EEPROM.read() takes ~3.4 ms/byte so must not run inside the ISR.
+  if (eepromReadPending) {
+    eepromReadPending = false;
+    uint16_t offset = eepromReadPendingOffset;
+    uint8_t length = eepromReadPendingLen;
+    for (uint8_t i = 0; i < length; i++) {
+      eepromReadBuf[i] = EEPROM.read(EEPROM_BACKUP_BASE_ADDR + offset + i);
+    }
+    eepromReadLen = length;
+    eepromReadReady = true;
   }
 
   // Handle deferred target re-enter from i2cReceive ISR
@@ -1230,11 +1247,11 @@ void i2cReceive(int howMany) {
     uint16_t offset = ((uint16_t)payload[0] << 8) | payload[1];
     uint8_t length = payload[2];
     if (length > sizeof(eepromReadBuf)) length = sizeof(eepromReadBuf);
-    for (uint8_t i = 0; i < length; i++) {
-      eepromReadBuf[i] = EEPROM.read(EEPROM_BACKUP_BASE_ADDR + offset + i);
-    }
-    eepromReadLen = length;
-    eepromReadReady = true;
+    // Don't read EEPROM here — EEPROM.read() takes ~3.4 ms/byte and would block the ISR.
+    // Record the request and let loop() do the actual reads, then set eepromReadReady.
+    eepromReadPendingOffset = offset;
+    eepromReadPendingLen = length;
+    eepromReadPending = true;
   }
   if ((Command)i2cCommand == CMD_EEPROM_WIPE) {
     EEPROM.update(EEPROM_BACKUP_BASE_ADDR, 0x00);  // clear magic byte at offset 0 of backup region

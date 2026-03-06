@@ -3511,7 +3511,9 @@ def _eeprom_read_bytes(offset: int, length: int) -> "Optional[bytes]":
             arduino.write_i2c_block_data(arduino_i2c_address,
                                          Command.EEPROM_READ_REQUEST.value,
                                          [chunk_offset >> 8, chunk_offset & 0xFF, read_len])
-            time.sleep(0.005)  # allow Arduino to fill the buffer
+            # EEPROM reads are deferred to loop() on the Arduino (~3.4 ms/byte).
+            # 28-byte chunk = ~95 ms; 150 ms gives comfortable margin.
+            time.sleep(0.150)
             raw = arduino.read_i2c_block_data(arduino_i2c_address, 0, read_len)
             result.extend(raw[:read_len])
             pos += read_len
