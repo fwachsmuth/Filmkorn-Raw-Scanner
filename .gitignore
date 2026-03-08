@@ -6,6 +6,9 @@ __pycache__/
 .scan_destination
 .user_and_host
 .host_path
+.capture_latency
+.locale
+.motor_calibration
 
 # dotfiles for scanner configuration
 raspi/.awb_mode
