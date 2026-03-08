@@ -2771,7 +2771,7 @@ def _menu_next():
 def _show_locale_selection():
     global current_screen, pending_overlay, overlay_ready
     lines = [_("locale.title"), "", ""]
-    for i, (_, native_name) in enumerate(LOCALE_OPTIONS):
+    for i, (__, native_name) in enumerate(LOCALE_OPTIONS):
         prefix = "> " if i == locale_selected else "  "
         lines.append(prefix + native_name)
     lines.append("")
