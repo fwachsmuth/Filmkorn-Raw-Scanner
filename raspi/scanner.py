@@ -2848,8 +2848,8 @@ def _menu_next():
 def _show_locale_selection():
     global current_screen, pending_overlay, overlay_ready
     lines = [_("locale.title"), "", ""]
-    for _, native_name in LOCALE_OPTIONS:
-        lines.append(native_name)
+    for opt in LOCALE_OPTIONS:
+        lines.append(opt[1])
     lines.append("")
     active_name = dict(LOCALE_OPTIONS).get(current_locale, current_locale)
     lines.append(_("locale.current", name=active_name))
