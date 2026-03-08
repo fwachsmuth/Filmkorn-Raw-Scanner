@@ -120,5 +120,9 @@
   "gpio5.error.line4": "Or fix network/host",
   "gpio5.error.line5": "connectivity issues",
 
-  "screen.calibrating-motor.title": "Calibrating\nMotor..."
+  "screen.calibrating-motor.title": "Calibrating\nMotor...",
+
+  "menu.item.filmend-sensor": "Film-end Sensor: {mode}",
+  "filmend.title": "Film-end Sensor",
+  "filmend.current": "Current: {label}"
 }

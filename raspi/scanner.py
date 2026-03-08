@@ -187,6 +187,7 @@ MENU_ITEMS = [
     "menu.item.factory-reset",
     "menu.item.language",
     "menu.item.calibrate-motor",
+    "menu.item.filmend-sensor",
 ]
 
 # --- Localization ---
@@ -201,6 +202,17 @@ LOCALES_DIR = os.path.join(os.path.dirname(__file__), "locales")
 LOCALE_FILE = os.path.join(os.path.dirname(__file__), ".locale")
 MOTOR_CALIB_FILE = os.path.join(os.path.dirname(__file__), ".motor_calibration")
 MOTOR_CALIB_DEFAULT = 100  # default motorMinDuty when no calibration is stored
+# Film-end sensor mode
+filmend_mode = False
+filmend_selected = 0
+filmend_stored_idx = 0  # Default to Normal
+FILMEND_OPTIONS = [
+    ("Normal", 0),    # HIGH=film present, LOW=no film (default)
+    ("Inverted", 1),  # LOW=film present, HIGH=no film
+    ("None", 2),      # skip all checks, film always present
+]
+FILMEND_FILE = os.path.join(os.path.dirname(__file__), ".filmend_mode")
+FILMEND_DEFAULT_IDX = 0
 current_locale = "en"
 _translations: dict = {}
 
@@ -237,6 +249,7 @@ EEPROM_FILE_AWB_MODE         = 5
 EEPROM_FILE_SCAN_TARGET_MODE = 6
 EEPROM_FILE_LOCALE           = 7
 EEPROM_FILE_MOTOR_CALIB      = 8
+EEPROM_FILE_FILMEND_MODE     = 9
 
 # Each entry: (file_id, absolute_path_or_relative_name)
 # Relative names are resolved with os.path.join(os.path.dirname(__file__), name)
@@ -257,6 +270,7 @@ EEPROM_BACKUP_FILES: "list[tuple[int, str]]" = [
     (EEPROM_FILE_SCAN_TARGET_MODE, TARGET_FILE),
     (EEPROM_FILE_LOCALE,           LOCALE_FILE),
     (EEPROM_FILE_MOTOR_CALIB,      MOTOR_CALIB_FILE),
+    (EEPROM_FILE_FILMEND_MODE,     FILMEND_FILE),
 ]
 
 # Pairing files are written externally (host-side SSH scripts); watch their mtimes
@@ -444,6 +458,15 @@ class Command(enum.Enum):
     LOCALE_CANCEL  = 66   # Arduino → Pi
     LOCALE_EXIT    = 137  # Pi → Arduino: exit locale submenu
 
+    # Film-end sensor mode (bidirectional)
+    FILMEND_ENTER    = 67   # Arduino → Pi: enter film-end sensor submenu
+    FILMEND_PREV     = 68   # Arduino → Pi
+    FILMEND_NEXT     = 69   # Arduino → Pi
+    FILMEND_CONFIRM  = 70   # Arduino → Pi
+    FILMEND_CANCEL   = 71   # Arduino → Pi
+    SET_FILMEND_MODE = 72   # Pi → Arduino: [mode] — apply stored film-end sensor mode
+    FILMEND_EXIT     = 138  # Pi → Arduino: exit film-end sensor submenu
+
 def process_is_running(contents: str) -> bool:
     try:
         pid = int(contents)
@@ -612,6 +635,44 @@ def _send_motor_calib_to_arduino(value: int):
         logging.info("motor calib: sent motorMinDuty=%d to Arduino", value)
     except Exception as exc:
         logging.error("motor calib: failed to send to Arduino: %s", exc)
+
+
+def _load_filmend_setting() -> int:
+    """Load the stored film-end sensor mode index. Returns 0 (Normal) as default."""
+    if os.path.exists(FILMEND_FILE):
+        try:
+            with open(FILMEND_FILE, "r") as f:
+                idx = int(f.read().strip())
+                if 0 <= idx < len(FILMEND_OPTIONS):
+                    return idx
+        except (ValueError, IOError):
+            pass
+    return FILMEND_DEFAULT_IDX
+
+
+def _save_filmend_setting(idx: int):
+    try:
+        with open(FILMEND_FILE, "w") as f:
+            f.write(str(idx))
+        logging.info("filmend: saved setting %d (%s)", idx, FILMEND_OPTIONS[idx][0])
+        _eeprom_backup_all()
+    except IOError as e:
+        logging.error("filmend: failed to save: %s", e)
+
+
+def _send_filmend_mode_to_arduino(idx: int):
+    """Send the stored film-end sensor mode to the Arduino via CMD_SET_FILMEND_MODE."""
+    global arduino, arduino_i2c_address
+    if arduino is None:
+        return
+    mode_value = FILMEND_OPTIONS[idx][1]
+    try:
+        arduino.write_i2c_block_data(arduino_i2c_address,
+                                     Command.SET_FILMEND_MODE.value,
+                                     [mode_value & 0xFF])
+        logging.info("filmend: sent mode=%d (%s) to Arduino", mode_value, FILMEND_OPTIONS[idx][0])
+    except Exception as exc:
+        logging.error("filmend: failed to send to Arduino: %s", exc)
 
 
 def _load_locale(code: str = "en"):
@@ -2630,6 +2691,7 @@ def _unpair_confirm(_args=None):
         MCU_HEX_HASH_FILE,  # .mcu_hex_hash
         WIFI_NETWORKS_FILE, # .wifi_networks
         MOTOR_CALIB_FILE,   # .motor_calibration
+        FILMEND_FILE,       # .filmend_mode
         ".user_and_host",
         ".scan_destination",
         ".host_path",
@@ -2674,11 +2736,12 @@ def _unpair_cancel(_args=None):
         show_ready_to_scan()
 
 def _show_menu_screen():
-    global current_screen, pending_overlay, idle_since, overlay_ready, menu_selected, menu_scroll_offset, awb_stored_idx, target_stored_idx, latency_stored_idx
+    global current_screen, pending_overlay, idle_since, overlay_ready, menu_selected, menu_scroll_offset, awb_stored_idx, target_stored_idx, latency_stored_idx, filmend_stored_idx
     # Ensure settings are loaded (in case they changed)
     awb_stored_idx = _load_awb_setting()
     target_stored_idx = _load_target_setting()
     latency_stored_idx = _load_latency_setting()
+    filmend_stored_idx = _load_filmend_setting()
     lines = [_("menu.title"), "", ""]  # Extra empty line after title
     for i, item_key in enumerate(MENU_ITEMS):
         prefix = "> " if i == menu_selected else "  "
@@ -2695,6 +2758,9 @@ def _show_menu_screen():
         elif item_key == "menu.item.language":
             locale_name = _("locale.name")
             display_item = _("menu.item.language", name=locale_name)
+        elif item_key == "menu.item.filmend-sensor":
+            filmend_label = FILMEND_OPTIONS[filmend_stored_idx][0]
+            display_item = _("menu.item.filmend-sensor", mode=filmend_label)
         else:
             display_item = _(item_key)
         lines.append(prefix + display_item)
@@ -2838,6 +2904,78 @@ def _locale_cancel(_args=None):
     _show_menu_screen()
 
 # --- End Language Selection Submenu ---
+
+# --- Film-end Sensor Submenu ---
+
+def _show_filmend_selection():
+    global current_screen, pending_overlay, overlay_ready
+    lines = [_("filmend.title"), "", ""]
+    for i, (label, _mode) in enumerate(FILMEND_OPTIONS):
+        prefix = "> " if i == filmend_selected else "  "
+        lines.append(prefix + label)
+    lines.append("")
+    stored_label = FILMEND_OPTIONS[filmend_stored_idx][0]
+    lines.append(_("filmend.current", label=stored_label))
+
+    button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
+    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    current_screen = "filmend"
+    pending_overlay = overlay
+    overlay_ready = True
+    _apply_overlay_if_ready()
+    if pending_overlay is not None:
+        threading.Timer(0.2, _apply_overlay_if_ready).start()
+
+def _enter_filmend_mode():
+    global filmend_mode, filmend_selected, filmend_stored_idx
+    logging.info("filmend: entering film-end sensor submenu")
+    filmend_mode = True
+    filmend_stored_idx = _load_filmend_setting()
+    filmend_selected = filmend_stored_idx
+    _show_filmend_selection()
+
+def _filmend_prev(_args=None):
+    global filmend_selected
+    if not filmend_mode:
+        return
+    filmend_selected = (filmend_selected - 1) % len(FILMEND_OPTIONS)
+    _show_filmend_selection()
+
+def _filmend_next(_args=None):
+    global filmend_selected
+    if not filmend_mode:
+        return
+    filmend_selected = (filmend_selected + 1) % len(FILMEND_OPTIONS)
+    _show_filmend_selection()
+
+def _filmend_confirm(_args=None):
+    global filmend_mode, filmend_stored_idx
+    if not filmend_mode:
+        return
+    logging.info("filmend: confirmed %s", FILMEND_OPTIONS[filmend_selected][0])
+    _save_filmend_setting(filmend_selected)
+    filmend_stored_idx = filmend_selected
+    filmend_mode = False
+    _send_filmend_mode_to_arduino(filmend_stored_idx)
+    try:
+        tell_arduino(Command.FILMEND_EXIT)
+    except Exception as exc:
+        logging.warning("filmend: failed to notify Arduino: %s", exc)
+    _show_menu_screen()
+
+def _filmend_cancel(_args=None):
+    global filmend_mode
+    if not filmend_mode:
+        return
+    logging.info("filmend: canceled")
+    filmend_mode = False
+    try:
+        tell_arduino(Command.FILMEND_EXIT)
+    except Exception as exc:
+        logging.warning("filmend: failed to notify Arduino: %s", exc)
+    _show_menu_screen()
+
+# --- End Film-end Sensor Submenu ---
 
 
 def _menu_select():
@@ -4932,6 +5070,7 @@ def setup():
     _eeprom_backup_all()
     time.sleep(0.1)  # let I2C bus settle after EEPROM operations
     _send_motor_calib_to_arduino(_load_motor_calib())
+    _send_filmend_mode_to_arduino(_load_filmend_setting())
 
     # Seed pairing file mtimes so the first loop() check doesn't trigger a spurious backup
     for path in EEPROM_PAIRING_FILES:
@@ -5140,6 +5279,19 @@ def loop():
                 Command.LOCALE_NEXT:    _locale_next,
                 Command.LOCALE_CONFIRM: _locale_confirm,
                 Command.LOCALE_CANCEL:  _locale_cancel,
+            }.get(command, None)
+            if func is not None:
+                func(received[1:])
+            return
+        if command == Command.FILMEND_ENTER:
+            _enter_filmend_mode()
+            return
+        if filmend_mode:
+            func = {
+                Command.FILMEND_PREV:    _filmend_prev,
+                Command.FILMEND_NEXT:    _filmend_next,
+                Command.FILMEND_CONFIRM: _filmend_confirm,
+                Command.FILMEND_CANCEL:  _filmend_cancel,
             }.get(command, None)
             if func is not None:
                 func(received[1:])

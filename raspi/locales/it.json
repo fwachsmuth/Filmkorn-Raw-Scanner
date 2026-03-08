@@ -120,5 +120,9 @@
   "gpio5.error.line4": "O correggi la rete/host",
   "gpio5.error.line5": "i problemi di connessione",
 
-  "screen.calibrating-motor.title": "Calibrando\nmotore..."
+  "screen.calibrating-motor.title": "Calibrando\nmotore...",
+
+  "menu.item.filmend-sensor": "Sensore fine film: {mode}",
+  "filmend.title": "Sensore fine film",
+  "filmend.current": "Corrente: {label}"
 }

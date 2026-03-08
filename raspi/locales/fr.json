@@ -120,5 +120,9 @@
   "gpio5.error.line4": "Ou r\u00e9gler r\u00e9seau/h\u00f4te",
   "gpio5.error.line5": "connectivit\u00e9",
 
-  "screen.calibrating-motor.title": "Calibrage\ndu moteur..."
+  "screen.calibrating-motor.title": "Calibrage\ndu moteur...",
+
+  "menu.item.filmend-sensor": "Capteur fin de film\u00a0: {mode}",
+  "filmend.title": "Capteur fin de film",
+  "filmend.current": "Actuel\u00a0: {label}"
 }

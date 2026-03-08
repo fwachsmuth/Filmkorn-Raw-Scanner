@@ -145,13 +145,28 @@ enum Command
   CMD_LOCALE_NEXT    = 64,   // Arduino → Pi
   CMD_LOCALE_CONFIRM = 65,   // Arduino → Pi
   CMD_LOCALE_CANCEL  = 66,   // Arduino → Pi
-  CMD_LOCALE_EXIT    = 137   // Pi → Arduino: exit locale submenu
+  CMD_LOCALE_EXIT    = 137,  // Pi → Arduino: exit locale submenu
+
+  // Film-end sensor mode (bidirectional)
+  CMD_FILMEND_ENTER    = 67,   // Arduino → Pi: enter film-end sensor submenu
+  CMD_FILMEND_PREV     = 68,   // Arduino → Pi
+  CMD_FILMEND_NEXT     = 69,   // Arduino → Pi
+  CMD_FILMEND_CONFIRM  = 70,   // Arduino → Pi
+  CMD_FILMEND_CANCEL   = 71,   // Arduino → Pi
+  CMD_SET_FILMEND_MODE = 72,   // Pi → Arduino: [mode] — apply stored film-end sensor mode
+  CMD_FILMEND_EXIT     = 138   // Pi → Arduino: exit film-end sensor submenu
 };
 
 enum ZoomMode {
   Z1_1, //  1:1
   Z3_1, //  3:1
   Z10_1 // 10:1
+};
+
+enum FilmEndMode {
+  FILMEND_NORMAL = 0,    // HIGH = film present, LOW = no film (default)
+  FILMEND_INVERTED = 1,  // LOW = film present, HIGH = no film
+  FILMEND_NONE = 2       // skip all checks, behave as if film always present
 };
 
 enum MenuState {
@@ -165,7 +180,8 @@ enum MenuState {
   MENU_WIFI,      // WiFi setup submenu
   MENU_LOGS,      // Debug log submenu
   MENU_UNPAIR,    // Factory reset submenu
-  MENU_LOCALE     // Language selection submenu
+  MENU_LOCALE,    // Language selection submenu
+  MENU_FILMEND    // Film-end sensor submenu
 };
 
 enum MenuItem {
@@ -179,7 +195,8 @@ enum MenuItem {
   MENU_ITEM_UNPAIR = 7,
   MENU_ITEM_LANGUAGE = 8,
   MENU_ITEM_CALIB_MOTOR = 9,
-  MENU_ITEM_COUNT = 10
+  MENU_ITEM_FILMEND = 10,
+  MENU_ITEM_COUNT = 11
 };
 
 
@@ -215,6 +232,8 @@ bool latencyMode = false;
 bool targetMode = false;
 bool wifiMode = false;
 bool localeMode = false;
+bool filmEndMenuMode = false;
+uint8_t filmEndSensorMode = FILMEND_NORMAL;
 volatile bool targetReenterPending = false;
 uint32_t pairingModeEnteredAt = 0;
 bool pairingCancelPending = false;
@@ -351,7 +370,7 @@ void setup() {
   pinMode(REV_PIN, INPUT);
 
   // Initialize film end state to current value to prevent spurious state change detection
-  filmEndState = digitalRead(FILM_END_PIN);
+  filmEndState = readFilmEndPin();
   lastFilmEndState = filmEndState;
 
   bootIgnoreUntil = scaledMillis() + 800;
@@ -490,7 +509,7 @@ void loop() {
   if (isScanning && piIsReady && nextPiCmd != CMD_STOP_SCAN && !singleStepInProgress)
   {
     piIsReady = false;
-    if (!digitalRead(FILM_END_PIN))
+    if (!readFilmEndPin())
     {
       if (scanExtraFrames == 0)
       {
@@ -614,7 +633,7 @@ void loop() {
           }
           motorState = FWD;
           // Start 30s countdown only if film is present now; else 0 until we see film in readFilmEndSensor (avoids stale value from previous run)
-          fwdFilmInsertedSince = (digitalRead(FILM_END_PIN) == 1) ? scaledMillis() : 0;
+          fwdFilmInsertedSince = readFilmEndPin() ? scaledMillis() : 0;
           Serial.print(F("Motor: >> at Speed "));
           Serial.println(fps18MotorPower);
           motorFwd();
@@ -658,11 +677,19 @@ void readExposurePot() {
   }
 }
 
+// Returns true if film is present, false if not.
+// Applies the filmEndSensorMode: Normal reads pin as-is, Inverted flips, None always returns true.
+bool readFilmEndPin() {
+  if (filmEndSensorMode == FILMEND_NONE) return true;
+  bool raw = digitalRead(FILM_END_PIN);
+  return (filmEndSensorMode == FILMEND_INVERTED) ? !raw : raw;
+}
+
 void readFilmEndSensor() {
   lastFilmEndState = filmEndState;
-  filmEndState = digitalRead(FILM_END_PIN);
-  if (filmEndState == 0) {
-    if (lastFilmEndState != 0) {
+  filmEndState = readFilmEndPin();
+  if (!filmEndState) {
+    if (lastFilmEndState) {
       filmEndLowSince = scaledMillis();
       filmEndLowPending = true;
     }
@@ -684,7 +711,7 @@ void readFilmEndSensor() {
     if (motorState == FWD && fwdFilmInsertedSince == 0) {
       fwdFilmInsertedSince = scaledMillis();
     }
-    if (lastFilmEndState != 1) {
+    if (!lastFilmEndState) {
       nextPiCmd = CMD_SHOW_READY_TO_SCAN;
     }
   }
@@ -771,6 +798,11 @@ void handleMenuSystem() {
               menuState = MENU_IDLE;
               nextPiCmd = CMD_CALIB_MOTOR_START;
               calibrateMotor();
+              break;
+            case MENU_ITEM_FILMEND:
+              menuState = MENU_FILMEND;
+              filmEndMenuMode = true;
+              nextPiCmd = CMD_FILMEND_ENTER;
               break;
             default:
               // If no specific submenu, send MENU_SELECT for Python to handle
@@ -934,6 +966,35 @@ void handleMenuSystem() {
             localeMode = false;
             nextPiCmd = CMD_LOCALE_CANCEL;
             Serial.println(F("Locale: exit menu"));
+            break;
+          default:
+            break;
+        }
+      }
+    } else if (filmEndMenuMode) {
+      if (currentButton != prevButton) {
+        prevButton = currentButton;
+        switch (currentButton) {
+          case RUNREV:
+            menuState = MENU_MAIN;
+            filmEndMenuMode = false;
+            nextPiCmd = CMD_FILMEND_CANCEL;
+            Serial.println(F("FilmEnd: back to menu"));
+            break;
+          case REV1:
+            nextPiCmd = CMD_FILMEND_PREV;
+            break;
+          case FWD1:
+            nextPiCmd = CMD_FILMEND_NEXT;
+            break;
+          case RUNFWD:
+            nextPiCmd = CMD_FILMEND_CONFIRM;
+            break;
+          case STOP:
+            menuState = MENU_IDLE;
+            filmEndMenuMode = false;
+            nextPiCmd = CMD_FILMEND_CANCEL;
+            Serial.println(F("FilmEnd: exit menu"));
             break;
           default:
             break;
@@ -1372,6 +1433,12 @@ void i2cReceive(int howMany) {
     nextPiCmd = CMD_NONE;
     Serial.println(F("Locale menu: exit"));
   }
+  if ((Command)i2cCommand == CMD_FILMEND_EXIT) {
+    filmEndMenuMode = false;
+    menuState = MENU_MAIN;
+    nextPiCmd = CMD_NONE;
+    Serial.println(F("FilmEnd menu: exit"));
+  }
   if ((Command)i2cCommand == CMD_TARGET_EXIT) {
     targetMode = false;
     menuState = MENU_MAIN;
@@ -1398,6 +1465,7 @@ void i2cReceive(int howMany) {
       latencyMode = false;
       targetMode = false;
       logsMode = false;
+      filmEndMenuMode = false;
       nextPiCmd = CMD_NONE;
       Serial.println(F("Menu: back to main (from Pi)"));
     } else {
@@ -1410,6 +1478,12 @@ void i2cReceive(int howMany) {
     motorMinDuty = payload[0];
     Serial.print(F("Motor calib set from Pi: motorMinDuty = "));
     Serial.println(motorMinDuty);
+  }
+  if ((Command)i2cCommand == CMD_SET_FILMEND_MODE && payloadLen >= 1) {
+    filmEndSensorMode = payload[0];
+    if (filmEndSensorMode > FILMEND_NONE) filmEndSensorMode = FILMEND_NORMAL;
+    Serial.print(F("Film-end sensor mode set from Pi: "));
+    Serial.println(filmEndSensorMode);
   }
   if ((Command)i2cCommand == CMD_SCAN_REJECTED) {
     if (isScanning) {
@@ -1426,7 +1500,7 @@ void i2cReceive(int howMany) {
     piIsReady = true;
   }
   if ((Command)i2cCommand == CMD_TELL_INITVALUES) {
-    filmLoadState = digitalRead(FILM_END_PIN);
+    filmLoadState = readFilmEndPin();
     dummyread = analogRead(EXPOSURE_POT);
     exposurePot = analogRead(EXPOSURE_POT);
     Serial.print(F("Current Film load state: "));

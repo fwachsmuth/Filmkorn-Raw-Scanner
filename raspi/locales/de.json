@@ -120,5 +120,9 @@
   "gpio5.error.line4": "Oder Netzwerk/Host",
   "gpio5.error.line5": "Verbindung prüfen",
 
-  "screen.calibrating-motor.title": "Motor wird\nkalibriert..."
+  "screen.calibrating-motor.title": "Motor wird\nkalibriert...",
+
+  "menu.item.filmend-sensor": "Filmende-Sensor: {mode}",
+  "filmend.title": "Filmende-Sensor",
+  "filmend.current": "Aktuell: {label}"
 }
