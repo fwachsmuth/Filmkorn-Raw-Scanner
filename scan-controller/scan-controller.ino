@@ -837,7 +837,8 @@ void handleMenuSystem() {
       } else if ((scaledMillis() - pairingModeEnteredAt) > 130000) {
         menuState = MENU_MAIN;
         pairingMode = false;
-        nextPiCmd = CMD_NONE;
+        nextPiCmd = CMD_PAIRING_CANCEL;
+        Serial.println(F("Pairing: timed out, back to menu"));
       }
     } else if (awbMode) {
       if (currentButton != prevButton) {
