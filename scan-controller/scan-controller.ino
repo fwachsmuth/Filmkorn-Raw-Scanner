@@ -138,7 +138,14 @@ enum Command
   CMD_TARGET_REENTER = 133,  // Re-enter target mode (used when returning from validation error)
   CMD_WIFI_EXIT = 134,
   CMD_SCAN_REJECTED = 135,   // Pi rejected START_SCAN (e.g. no drive / not paired)
-  CMD_LATENCY_EXIT = 136     // Pi tells Arduino to exit latency submenu
+  CMD_LATENCY_EXIT = 136,    // Pi tells Arduino to exit latency submenu
+
+  CMD_LOCALE_ENTER   = 62,   // Arduino → Pi: enter language selection submenu
+  CMD_LOCALE_PREV    = 63,   // Arduino → Pi
+  CMD_LOCALE_NEXT    = 64,   // Arduino → Pi
+  CMD_LOCALE_CONFIRM = 65,   // Arduino → Pi
+  CMD_LOCALE_CANCEL  = 66,   // Arduino → Pi
+  CMD_LOCALE_EXIT    = 137   // Pi → Arduino: exit locale submenu
 };
 
 enum ZoomMode {
@@ -157,7 +164,8 @@ enum MenuState {
   MENU_TARGET,    // Scan target submenu
   MENU_WIFI,      // WiFi setup submenu
   MENU_LOGS,      // Debug log submenu
-  MENU_UNPAIR     // Factory reset submenu
+  MENU_UNPAIR,    // Factory reset submenu
+  MENU_LOCALE     // Language selection submenu
 };
 
 enum MenuItem {
@@ -206,6 +214,7 @@ bool awbMode = false;
 bool latencyMode = false;
 bool targetMode = false;
 bool wifiMode = false;
+bool localeMode = false;
 volatile bool targetReenterPending = false;
 uint32_t pairingModeEnteredAt = 0;
 bool pairingCancelPending = false;
@@ -753,8 +762,9 @@ void handleMenuSystem() {
               nextPiCmd = CMD_UNPAIR_ENTER;
               break;
             case MENU_ITEM_LANGUAGE:
-              // Language cycling is handled entirely by the Pi; stay in MENU_MAIN
-              nextPiCmd = CMD_MENU_SELECT;
+              menuState = MENU_LOCALE;
+              localeMode = true;
+              nextPiCmd = CMD_LOCALE_ENTER;
               break;
             case MENU_ITEM_CALIB_MOTOR:
               // Notify Pi to exit menu and show calibrating screen, then run calibration locally
@@ -895,6 +905,35 @@ void handleMenuSystem() {
             latencyMode = false;
             nextPiCmd = CMD_LATENCY_CANCEL;
             Serial.println(F("Latency: exit menu"));
+            break;
+          default:
+            break;
+        }
+      }
+    } else if (localeMode) {
+      if (currentButton != prevButton) {
+        prevButton = currentButton;
+        switch (currentButton) {
+          case RUNREV:
+            menuState = MENU_MAIN;
+            localeMode = false;
+            nextPiCmd = CMD_LOCALE_CANCEL;
+            Serial.println(F("Locale: back to menu"));
+            break;
+          case REV1:
+            nextPiCmd = CMD_LOCALE_PREV;
+            break;
+          case FWD1:
+            nextPiCmd = CMD_LOCALE_NEXT;
+            break;
+          case RUNFWD:
+            nextPiCmd = CMD_LOCALE_CONFIRM;
+            break;
+          case STOP:
+            menuState = MENU_IDLE;
+            localeMode = false;
+            nextPiCmd = CMD_LOCALE_CANCEL;
+            Serial.println(F("Locale: exit menu"));
             break;
           default:
             break;
@@ -1326,6 +1365,12 @@ void i2cReceive(int howMany) {
     menuState = MENU_MAIN;
     nextPiCmd = CMD_NONE;
     Serial.println(F("Latency menu: exit"));
+  }
+  if ((Command)i2cCommand == CMD_LOCALE_EXIT) {
+    localeMode = false;
+    menuState = MENU_MAIN;
+    nextPiCmd = CMD_NONE;
+    Serial.println(F("Locale menu: exit"));
   }
   if ((Command)i2cCommand == CMD_TARGET_EXIT) {
     targetMode = false;

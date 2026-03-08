@@ -155,6 +155,9 @@ menu_scroll_offset = 0
 # Scan target selection
 target_mode = False
 target_selected = 0
+# Language selection
+locale_mode = False
+locale_selected = 0
 target_scroll_offset = 0
 target_stored_idx = 2  # Default to GPIO5 (auto mode)
 target_validation_error = False  # True when showing validation error screen
@@ -190,6 +193,9 @@ MENU_ITEMS = [
 LOCALE_OPTIONS = [
     ("en", "English"),
     ("de", "Deutsch"),
+    ("es", "Español"),
+    ("it", "Italiano"),
+    ("fr", "Français"),
 ]
 LOCALES_DIR = os.path.join(os.path.dirname(__file__), "locales")
 LOCALE_FILE = os.path.join(os.path.dirname(__file__), ".locale")
@@ -430,6 +436,13 @@ class Command(enum.Enum):
     TARGET_REENTER = 133  # Re-enter target mode (used when returning from validation error)
     SCAN_REJECTED = 135   # Tell Arduino to abort scan (Pi rejected START_SCAN)
     LATENCY_EXIT = 136    # Tell Arduino to exit latency submenu (Pi → Arduino)
+
+    LOCALE_ENTER   = 62   # Arduino → Pi: enter language selection submenu
+    LOCALE_PREV    = 63   # Arduino → Pi
+    LOCALE_NEXT    = 64   # Arduino → Pi
+    LOCALE_CONFIRM = 65   # Arduino → Pi
+    LOCALE_CANCEL  = 66   # Arduino → Pi
+    LOCALE_EXIT    = 137  # Pi → Arduino: exit locale submenu
 
 def process_is_running(contents: str) -> bool:
     try:
@@ -2753,30 +2766,88 @@ def _menu_next():
     logging.info("menu: selected item %d: %s", menu_selected, MENU_ITEMS[menu_selected])
     _show_menu_screen()
 
-def _cycle_locale():
-    """Cycle to the next available locale, save it, and refresh the menu."""
-    global current_locale
+# --- Language Selection Submenu ---
+
+def _show_locale_selection():
+    global current_screen, pending_overlay, overlay_ready
+    lines = [_("locale.title"), "", ""]
+    for i, (_, native_name) in enumerate(LOCALE_OPTIONS):
+        prefix = "> " if i == locale_selected else "  "
+        lines.append(prefix + native_name)
+    lines.append("")
+    active_name = dict(LOCALE_OPTIONS).get(current_locale, current_locale)
+    lines.append(_("locale.current", name=active_name))
+
+    button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
+    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    current_screen = "locale"
+    pending_overlay = overlay
+    overlay_ready = True
+    _apply_overlay_if_ready()
+    if pending_overlay is not None:
+        threading.Timer(0.2, _apply_overlay_if_ready).start()
+
+def _enter_locale_mode():
+    global locale_mode, locale_selected
+    logging.info("locale: entering language selection submenu")
+    locale_mode = True
     codes = [c for c, _ in LOCALE_OPTIONS]
-    current_idx = codes.index(current_locale) if current_locale in codes else 0
-    new_locale = codes[(current_idx + 1) % len(codes)]
-    logging.info("locale: switching %s → %s", current_locale, new_locale)
-    _save_locale_setting(new_locale)
-    _load_locale(new_locale)
+    locale_selected = codes.index(current_locale) if current_locale in codes else 0
+    _show_locale_selection()
+
+def _locale_prev(_args=None):
+    global locale_selected
+    if not locale_mode:
+        return
+    locale_selected = (locale_selected - 1) % len(LOCALE_OPTIONS)
+    _show_locale_selection()
+
+def _locale_next(_args=None):
+    global locale_selected
+    if not locale_mode:
+        return
+    locale_selected = (locale_selected + 1) % len(LOCALE_OPTIONS)
+    _show_locale_selection()
+
+def _locale_confirm(_args=None):
+    global locale_mode
+    if not locale_mode:
+        return
+    new_code = LOCALE_OPTIONS[locale_selected][0]
+    logging.info("locale: confirmed %s", new_code)
+    _save_locale_setting(new_code)
+    _load_locale(new_code)
     overlay_cache.clear()
+    locale_mode = False
+    try:
+        tell_arduino(Command.LOCALE_EXIT)
+    except Exception as exc:
+        logging.warning("locale: failed to notify Arduino: %s", exc)
     _show_menu_screen()
+
+def _locale_cancel(_args=None):
+    global locale_mode
+    if not locale_mode:
+        return
+    logging.info("locale: canceled")
+    locale_mode = False
+    try:
+        tell_arduino(Command.LOCALE_EXIT)
+    except Exception as exc:
+        logging.warning("locale: failed to notify Arduino: %s", exc)
+    _show_menu_screen()
+
+# --- End Language Selection Submenu ---
 
 
 def _menu_select():
-    global menu_selected, current_locale
+    global menu_selected
     if not menu_mode:
         return
     selected_item = MENU_ITEMS[menu_selected]
     logging.info("menu: selected item %d: %s", menu_selected, selected_item)
-
-    if selected_item == "menu.item.language":
-        _cycle_locale()
-        return
-    # For all other items the Arduino drives the submenu transition.
+    # Language submenu entry is handled via Command.LOCALE_ENTER from Arduino.
+    # All other submenu transitions are also driven by Arduino commands.
 
 def _apply_overlay_if_ready():
     global pending_overlay, overlay_supported, overlay_retry_count, overlay_retry_timer
@@ -5055,6 +5126,19 @@ def loop():
                 Command.LATENCY_NEXT: _latency_next,
                 Command.LATENCY_CONFIRM: _latency_confirm,
                 Command.LATENCY_CANCEL: _latency_cancel,
+            }.get(command, None)
+            if func is not None:
+                func(received[1:])
+            return
+        if command == Command.LOCALE_ENTER:
+            _enter_locale_mode()
+            return
+        if locale_mode:
+            func = {
+                Command.LOCALE_PREV:    _locale_prev,
+                Command.LOCALE_NEXT:    _locale_next,
+                Command.LOCALE_CONFIRM: _locale_confirm,
+                Command.LOCALE_CANCEL:  _locale_cancel,
             }.get(command, None)
             if func is not None:
                 func(received[1:])
