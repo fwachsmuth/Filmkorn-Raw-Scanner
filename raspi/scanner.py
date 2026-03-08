@@ -1380,13 +1380,13 @@ def _enter_update_mode():
                     update_selected = len(update_tags) - 1
                 else:
                     update_selected = 0
-            _show_update_selection()
         except Exception as exc:
             logging.exception("update: fetch failed: %s", exc)
             update_error = "Unexpected error"
             update_tags = []
             update_selected = 0
             update_current_tag = None
+        if update_mode:
             _show_update_selection()
     
     # Start fetch in background thread
