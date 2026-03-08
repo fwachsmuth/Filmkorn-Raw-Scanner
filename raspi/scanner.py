@@ -4702,6 +4702,10 @@ def set_init_values(arg_bytes):
         logging.info("Starting with Screen \"Ready to scan\"")
         show_ready_to_scan()
 
+    if _load_board_rev() is None:
+        logging.info("board_rev: dotfile missing, requesting from Arduino")
+        tell_arduino(Command.TELL_BOARD_REV)
+
 def set_zoom_mode_1_1(arg_bytes=None):
     set_auto_exposure(True)
     set_zoom_crop(0.0, 0.0, 1.0, 1.0)
@@ -5119,9 +5123,6 @@ def setup():
     time.sleep(0.1)  # let I2C bus settle after EEPROM operations
     _send_motor_calib_to_arduino(_load_motor_calib())
     _send_filmend_mode_to_arduino(_load_filmend_setting())
-    if _load_board_rev() is None:
-        logging.info("board_rev: dotfile missing, requesting from Arduino")
-        tell_arduino(Command.TELL_BOARD_REV)
 
     # Seed pairing file mtimes so the first loop() check doesn't trigger a spurious backup
     for path in EEPROM_PAIRING_FILES:
