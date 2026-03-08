@@ -26,15 +26,15 @@
 
   "menu.title": "Einstellungen",
   "menu.item.firmware-update": "Firmware-Update",
-  "menu.item.start-pairing": "Pairing starten",
-  "menu.item.preview-wb": "Weißabgl. Vorschau ({k} K)",
+  "menu.item.start-pairing": "SSH / Pairing",
+  "menu.item.preview-wb": "WB Vorschau ({k} K)",
   "menu.item.capture-latency": "Aufnahme-Latenz ({frames} Fr.)",
   "menu.item.scan-target": "Scan-Ziel: {target}",
   "menu.item.setup-wifi": "WLAN einrichten",
   "menu.item.create-debug-log": "Debug-Log erstellen",
   "menu.item.factory-reset": "Zurücksetzen",
   "menu.item.language": "Sprache: {name}",
-  "menu.item.calibrate-motor": "Motor kalibrieren",
+  "menu.item.calibrate-motor": "Motorkalibrierung",
 
   "btn.back": "Zurück",
   "btn.ok": "OK",

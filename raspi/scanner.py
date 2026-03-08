@@ -177,17 +177,17 @@ wifi_scroll_offset = 0
 wifi_portal_process = None  # Subprocess running the captive portal
 WIFI_NETWORKS_FILE = os.path.join(os.path.dirname(__file__), ".wifi_networks")
 MENU_ITEMS = [
-    "menu.item.firmware-update",
-    "menu.item.start-pairing",
-    "menu.item.preview-wb",
-    "menu.item.capture-latency",
-    "menu.item.scan-target",
-    "menu.item.setup-wifi",
-    "menu.item.create-debug-log",
-    "menu.item.factory-reset",
     "menu.item.language",
     "menu.item.calibrate-motor",
+    "menu.item.capture-latency",
     "menu.item.filmend-sensor",
+    "menu.item.preview-wb",
+    "menu.item.setup-wifi",
+    "menu.item.start-pairing",
+    "menu.item.scan-target",
+    "menu.item.firmware-update",
+    "menu.item.create-debug-log",
+    "menu.item.factory-reset",
 ]
 
 # --- Localization ---
