@@ -999,7 +999,7 @@ def _build_update_overlay(lines, footer_left=None, footer_right=None, button_lab
     rgba[..., 3] = 255
     return rgba
 
-def _build_menu_overlay(lines, button_labels=None, scroll_offset=0):
+def _build_menu_overlay(lines, button_labels=None, scroll_offset=0, highlighted_line=None):
     """Build a left-aligned menu overlay with optional button labels at the bottom.
     
     button_labels: dict with keys 2-6 (slot numbers) mapping to label text.
@@ -1038,10 +1038,10 @@ def _build_menu_overlay(lines, button_labels=None, scroll_offset=0):
             height = max(height, h)
         return width, height
 
-    def _draw_mixed(text: str, x: int, y: int):
+    def _draw_mixed(text: str, x: int, y: int, fill=(255, 255, 255, 255)):
         for ch in text:
             font = symbol_font if ch in symbol_chars else text_font
-            draw.text((x, y), ch, font=font, fill=(255, 255, 255, 255))
+            draw.text((x, y), ch, font=font, fill=fill)
             if hasattr(draw, "textbbox"):
                 bbox = draw.textbbox((0, 0), ch, font=font)
                 x += bbox[2] - bbox[0]
@@ -1100,11 +1100,16 @@ def _build_menu_overlay(lines, button_labels=None, scroll_offset=0):
     # Draw visible lines starting below logo
     y = start_y
     left_margin = 20  # Left margin for menu alignment
-    for line, w, h in visible_metrics:
+    for render_idx, metric in enumerate(visible_metrics):
+        line, h = metric[0], metric[2]
         # Only draw if it fits in available space
         if y + h <= preview_size[1] - button_area_height:
-            x = left_margin  # Left-align instead of center
-            _draw_mixed(line, x, y)
+            abs_line_idx = scroll_offset + render_idx
+            if highlighted_line is not None and abs_line_idx == highlighted_line:
+                draw.rectangle((0, y - 3, preview_size[0], y + h + 3), fill=(255, 255, 255, 255))
+                _draw_mixed(line, left_margin, y, fill=(0, 0, 0, 255))
+            else:
+                _draw_mixed(line, left_margin, y)
             y += h + spacing
         else:
             break  # Stop if we've run out of space
@@ -1268,11 +1273,12 @@ def _show_update_selection():
     global current_screen, pending_overlay, overlay_ready, update_confirmation_mode, update_confirmation_selected, update_scroll_offset, preview_started
     if update_confirmation_mode:
         lines = [_("update.confirm-title"), "", ""]
-        lines.append("> " + _("update.no") if update_confirmation_selected == 0 else "  " + _("update.no"))
-        lines.append("> " + _("update.yes") if update_confirmation_selected == 1 else "  " + _("update.yes"))
+        lines.append(_("update.no"))
+        lines.append(_("update.yes"))
         lines.append("")
         button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
-        overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=0)
+        overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=0,
+                                      highlighted_line=3 + update_confirmation_selected)
         current_screen = "update_confirm"
         pending_overlay = overlay
         if not preview_started:
@@ -1296,13 +1302,12 @@ def _show_update_selection():
         return
 
     lines = [_("update.title"), "", ""]
-    for i, tag in enumerate(update_tags):
-        prefix = "> " if i == update_selected else "  "
-        lines.append(prefix + tag)
+    for tag in update_tags:
+        lines.append(tag)
     lines.append("")
     if update_current_tag:
         lines.append(_("update.current", tag=update_current_tag))
-    
+
     # Calculate scroll offset to keep selected item visible
     selected_line_idx = 3 + update_selected  # 3 = title + 2 empty lines
     logo_height = _get_logo_height()
@@ -1310,15 +1315,16 @@ def _show_update_selection():
     available_height = preview_size[1] - logo_height - 10 - button_area_height if preview_size else 400
     estimated_line_height = 40
     max_visible_lines = max(1, int(available_height / estimated_line_height))
-    
+
     # Adjust scroll to keep selected item visible
     if selected_line_idx < update_scroll_offset:
         update_scroll_offset = max(0, selected_line_idx)
     elif selected_line_idx >= update_scroll_offset + max_visible_lines:
         update_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
-    
+
     button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
-    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=update_scroll_offset)
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=update_scroll_offset,
+                                  highlighted_line=selected_line_idx)
     current_screen = "update"
     pending_overlay = overlay
     if not preview_started:
@@ -1566,9 +1572,8 @@ def _show_awb_selection():
     global awb_selected, awb_scroll_offset, current_screen, pending_overlay, overlay_ready, preview_started, awb_stored_idx
     # Show options in vertical list (like settings menu)
     lines = [_("awb.title"), "", ""]
-    for i, (label, _awb_mode) in enumerate(AWB_OPTIONS):
-        prefix = "> " if i == awb_selected else "  "
-        lines.append(prefix + label)
+    for label, _ in AWB_OPTIONS:
+        lines.append(label)
     lines.append("")
     stored_label = AWB_OPTIONS[awb_stored_idx][0]
     lines.append(_("awb.current", label=stored_label))
@@ -1586,7 +1591,8 @@ def _show_awb_selection():
         awb_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
 
     button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
-    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=awb_scroll_offset)
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=awb_scroll_offset,
+                                  highlighted_line=selected_line_idx)
     current_screen = "awb"
     pending_overlay = overlay
     if not preview_started:
@@ -1666,10 +1672,9 @@ def _awb_cancel(_args=None):
 def _show_latency_selection():
     global latency_selected_idx, current_screen, pending_overlay, overlay_ready, preview_started, latency_stored_idx
     lines = [_("latency.title"), "", ""]
-    for i, n in enumerate(CAPTURE_LATENCY_STEPS_FRAMES):
-        prefix = "> " if i == latency_selected_idx else "  "
+    for n in CAPTURE_LATENCY_STEPS_FRAMES:
         label = f"{n} frame" if n == 1 else f"{n} frames"
-        lines.append(prefix + label)
+        lines.append(label)
     lines.append("")
     stored_frames = CAPTURE_LATENCY_STEPS_FRAMES[latency_stored_idx]
     lines.append(_("latency.current", frames=stored_frames))
@@ -1683,7 +1688,8 @@ def _show_latency_selection():
     scroll_offset = max(0, selected_line_idx - max_visible_lines + 1) if selected_line_idx >= max_visible_lines else 0
 
     button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
-    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=scroll_offset)
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=scroll_offset,
+                                  highlighted_line=selected_line_idx)
     current_screen = "latency"
     pending_overlay = overlay
     if not preview_started:
@@ -1780,9 +1786,8 @@ def _save_target_setting(idx: int):
 def _show_target_selection():
     global target_selected, target_scroll_offset, current_screen, pending_overlay, overlay_ready, preview_started, target_stored_idx
     lines = [_("target.title"), "", ""]
-    for i, (label, _target_loc) in enumerate(TARGET_OPTIONS):
-        prefix = "> " if i == target_selected else "  "
-        lines.append(prefix + label)
+    for label, _ in TARGET_OPTIONS:
+        lines.append(label)
     lines.append("")
     stored_label = TARGET_OPTIONS[target_stored_idx][0]
     lines.append(_("target.current", label=stored_label))
@@ -1800,7 +1805,8 @@ def _show_target_selection():
         target_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
 
     button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
-    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=target_scroll_offset)
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=target_scroll_offset,
+                                  highlighted_line=selected_line_idx)
     current_screen = "target"
     pending_overlay = overlay
     if not preview_started:
@@ -2103,16 +2109,15 @@ def _show_wifi_menu():
     for net in networks:
         menu_options.append(f"  {net.get('ssid', 'Unknown')}")
 
-    for i, option in enumerate(menu_options):
-        prefix = "> " if i == wifi_selected else "  "
-        lines.append(prefix + option)
+    for option in menu_options:
+        lines.append(option)
 
     lines.append("")
     if networks:
         lines.append(_("wifi.configured"))
     else:
         lines.append(_("wifi.no-networks"))
-    
+
     # Calculate scroll offset to keep selected item visible
     selected_line_idx = 3 + wifi_selected
     logo_height = _get_logo_height()
@@ -2120,14 +2125,15 @@ def _show_wifi_menu():
     available_height = preview_size[1] - logo_height - 10 - button_area_height if preview_size else 400
     estimated_line_height = 40
     max_visible_lines = max(1, int(available_height / estimated_line_height))
-    
+
     if selected_line_idx < wifi_scroll_offset:
         wifi_scroll_offset = max(0, selected_line_idx)
     elif selected_line_idx >= wifi_scroll_offset + max_visible_lines:
         wifi_scroll_offset = max(0, selected_line_idx - max_visible_lines + 1)
-    
+
     button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
-    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=wifi_scroll_offset)
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=wifi_scroll_offset,
+                                  highlighted_line=selected_line_idx)
     current_screen = "wifi"
     pending_overlay = overlay
     logging.info("wifi: showing menu with %d options, selected=%d, preview_started=%s", 
@@ -2617,12 +2623,13 @@ def _enter_unpair_mode():
 def _show_unpair_confirmation():
     global current_screen, pending_overlay, overlay_ready, preview_started
     lines = [_("unpair.title"), "", ""]
-    lines.append("> " + _("update.no") if unpair_confirmation_selected == 0 else "  " + _("update.no"))
-    lines.append("> " + _("update.yes") if unpair_confirmation_selected == 1 else "  " + _("update.yes"))
+    lines.append(_("update.no"))
+    lines.append(_("update.yes"))
     lines.append("")
     lines.append(_("unpair.detail"))
     button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
-    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    overlay = _build_menu_overlay(lines, button_labels=button_labels,
+                                  highlighted_line=3 + unpair_confirmation_selected)
     current_screen = "unpair_confirm"
     pending_overlay = overlay
     if not preview_started:
@@ -2743,8 +2750,7 @@ def _show_menu_screen():
     latency_stored_idx = _load_latency_setting()
     filmend_stored_idx = _load_filmend_setting()
     lines = [_("menu.title"), "", ""]  # Extra empty line after title
-    for i, item_key in enumerate(MENU_ITEMS):
-        prefix = "> " if i == menu_selected else "  "
+    for item_key in MENU_ITEMS:
         if item_key == "menu.item.preview-wb":
             awb_label = AWB_OPTIONS[awb_stored_idx][0]
             k_value = awb_label.replace("~", "").replace("K", "").strip()
@@ -2763,7 +2769,7 @@ def _show_menu_screen():
             display_item = _("menu.item.filmend-sensor", mode=filmend_label)
         else:
             display_item = _(item_key)
-        lines.append(prefix + display_item)
+        lines.append(display_item)
     lines.append("")  # Empty line after menu items
 
     # Calculate scroll offset to keep selected item visible
@@ -2782,7 +2788,8 @@ def _show_menu_screen():
 
     # Button labels: Slot 2=Back, 3=Up, 5=Down, 6=OK
     button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
-    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=menu_scroll_offset)
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, scroll_offset=menu_scroll_offset,
+                                  highlighted_line=selected_line_idx)
     current_screen = "menu"
     idle_since = None
     pending_overlay = overlay
@@ -2837,15 +2844,14 @@ def _menu_next():
 def _show_locale_selection():
     global current_screen, pending_overlay, overlay_ready
     lines = [_("locale.title"), "", ""]
-    for i, (__, native_name) in enumerate(LOCALE_OPTIONS):
-        prefix = "> " if i == locale_selected else "  "
-        lines.append(prefix + native_name)
+    for _, native_name in LOCALE_OPTIONS:
+        lines.append(native_name)
     lines.append("")
     active_name = dict(LOCALE_OPTIONS).get(current_locale, current_locale)
     lines.append(_("locale.current", name=active_name))
 
     button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
-    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, highlighted_line=3 + locale_selected)
     current_screen = "locale"
     pending_overlay = overlay
     overlay_ready = True
@@ -2910,15 +2916,14 @@ def _locale_cancel(_args=None):
 def _show_filmend_selection():
     global current_screen, pending_overlay, overlay_ready
     lines = [_("filmend.title"), "", ""]
-    for i, (label, _mode) in enumerate(FILMEND_OPTIONS):
-        prefix = "> " if i == filmend_selected else "  "
-        lines.append(prefix + label)
+    for label, _ in FILMEND_OPTIONS:
+        lines.append(label)
     lines.append("")
     stored_label = FILMEND_OPTIONS[filmend_stored_idx][0]
     lines.append(_("filmend.current", label=stored_label))
 
     button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
-    overlay = _build_menu_overlay(lines, button_labels=button_labels)
+    overlay = _build_menu_overlay(lines, button_labels=button_labels, highlighted_line=3 + filmend_selected)
     current_screen = "filmend"
     pending_overlay = overlay
     overlay_ready = True
