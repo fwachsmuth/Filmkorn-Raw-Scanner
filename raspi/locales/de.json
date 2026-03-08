@@ -28,7 +28,7 @@
   "menu.item.firmware-update": "Firmware-Update",
   "menu.item.start-pairing": "SSH / Pairing",
   "menu.item.preview-wb": "WB Vorschau: {k} K",
-  "menu.item.capture-latency": "Aufnahme-Latenz: {frames} Bilder",
+  "menu.item.capture-latency": "Aufnahme-Latenz: {frames} Frames",
   "menu.item.scan-target": "Scan-Ziel: {target}",
   "menu.item.setup-wifi": "WLAN-Setup",
   "menu.item.create-debug-log": "Debug-Log erstellen",
@@ -46,8 +46,8 @@
   "awb.current": "Aktuell: {label}",
 
   "latency.title": "Aufnahme-Latenz",
-  "latency.option": "{frames} Bilder",
-  "latency.current": "Aktuell: {frames} Bilder",
+  "latency.option": "{frames} Frames",
+  "latency.current": "Aktuell: {frames} Frames",
 
   "target.title": "Scan-Ziel wählen",
   "target.current": "Aktuell: {label}",
