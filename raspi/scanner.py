@@ -1576,8 +1576,8 @@ def _show_awb_selection():
     global awb_selected, awb_scroll_offset, current_screen, pending_overlay, overlay_ready, preview_started, awb_stored_idx
     # Show options in vertical list (like settings menu)
     lines = [_("awb.title"), "", ""]
-    for label, _ in AWB_OPTIONS:
-        lines.append(label)
+    for opt in AWB_OPTIONS:
+        lines.append(opt[0])
     lines.append("")
     stored_label = AWB_OPTIONS[awb_stored_idx][0]
     lines.append(_("awb.current", label=stored_label))
@@ -1790,8 +1790,8 @@ def _save_target_setting(idx: int):
 def _show_target_selection():
     global target_selected, target_scroll_offset, current_screen, pending_overlay, overlay_ready, preview_started, target_stored_idx
     lines = [_("target.title"), "", ""]
-    for label, _ in TARGET_OPTIONS:
-        lines.append(label)
+    for opt in TARGET_OPTIONS:
+        lines.append(opt[0])
     lines.append("")
     stored_label = TARGET_OPTIONS[target_stored_idx][0]
     lines.append(_("target.current", label=stored_label))
@@ -2920,8 +2920,8 @@ def _locale_cancel(_args=None):
 def _show_filmend_selection():
     global current_screen, pending_overlay, overlay_ready
     lines = [_("filmend.title"), "", ""]
-    for label, _ in FILMEND_OPTIONS:
-        lines.append(label)
+    for opt in FILMEND_OPTIONS:
+        lines.append(opt[0])
     lines.append("")
     stored_label = FILMEND_OPTIONS[filmend_stored_idx][0]
     lines.append(_("filmend.current", label=stored_label))
