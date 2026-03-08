@@ -27,10 +27,10 @@
   "menu.title": "Param\u00e8tres",
   "menu.item.firmware-update": "Mise \u00e0 jour firmware",
   "menu.item.start-pairing": "SSH / Pairing",
-  "menu.item.preview-wb": "WB aperçu\u00a0({k} K)",
-  "menu.item.capture-latency": "Latence ({frames} img)",
+  "menu.item.preview-wb": "WB aperçu\u00a0: {k} K",
+  "menu.item.capture-latency": "Latence\u00a0: {frames} images",
   "menu.item.scan-target": "Destination scan\u00a0: {target}",
-  "menu.item.setup-wifi": "Configurer WiFi",
+  "menu.item.setup-wifi": "Config. WiFi",
   "menu.item.create-debug-log": "Cr\u00e9er log de debug",
   "menu.item.factory-reset": "R\u00e9initialiser",
   "menu.item.language": "Langue\u00a0: {name}",
@@ -46,7 +46,7 @@
   "awb.current": "Actuel\u00a0: {label}",
 
   "latency.title": "Latence de capture",
-  "latency.current": "Actuel\u00a0: {frames} img",
+  "latency.current": "Actuel\u00a0: {frames} images",
 
   "target.title": "Choisir la cible",
   "target.current": "Actuel\u00a0: {label}",

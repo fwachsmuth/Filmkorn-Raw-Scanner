@@ -27,10 +27,10 @@
   "menu.title": "Settings Menu",
   "menu.item.firmware-update": "Firmware Update",
   "menu.item.start-pairing": "SSH / Pairing",
-  "menu.item.preview-wb": "WB for Preview ({k} K)",
-  "menu.item.capture-latency": "Capture Latency ({frames} fr)",
+  "menu.item.preview-wb": "WB for Preview: {k} K",
+  "menu.item.capture-latency": "Capture Latency: {frames} frames",
   "menu.item.scan-target": "Scan Destination: {target}",
-  "menu.item.setup-wifi": "Setup Wifi",
+  "menu.item.setup-wifi": "Wifi Setup",
   "menu.item.create-debug-log": "Create Debug Log",
   "menu.item.factory-reset": "Factory Reset",
   "menu.item.language": "Language: {name}",
@@ -46,7 +46,7 @@
   "awb.current": "Current: {label}",
 
   "latency.title": "Capture Latency",
-  "latency.current": "Current: {frames} fr",
+  "latency.current": "Current: {frames} frames",
 
   "target.title": "Select Scan Target",
   "target.current": "Current: {label}",

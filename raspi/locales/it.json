@@ -27,10 +27,10 @@
   "menu.title": "Impostazioni",
   "menu.item.firmware-update": "Aggiorna firmware",
   "menu.item.start-pairing": "SSH / Pairing",
-  "menu.item.preview-wb": "WB anteprima ({k} K)",
-  "menu.item.capture-latency": "Latenza ({frames} fr)",
+  "menu.item.preview-wb": "WB anteprima: {k} K",
+  "menu.item.capture-latency": "Latenza: {frames} fotogrammi",
   "menu.item.scan-target": "Destinazione scan: {target}",
-  "menu.item.setup-wifi": "Configura WiFi",
+  "menu.item.setup-wifi": "Config. WiFi",
   "menu.item.create-debug-log": "Crea log di debug",
   "menu.item.factory-reset": "Ripristina",
   "menu.item.language": "Lingua: {name}",
@@ -46,7 +46,7 @@
   "awb.current": "Corrente: {label}",
 
   "latency.title": "Latenza di acquisizione",
-  "latency.current": "Corrente: {frames} fr",
+  "latency.current": "Corrente: {frames} fotogrammi",
 
   "target.title": "Seleziona destinazione",
   "target.current": "Corrente: {label}",
