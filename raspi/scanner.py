@@ -4953,7 +4953,7 @@ def loop():
         return
     # Log all non-IDLE commands for diagnostics
     if received[0] != Command.IDLE.value:
-        logging.info(f"ask_arduino raw: {received}")
+        logging.debug(f"ask_arduino raw: {received}")
         _scan_idle_since = None  # got a real command, reset watchdog
     elif state.scanning:
         # Watchdog: if we keep getting IDLE during an active scan, the Arduino
