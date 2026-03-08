@@ -298,7 +298,7 @@ void readAndPrintBoardRevision() {
   }
   int mean = sum / numSamples;
   if (vmax - vmin > maxSpread) {
-    Serial.println(F("Rev. D (floating)"));
+    Serial.println(F("Rev. D"));
     return;
   }
   // 15 bands: E (highest ADC) .. S (lowest). Thresholds are lower bounds for each rev.
@@ -345,17 +345,6 @@ void setup() {
 
   // motorMinDuty default (100) is used until Pi sends CMD_SET_MOTOR_CALIB at startup
   // (EEPROM_CALIB_ADDR / EEPROM_MAGIC_ADDR bytes 0-1 are kept unused for layout compatibility)
-
-  Serial.print(F("BOOT MCUSR=0x"));
-  Serial.print(mcusr, HEX);
-  Serial.print(F(" PORF="));
-  Serial.print((mcusr & 0x01) ? 1 : 0);  /* power-on */
-  Serial.print(F(" EXTRF="));
-  Serial.print((mcusr & 0x02) ? 1 : 0);  /* external reset */
-  Serial.print(F(" BORF="));
-  Serial.print((mcusr & 0x04) ? 1 : 0);  /* brown-out */
-  Serial.print(F(" WDRF="));
-  Serial.println((mcusr & 0x08) ? 1 : 0);  /* watchdog */
 
   pinMode(BUTTONS_A_PIN, INPUT);
   pinMode(BUTTONS_B_PIN, INPUT);
