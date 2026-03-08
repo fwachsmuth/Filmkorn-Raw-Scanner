@@ -46,6 +46,7 @@
   "awb.current": "Actual: {label}",
 
   "latency.title": "Latencia de captura",
+  "latency.option": "{frames} fotogramas",
   "latency.current": "Actual: {frames} fotogramas",
 
   "target.title": "Seleccionar destino",
@@ -123,6 +124,9 @@
   "screen.calibrating-motor.title": "Calibrando\nmotore...",
 
   "menu.item.filmend-sensor": "Sensor fin de film: {mode}",
+  "filmend.option.normal": "Normal",
+  "filmend.option.inverted": "Invertido",
+  "filmend.option.none": "Ninguno",
   "filmend.title": "Sensor fin de film",
   "filmend.current": "Actual: {label}"
 }

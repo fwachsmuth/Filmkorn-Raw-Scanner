@@ -46,6 +46,7 @@
   "awb.current": "Actuel\u00a0: {label}",
 
   "latency.title": "Latence de capture",
+  "latency.option": "{frames} images",
   "latency.current": "Actuel\u00a0: {frames} images",
 
   "target.title": "Choisir la cible",
@@ -123,6 +124,9 @@
   "screen.calibrating-motor.title": "Calibrage\ndu moteur...",
 
   "menu.item.filmend-sensor": "Capteur fin de film\u00a0: {mode}",
+  "filmend.option.normal": "Normal",
+  "filmend.option.inverted": "Invers\u00e9",
+  "filmend.option.none": "Aucun",
   "filmend.title": "Capteur fin de film",
   "filmend.current": "Actuel\u00a0: {label}"
 }

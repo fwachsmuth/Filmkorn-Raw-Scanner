@@ -46,6 +46,7 @@
   "awb.current": "Aktuell: {label}",
 
   "latency.title": "Aufnahme-Latenz",
+  "latency.option": "{frames} Bilder",
   "latency.current": "Aktuell: {frames} Bilder",
 
   "target.title": "Scan-Ziel wählen",
@@ -123,6 +124,9 @@
   "screen.calibrating-motor.title": "Motor wird\nkalibriert...",
 
   "menu.item.filmend-sensor": "Filmende-Sensor: {mode}",
+  "filmend.option.normal": "Normal",
+  "filmend.option.inverted": "Invertiert",
+  "filmend.option.none": "Keiner",
   "filmend.title": "Filmende-Sensor",
   "filmend.current": "Aktuell: {label}"
 }

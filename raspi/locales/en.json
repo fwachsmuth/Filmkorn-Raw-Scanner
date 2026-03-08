@@ -46,6 +46,7 @@
   "awb.current": "Current: {label}",
 
   "latency.title": "Capture Latency",
+  "latency.option": "{frames} frames",
   "latency.current": "Current: {frames} frames",
 
   "target.title": "Select Scan Target",
@@ -123,6 +124,9 @@
   "screen.calibrating-motor.title": "Calibrating\nMotor...",
 
   "menu.item.filmend-sensor": "Film-end Sensor: {mode}",
+  "filmend.option.normal": "Normal",
+  "filmend.option.inverted": "Inverted",
+  "filmend.option.none": "None",
   "filmend.title": "Film-end Sensor",
   "filmend.current": "Current: {label}"
 }

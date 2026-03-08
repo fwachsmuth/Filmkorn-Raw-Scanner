@@ -207,9 +207,9 @@ filmend_mode = False
 filmend_selected = 0
 filmend_stored_idx = 0  # Default to Normal
 FILMEND_OPTIONS = [
-    ("Normal", 0),    # HIGH=film present, LOW=no film (default)
-    ("Inverted", 1),  # LOW=film present, HIGH=no film
-    ("None", 2),      # skip all checks, film always present
+    ("filmend.option.normal",   0),  # HIGH=film present, LOW=no film (default)
+    ("filmend.option.inverted", 1),  # LOW=film present, HIGH=no film
+    ("filmend.option.none",     2),  # skip all checks, film always present
 ]
 FILMEND_FILE = os.path.join(os.path.dirname(__file__), ".filmend_mode")
 FILMEND_DEFAULT_IDX = 0
@@ -1677,8 +1677,7 @@ def _show_latency_selection():
     global latency_selected_idx, current_screen, pending_overlay, overlay_ready, preview_started, latency_stored_idx
     lines = [_("latency.title"), "", ""]
     for n in CAPTURE_LATENCY_STEPS_FRAMES:
-        label = f"{n} frame" if n == 1 else f"{n} frames"
-        lines.append(label)
+        lines.append(_("latency.option", frames=n))
     lines.append("")
     stored_frames = CAPTURE_LATENCY_STEPS_FRAMES[latency_stored_idx]
     lines.append(_("latency.current", frames=stored_frames))
@@ -2769,7 +2768,7 @@ def _show_menu_screen():
             locale_name = _("locale.name")
             display_item = _("menu.item.language", name=locale_name)
         elif item_key == "menu.item.filmend-sensor":
-            filmend_label = FILMEND_OPTIONS[filmend_stored_idx][0]
+            filmend_label = _(FILMEND_OPTIONS[filmend_stored_idx][0])
             display_item = _("menu.item.filmend-sensor", mode=filmend_label)
         else:
             display_item = _(item_key)
@@ -2921,9 +2920,9 @@ def _show_filmend_selection():
     global current_screen, pending_overlay, overlay_ready
     lines = [_("filmend.title"), "", ""]
     for opt in FILMEND_OPTIONS:
-        lines.append(opt[0])
+        lines.append(_(opt[0]))
     lines.append("")
-    stored_label = FILMEND_OPTIONS[filmend_stored_idx][0]
+    stored_label = _(FILMEND_OPTIONS[filmend_stored_idx][0])
     lines.append(_("filmend.current", label=stored_label))
 
     button_labels = {2: _("btn.back"), 3: _("btn.up"), 5: _("btn.down"), 6: _("btn.ok")}
