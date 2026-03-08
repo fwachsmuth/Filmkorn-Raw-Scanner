@@ -4676,6 +4676,10 @@ def check_available_disk_space():
 
 # Camera Features
 def set_init_values(arg_bytes):
+    if _load_board_rev() is None:
+        logging.info("board_rev: dotfile missing, requesting from Arduino")
+        tell_arduino(Command.TELL_BOARD_REV)
+
     exposure_val = arg_bytes[1] << 8 | arg_bytes[0]
     logging.info(f"Received currently set Exposure Value: {exposure_val}")
 
@@ -4701,10 +4705,6 @@ def set_init_values(arg_bytes):
     else:
         logging.info("Starting with Screen \"Ready to scan\"")
         show_ready_to_scan()
-
-    if _load_board_rev() is None:
-        logging.info("board_rev: dotfile missing, requesting from Arduino")
-        tell_arduino(Command.TELL_BOARD_REV)
 
 def set_zoom_mode_1_1(arg_bytes=None):
     set_auto_exposure(True)
