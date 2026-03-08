@@ -97,6 +97,8 @@ last_sleep_button_state = 1
 last_sleep_button_change = 0.0
 sleep_button_armed = True
 idle_since = None
+_scan_idle_since = None  # monotonic timestamp of first consecutive IDLE during active scan
+SCAN_IDLE_TIMEOUT = 3.0  # seconds of continuous IDLE during scan before re-sending READY
 shutter_speed = AUTO_SHUTTER_SPEED
 # Per-frame sensor-clock calibration for transport-frame drain.
 # Recorded after each saved frame to anchor SensorTimestamp ↔ monotonic mapping.
@@ -521,8 +523,10 @@ class State:
         say_ready()
 
     def stop_scan(self, arg_bytes=None):
+        global _scan_idle_since
         self.continue_dir = False
         self.scanning = False
+        _scan_idle_since = None
         logging.info("Scanning stopped")
         if storage_location == 0:
             _wifi_radio_on()
@@ -4924,7 +4928,7 @@ def _check_pairing_file_mtimes() -> None:
 
 
 def loop():
-    global target_mode, target_validation_error, target_validation_failures
+    global target_mode, target_validation_error, target_validation_failures, _scan_idle_since
     if mcu_flash_in_progress:
         time.sleep(0.05)
         return
@@ -4941,6 +4945,7 @@ def loop():
                 time.sleep(1.0 + retry * 2.0)  # 1 s, 3 s, 5 s → up to ~9 s total
                 if say_ready():
                     logging.info("Re-sent READY successfully on attempt %d", retry + 1)
+                    _scan_idle_since = None  # reset watchdog on successful re-send
                     break
                 logging.warning("Re-send READY attempt %d failed", retry + 1)
             else:
@@ -4949,6 +4954,21 @@ def loop():
     # Log all non-IDLE commands for diagnostics
     if received[0] != Command.IDLE.value:
         logging.info(f"ask_arduino raw: {received}")
+        _scan_idle_since = None  # got a real command, reset watchdog
+    elif state.scanning:
+        # Watchdog: if we keep getting IDLE during an active scan, the Arduino
+        # may have missed our READY.  Re-send it after SCAN_IDLE_TIMEOUT.
+        now = time.monotonic()
+        if _scan_idle_since is None:
+            _scan_idle_since = now
+        elif now - _scan_idle_since >= SCAN_IDLE_TIMEOUT:
+            logging.warning("Scan idle watchdog: %.1fs of IDLE during active scan — re-sending READY",
+                            now - _scan_idle_since)
+            if say_ready():
+                logging.info("Scan idle watchdog: READY re-sent successfully")
+            else:
+                logging.warning("Scan idle watchdog: failed to re-send READY")
+            _scan_idle_since = now  # reset to avoid spamming, will retry after another timeout
     try:
         command = Command(received[0])
     except ValueError:
