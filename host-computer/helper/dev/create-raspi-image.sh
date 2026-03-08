@@ -346,6 +346,7 @@ log "  lsyncd-to-host.conf"
 log "  .locale"
 log "  .mcu_hex_hash"
 log "  .motor_calibration"
+log "  .board_revision"
 sudo tar -czf "$STASH_DIR/imaging-config.tgz" --ignore-failed-read \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.user_and_host \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.scan_destination \
@@ -355,6 +356,7 @@ sudo tar -czf "$STASH_DIR/imaging-config.tgz" --ignore-failed-read \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.locale \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.mcu_hex_hash \
   /home/pi/Filmkorn-Raw-Scanner/raspi/.motor_calibration \
+  /home/pi/Filmkorn-Raw-Scanner/raspi/.board_revision \
   2>/dev/null || true
 if [ ! -s "$STASH_DIR/imaging-config.tgz" ]; then
   log "FATAL: host-specific config stash missing; aborting imaging"
@@ -370,6 +372,7 @@ if [ -s "$STASH_DIR/imaging-config.tgz" ]; then
   sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.locale || true
   sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.mcu_hex_hash || true
   sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.motor_calibration || true
+  sudo rm -f /home/pi/Filmkorn-Raw-Scanner/raspi/.board_revision || true
 else
   log "keeping host-specific config (stash missing)"
 fi

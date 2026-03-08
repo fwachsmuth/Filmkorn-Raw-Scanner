@@ -213,6 +213,7 @@ FILMEND_OPTIONS = [
 ]
 FILMEND_FILE = os.path.join(os.path.dirname(__file__), ".filmend_mode")
 FILMEND_DEFAULT_IDX = 0
+BOARD_REV_FILE = os.path.join(os.path.dirname(__file__), ".board_revision")
 current_locale = "en"
 _translations: dict = {}
 
@@ -250,6 +251,7 @@ EEPROM_FILE_SCAN_TARGET_MODE = 6
 EEPROM_FILE_LOCALE           = 7
 EEPROM_FILE_MOTOR_CALIB      = 8
 EEPROM_FILE_FILMEND_MODE     = 9
+EEPROM_FILE_BOARD_REV        = 10
 
 # Each entry: (file_id, absolute_path_or_relative_name)
 # Relative names are resolved with os.path.join(os.path.dirname(__file__), name)
@@ -271,6 +273,7 @@ EEPROM_BACKUP_FILES: "list[tuple[int, str]]" = [
     (EEPROM_FILE_LOCALE,           LOCALE_FILE),
     (EEPROM_FILE_MOTOR_CALIB,      MOTOR_CALIB_FILE),
     (EEPROM_FILE_FILMEND_MODE,     FILMEND_FILE),
+    (EEPROM_FILE_BOARD_REV,        BOARD_REV_FILE),
 ]
 
 # Pairing files are written externally (host-side SSH scripts); watch their mtimes
@@ -466,6 +469,10 @@ class Command(enum.Enum):
     FILMEND_CANCEL   = 71   # Arduino → Pi
     SET_FILMEND_MODE = 72   # Pi → Arduino: [mode] — apply stored film-end sensor mode
     FILMEND_EXIT     = 138  # Pi → Arduino: exit film-end sensor submenu
+
+    # Board revision (bidirectional)
+    BOARD_REV      = 73   # Arduino → Pi: [letter] — board revision letter (ASCII)
+    TELL_BOARD_REV = 139  # Pi → Arduino: request board revision
 
 def process_is_running(contents: str) -> bool:
     try:
@@ -673,6 +680,29 @@ def _send_filmend_mode_to_arduino(idx: int):
         logging.info("filmend: sent mode=%d (%s) to Arduino", mode_value, FILMEND_OPTIONS[idx][0])
     except Exception as exc:
         logging.error("filmend: failed to send to Arduino: %s", exc)
+
+
+def _load_board_rev() -> Optional[str]:
+    """Return the stored board revision letter, or None if not yet known."""
+    if os.path.exists(BOARD_REV_FILE):
+        try:
+            with open(BOARD_REV_FILE, "r") as f:
+                letter = f.read().strip()
+                if len(letter) == 1 and letter.isalpha():
+                    return letter.upper()
+        except IOError:
+            pass
+    return None
+
+
+def _save_board_rev(letter: str):
+    try:
+        with open(BOARD_REV_FILE, "w") as f:
+            f.write(letter.upper())
+        logging.info("board_rev: saved revision '%s'", letter.upper())
+        _eeprom_backup_all()
+    except IOError as e:
+        logging.error("board_rev: failed to save: %s", e)
 
 
 def _load_locale(code: str = "en"):
@@ -2702,6 +2732,7 @@ def _unpair_confirm(_args=None):
         WIFI_NETWORKS_FILE, # .wifi_networks
         MOTOR_CALIB_FILE,   # .motor_calibration
         FILMEND_FILE,       # .filmend_mode
+        BOARD_REV_FILE,     # .board_revision
         ".user_and_host",
         ".scan_destination",
         ".host_path",
@@ -5079,6 +5110,9 @@ def setup():
     time.sleep(0.1)  # let I2C bus settle after EEPROM operations
     _send_motor_calib_to_arduino(_load_motor_calib())
     _send_filmend_mode_to_arduino(_load_filmend_setting())
+    if _load_board_rev() is None:
+        logging.info("board_rev: dotfile missing, requesting from Arduino")
+        tell_arduino(Command.TELL_BOARD_REV)
 
     # Seed pairing file mtimes so the first loop() check doesn't trigger a spurious backup
     for path in EEPROM_PAIRING_FILES:
@@ -5373,6 +5407,15 @@ def loop():
             logging.info("motor calib: received result motorMinDuty=%d from Arduino", calib_value)
             _save_motor_calib(calib_value)
             show_ready_to_scan()
+            return
+        if command == Command.BOARD_REV:
+            letter_byte = received[1] if len(received) > 1 else 0
+            if letter_byte:
+                letter = chr(letter_byte)
+                logging.info("board_rev: received '%s' from Arduino", letter)
+                _save_board_rev(letter)
+            else:
+                logging.warning("board_rev: received empty revision from Arduino")
             return
         # Using a dict instead of a switch/case, mapping I2C commands to functions
         func = {

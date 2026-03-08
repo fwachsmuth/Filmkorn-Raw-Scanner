@@ -154,7 +154,11 @@ enum Command
   CMD_FILMEND_CONFIRM  = 70,   // Arduino → Pi
   CMD_FILMEND_CANCEL   = 71,   // Arduino → Pi
   CMD_SET_FILMEND_MODE = 72,   // Pi → Arduino: [mode] — apply stored film-end sensor mode
-  CMD_FILMEND_EXIT     = 138   // Pi → Arduino: exit film-end sensor submenu
+  CMD_FILMEND_EXIT     = 138,  // Pi → Arduino: exit film-end sensor submenu
+
+  // Board revision (bidirectional)
+  CMD_BOARD_REV        = 73,   // Arduino → Pi: [letter] — board revision letter (ASCII)
+  CMD_TELL_BOARD_REV   = 139   // Pi → Arduino: request board revision
 };
 
 enum ZoomMode {
@@ -264,6 +268,8 @@ uint8_t eepromWriteBuf[32];
 uint8_t eepromWriteLen = 0;
 volatile uint16_t eepromWriteOffset = 0;
 
+char boardRevision = '?';  // Set once in readAndPrintBoardRevision(), served via CMD_BOARD_REV
+
 /*
  * Board revision is encoded on A7 via voltage divider: 10 kOhm to GND, R51 (VCC to A7) per revision.
  * 3.3 V reference. If A7 is floating (no R51), readings are unstable → report Rev. D.
@@ -298,6 +304,7 @@ void readAndPrintBoardRevision() {
   }
   int mean = sum / numSamples;
   if (vmax - vmin > maxSpread) {
+    boardRevision = 'D';
     Serial.println(F("Rev. D"));
     return;
   }
@@ -307,6 +314,7 @@ void readAndPrintBoardRevision() {
   int rev = 0;
   while (rev < 14 && mean < (int)revThresholds[rev + 1])
     rev++;
+  boardRevision = revLetters[rev];
   Serial.print(F("Rev. "));
   Serial.println(revLetters[rev]);
 }
@@ -1498,6 +1506,9 @@ void i2cReceive(int howMany) {
     Serial.println(exposurePot);
     nextPiCmd = CMD_SET_INITVALUES;
   }
+  if ((Command)i2cCommand == CMD_TELL_BOARD_REV) {
+    nextPiCmd = CMD_BOARD_REV;
+  }
 }
 
 
@@ -1540,6 +1551,9 @@ void i2cRequest() {
   }
   if (cmdToSend == CMD_MOTOR_CALIB_RESULT) {
     response[1] = motorMinDuty;
+  }
+  if (cmdToSend == CMD_BOARD_REV) {
+    response[1] = (uint8_t)boardRevision;
   }
 
   Wire.write(response, 5);
