@@ -1098,8 +1098,8 @@ def _build_menu_overlay(lines, button_labels=None, scroll_offset=0, highlighted_
         visible_lines = len(visible_metrics)
 
     # Vertical padding around each row (top and bottom of highlight rect)
-    row_pad_top = 6
-    row_pad_bottom = 10  # Extra for descenders
+    row_pad_top = 8
+    row_pad_bottom = 14  # Extra for descenders
 
     # Draw visible lines starting below logo
     y = start_y
@@ -1110,7 +1110,7 @@ def _build_menu_overlay(lines, button_labels=None, scroll_offset=0, highlighted_
         if y + h <= preview_size[1] - button_area_height:
             abs_line_idx = scroll_offset + render_idx
             if highlighted_line is not None and abs_line_idx == highlighted_line:
-                draw.rectangle((0, y - row_pad_top, preview_size[0], y + h + row_pad_bottom), fill=(170, 170, 170, 255))
+                draw.rectangle((0, y - row_pad_top, preview_size[0], y + h + row_pad_bottom), fill=(140, 140, 140, 255))
                 _draw_mixed(line, left_margin, y, fill=(0, 0, 0, 255))
             else:
                 _draw_mixed(line, left_margin, y)
