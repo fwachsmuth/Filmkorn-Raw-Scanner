@@ -1068,15 +1068,15 @@ def _build_menu_overlay(lines, button_labels=None, scroll_offset=0, highlighted_
         line_w, line_h = _measure_mixed(line)
         metrics.append((line, line_w, line_h))
     
-    spacing = 10
+    spacing = 20
     total_height = sum(h for _, _, h in metrics) + spacing * (len(metrics) - 1)
-    
+
     # Calculate available height: screen - logo - button labels
     available_height = preview_size[1] - logo_height - logo_margin - button_area_height
-    
+
     # Start y position below logo
     start_y = logo_height + logo_margin
-    
+
     # Calculate how many lines fit on screen
     if not metrics:
         visible_metrics = []
@@ -1088,15 +1088,19 @@ def _build_menu_overlay(lines, button_labels=None, scroll_offset=0, highlighted_
             max_visible_lines = int(available_height / (avg_line_height + spacing))
         else:
             max_visible_lines = len(metrics)
-        
+
         # Clamp scroll_offset
         max_scroll = max(0, len(metrics) - max_visible_lines)
         scroll_offset = max(0, min(scroll_offset, max_scroll))
-        
+
         # Determine which lines to render
         visible_metrics = metrics[scroll_offset:]
         visible_lines = len(visible_metrics)
-    
+
+    # Vertical padding around each row (top and bottom of highlight rect)
+    row_pad_top = 6
+    row_pad_bottom = 10  # Extra for descenders
+
     # Draw visible lines starting below logo
     y = start_y
     left_margin = 20  # Left margin for menu alignment
@@ -1106,7 +1110,7 @@ def _build_menu_overlay(lines, button_labels=None, scroll_offset=0, highlighted_
         if y + h <= preview_size[1] - button_area_height:
             abs_line_idx = scroll_offset + render_idx
             if highlighted_line is not None and abs_line_idx == highlighted_line:
-                draw.rectangle((0, y - 3, preview_size[0], y + h + 3), fill=(255, 255, 255, 255))
+                draw.rectangle((0, y - row_pad_top, preview_size[0], y + h + row_pad_bottom), fill=(170, 170, 170, 255))
                 _draw_mixed(line, left_margin, y, fill=(0, 0, 0, 255))
             else:
                 _draw_mixed(line, left_margin, y)
