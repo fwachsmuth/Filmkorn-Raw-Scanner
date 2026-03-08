@@ -115,9 +115,9 @@
   "pairing.ssh-error": "Impossibile abilitare SSH",
 
   "gpio5.error.title": "Host non raggiungibile",
-  "gpio5.error.line1": "Cambia l\u2019interruttore",
-  "gpio5.error.line2": "di destinazione su GPIO5",
-  "gpio5.error.line3": "per USB anzich\u00e9 host",
+  "gpio5.error.line1": "Cambia l\u2019interruttore Target",
+  "gpio5.error.line2": "per usare USB",
+  "gpio5.error.line3": "anzich\u00e9 host",
   "gpio5.error.line4": "O correggi la rete/host",
   "gpio5.error.line5": "i problemi di connessione",
 

@@ -115,9 +115,9 @@
   "pairing.ssh-error": "Impossible d\u2019activer SSH",
 
   "gpio5.error.title": "H\u00f4te inaccessible",
-  "gpio5.error.line1": "Changer le commutateur",
-  "gpio5.error.line2": "de cible sur GPIO5 pour",
-  "gpio5.error.line3": "utiliser USB au lieu h\u00f4te",
+  "gpio5.error.line1": "Changer le commutateur Target",
+  "gpio5.error.line2": "pour utiliser USB",
+  "gpio5.error.line3": "au lieu de l\u2019h\u00f4te",
   "gpio5.error.line4": "Ou r\u00e9gler r\u00e9seau/h\u00f4te",
   "gpio5.error.line5": "connectivit\u00e9",
 

@@ -115,9 +115,9 @@
   "pairing.ssh-error": "No se pudo activar SSH",
 
   "gpio5.error.title": "Host inaccesible",
-  "gpio5.error.line1": "Cambia el interruptor de",
-  "gpio5.error.line2": "destino en GPIO5 para",
-  "gpio5.error.line3": "usar USB en lugar del host",
+  "gpio5.error.line1": "Cambia el interruptor Target",
+  "gpio5.error.line2": "para usar USB",
+  "gpio5.error.line3": "en lugar del host",
   "gpio5.error.line4": "O corrige la red/host",
   "gpio5.error.line5": "conectividad",
 

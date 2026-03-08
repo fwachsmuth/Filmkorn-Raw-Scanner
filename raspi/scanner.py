@@ -705,6 +705,15 @@ def _save_board_rev(letter: str):
         logging.error("board_rev: failed to save: %s", e)
 
 
+def _get_target_switch_label() -> str:
+    """Return the display label for the auto-detect target option.
+    Rev D boards expose this via GPIO5; Rev E+ boards have a dedicated 'Target' switch."""
+    rev = _load_board_rev()
+    if rev is not None and rev >= "E":
+        return "Target Switch"
+    return "GPIO5"
+
+
 def _load_locale(code: str = "en"):
     """Load the JSON locale file for *code*, falling back to English for missing keys."""
     global _translations, current_locale
@@ -1819,10 +1828,10 @@ def _save_target_setting(idx: int):
 def _show_target_selection():
     global target_selected, target_scroll_offset, current_screen, pending_overlay, overlay_ready, preview_started, target_stored_idx
     lines = [_("target.title"), "", ""]
-    for opt in TARGET_OPTIONS:
-        lines.append(opt[0])
+    for i, opt in enumerate(TARGET_OPTIONS):
+        lines.append(_get_target_switch_label() if i == 2 else opt[0])
     lines.append("")
-    stored_label = TARGET_OPTIONS[target_stored_idx][0]
+    stored_label = _get_target_switch_label() if target_stored_idx == 2 else TARGET_OPTIONS[target_stored_idx][0]
     lines.append(_("target.current", label=stored_label))
 
     selected_line_idx = 3 + target_selected  # 3 = title + 2 empty lines
@@ -2793,7 +2802,7 @@ def _show_menu_screen():
             frames = CAPTURE_LATENCY_STEPS_FRAMES[latency_stored_idx]
             display_item = _("menu.item.capture-latency", frames=frames)
         elif item_key == "menu.item.scan-target":
-            target_label = TARGET_OPTIONS[target_stored_idx][0]
+            target_label = _get_target_switch_label() if target_stored_idx == 2 else TARGET_OPTIONS[target_stored_idx][0]
             display_item = _("menu.item.scan-target", target=target_label)
         elif item_key == "menu.item.language":
             locale_name = _("locale.name")
