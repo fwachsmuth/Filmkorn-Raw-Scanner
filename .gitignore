@@ -9,12 +9,12 @@ __pycache__/
 .capture_latency
 .locale
 .motor_calibration
-
-# dotfiles for scanner configuration
-raspi/.awb_mode
-raspi/.mcu_hex_hash
-raspi/.scan_target_mode
-raspi/.wifi_networks
+.awb_mode
+.mcu_hex_hash
+.scan_target_mode
+.wifi_networks
+.board_revision
+.filmend_mode
 
 # log files
 nohup.out
