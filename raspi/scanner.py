@@ -3584,9 +3584,10 @@ def ask_arduino() -> Optional["list[int]"]:
             # Depending on kernel/driver, a NACK can surface as EREMOTEIO or EIO.
             if e.errno not in (errno.EREMOTEIO, errno.EIO, errno.ETIMEDOUT):
                 raise e  # unexpected
-            logging.warning(
-                f"Attempt {attempt + 1}: No I2C answer when polling Arduino. Probably busy right now (errno={e.errno})."
-            )
+            if attempt > 0:
+                logging.warning(
+                    f"Attempt {attempt + 1}: No I2C answer when polling Arduino. Probably busy right now (errno={e.errno})."
+                )
             sleep(retry_delay)
             retry_delay *= 2  # Exponential backoff: 70, 140, 280 ms …
     logging.error("Failed to read from Arduino after several attempts. Attempting I2C bus recovery.")
