@@ -89,6 +89,7 @@ shutdown_requested_at = None
 ramdisk_empty_polling = False
 last_fps_value = None
 last_shutter_value = None
+_last_shoot_raw_end_time: Optional[float] = None
 current_resolution_switch = None
 last_resolution_label = None
 last_sleep_toggle = 0.0
@@ -552,9 +553,10 @@ class State:
             self.fps_history.clear()
         self.fps_sum = 0.0
         self.fps_count = 0
-        global last_fps_value, last_shutter_value
+        global last_fps_value, last_shutter_value, _last_shoot_raw_end_time
         last_fps_value = None
         last_shutter_value = None
+        _last_shoot_raw_end_time = None
         global sleep_mode
         sleep_mode = False
         self.warmup_needed = True
@@ -4753,7 +4755,7 @@ def shoot_raw(arg_bytes=None):
     #
     # There are three drain strategies, selected below based on shutter speed
     # and whether we have a SensorTimestamp anchor from the previous frame.
-    global _last_frame_sensor_ts, _last_frame_mono_ts
+    global _last_frame_sensor_ts, _last_frame_mono_ts, _last_shoot_raw_end_time
     if no_camera:
         return
     # Snapshot of Pi's monotonic clock at the moment this command arrived.
@@ -4769,7 +4771,6 @@ def shoot_raw(arg_bytes=None):
         "ExposureTime": shutter_speed,
         "AnalogueGain": 1.0,  # ISO 100 on HQ camera (IMX477)
     })
-    start_time = time.time()
     request = None
     try:
         if state.warmup_needed:
@@ -4916,25 +4917,33 @@ def shoot_raw(arg_bytes=None):
         if request is not None:
             request.release()
     state.raw_count += 1
-    elapsed_time = time.time() - start_time
-    fps = 1 / elapsed_time if elapsed_time > 0 else 0.0
-    if state.fps_history is not None:
-        state.fps_history.append(fps)
-        avg_fps = sum(state.fps_history) / len(state.fps_history)
-        avg_count = len(state.fps_history)
+    now = time.time()
+    if _last_shoot_raw_end_time is not None:
+        elapsed_time = now - _last_shoot_raw_end_time
+        fps = 1 / elapsed_time if elapsed_time > 0 else 0.0
+        if state.fps_history is not None:
+            state.fps_history.append(fps)
+            avg_fps = sum(state.fps_history) / len(state.fps_history)
+            avg_count = len(state.fps_history)
+        else:
+            state.fps_sum += fps
+            state.fps_count += 1
+            avg_fps = state.fps_sum / state.fps_count
+            avg_count = state.fps_count
+        logging.info(
+            "One raw with shutter speed %s taken in %.2fs, avg %.1ffps (count %d)",
+            _format_shutter_speed(shutter_speed),
+            elapsed_time,
+            avg_fps,
+            avg_count,
+        )
+        update_fps_overlay(avg_fps)
     else:
-        state.fps_sum += fps
-        state.fps_count += 1
-        avg_fps = state.fps_sum / state.fps_count
-        avg_count = state.fps_count
-    logging.info(
-        "One raw with shutter speed %s taken and saved in %.2fs, avg %.1ffps (count %d)",
-        _format_shutter_speed(shutter_speed),
-        elapsed_time,
-        avg_fps,
-        avg_count,
-    )
-    update_fps_overlay(avg_fps)
+        logging.info(
+            "One raw with shutter speed %s taken (first frame, fps not yet measured)",
+            _format_shutter_speed(shutter_speed),
+        )
+    _last_shoot_raw_end_time = now
     update_shutter_overlay(shutter_speed)
     check_available_disk_space()
     say_ready()
