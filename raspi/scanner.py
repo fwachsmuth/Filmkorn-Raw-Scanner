@@ -4395,13 +4395,11 @@ def _usb_install_scripts_outdated(bundle_files: list) -> bool:
 
 
 def _ensure_install_bundle_on_usb() -> None:
-    """When unpaired and /mnt/usb mounted, seed Pair Filmkorn-Scanner (Mac).app on USB if missing.
+    """Keep Pair Filmkorn-Scanner (Mac).app on USB up to date.
 
-    Copies the app to USB root with install scripts and helper inside
-    Contents/Resources/install/. If the app exists but lacks install/, we add it (fixes old USBs).
+    Seeds the full bundle when unpaired and the bundle is missing.
+    Always refreshes install scripts when the USB copy is outdated, even when paired.
     """
-    if _is_paired():
-        return
     if not os.path.ismount("/mnt/usb"):
         return
     usb_root = "/mnt/usb"
@@ -4433,8 +4431,11 @@ def _ensure_install_bundle_on_usb() -> None:
                     src,
                 )
                 return
-        need_app = not os.path.isdir(app_dest)
-        need_install = not os.path.isfile(install_cmd) or _usb_install_scripts_outdated(bundle_files)
+        # Only seed a brand-new bundle when unpaired; updating existing scripts is always fine.
+        need_app = not _is_paired() and not os.path.isdir(app_dest)
+        need_install = os.path.isdir(app_dest) and (
+            not os.path.isfile(install_cmd) or _usb_install_scripts_outdated(bundle_files)
+        )
         if not need_app and not need_install:
             return
         if need_app:
