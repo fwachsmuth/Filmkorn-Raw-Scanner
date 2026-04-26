@@ -266,7 +266,18 @@ if [[ ! -f "$PAIRED_FILE" ]]; then
     exit 1
   fi
 else
-  log "A Scanner has already been paired. Run ${SCRIPT_DIR}/helper/unpair.sh to remove pairing."
+  log "A Scanner has already been paired."
+  read -r -p "Unpair the current scanner and pair fresh? [y/N] " do_repair
+  if [[ "${do_repair:-}" =~ ^[Yy]$ ]]; then
+    if ! "${SCRIPT_DIR}/helper/unpair.sh" --yes; then
+      warn "unpair.sh exited with an error."
+      exit 1
+    fi
+    if ! BYPASS_INSTALL_SEMAPHORE=1 "${SCRIPT_DIR}/helper/pair.sh"; then
+      warn "pair.sh exited with an error."
+      exit 1
+    fi
+  fi
 fi
 
 log "Done."

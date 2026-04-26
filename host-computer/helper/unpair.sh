@@ -39,13 +39,20 @@ else
   SCAN_DESTINATION_FILE="${HOST_DIR}/.scan_destination"
 fi
 
-read -r -p "Proceed with unpairing this host and your scanner? [y/N] " confirm_unpair
-if [[ ! "${confirm_unpair:-}" =~ ^[Yy]$ ]]; then
-  warn "Unpairing canceled."
-  exit 0
+yes_mode=false
+for arg in "$@"; do
+  [[ "$arg" == "--yes" ]] && yes_mode=true
+done
+
+if ! $yes_mode; then
+  read -r -p "Proceed with unpairing this host and your scanner? [y/N] " confirm_unpair
+  if [[ ! "${confirm_unpair:-}" =~ ^[Yy]$ ]]; then
+    warn "Unpairing canceled."
+    exit 0
+  fi
 fi
 
-if [ -f "$SCAN_DESTINATION_FILE" ]; then
+if ! $yes_mode && [ -f "$SCAN_DESTINATION_FILE" ]; then
   read -r -p "Also delete the saved scan destination (.scan_destination)? [y/N] " delete_dest
   if [[ "${delete_dest:-}" =~ ^[Yy]$ ]]; then
     rm -f "$SCAN_DESTINATION_FILE" || true

@@ -43,6 +43,13 @@ sudo rm -f /var/lib/filmkorn/otp_expires_at || true
 sudo systemctl stop filmkorn-otp-expire.service >/dev/null 2>&1 || true
 sudo systemctl reload ssh || sudo systemctl restart ssh || true
 
+info "🐧 Stopping lsyncd and clearing host config..."
+sudo systemctl stop filmkorn-lsyncd.service >/dev/null 2>&1 || true
+repo_root="${HOME}/Filmkorn-Raw-Scanner"
+rm -f "${repo_root}/raspi/lsyncd-to-host.conf" || true
+rm -f "${repo_root}/raspi/.user_and_host" || true
+rm -f "${repo_root}/raspi/.host_path" || true
+
 # Verify
 echo ""
 info "🐧 Results of unpairing on Raspi:"
