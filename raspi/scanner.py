@@ -4394,6 +4394,38 @@ def _usb_install_scripts_outdated(bundle_files: list) -> bool:
     return False
 
 
+def _usb_folder_outdated(src_dir: str, dst_dir: str) -> bool:
+    """Return True if any file under src_dir is missing or newer than its USB copy."""
+    for dirpath, _dirnames, filenames in os.walk(src_dir):
+        rel = os.path.relpath(dirpath, src_dir)
+        for name in filenames:
+            src_file = os.path.join(dirpath, name)
+            dst_file = os.path.join(dst_dir, rel, name)
+            if not os.path.isfile(dst_file):
+                return True
+            if os.path.getmtime(src_file) > os.path.getmtime(dst_file):
+                return True
+    return False
+
+
+def _sync_folder_to_usb(folder_name: str) -> None:
+    """Copy or update a repo-root folder to /mnt/usb, skipping macOS metadata."""
+    src = os.path.join(repo_root, folder_name)
+    dst = os.path.join("/mnt/usb", folder_name)
+    if not os.path.isdir(src):
+        logging.warning("USB folder sync: source missing at %s, skipping", src)
+        return
+    try:
+        if not os.path.isdir(dst):
+            shutil.copytree(src, dst, ignore=_ignore_app_metadata_for_usb)
+            logging.info("USB folder sync: copied '%s' to USB", folder_name)
+        elif _usb_folder_outdated(src, dst):
+            shutil.copytree(src, dst, dirs_exist_ok=True, ignore=_ignore_app_metadata_for_usb)
+            logging.info("USB folder sync: updated '%s' on USB", folder_name)
+    except Exception as exc:
+        logging.warning("USB folder sync: failed for '%s': %s", folder_name, exc)
+
+
 def _ensure_install_bundle_on_usb() -> None:
     """Keep Pair Filmkorn-Scanner (Mac).app on USB up to date.
 
@@ -5103,10 +5135,12 @@ def setup():
     # When storage_location==1 and USB not mounted, this blocks until user plugs USB.
     switch_lsyncd_config(storage_location)
 
-    # Keep Install Remote Scanning bundle on USB current.
+    # Keep Install Remote Scanning bundle and asset folders on USB current.
     # Run after switch_lsyncd_config so we see USB once it has been waited for.
     if os.path.ismount("/mnt/usb"):
         _ensure_install_bundle_on_usb()
+        _sync_folder_to_usb("Davinci Resolve Assets")
+        _sync_folder_to_usb("3D-printable Parts")
     # ---- Make sure we only run once, to avoid horrible crashes ¯\_(ツ)_/¯ 
     PID_FILE_PATH = "/tmp/scanner.pid"
     # log a pid
