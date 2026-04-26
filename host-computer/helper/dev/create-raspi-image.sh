@@ -613,6 +613,12 @@ if [[ "${DRY_RUN}" == "false" ]]; then
           manual_shrink_hint "$img_dir" "$fullsize_img" "$shrink_img"
         fi
       else
+        # Build pishrink image locally if it doesn't exist yet
+        if [[ -z "$(docker images -q pishrink 2>/dev/null)" ]]; then
+          info "pishrink Docker image not found — building it now..."
+          pishrink_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/pishrink" && pwd)"
+          docker build -t pishrink "$pishrink_dir"
+        fi
         # Mount images dir so the expanded .img is visible inside the container
         if docker run --rm -it --privileged -v "$img_dir":/workdir -w /workdir pishrink "$fullsize_img" "$shrink_img"; then
           info "Compressing shrunk image with pigz -9 -k..."
