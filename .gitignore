@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+# Davinci
+#.dpx
+
 .vs*
 __pycache__/
 
