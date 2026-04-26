@@ -2,7 +2,7 @@
 .DS_Store
 
 # Davinci
-#.dpx
+.dpx
 
 .vs*
 __pycache__/
