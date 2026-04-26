@@ -5103,9 +5103,9 @@ def setup():
     # When storage_location==1 and USB not mounted, this blocks until user plugs USB.
     switch_lsyncd_config(storage_location)
 
-    # Seed Install Remote Scanning bundle on USB when unpaired and USB mounted.
+    # Keep Install Remote Scanning bundle on USB current.
     # Run after switch_lsyncd_config so we see USB once it has been waited for.
-    if not _is_paired() and os.path.ismount("/mnt/usb"):
+    if os.path.ismount("/mnt/usb"):
         _ensure_install_bundle_on_usb()
     # ---- Make sure we only run once, to avoid horrible crashes ¯\_(ツ)_/¯ 
     PID_FILE_PATH = "/tmp/scanner.pid"
