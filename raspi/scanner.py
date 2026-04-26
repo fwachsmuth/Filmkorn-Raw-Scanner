@@ -4383,6 +4383,17 @@ def _ignore_app_metadata_for_usb(_dir: str, names: list) -> list:
     ]
 
 
+def _usb_install_scripts_outdated(bundle_files: list) -> bool:
+    """Return True if any local source script is newer than its USB copy."""
+    for src, dstdir in bundle_files:
+        dst = os.path.join(dstdir, os.path.basename(src))
+        if not os.path.isfile(dst):
+            return True
+        if os.path.getmtime(src) > os.path.getmtime(dst):
+            return True
+    return False
+
+
 def _ensure_install_bundle_on_usb() -> None:
     """When unpaired and /mnt/usb mounted, seed Pair Filmkorn-Scanner (Mac).app on USB if missing.
 
@@ -4423,7 +4434,7 @@ def _ensure_install_bundle_on_usb() -> None:
                 )
                 return
         need_app = not os.path.isdir(app_dest)
-        need_install = not os.path.isfile(install_cmd)
+        need_install = not os.path.isfile(install_cmd) or _usb_install_scripts_outdated(bundle_files)
         if not need_app and not need_install:
             return
         if need_app:
@@ -4444,9 +4455,9 @@ def _ensure_install_bundle_on_usb() -> None:
                 except OSError:
                     pass
                 logging.info(
-                    "Installed %s on USB%s",
+                    "USB install bundle: %s %s",
                     app_name,
-                    " (added install)" if not need_app else "",
+                    "copied" if need_app else "scripts updated",
                 )
             else:
                 logging.warning(
