@@ -18,3 +18,4 @@ Yes, it is. Now anyone can build a scanner that digitizes their films gently and
 - The latest [Image file](https://github.com/fwachsmuth/Filmkorn-Raw-Scanner/releases) for the Raspberry Pi
 - Got your Scanner? [Getting Started](https://github.com/fwachsmuth/Filmkorn-Raw-Scanner/wiki/3.-User-Guide-EN)
 
+**Special offer: Send me detailed photos and a description of converting another projector (Bauer, Eumig, whatever) for publication on this page, and I’ll refund the cost of the Scan‑Controller on request!**
