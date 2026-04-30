@@ -14,7 +14,7 @@ Yes, it is. Now anyone can build a scanner that digitizes their films gently and
 ## Links
 - You find extensive documentation on the [Project Wiki](https://github.com/fwachsmuth/Filmkorn-Raw-Scanner/wiki) (English and German)
 - [Example Demo Video](https://www.youtube.com/watch?v=y674Rku_erA) (compressed, since Youtube)
-- [Shop 🛒](https://lectronz.com/products/5FNA063-m0JR6kF52z9EEACQ-U1-sTTKiaKxQ6Nw/preview) to get a ready-made and populated Controller PCB and optionally some special accessories
+- [Shop 🛒](https://lectronz.com/products/filmkorn-scanner-controller-board) to get a ready-made and populated Controller PCB and optionally some special accessories
 - The latest [Image file](https://github.com/fwachsmuth/Filmkorn-Raw-Scanner/releases) for the Raspberry Pi
 - Got your Scanner? [Getting Started](https://github.com/fwachsmuth/Filmkorn-Raw-Scanner/wiki/3.-User-Guide-EN)
 
