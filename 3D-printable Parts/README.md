@@ -27,3 +27,10 @@ _For focusing, I decided to cut the tube (or macro tube) that sits between the M
 _To prevent wobbling, the entire assembly is supported diagonally against the housing. At the upper end of the support, beneath the focusing unit, there is a movable slide, allowing the camera’s vertical axis to be finely adjusted by applying more or less upward pressure. The camera is screwed onto the back."_
 
 ![alt text](<Macro Focus Unit/Sebastian Lens Holder Unit.jpg>)
+
+### Lens Holder for 42.5 mm Diameter 16 mm Projectors
+
+Thsi simple tube screws into a 40.5mm enlarger lens filter holder and just snugs into the 42.4 (42.5) mm lens mount of common 16 mm projectors.
+
+![alt text](<img/Bauer P8 to 40.5mm.png>)
+
